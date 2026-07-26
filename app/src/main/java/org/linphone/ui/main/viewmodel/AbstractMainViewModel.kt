@@ -32,6 +32,7 @@ import org.linphone.core.Core
 import org.linphone.core.CoreListenerStub
 import org.linphone.core.GlobalState
 import org.linphone.core.tools.Log
+import org.linphone.shiroikuma.SkAccountOrder
 import org.linphone.ui.GenericViewModel
 import org.linphone.ui.main.model.AccountModel
 import org.linphone.utils.Event
@@ -47,6 +48,13 @@ open class AbstractMainViewModel
     val title = MutableLiveData<String>()
 
     val account = MutableLiveData<AccountModel>()
+
+    /**
+     * shiroikuma fork: every account, in 白い熊's order — what the tab strip at the top of the main
+     * screens is built from. The drawer menu keeps its own list of models for the same accounts;
+     * both read their order from [org.linphone.shiroikuma.SkAccountOrder].
+     */
+    val skAccounts = MutableLiveData<ArrayList<AccountModel>>()
 
     val searchBarVisible = MutableLiveData<Boolean>()
 
@@ -156,11 +164,13 @@ open class AbstractMainViewModel
         @WorkerThread
         override fun onAccountAdded(core: Core, account: Account) {
             moreThanOneAccount.postValue(core.accountList.size > 1)
+            computeSkAccounts()
         }
 
         @WorkerThread
         override fun onAccountRemoved(core: Core, account: Account) {
             moreThanOneAccount.postValue(core.accountList.size > 1)
+            computeSkAccounts()
         }
 
         @WorkerThread
@@ -208,7 +218,30 @@ open class AbstractMainViewModel
         coreContext.postOnCoreThread { core ->
             core.removeListener(coreListener)
             account.value?.destroy()
+            skAccounts.value.orEmpty().forEach(AccountModel::destroy)
         }
+    }
+
+    /**
+     * shiroikuma fork: rebuild the account tabs — called when 白い熊 has reordered the accounts
+     * somewhere else (the drawer menu), so the strip picks the new order up straight away.
+     */
+    @UiThread
+    fun refreshAccounts() {
+        coreContext.postOnCoreThread {
+            computeSkAccounts()
+        }
+    }
+
+    @WorkerThread
+    private fun computeSkAccounts() {
+        skAccounts.value.orEmpty().forEach(AccountModel::destroy)
+
+        val ordered = SkAccountOrder.sorted(
+            coreContext.context,
+            coreContext.core.accountList.toList(),
+        ) { it.params.identityAddress?.asStringUriOnly().orEmpty() }
+        skAccounts.postValue(ArrayList(ordered.map { AccountModel(it) }))
     }
 
     @UiThread
@@ -350,6 +383,7 @@ open class AbstractMainViewModel
             Log.i("$TAG Updating displayed default account")
             account.value?.destroy()
             account.postValue(AccountModel(defaultAccount ?: core.accountList.first()))
+            computeSkAccounts()
 
             computeUnreadMessagesCount()
             updateMissedCallsCount()

@@ -6,10 +6,14 @@
         <import type="android.view.View" />
     </data>
 
+    <!--
+      shiroikuma fork: the empty half of the dual-pane view is the app's own black, not upstream's
+      lifted grey surface — next to a black list pane that grey reads as a smudge.
+    -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?attr/color_grey_100">
+        android:background="?attr/color_main2_000">
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
