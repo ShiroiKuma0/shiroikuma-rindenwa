@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  shiroikuma fork: the account registration-status pill.
+
+  Upstream tints one flat shape per state (green/red/amber/grey fill with same-hue text), which on
+  the black-yellow surface left the label unreadable — a dark-green "Connected" on a bright green
+  pill. Here the pill is always black with a yellow border and yellow text; the state is carried by
+  the words themselves ("Connected", "Failed", …), not by a colour the label then disappears into.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <corners android:radius="90dp" />
+    <solid android:color="@color/sk_surface" />
+    <stroke android:width="1.5dp" android:color="@color/sk_field_border" />
+</shape>

@@ -36,6 +36,7 @@ import org.linphone.LinphoneApplication.Companion.coreContext
 import org.linphone.R
 import org.linphone.core.tools.Log
 import org.linphone.databinding.DrawerMenuBinding
+import org.linphone.shiroikuma.SkUiActivity
 import org.linphone.ui.assistant.AssistantActivity
 import org.linphone.ui.main.MainActivity
 import org.linphone.ui.main.settings.fragment.AccountProfileFragmentDirections
@@ -76,6 +77,14 @@ class DrawerMenuFragment : GenericMainFragment() {
             val navController = (requireActivity() as MainActivity).findNavController()
             navController.navigate(R.id.action_global_settingsFragment)
             (requireActivity() as MainActivity).closeDrawerMenu()
+        }
+
+        // shiroikuma fork: long-pressing the Settings cog jumps straight to the 白い熊 臨電話
+        // UI page, skipping the settings screen — same shortcut as in the sister forks.
+        binding.settings.setOnLongClickListener {
+            startActivity(Intent(requireContext(), SkUiActivity::class.java))
+            (requireActivity() as MainActivity).closeDrawerMenu()
+            true
         }
 
         binding.setRecordingsClickListener {

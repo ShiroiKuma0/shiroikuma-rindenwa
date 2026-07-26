@@ -33,13 +33,14 @@
     <string name="help_advanced_send_debug_logs_email_address" translatable="false">linphone-android@belledonne-communications.com</string>
 
     <string name="website_contact_url" translatable="false">https://linphone.org/contact</string>
-    <string name="website_download_url" translatable="false">https://linphone.org/linphone-softphone</string>
+    <string name="website_download_url" translatable="false">https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases</string>
     <string name="website_user_guide_url" translatable="false">https://linphone.org/en/docs/</string>
     <string name="website_privacy_policy_url" translatable="false">https://linphone.org/en/privacy-policy</string>
     <string name="website_terms_and_conditions_url" translatable="false">https://linphone.org/en/terms-of-use</string>
     <string name="web_platform_register_email_url" translatable="false">https://subscribe.linphone.org/register/email</string>
     <string name="web_platform_forgotten_password_url" translatable="false">https://subscribe.linphone.org</string>
-    <string name="website_translate_weblate_url" translatable="false">https://weblate.linphone.org/</string>
+    <string name="website_translate_weblate_url" translatable="false">https://github.com/ShiroiKuma0/shiroikuma-rindenwa</string>
+    <string name="website_source_code_url" translatable="false">https://github.com/ShiroiKuma0/shiroikuma-rindenwa</string>
     <string name="website_open_source_licences_usage_url" translatable="false">https://wiki.linphone.org/xwiki/wiki/public/view/Linphone/Third%20party%20components%20/#Hlinphone-android</string>
     <string name="conversation_end_to_end_encrypted_bottom_sheet_link" translatable="false"><u>https://linphone.org/en/features/#security</u></string>
 
@@ -225,6 +226,8 @@
     <string name="help_about_title">About &appName;</string>
     <string name="help_about_user_guide_title">&appName; user guide</string>
     <string name="help_about_user_guide_subtitle">Learn how to master all app features, step by step.</string>
+    <string name="help_about_source_code_title">Source code</string>
+    <string name="help_about_source_code_subtitle">github.com/ShiroiKuma0/shiroikuma-rindenwa</string>
     <string name="help_about_privacy_policy_title">Privacy policy</string>
     <string name="help_about_privacy_policy_subtitle">What information &appName; collects and uses</string>
     <string name="help_about_version_title">Version</string>
@@ -1081,4 +1084,154 @@
     <string name="managed_xml_config_description" translatable="false">Raw XML provisioning content applied on startup.</string>
     <string name="managed_root_ca_title" translatable="false">Root CA certificate</string>
     <string name="managed_root_ca_description" translatable="false">PEM-encoded root certificate(s) used to validate TLS connections.</string>
+
+    <!-- ==================== shiroikuma fork: the 白い熊 臨電話 UI page ====================
+         Fork-owned strings. Kept non-translatable so an upstream Weblate sync never touches them,
+         and named sk_* so the export layer can tell them apart from upstream's keys. -->
+
+    <string name="sk_ui_title" translatable="false">白い熊 臨電話 UI</string>
+    <string name="sk_settings_entry_title" translatable="false">白い熊 臨電話 UI</string>
+    <string name="sk_settings_entry_subtitle" translatable="false">Colours, fonts, shapes, and the full-app backup</string>
+    <string name="sk_ok" translatable="false">OK</string>
+    <string name="sk_cancel" translatable="false">Cancel</string>
+    <string name="sk_default" translatable="false">Default</string>
+    <string name="sk_sp_value" translatable="false">%1$d sp</string>
+    <string name="sk_dp_value" translatable="false">%1$d dp</string>
+
+    <!-- Sections -->
+    <string name="sk_section_eximport" translatable="false">Export / Import</string>
+    <string name="sk_section_foundation" translatable="false">Foundation</string>
+    <string name="sk_section_top_bar" translatable="false">Top bar</string>
+    <string name="sk_section_main" translatable="false">Main screen</string>
+    <string name="sk_section_calls" translatable="false">Calls</string>
+    <string name="sk_section_conversations" translatable="false">Conversations</string>
+    <string name="sk_section_controls" translatable="false">Controls</string>
+
+    <!-- Sub-groups -->
+    <string name="sk_group_list_rows" translatable="false">List rows</string>
+    <string name="sk_group_avatar" translatable="false">Avatar</string>
+    <string name="sk_group_fab" translatable="false">Action button</string>
+    <string name="sk_group_call_buttons" translatable="false">Call buttons</string>
+    <string name="sk_group_bubble_outgoing" translatable="false">Outgoing bubble</string>
+    <string name="sk_group_bubble_incoming" translatable="false">Incoming bubble</string>
+    <string name="sk_group_bubble_shape" translatable="false">Bubble shape</string>
+
+    <!-- Slots -->
+    <string name="sk_slot_background" translatable="false">Background</string>
+    <string name="sk_slot_text" translatable="false">Text</string>
+    <string name="sk_slot_text_secondary" translatable="false">Secondary text</string>
+    <string name="sk_slot_accent" translatable="false">Accent</string>
+    <string name="sk_slot_toolbar_background" translatable="false">Top bar background</string>
+    <string name="sk_slot_toolbar_title" translatable="false">Top bar title</string>
+    <string name="sk_slot_toolbar_icon" translatable="false">Top bar icons</string>
+    <string name="sk_slot_list_name" translatable="false">Row name</string>
+    <string name="sk_slot_list_detail" translatable="false">Row detail</string>
+    <string name="sk_slot_list_background" translatable="false">Row background</string>
+    <string name="sk_slot_list_border" translatable="false">Row border</string>
+    <string name="sk_slot_avatar_background" translatable="false">Avatar background</string>
+    <string name="sk_slot_avatar_text" translatable="false">Avatar initials</string>
+    <string name="sk_slot_fab_background" translatable="false">Action button background</string>
+    <string name="sk_slot_fab_icon" translatable="false">Action button icon</string>
+    <string name="sk_slot_call_background" translatable="false">Call background</string>
+    <string name="sk_slot_call_name" translatable="false">Caller name</string>
+    <string name="sk_slot_call_status" translatable="false">Call status</string>
+    <string name="sk_slot_call_answer" translatable="false">Answer button</string>
+    <string name="sk_slot_call_hangup" translatable="false">Hang-up button</string>
+    <string name="sk_slot_bubble_outgoing" translatable="false">Outgoing bubble fill</string>
+    <string name="sk_slot_bubble_outgoing_text" translatable="false">Outgoing bubble text</string>
+    <string name="sk_slot_bubble_incoming" translatable="false">Incoming bubble fill</string>
+    <string name="sk_slot_bubble_incoming_text" translatable="false">Incoming bubble text</string>
+    <string name="sk_slot_button_background" translatable="false">Button background</string>
+    <string name="sk_slot_button_text" translatable="false">Button text</string>
+    <string name="sk_slot_button_border" translatable="false">Button border</string>
+
+    <!-- Dimensions (all sliders, all reaching 0) -->
+    <string name="sk_dimen_list_border_width" translatable="false">Row border</string>
+    <string name="sk_dimen_list_corner_radius" translatable="false">Row roundness</string>
+    <string name="sk_dimen_bubble_border_width" translatable="false">Bubble border</string>
+    <string name="sk_dimen_bubble_corner_radius" translatable="false">Bubble roundness</string>
+    <string name="sk_dimen_button_border_width" translatable="false">Button border</string>
+    <string name="sk_dimen_button_corner_radius" translatable="false">Button roundness</string>
+    <string name="sk_dimen_avatar_corner_radius" translatable="false">Avatar roundness</string>
+
+    <!-- Per-slot text controls -->
+    <string name="sk_font" translatable="false">Font</string>
+    <string name="sk_weight" translatable="false">Weight</string>
+    <string name="sk_size" translatable="false">Size</string>
+    <string name="sk_font_sample" translatable="false">白い熊 臨電話 — AaBbCc 0123</string>
+    <string name="sk_font_system_default" translatable="false">System default</string>
+    <string name="sk_font_monospace" translatable="false">Monospace</string>
+    <string name="sk_font_invalid" translatable="false">Not a usable font file (need .ttf or .otf)</string>
+    <string name="sk_add_font" translatable="false">Add font…</string>
+    <string name="sk_weight_default" translatable="false">Default</string>
+    <string name="sk_weight_thin" translatable="false">Thin (100)</string>
+    <string name="sk_weight_light" translatable="false">Light (300)</string>
+    <string name="sk_weight_regular" translatable="false">Regular (400)</string>
+    <string name="sk_weight_medium" translatable="false">Medium (500)</string>
+    <string name="sk_weight_semibold" translatable="false">Semi-bold (600)</string>
+    <string name="sk_weight_bold" translatable="false">Bold (700)</string>
+    <string name="sk_weight_black" translatable="false">Black (900)</string>
+
+    <!-- Live previews -->
+    <string name="sk_preview_list" translatable="false">Row preview</string>
+    <string name="sk_preview_bubble" translatable="false">Bubble preview</string>
+    <string name="sk_preview_button" translatable="false">Button</string>
+
+    <!-- Export / Import panel -->
+    <string name="sk_eim_row_desc" translatable="false">Back up and restore everything this app holds</string>
+    <string name="sk_eim_title" translatable="false">Export / Import</string>
+    <string name="sk_eim_desc" translatable="false">Pick a directory once; every backup is written there as one ZIP. Import merges — it never clears what is already here.</string>
+    <string name="sk_eim_dir" translatable="false">Backup directory</string>
+    <string name="sk_eim_dir_unset" translatable="false">Not set — tap to choose</string>
+    <string name="sk_eim_select_all" translatable="false">Select all</string>
+    <string name="sk_eim_import" translatable="false">Import</string>
+    <string name="sk_eim_export" translatable="false">Export</string>
+    <string name="sk_eim_exporting" translatable="false">Exporting…</string>
+    <string name="sk_eim_importing" translatable="false">Importing…</string>
+    <string name="sk_eim_progress" translatable="false">%1$d / %2$d</string>
+    <string name="sk_eim_none_selected" translatable="false">No categories selected.</string>
+    <string name="sk_eim_export_fail" translatable="false">Export failed: %1$s</string>
+    <string name="sk_eim_import_fail" translatable="false">Import failed: %1$s</string>
+    <string name="sk_eim_import_none" translatable="false">That file is not a 白い熊 臨電話 backup.</string>
+    <string name="sk_eim_export_done_title" translatable="false">Export finished</string>
+    <string name="sk_eim_export_done_body" translatable="false">Written to %1$s\n\n%2$s</string>
+    <string name="sk_eim_import_done_title" translatable="false">Import finished</string>
+    <string name="sk_eim_import_done_body" translatable="false">%1$s\n\nAccounts, history and settings are read when the app starts — restart to bring them live.</string>
+    <string name="sk_eim_restart_later" translatable="false">Later</string>
+    <string name="sk_eim_restart_now" translatable="false">Restart now</string>
+    <string name="sk_eim_warn_nodir" translatable="false">No backup directory set</string>
+    <string name="sk_eim_warn_none" translatable="false">No backup in that directory yet</string>
+    <string name="sk_eim_last" translatable="false">Last backup: %1$s</string>
+
+    <!-- Export categories -->
+    <string name="sk_eim_cat_accounts" translatable="false">Accounts and their configuration</string>
+    <string name="sk_eim_cat_history" translatable="false">History</string>
+    <string name="sk_eim_cat_history_calls" translatable="false">Call history</string>
+    <string name="sk_eim_cat_history_chat" translatable="false">Conversations</string>
+    <string name="sk_eim_cat_sip_settings" translatable="false">SIP and media settings</string>
+    <string name="sk_eim_cat_appearance" translatable="false">Appearance</string>
+    <string name="sk_eim_cat_appearance_fonts" translatable="false">Imported fonts</string>
+    <string name="sk_eim_cat_settings" translatable="false">App settings</string>
+
+    <!-- Export summary counts -->
+    <string name="sk_eim_accounts_count" translatable="false">%1$d accounts</string>
+    <string name="sk_eim_files_count" translatable="false">%1$d files</string>
+    <string name="sk_eim_sections_count" translatable="false">%1$d sections</string>
+    <string name="sk_eim_prefs_count" translatable="false">%1$d settings</string>
+    <string name="sk_eim_fonts_count" translatable="false">%1$d fonts</string>
+
+    <!-- 保存復元 automation (inside the Export/Import section, never its own) -->
+    <string name="sk_auto_title" translatable="false">Automation export</string>
+    <string name="sk_auto_desc" translatable="false">Let a sister app trigger this app\'s export with the token below. Off by default.</string>
+    <string name="sk_auto_token_title" translatable="false">Automation token</string>
+    <string name="sk_auto_token_regenerate" translatable="false">Regenerate</string>
+    <string name="sk_auto_token_copied" translatable="false">Token copied to the clipboard</string>
+    <string name="sk_auto_token_regen_warning" translatable="false">Any copy already pasted elsewhere stops working and must be replaced with the new token.</string>
+    <string name="sk_auto_token_regenerated" translatable="false">New token generated — update it wherever it was pasted</string>
+    <string name="sk_auto_allfiles_title" translatable="false">All-files access</string>
+    <string name="sk_auto_allfiles_desc" translatable="false">Needed only so an automation export can write to the directory the caller names.</string>
+    <string name="sk_auto_allfiles_granted" translatable="false">Granted</string>
+    <string name="sk_auto_allfiles_needed" translatable="false">Not granted — tap to allow</string>
+    <string name="sk_state_progress_unit" translatable="false">項目</string>
+    <string name="sk_assistant_skip" translatable="false">Skip — restore from a backup instead</string>
 </resources>

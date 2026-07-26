@@ -42,6 +42,7 @@ import org.linphone.R
 import org.linphone.compatibility.Compatibility
 import org.linphone.core.tools.Log
 import org.linphone.utils.ToastUtils
+import org.linphone.shiroikuma.SkStyler
 import org.linphone.utils.slideInToastFromTop
 import org.linphone.utils.slideInToastFromTopForDuration
 
@@ -70,6 +71,10 @@ open class GenericActivity : AppCompatActivity() {
             "mineral_blue" -> theme.applyStyle(R.style.Theme_LinphoneMineralBlue, true)
             else -> theme.applyStyle(R.style.Theme_Linphone, true)
         }
+        // shiroikuma fork: the 白い熊 臨電話 look, applied LAST so it overrides whichever colour
+        // variant was selected above. Upstream resolves every colour through the attributes this
+        // overlay redefines, so this is what actually re-skins the whole app.
+        theme.applyStyle(R.style.Theme_SkBlackYellow, true)
         return theme
     }
 
@@ -96,6 +101,22 @@ open class GenericActivity : AppCompatActivity() {
         }
 
         super.onCreate(savedInstanceState)
+    }
+
+    /**
+     * shiroikuma fork: apply the 白い熊 臨電話 UI theme once the content view exists, and again on
+     * every resume so a change made in the UI page shows up the moment you come back.
+     */
+    override fun onPostCreate(savedInstanceState: Bundle?) {
+        super.onPostCreate(savedInstanceState)
+        SkStyler.refreshOverrideState(this)
+        SkStyler.apply(this)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        SkStyler.refreshOverrideState(this)
+        SkStyler.apply(this)
     }
 
     protected fun checkMainColorTheme() {

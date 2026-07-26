@@ -65,6 +65,7 @@ import org.linphone.compatibility.Compatibility
 import org.linphone.core.tools.Log
 import org.linphone.databinding.MainActivityBinding
 import org.linphone.ui.GenericActivity
+import org.linphone.shiroikuma.SkStartup
 import org.linphone.ui.assistant.AssistantActivity
 import org.linphone.ui.main.chat.fragment.ConversationsListFragmentDirections
 import org.linphone.utils.PasswordDialogModel
@@ -412,7 +413,7 @@ class MainActivity : GenericActivity() {
                         Log.e("$TAG Can't start activity: $ise")
                     }
                 }
-            } else if (core.accountList.isEmpty()) {
+            } else if (core.accountList.isEmpty() && !SkStartup.assistantSkipped(this)) {
                 Log.w("$TAG No account found, showing Assistant activity")
                 coreContext.postOnMainThread {
                     try {
@@ -421,6 +422,15 @@ class MainActivity : GenericActivity() {
                         Log.e("$TAG Can't start activity: $ise")
                     }
                 }
+            } else if (core.accountList.isEmpty()) {
+                // shiroikuma fork: the assistant was skipped so a backup can be restored from
+                // 白い熊 臨電話 UI → Export / Import. Stay on the main screen with no account.
+                Log.w("$TAG No account found, but the assistant was skipped — staying on main screen")
+            } else if (SkStartup.assistantSkipped(this)) {
+                // shiroikuma fork: an account exists again (the restore worked, or one was added
+                // by hand), so drop the skip flag and let the normal startup gate apply from here.
+                Log.i("$TAG Account present — clearing the assistant-skip flag")
+                SkStartup.setAssistantSkipped(this, false)
             }
         }
     }
