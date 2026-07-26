@@ -36,6 +36,8 @@ import org.linphone.LinphoneApplication.Companion.coreContext
 import org.linphone.R
 import org.linphone.core.tools.Log
 import org.linphone.databinding.DrawerMenuBinding
+import org.linphone.shiroikuma.SkAccountOrder
+import org.linphone.shiroikuma.SkDragReorder
 import org.linphone.shiroikuma.SkUiActivity
 import org.linphone.ui.assistant.AssistantActivity
 import org.linphone.ui.main.MainActivity
@@ -72,6 +74,16 @@ class DrawerMenuFragment : GenericMainFragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
         observeToastEvents(viewModel)
+
+        // shiroikuma fork: long-press an account to pick it up and drag it up or down; the order
+        // is shared with the account tab strip at the top of the main screens, both ways round.
+        SkDragReorder(binding.accountsList, vertical = true) { from, to ->
+            viewModel.skReorderAccounts(from, to)
+        }.attach()
+
+        SkAccountOrder.version.observe(viewLifecycleOwner) {
+            viewModel.updateAccountsList()
+        }
 
         binding.setSettingsClickedListener {
             val navController = (requireActivity() as MainActivity).findNavController()

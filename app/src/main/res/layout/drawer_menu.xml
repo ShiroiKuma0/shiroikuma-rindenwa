@@ -96,6 +96,7 @@
                 app:layout_constraintBottom_toTopOf="@id/add_account">
 
                 <LinearLayout
+                    android:id="@+id/accounts_list"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
