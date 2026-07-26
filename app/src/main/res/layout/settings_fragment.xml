@@ -21,6 +21,9 @@
             name="developerSettingsClickListener"
             type="View.OnClickListener" />
         <variable
+            name="skUiSettingsClickListener"
+            type="View.OnClickListener" />
+        <variable
             name="viewModel"
             type="org.linphone.ui.main.settings.viewmodel.SettingsViewModel" />
     </data>
@@ -69,6 +72,27 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
+                <!-- shiroikuma fork: the 白い熊 臨電話 UI page — first row on the settings
+                     screen, above Security. -->
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/section_header_style"
+                    android:id="@+id/sk_ui_settings"
+                    android:onClick="@{skUiSettingsClickListener}"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/sk_settings_entry_title"
+                    android:drawableEnd="@drawable/caret_right"
+                    android:drawableTint="?attr/color_main2_600"
+                    android:background="@drawable/squircle_transparent_button_background"
+                    app:layout_constraintWidth_max="@dimen/section_max_width"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"/>
+
                 <androidx.appcompat.widget.AppCompatTextView
                     style="@style/section_header_style"
                     android:id="@+id/security"
@@ -86,7 +110,7 @@
                     app:layout_constraintWidth_max="@dimen/section_max_width"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"/>
+                    app:layout_constraintTop_toBottomOf="@id/sk_ui_settings"/>
 
                 <include
                     android:id="@+id/security_settings"
@@ -336,6 +360,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     bind:viewModel="@{viewModel}"/>
+
 
                 <androidx.appcompat.widget.AppCompatTextView
                     style="@style/section_header_style"

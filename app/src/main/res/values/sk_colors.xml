@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  shiroikuma-rindenwa fork — the 白い熊 臨電話 black-yellow palette.
+
+  Upstream funnels its entire UI through ~60 theme attributes (see values/attrs.xml), so these
+  colours plus the Theme.SkBlackYellow overlay in sk_theme.xml are what actually turn the app
+  black-yellow: every data-bound layout resolves ?attr/… and picks them up with no runtime work.
+-->
+<resources>
+    <color name="sk_black">#FF000000</color>
+    <color name="sk_yellow">#FFFFFF00</color>
+
+    <!-- Surfaces: pure black, with two barely-lifted steps so stacked panels stay legible. -->
+    <color name="sk_surface">#FF000000</color>
+    <color name="sk_surface_alt">#FF0A0A0A</color>
+    <color name="sk_surface_raised">#FF141414</color>
+
+    <!-- Ink ramp — yellow at full strength down through dimmed steps for secondary text. -->
+    <color name="sk_ink">#FFFFFF00</color>
+    <color name="sk_ink_dim">#B3FFFF00</color>
+    <color name="sk_ink_faint">#80FFFF00</color>
+    <color name="sk_ink_ghost">#4DFFFF00</color>
+
+    <!-- Yellow washes for "tinted background" roles (pressed states, accent chips). -->
+    <color name="sk_yellow_wash">#33FFFF00</color>
+    <color name="sk_yellow_wash_strong">#59FFFF00</color>
+
+    <!-- The top bars stay black; the accent is carried by the text and icons on them. -->
+    <color name="sk_bar_background">#FF000000</color>
+
+    <!-- Field pills. Upstream strokes them with color_grey_200, which on a black surface is
+         invisible — every text input carries a yellow border in this fork instead. -->
+    <color name="sk_field_border">#FFFFFF00</color>
+    <color name="sk_field_border_dim">#66FFFF00</color>
+
+    <!-- Semantic colours keep their meaning — a hang-up button must still read as danger. -->
+    <color name="sk_danger">#FFFF5252</color>
+    <color name="sk_danger_dim">#FF7F1D1D</color>
+    <color name="sk_success">#FF00C853</color>
+    <color name="sk_success_dim">#FF14532D</color>
+    <color name="sk_info">#FF40C4FF</color>
+    <color name="sk_warning">#FFFFC400</color>
+    <color name="sk_warning_dim">#FF4A3B00</color>
+    <color name="sk_offline">#FF9E9E9E</color>
+    <color name="sk_disabled">#FF3A3A3A</color>
+</resources>

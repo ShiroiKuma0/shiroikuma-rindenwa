@@ -20,7 +20,12 @@
 package org.linphone.ui.assistant.fragment
 
 import android.Manifest
+import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -35,6 +40,8 @@ import org.linphone.R
 import org.linphone.compatibility.Compatibility
 import org.linphone.core.tools.Log
 import org.linphone.databinding.AssistantPermissionsFragmentBinding
+import org.linphone.mediastream.Version
+import org.linphone.shiroikuma.SkStartup
 import org.linphone.ui.GenericFragment
 import org.linphone.ui.assistant.AssistantActivity
 import org.linphone.ui.assistant.viewmodel.PermissionsViewModel
@@ -87,6 +94,62 @@ class PermissionsFragment : GenericFragment() {
         }
     }
 
+    /**
+     * shiroikuma fork: one permission at a time, for the per-row taps. Unlike the "grant all"
+     * launcher this does NOT leave the screen — you stay on the list and can grant the next one.
+     */
+    private val singlePermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        Log.i("$TAG Single permission request answered, granted=[$isGranted]")
+        // Repaint the list: granted rows hide themselves through the view model.
+        areAllPermissionsGranted()
+    }
+
+    /**
+     * shiroikuma fork: request [permission], or send 白い熊 to the app's system settings page when
+     * Android will no longer show a dialog for it.
+     *
+     * Once a permission has been denied permanently, `requestPermission` returns instantly with no
+     * UI — which is exactly the "OK does nothing" dead end. `shouldShowRequestPermissionRationale`
+     * is false both before the first ask and after a permanent denial, so we only treat it as
+     * permanent once we have actually asked at least once in this session.
+     */
+    private fun requestOrOpenSettings(permission: String) {
+        val granted = ContextCompat.checkSelfPermission(requireContext(), permission) ==
+            PackageManager.PERMISSION_GRANTED
+        if (granted) {
+            Log.i("$TAG Permission [$permission] is already granted, opening settings anyway")
+            openAppSettings()
+            return
+        }
+        if (askedOnce.contains(permission) &&
+            !shouldShowRequestPermissionRationale(permission)
+        ) {
+            Log.w("$TAG Permission [$permission] looks permanently denied, opening app settings")
+            openAppSettings()
+            return
+        }
+        askedOnce.add(permission)
+        singlePermissionLauncher.launch(permission)
+    }
+
+    /** The app's own settings page — the only route left for a permanently denied permission. */
+    private fun openAppSettings() {
+        try {
+            startActivity(
+                Intent(
+                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                    Uri.fromParts("package", requireContext().packageName, null)
+                )
+            )
+        } catch (e: Exception) {
+            Log.e("$TAG Failed to open app settings: $e")
+        }
+    }
+
+    private val askedOnce = mutableSetOf<String>()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -96,6 +159,7 @@ class PermissionsFragment : GenericFragment() {
         return binding.root
     }
 
+    @SuppressLint("InlinedApi")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -116,6 +180,47 @@ class PermissionsFragment : GenericFragment() {
             requestPermissionLauncher.launch(
                 Compatibility.getAllRequiredPermissionsArray()
             )
+        }
+
+        // shiroikuma fork: upstream declares these four per-row listeners but never binds them to
+        // any view, so the list was inert — the only control was "grant all", which does nothing
+        // at all once a permission has been permanently denied. Each row is now tappable and goes
+        // to the system dialog, or to the app's settings page when the dialog will no longer show.
+        binding.setGrantPostNotificationsClickListener {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                requestOrOpenSettings(Manifest.permission.POST_NOTIFICATIONS)
+            } else {
+                openAppSettings()
+            }
+        }
+        binding.setGrantReadContactsClickListener {
+            requestOrOpenSettings(Manifest.permission.READ_CONTACTS)
+        }
+        binding.setGrantRecordAudioClickListener {
+            requestOrOpenSettings(Manifest.permission.RECORD_AUDIO)
+        }
+        binding.setGrantAccessCameraClickListener {
+            requestOrOpenSettings(Manifest.permission.CAMERA)
+        }
+        // Upstream added this row (Android 17 only, optional) without a listener of its own —
+        // keep it tappable like the four above it. The row hides itself below Android 17, where
+        // Compatibility reports the permission as granted.
+        binding.setGrantAccessLocalNetworkClickListener {
+            if (Version.sdkAboveOrEqual(Version.API37_ANDROID_17_CINNAMON_BUN)) {
+                requestOrOpenSettings(Manifest.permission.ACCESS_LOCAL_NETWORK)
+            } else {
+                openAppSettings()
+            }
+        }
+
+        // shiroikuma fork: leave the assistant entirely. The assistant force-navigates here before
+        // the landing screen on a clean install, so without this a cleared install cannot reach the
+        // main screen — and therefore cannot reach Export / Import to restore its accounts.
+        binding.setSkSkipSetupClickListener {
+            Log.i("$TAG Skipping setup entirely, leaving assistant")
+            SkStartup.setAssistantSkipped(requireContext(), true)
+            leaving = true
+            requireActivity().finish()
         }
 
         if (ContextCompat.checkSelfPermission(
