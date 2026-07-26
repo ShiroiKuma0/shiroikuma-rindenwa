@@ -7,13 +7,14 @@
 **A SIP/VoIP phone that looks the way I want it to, and can restore itself from a single file.**
 
 A fork of [Linphone for Android](https://github.com/BelledonneCommunications/linphone-android) with
-**major additions**: a black-yellow theme applied through the whole app, a settings page that makes
-colours, fonts and shapes live-editable, a full-app Export/Import backup, and a token-gated
-automation contract so a sister app can back this one up unattended.
+**major additions**: a black-yellow theme applied through the whole app, a card-folder tab
+navigation with an account strip you can drag into order, a settings page that makes colours, fonts
+and shapes live-editable, a full-app Export/Import backup, and a token-gated automation contract so
+a sister app can back this one up unattended.
 
 Installs **side-by-side** with stock Linphone (app id `shiroikuma.rindenwa`).
 
-**📥 Latest release: [`6.3.0-alpha+9`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
+**📥 Latest release: [`6.3.0-alpha+15`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
 
 </div>
 
@@ -26,6 +27,34 @@ views one by one, this fork overrides all of them in a single theme overlay appl
 fragment, dialog and list row comes out black-on-yellow natively, at inflation time, with no flicker
 and nothing missed. Top bars are black with the accent carried by their text and icons; field pills
 have yellow borders; semantic colours keep their meaning, so a hang-up button is still red.
+
+---
+
+## 🗂 The app is a card folder
+
+Both bars of the main screens are one folder seen from two sides. A continuous bold line runs the
+full width of the window — over the detail pane too, not just the list — and where the tab in the
+foreground is, it curls outward, runs down both sides and around the far corners, open on the panel
+side because that tab *is* the panel you are looking at. Every other tab is the same box, thinner
+and half transparent, filed behind that line. Switching interpolates, so the line dives around the
+tab you are moving to while the one you left closes up.
+
+At the bottom that folder is the navigation: Contacts, Calls, Conversations, each inside its own
+tab. Which screen you are on is told by the folder, so the screen no longer has to name itself in
+the title bar.
+
+---
+
+## 👥 Every account, one tab each
+
+The top of the screen is a strip of account tabs. The account in use shows its picture at twice
+upstream's size and its display name; the rest are their pictures, filed behind the line. Tap one to
+switch the default account without opening the drawer, and the strip scrolls sideways when you have
+more accounts than fit.
+
+**Long-press a tab and it buzzes, lifts and follows your finger** — drag sideways to reorder the
+accounts, or up and down on the same accounts in the drawer menu. Both lists share one stored order,
+keyed by identity address, so they always read the same way round and it survives restarts.
 
 ---
 
