@@ -30,6 +30,7 @@ import org.linphone.core.CoreListenerStub
 import org.linphone.core.GlobalState
 import org.linphone.core.tools.Log
 import org.linphone.ui.GenericViewModel
+import org.linphone.shiroikuma.SkAccountOrder
 import org.linphone.ui.main.model.AccountModel
 import org.linphone.ui.main.model.ShortcutModel
 import org.linphone.utils.Event
@@ -160,6 +161,21 @@ class DrawerMenuViewModel
         }
     }
 
+    /**
+     * shiroikuma fork: 白い熊 dragged the account at [from] onto position [to]. Stores the new
+     * order for both lists and re-posts this one so the drawer redraws in it straight away.
+     */
+    @UiThread
+    fun skReorderAccounts(from: Int, to: Int) {
+        val current = accounts.value ?: return
+        if (from !in current.indices || to !in current.indices) return
+
+        val reordered = ArrayList(current)
+        reordered.add(to, reordered.removeAt(from))
+        SkAccountOrder.save(coreContext.context, reordered.map { it.identity })
+        accounts.value = reordered
+    }
+
     @UiThread
     fun refreshAccountsNotificationsCount() {
         coreContext.postOnCoreThread {
@@ -183,7 +199,13 @@ class DrawerMenuViewModel
         accounts.value.orEmpty().forEach(AccountModel::destroy)
 
         val list = arrayListOf<AccountModel>()
-        for (account in coreContext.core.accountList) {
+        // shiroikuma fork: 白い熊's order, shared with the account tab strip at the top of the
+        // main screens — whichever of the two lists is dragged, both read the same way round.
+        val ordered = SkAccountOrder.sorted(
+            coreContext.context,
+            coreContext.core.accountList.toList(),
+        ) { it.params.identityAddress?.asStringUriOnly().orEmpty() }
+        for (account in ordered) {
             val model = AccountModel(account) { model ->
                 // onClicked
                 openAccountProfileEvent.postValue(Event(model))

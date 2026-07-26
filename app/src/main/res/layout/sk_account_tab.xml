@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  shiroikuma-rindenwa fork — one account tab in the strip at the top of the main screens.
+
+  The tab in the foreground carries the account's picture plus its display name (the "Display name"
+  of the account profile); the ones filed behind it are the same picture at the same size, without
+  the name. Both are in one layout, switched by `active`, so changing account is a rebind rather
+  than a re-inflate and the pictures stay loaded.
+-->
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="android.view.View" />
+        <variable
+            name="model"
+            type="org.linphone.ui.main.model.AccountModel" />
+        <variable
+            name="active"
+            type="Boolean" />
+    </data>
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/active_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="@{active ? View.VISIBLE : View.GONE}">
+
+            <ImageView
+                style="@style/avatar_imageview"
+                android:id="@+id/active_avatar"
+                android:layout_width="@dimen/sk_account_tab_avatar_size"
+                android:layout_height="@dimen/sk_account_tab_avatar_size"
+                android:contentDescription="@null"
+                coilBigAvatar="@{model}" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/default_text_style_800"
+                android:id="@+id/active_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:maxWidth="@dimen/sk_account_tab_name_max_width"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:includeFontPadding="false"
+                android:text="@{model.displayName, default=`Display name`}"
+                android:textColor="?attr/color_main1_500"
+                android:textSize="20sp" />
+
+        </LinearLayout>
+
+        <ImageView
+            style="@style/avatar_imageview"
+            android:id="@+id/inactive_avatar"
+            android:layout_width="@dimen/sk_account_tab_avatar_size"
+            android:layout_height="@dimen/sk_account_tab_avatar_size"
+            android:contentDescription="@{model.displayName}"
+            android:visibility="@{active ? View.GONE : View.VISIBLE}"
+            coilBigAvatar="@{model}" />
+
+    </FrameLayout>
+
+</layout>
