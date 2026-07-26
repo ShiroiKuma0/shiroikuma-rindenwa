@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma fork: the selected/pressed row state. Upstream fills it with color_main2_100, a
+     light surface; here it is black with a faint yellow wash, so the current account still reads
+     as selected without becoming a pale band across a black drawer. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    <solid android:color="?attr/color_main2_100"/>
+    <solid android:color="@color/sk_yellow_wash"/>
 </shape>

@@ -81,6 +81,11 @@ class HelpFragment : GenericMainFragment() {
             openUrlInBrowser(url)
         }
 
+        binding.setSourceCodeClickListener {
+            val url = getString(R.string.website_source_code_url)
+            openUrlInBrowser(url)
+        }
+
         binding.setPrivacyPolicyClickListener {
             val url = getString(R.string.website_privacy_policy_url)
             openUrlInBrowser(url)

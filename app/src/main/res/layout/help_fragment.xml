@@ -15,6 +15,9 @@
             name="licensesClickListener"
             type="View.OnClickListener" />
         <variable
+            name="sourceCodeClickListener"
+            type="View.OnClickListener" />
+        <variable
             name="privacyPolicyClickListener"
             type="View.OnClickListener" />
         <variable
@@ -151,6 +154,51 @@
                             app:layout_constraintEnd_toEndOf="parent" />
 
                         <ImageView
+                            android:onClick="@{sourceCodeClickListener}"
+                            android:id="@+id/source_code_icon"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_marginStart="16dp"
+                            android:src="@drawable/book_open_text"
+                            android:contentDescription="@null"
+                            app:tint="?attr/color_main1_500"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintEnd_toStartOf="@id/source_code_title"
+                            app:layout_constraintTop_toTopOf="@id/source_code_title"/>
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/header_style"
+                            android:onClick="@{sourceCodeClickListener}"
+                            android:id="@+id/source_code_title"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginEnd="16dp"
+                            android:layout_marginTop="16dp"
+                            android:text="@string/help_about_source_code_title"
+                            android:drawableEnd="@drawable/arrow_square_out"
+                            android:drawablePadding="5dp"
+                            app:drawableTint="?attr/color_main2_600"
+                            app:layout_constraintTop_toBottomOf="@id/user_guide_subtitle"
+                            app:layout_constraintStart_toEndOf="@id/source_code_icon"
+                            app:layout_constraintEnd_toEndOf="parent"/>
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/default_text_style"
+                            android:onClick="@{sourceCodeClickListener}"
+                            android:id="@+id/source_code_subtitle"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginEnd="16dp"
+                            android:text="@string/help_about_source_code_subtitle"
+                            android:textSize="14sp"
+                            android:textColor="?attr/color_main2_600"
+                            app:layout_constraintTop_toBottomOf="@id/source_code_title"
+                            app:layout_constraintStart_toEndOf="@id/source_code_icon"
+                            app:layout_constraintEnd_toEndOf="parent" />
+
+                        <ImageView
                             android:onClick="@{privacyPolicyClickListener}"
                             android:id="@+id/privacy_policy_icon"
                             android:layout_width="32dp"
@@ -176,7 +224,7 @@
                             android:drawableEnd="@drawable/arrow_square_out"
                             android:drawablePadding="5dp"
                             app:drawableTint="?attr/color_main2_600"
-                            app:layout_constraintTop_toBottomOf="@id/user_guide_subtitle"
+                            app:layout_constraintTop_toBottomOf="@id/source_code_subtitle"
                             app:layout_constraintStart_toEndOf="@id/privacy_policy_icon"
                             app:layout_constraintEnd_toEndOf="parent"/>
 

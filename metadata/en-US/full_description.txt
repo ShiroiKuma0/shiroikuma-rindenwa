@@ -1,6 +1,6 @@
-Linphone is an open source app offering free audio/video calls and text messaging. With Linphone, you can be reachable at any time, even if the app is closed, with a WiFi or 3G/4G internet connection.
+白い熊 臨電話 is a personal fork of Linphone, the open source app offering free audio/video calls and text messaging. With it, you can be reachable at any time, even if the app is closed, with a WiFi or 3G/4G internet connection.
 
-Linphone key features:
+Key features:
 * high definition audio and video calls
 * audio conference calls with various participants
 * pictures and file sharing
