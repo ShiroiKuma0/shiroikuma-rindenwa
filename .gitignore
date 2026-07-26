@@ -19,3 +19,8 @@ app/bc-android.keystore
 /keystore.properties
 # Agent files ARE committed here (CLAUDE.md, .claude/skills/); only the local settings stay out.
 .claude/settings.local.json
+
+# shiroikuma fork: upstream ships their Firebase project config here; our package id is not in it
+# (and linphone.org  push only targets their project), so the fork builds without FCM/Crashlytics —
+# the same shape as upstream's F-Droid build. Drop a real one in only if we ever own a project.
+/app/google-services.json

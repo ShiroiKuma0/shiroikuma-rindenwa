@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma fork: the top-bar fill. Upstream painted this with ?attr/color_main1_500 (the
+     brand accent); in the 白い熊 臨電話 look the bars are black and the accent is carried by the
+     text and icons ON them, so this resolves to our bar colour instead. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    <solid android:color="?attr/color_main1_500" />
+    <solid android:color="@color/sk_bar_background" />
 </shape>

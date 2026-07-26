@@ -39,6 +39,7 @@ import org.linphone.R
 import org.linphone.core.tools.Log
 import org.linphone.databinding.AssistantLandingFragmentBinding
 import org.linphone.ui.GenericActivity
+import org.linphone.shiroikuma.SkStartup
 import org.linphone.ui.GenericFragment
 import org.linphone.ui.assistant.model.AcceptConditionsAndPolicyDialogModel
 import org.linphone.ui.assistant.viewmodel.AccountLoginViewModel
@@ -108,6 +109,15 @@ class LandingFragment : GenericFragment() {
             } else {
                 showAcceptConditionsAndPrivacyDialog(goToThirdPartySipAccountLogin = true)
             }
+        }
+
+        // shiroikuma fork: leave the assistant with no account configured, so a cleared install
+        // can reach 白い熊 臨電話 UI → Export / Import and restore the accounts from a backup.
+        // The flag stops MainActivity bouncing straight back here; it clears itself the next time
+        // app data is cleared, which is exactly when it is needed again.
+        binding.setSkSkipSetupClickListener {
+            SkStartup.setAssistantSkipped(requireContext(), true)
+            requireActivity().finish()
         }
 
         binding.setForgottenPasswordClickListener {
