@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  shiroikuma-rindenwa fork — dimensions owned by the 白い熊 臨電話 layer.
+
+  Kept in their own file (never in upstream's dimen.xml) so an upstream rebase can never conflict
+  on them, and so it stays obvious which numbers are ours.
+-->
+<resources>
+    <!-- The account tabs run above the sliding pane, the full width of the screen; the bar left
+         inside the pane is only the controls row. -->
+    <dimen name="sk_account_tab_strip_height">98dp</dimen>
+    <dimen name="sk_main_top_bar_height">50dp</dimen>
+    <!-- Upstream's icons are 0dp-high (= as tall as the bar) with adjustViewBounds; pin them to the
+         height of the controls row so they keep their size. -->
+    <dimen name="sk_main_top_bar_icon_size">50dp</dimen>
+    <!-- The rounded-corner shadow that sits right under the bar (upstream: top_bar_height - 1). -->
+    <dimen name="sk_main_top_bar_shadow_height">49dp</dimen>
+
+    <!-- The account picture at 2x upstream's 45dp — the same size in every tab, in front or
+         filed away. -->
+    <dimen name="sk_account_tab_avatar_size">90dp</dimen>
+    <dimen name="sk_account_tab_name_max_width">220dp</dimen>
+</resources>
