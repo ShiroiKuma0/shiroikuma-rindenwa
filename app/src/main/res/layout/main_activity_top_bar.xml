@@ -28,7 +28,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/top_bar_height"
-        android:background="?attr/color_main1_500">
+        android:background="@color/sk_bar_background">
 
         <androidx.constraintlayout.widget.Group
             android:layout_width="wrap_content"
@@ -82,7 +82,7 @@
             android:layout_marginEnd="10dp"
             android:gravity="center_vertical"
             android:text="@{viewModel.title, default=`Title`}"
-            android:textColor="?attr/color_on_main"
+            android:textColor="?attr/color_main1_500"
             android:textSize="20sp"
             android:includeFontPadding="false"
             app:layout_constraintEnd_toStartOf="@id/search_toggle"
@@ -134,12 +134,13 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:gravity="center_vertical"
-            android:textColorHint="?attr/color_grey_200"
+            android:textColorHint="@color/sk_ink_faint"
             app:hintEnabled="false"
             app:hintAnimationEnabled="false"
-            app:hintTextColor="?attr/color_grey_200"
-            app:boxStrokeWidth="0dp"
-            app:boxStrokeWidthFocused="0dp"
+            app:hintTextColor="@color/sk_ink_faint"
+            app:boxStrokeWidth="1.5dp"
+            app:boxStrokeWidthFocused="3dp"
+            app:boxStrokeColor="@color/sk_field_border"
             app:layout_constraintEnd_toStartOf="@id/clear_field"
             app:layout_constraintStart_toEndOf="@id/cancel_search"
             app:layout_constraintTop_toTopOf="parent">
@@ -148,8 +149,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:textCursorDrawable="@null"
-                android:textColor="?attr/color_on_main"
-                android:textColorHint="?attr/color_on_main"
+                android:textColor="?attr/color_main1_500"
+                android:textColorHint="@color/sk_ink_faint"
                 android:textSize="16sp"
                 android:inputType="text"
                 android:paddingVertical="1dp"

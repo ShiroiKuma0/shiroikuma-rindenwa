@@ -19,6 +19,7 @@
  */
 package org.linphone.ui.main.fragment
 
+import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Outline
 import android.os.Bundle
@@ -38,6 +39,7 @@ import com.google.android.material.textfield.TextInputLayout
 import org.linphone.LinphoneApplication.Companion.coreContext
 import org.linphone.LinphoneApplication.Companion.corePreferences
 import org.linphone.R
+import org.linphone.shiroikuma.SkUiActivity
 import org.linphone.core.tools.Log
 import org.linphone.databinding.BottomNavBarBinding
 import org.linphone.databinding.MainActivityTopBarBinding
@@ -211,6 +213,15 @@ abstract class AbstractMainFragment : GenericMainFragment() {
         initSlidingPane(slidingPane)
         initSearchBar(topBar.search)
         initNavigation(fragmentId)
+
+        // shiroikuma fork: long-press the top-left hamburger to jump straight to the
+        // 白い熊 臨電話 UI page. Every tab's top bar is set up through here, so one binding
+        // covers Contacts, Calls, Conversations and Meetings alike. A plain tap still opens
+        // the drawer, so nothing upstream changes.
+        topBar.drawerMenu.setOnLongClickListener {
+            startActivity(Intent(requireContext(), SkUiActivity::class.java))
+            true
+        }
     }
 
     private fun initSlidingPane(slidingPane: SlidingPaneLayout) {

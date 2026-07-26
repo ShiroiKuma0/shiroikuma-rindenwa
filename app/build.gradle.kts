@@ -151,7 +151,7 @@ android {
                     if (variant.buildType.name == "release") {
                         "shiroikuma-rindenwa_${forkVersionName}_arm64-v8a.apk"
                     } else {
-                        "shiroikuma-rindenwa_${forkVersionName}-${variant.buildType.name}_arm64-v8a.apk"
+                        "shiroikuma-rindenwa_$forkVersionName-${variant.buildType.name}_arm64-v8a.apk"
                     }
             }
     }
@@ -248,6 +248,9 @@ android {
 
     buildFeatures {
         dataBinding = true
+        // shiroikuma fork: the 白い熊 臨電話 UI layer builds its rows from plain (non-<layout>)
+        // XML, which data binding alone does not generate binding classes for.
+        viewBinding = true
         buildConfig = true
         resValues = true
     }
@@ -263,6 +266,8 @@ android {
 
 dependencies {
     implementation(libs.androidx.annotations)
+    // shiroikuma fork: SAF tree handling for the 白い熊 臨電話 Export/Import layer.
+    implementation(libs.androidx.documentfile)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.constraint.layout)
     implementation(libs.androidx.core.ktx)

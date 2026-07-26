@@ -132,8 +132,9 @@
             app:hintEnabled="false"
             app:hintAnimationEnabled="false"
             app:hintTextColor="?attr/color_hint_text"
-            app:boxStrokeWidth="0dp"
-            app:boxStrokeWidthFocused="0dp"
+            app:boxStrokeWidth="1.5dp"
+            app:boxStrokeWidthFocused="3dp"
+            app:boxStrokeColor="@color/sk_field_border"
             app:layout_constraintEnd_toStartOf="@id/clear_field"
             app:layout_constraintStart_toEndOf="@id/cancel_search"
             app:layout_constraintTop_toTopOf="parent">
