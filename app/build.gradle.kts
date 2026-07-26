@@ -14,8 +14,17 @@ plugins {
     alias(libs.plugins.navigation)
 }
 
-val packageName = "org.linphone"
+// shiroikuma fork: the INSTALLED package id. The code namespace stays "org.linphone"
+// (see android.namespace below) — renaming it would make every upstream rebase a mass-conflict.
+// This drives the FileProvider authority, the AppAuth redirect scheme and the OpenID callback
+// scheme too, so the fork installs side-by-side with stock Linphone.
+val packageName = "shiroikuma.rindenwa"
 val useDifferentPackageNameForDebugBuild = false
+
+// shiroikuma fork: our per-build increment, bumped by the buildApk task, reset to 1 on each new
+// upstream version. Applied to upstream's own versionCode/versionName below the defaultConfig
+// block, so upstream's two literals stay byte-identical and never conflict on rebase.
+val shiroikumaBuild = (providers.gradleProperty("BUILD_NUMBER").orNull ?: "1").toInt()
 
 val sdkPath = providers.gradleProperty("LinphoneSdkBuildDir").get()
 val googleServices = File(projectDir.absolutePath + "/google-services.json")
@@ -113,27 +122,55 @@ android {
 
         ndk {
             //noinspection ChromeOsAbiSupport
-            abiFilters += listOf("armeabi-v7a", "arm64-v8a")
+            // shiroikuma fork: single-ABI build (matches the shiroikuma-rindenwa_*_arm64-v8a.apk name).
+            abiFilters += listOf("arm64-v8a")
         }
     }
+
+    // shiroikuma fork versioning. Upstream's versionCode/versionName literals above are left exactly
+    // as upstream writes them and read back here, so an upstream bump flows through untouched:
+    //   versionName = "<upstream>+<BUILD_NUMBER>"
+    //   versionCode = <upstream> * 1000 + <BUILD_NUMBER>
+    // The x1000 tail (not x10000 as in the sister forks) is forced by Linphone's large upstream code:
+    // 602003 * 10000 would overflow Android's 2100000000 versionCode ceiling.
+    val upstreamVersionCode = defaultConfig.versionCode!!
+    val upstreamVersionName = defaultConfig.versionName!!
+    val forkVersionName = "$upstreamVersionName+$shiroikumaBuild"
+    val forkVersionCode = upstreamVersionCode * 1000 + shiroikumaBuild
+    defaultConfig.versionCode = forkVersionCode
+    defaultConfig.versionName = forkVersionName
+    println("shiroikuma fork version: $forkVersionName (versionCode $forkVersionCode)")
 
     applicationVariants.all {
         val variant = this
         variant.outputs
             .map { it as com.android.build.gradle.internal.api.BaseVariantOutputImpl }
             .forEach { output ->
-                output.outputFileName = "linphone-android-${variant.buildType.name}-$gitVersion.apk"
+                // shiroikuma fork: house APK naming, e.g. shiroikuma-rindenwa_6.3.0-alpha+1_arm64-v8a.apk
+                output.outputFileName =
+                    if (variant.buildType.name == "release") {
+                        "shiroikuma-rindenwa_${forkVersionName}_arm64-v8a.apk"
+                    } else {
+                        "shiroikuma-rindenwa_${forkVersionName}-${variant.buildType.name}_arm64-v8a.apk"
+                    }
             }
     }
 
     val keystorePropertiesFile = rootProject.file("keystore.properties")
     val keystoreProperties = Properties()
-    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+    // shiroikuma fork: keystore.properties is gitignored here (it carries our signing password),
+    // so tolerate its absence instead of failing configuration — see keystore.properties_sample.
+    if (keystorePropertiesFile.exists()) {
+        keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+    } else {
+        println("keystore.properties not found — release builds will be unsigned")
+    }
 
     signingConfigs {
         create("release") {
-            val keyStorePath = keystoreProperties["storeFile"] as String
-            val keyStore = project.file(keyStorePath)
+            // shiroikuma fork: empty path when keystore.properties is absent (see above).
+            val keyStorePath = keystoreProperties["storeFile"] as String? ?: ""
+            val keyStore = project.file(keyStorePath.ifEmpty { "keystore-not-configured" })
             if (keyStore.exists()) {
                 storeFile = keyStore
                 storePassword = keystoreProperties["storePassword"] as String
@@ -333,5 +370,41 @@ if (crashlyticsAvailable) {
         tasks.getByName("packageRelease").finalizedBy(
             tasks.getByName("uploadCrashlyticsSymbolFileRelease"),
         )
+    }
+}
+
+// --- shiroikuma fork: build the signed release APK, copy it to ~/tmp, bump BUILD_NUMBER ---
+tasks.register("buildApk") {
+    description = "Build the signed release APK, copy it to ~/tmp, and bump BUILD_NUMBER for next time."
+    group = "build"
+    dependsOn("assembleRelease")
+    // Capture project state at configuration time so the action is configuration-cache compatible.
+    val fvName = android.defaultConfig.versionName
+    val fvCode = android.defaultConfig.versionCode
+    val releaseApkDir = layout.buildDirectory.dir("outputs/apk/release")
+    val userHome = providers.systemProperty("user.home")
+    val propsFile = rootProject.file("gradle.properties")
+    val currentBuildNumber = shiroikumaBuild
+    doLast {
+        val apkName = "shiroikuma-rindenwa_${fvName}_arm64-v8a.apk"
+        val outputDir = releaseApkDir.get().asFile
+        val targetDir = File(userHome.get(), "tmp")
+        targetDir.mkdirs()
+        outputDir.listFiles { _, name -> name.endsWith(".apk") }?.firstOrNull()?.let { apk ->
+            val targetFile = File(targetDir, apkName)
+            apk.copyTo(targetFile, overwrite = true)
+            println("\u001B[1;36m>>> ${targetFile.absolutePath}\u001B[0m")
+            println("\u001B[1;36m>>> versionCode $fvCode\u001B[0m")
+        } ?: throw GradleException("No APK found in $outputDir")
+
+        // Auto-increment BUILD_NUMBER for the next build.
+        val nextBuildNumber = currentBuildNumber + 1
+        propsFile.writeText(
+            propsFile.readText().replace(
+                "BUILD_NUMBER=$currentBuildNumber",
+                "BUILD_NUMBER=$nextBuildNumber"
+            )
+        )
+        println("\u001B[1;36m>>> BUILD_NUMBER bumped to $nextBuildNumber\u001B[0m")
     }
 }
