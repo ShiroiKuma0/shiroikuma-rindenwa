@@ -2,7 +2,65 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha+9 — current
+## 6.3.0-alpha+15 — current
+
+Navigation and the account switcher redrawn as a card folder, on upstream `6.3.0-alpha`.
+
+### Card-folder tabs
+
+- `SkFolderTabPainter` draws a tab strip: one continuous bold, opaque line across the full width
+  that, at the tab in the foreground, curls outward (the browser-tab flare), runs along both sides
+  and around the two far corners — open on the baseline side, because that tab is the panel behind
+  it. Every other tab is the same box drawn at 1.5 dp and 30 % alpha behind that line; tabs are all
+  the same size, what tells them apart is which one is in front.
+- One painter serves both bars: the bottom navigation hangs its tabs down from the panel above, the
+  account strip stands its tabs up from the panel below.
+- Selection changes are interpolated over 260 ms — the bold line dives around the incoming tab while
+  the outgoing one closes up — so a tab switch reads as continuous.
+- The bottom bar's Contacts / Calls / Conversations labels now sit inside their own tabs
+  (`SkFolderTabsView`), which take their geometry from the real labels at draw time, so a hidden
+  entry (Conversations and Meetings can both be switched off) leaves no gap.
+
+### Account tabs
+
+- New strip across the top of the main screens (`SkAccountTabsView`): one tab per account. The
+  account in use carries its picture at 2× upstream's 45 dp plus its display name; the others the
+  same picture without the name. Tapping a tab sets that account as default — the drawer menu's
+  action, without opening the drawer.
+- Horizontally scrollable when there are more accounts than fit, and it scrolls the active tab into
+  view on its own.
+- The tab name that used to be the top bar's title ("Contacts", "Calls", "Conversations") is gone —
+  the bottom folder says which screen you are on. What is left inside the pane is the controls row:
+  drawer menu on the left, search and the screen's own action on the right.
+
+### Drag to reorder, both lists
+
+- `SkAccountOrder` stores 白い熊's own account order, persisted as identity addresses, and is read
+  by the tab strip and by the drawer menu's account list alike. Accounts the Core hands over that
+  have never been placed keep their relative order and land at the end.
+- `SkDragReorder` implements long-press → haptic buzz → drag: the child lifts and follows the
+  finger while the others slide out of its way; on release the new order is stored. Sideways in the
+  tab strip, up and down in the drawer.
+- Whichever list is dragged, the other rebuilds from the same stored order.
+
+### Full-width bars
+
+- Both strips are hoisted out of the `SlidingPaneLayout`, so each main screen is a vertical stack of
+  account tabs · sliding pane · navigation tabs. Their lines run the full width of the window,
+  across the detail pane as well, instead of stopping at the list pane's edge.
+
+### Fixes & behaviour
+
+- Dialogs are framed on all four sides: upstream's `shape_dialog_background` stacks two rounded
+  rectangles offset by 2 dp, which paints an accent line along the bottom edge only — on a black
+  panel that reads as a stray underline. It is one shape with a 2 dp yellow stroke now, so every
+  dialog in the app is a black panel with a yellow border.
+- The empty half of the dual-pane view uses the app's black instead of upstream's lifted grey
+  surface, which read as a smudge next to a black list.
+- Landscape keeps the single-row bar with the account's display name as its title; the tab strip is
+  portrait-only.
+
+## 6.3.0-alpha+9
 
 First public release of the fork, on upstream `6.3.0-alpha` (upstream versionCode 602003).
 
