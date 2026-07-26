@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  shiroikuma-rindenwa fork — the 白い熊 臨電話 theme overlay.
+
+  Applied last in GenericActivity.getTheme(), so it wins over Theme.Linphone and over every
+  per-colour variant (Terracotta, Lavender, …). Because upstream resolves ALL of its colours
+  through these attributes, overriding them here re-skins the whole app — every fragment, dialog
+  and list row — without walking a single view at runtime.
+
+  Roles, so future edits stay coherent:
+    · color_main1_*   the brand accent      → yellow (drives icon tints, links, active states)
+    · color_main2_*   the surface→ink ramp  → black surfaces up to yellow ink
+    · color_grey_*    neutral surfaces/ink  → black surfaces, dimmed yellow ink
+    · color_on_main   content ON the accent → black, so a yellow chip stays legible
+    · danger/success/warning/info           → kept semantic; only their backgrounds go dark
+
+  The top bars are deliberately NOT yellow slabs: color_main1_500 stays the accent for tints,
+  while the bar fill comes from @drawable/color_main1_500, repainted black in this fork.
+-->
+<resources>
+    <!-- parent="" is required: the dotted name would otherwise make AAPT infer a "Theme" parent.
+         This is an overlay applied on top of Theme.Linphone, so it must inherit nothing. -->
+    <style name="Theme.SkBlackYellow" parent="">
+        <item name="android:windowBackground">@color/sk_surface</item>
+        <item name="android:statusBarColor">@color/sk_bar_background</item>
+        <item name="android:navigationBarColor">@color/sk_surface</item>
+        <item name="android:colorBackground">@color/sk_surface</item>
+
+        <!-- Accent -->
+        <item name="color_main1_100">@color/sk_yellow_wash</item>
+        <item name="color_main1_500">@color/sk_yellow</item>
+
+        <!-- Surface → ink ramp. 000 is the base surface, 900 the strongest ink. -->
+        <item name="color_main2_000">@color/sk_surface</item>
+        <item name="color_main2_100">@color/sk_surface_alt</item>
+        <item name="color_main2_200">@color/sk_surface_raised</item>
+        <item name="color_main2_300">@color/sk_ink_ghost</item>
+        <item name="color_main2_400">@color/sk_ink_faint</item>
+        <item name="color_main2_500">@color/sk_ink_dim</item>
+        <item name="color_main2_600">@color/sk_ink_dim</item>
+        <!-- 700 is INK, not a surface: upstream's night theme maps it to gray_main2_300 (light).
+             Mapping it to a dark surface made every label using it black-on-black — that is what
+             hid the account name above the status pill in the drawer. -->
+        <item name="color_main2_700">@color/sk_ink</item>
+        <item name="color_main2_800">@color/sk_ink</item>
+        <item name="color_main2_900">@color/sk_ink</item>
+
+        <!-- Neutrals -->
+        <item name="color_grey_100">@color/sk_surface_alt</item>
+        <item name="color_grey_200">@color/sk_surface_raised</item>
+        <item name="color_grey_300">@color/sk_ink_ghost</item>
+        <item name="color_grey_400">@color/sk_ink_faint</item>
+        <item name="color_grey_500">@color/sk_ink_dim</item>
+        <item name="color_grey_600">@color/sk_ink_dim</item>
+        <item name="color_grey_800">@color/sk_ink</item>
+        <item name="color_grey_900">@color/sk_ink</item>
+
+        <!-- Semantic — meaning preserved, surfaces darkened. -->
+        <item name="color_danger_100">@color/sk_danger_dim</item>
+        <item name="color_danger_500">@color/sk_danger</item>
+        <item name="color_danger_600">@color/sk_danger</item>
+        <item name="color_danger_700">@color/sk_danger</item>
+        <item name="color_danger_900">@color/sk_danger_dim</item>
+
+        <item name="color_success_100">@color/sk_success_dim</item>
+        <item name="color_success_200">@color/sk_success_dim</item>
+        <item name="color_success_500">@color/sk_success</item>
+        <item name="color_success_700">@color/sk_success</item>
+        <item name="color_success_900">@color/sk_success_dim</item>
+
+        <item name="color_info_500">@color/sk_info</item>
+
+        <item name="color_warning_100">@color/sk_warning_dim</item>
+        <item name="color_warning_600">@color/sk_warning</item>
+        <item name="color_warning_900">@color/sk_warning_dim</item>
+        <item name="color_plain_text_security_warning_600">@color/sk_warning</item>
+
+        <item name="color_offline_100">@color/sk_surface_raised</item>
+        <item name="color_offline_900">@color/sk_offline</item>
+
+        <!-- Content drawn ON the accent must be black, or a yellow fill swallows it. -->
+        <item name="color_on_main">@color/sk_black</item>
+
+        <item name="color_background_contrast_in_dark_mode">@color/sk_surface</item>
+        <item name="color_separator">@color/sk_ink_ghost</item>
+        <item name="color_text">@color/sk_ink</item>
+        <item name="color_hint_text">@color/sk_ink_faint</item>
+
+        <item name="color_text_field_background">@color/sk_surface_alt</item>
+        <item name="color_avatar_background">@color/sk_surface_raised</item>
+        <item name="color_avatar_text">@color/sk_ink</item>
+
+        <item name="color_chat_bubble_incoming">@color/sk_surface_alt</item>
+        <item name="color_chat_bubble_outgoing">@color/sk_surface_raised</item>
+        <item name="color_chat_bubble_reply">@color/sk_surface_raised</item>
+        <item name="color_chat_bubble_file">@color/sk_surface_raised</item>
+
+        <item name="color_message_text_field_background">@color/sk_surface_alt</item>
+        <item name="color_conversation_send_area_background">@color/sk_surface</item>
+
+        <item name="color_button_background">@color/sk_surface_alt</item>
+        <item name="color_button_pressed_background">@color/sk_yellow_wash</item>
+        <item name="color_button_disabled_background">@color/sk_disabled</item>
+
+        <item name="color_gradient_start">@color/sk_surface</item>
+        <item name="color_gradient_end">@color/sk_surface</item>
+
+        <item name="color_trust_background">@color/sk_surface_raised</item>
+        <item name="color_trust_track">@color/sk_surface_alt</item>
+
+        <item name="color_bottom_sheet_handle">@color/sk_ink_faint</item>
+        <item name="color_bottom_sheet_background">@color/sk_surface_alt</item>
+        <item name="color_bottom_sheet_disabled_menu">@color/sk_ink_ghost</item>
+    </style>
+</resources>

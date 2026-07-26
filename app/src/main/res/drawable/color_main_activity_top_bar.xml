@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma fork: black bar, same reasoning as color_main1_500.xml. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    <solid android:color="@color/gray_main2_500" />
+    <solid android:color="@color/sk_bar_background" />
 </shape>

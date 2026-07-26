@@ -42,6 +42,13 @@
     <!-- Needed for auto start at boot if keep alive service is enabled -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
+    <!-- shiroikuma fork: lets a 保存復元 automation export write to the absolute directory the
+         caller names (the `path` extra). Without it the export still works, but only into the
+         SAF directory picked in the UI page. -->
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
+
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.READ_PHONE_NUMBERS"/>
 
@@ -148,6 +155,24 @@
             android:windowSoftInputMode="adjustResize"
             android:launchMode="singleTask"
             android:resizeableActivity="true" />
+
+        <!-- shiroikuma fork: the 白い熊 臨電話 UI page (Settings entry + long-press on the
+             drawer's Settings cog). -->
+        <activity
+            android:name=".shiroikuma.SkUiActivity"
+            android:exported="false"
+            android:label="@string/sk_ui_title" />
+
+        <!-- shiroikuma fork: the 保存復元 automation contract. No android:permission — the caller
+             cannot hold one, so the token in SkAutomation is the gate. -->
+        <receiver
+            android:name=".shiroikuma.SkStateExportReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="${applicationId}.action.EXPORT_STATE" />
+                <action android:name="${applicationId}.action.LIST_CATEGORIES" />
+            </intent-filter>
+        </receiver>
 
         <activity
             android:name=".ui.fileviewer.MediaViewerActivity"

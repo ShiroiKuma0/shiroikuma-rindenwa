@@ -21,6 +21,9 @@
             name="grantAccessCameraClickListener"
             type="View.OnClickListener" />
         <variable
+            name="skSkipSetupClickListener"
+            type="View.OnClickListener" />
+        <variable
             name="skipClickListener"
             type="View.OnClickListener" />
         <variable
@@ -80,6 +83,7 @@
                 app:layout_constraintTop_toBottomOf="@id/back" />
 
             <ImageView
+                android:onClick="@{grantPostNotificationsClickListener}"
                 android:id="@+id/post_notifications_icon"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
@@ -96,6 +100,7 @@
 
             <androidx.appcompat.widget.AppCompatTextView
                 style="@style/default_text_style"
+                android:onClick="@{grantPostNotificationsClickListener}"
                 android:id="@+id/post_notifications_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -111,6 +116,7 @@
                 app:layout_constraintEnd_toEndOf="parent"/>
 
             <ImageView
+                android:onClick="@{grantReadContactsClickListener}"
                 android:id="@+id/read_contacts_icon"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
@@ -127,6 +133,7 @@
 
             <androidx.appcompat.widget.AppCompatTextView
                 style="@style/default_text_style"
+                android:onClick="@{grantReadContactsClickListener}"
                 android:id="@+id/read_contacts_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -142,6 +149,7 @@
                 app:layout_constraintEnd_toEndOf="parent"/>
 
             <ImageView
+                android:onClick="@{grantRecordAudioClickListener}"
                 android:id="@+id/record_audio_icon"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
@@ -158,6 +166,7 @@
 
             <androidx.appcompat.widget.AppCompatTextView
                 style="@style/default_text_style"
+                android:onClick="@{grantRecordAudioClickListener}"
                 android:id="@+id/record_audio_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -173,6 +182,7 @@
                 app:layout_constraintEnd_toEndOf="parent"/>
 
             <ImageView
+                android:onClick="@{grantAccessCameraClickListener}"
                 android:id="@+id/access_camera_icon"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
@@ -189,6 +199,7 @@
 
             <androidx.appcompat.widget.AppCompatTextView
                 style="@style/default_text_style"
+                android:onClick="@{grantAccessCameraClickListener}"
                 android:id="@+id/access_camera_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -202,6 +213,20 @@
                 app:layout_constraintStart_toEndOf="@id/access_camera_icon"
                 app:layout_constraintBottom_toBottomOf="@id/access_camera_icon"
                 app:layout_constraintEnd_toEndOf="parent"/>
+
+            <!-- shiroikuma fork: leave the assistant entirely, so a cleared install can
+                 reach 白い熊 臨電話 UI -> Export / Import and restore from a backup. -->
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/secondary_button_label_style"
+                android:id="@+id/sk_skip_setup"
+                android:onClick="@{skSkipSetupClickListener}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginBottom="10dp"
+                android:text="@string/sk_assistant_skip"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/skip"/>
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:onClick="@{skipClickListener}"

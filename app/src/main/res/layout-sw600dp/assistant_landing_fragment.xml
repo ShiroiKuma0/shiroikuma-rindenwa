@@ -22,6 +22,9 @@
             name="thirdPartySipAccountLoginClickListener"
             type="View.OnClickListener" />
         <variable
+            name="skSkipSetupClickListener"
+            type="View.OnClickListener" />
+        <variable
             name="qrCodeClickListener"
             type="View.OnClickListener" />
         <variable
@@ -288,6 +291,23 @@
                     app:layout_constraintStart_toStartOf="@id/title"
                     app:layout_constraintEnd_toEndOf="@id/title"
                     app:layout_constraintTop_toBottomOf="@id/scan_qr_code"
+                    app:layout_constraintBottom_toTopOf="@id/sk_skip_setup"/>
+
+                <!-- shiroikuma fork: the way out. Without it a cleared install cannot reach the
+                     main screen, and so cannot reach 白い熊 臨電話 UI -> Export / Import. -->
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/secondary_button_label_style"
+                    android:id="@+id/sk_skip_setup"
+                    android:onClick="@{skSkipSetupClickListener}"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="@string/sk_assistant_skip"
+                    app:layout_constraintStart_toStartOf="@id/title"
+                    app:layout_constraintEnd_toEndOf="@id/title"
+                    app:layout_constraintTop_toBottomOf="@id/third_party_sip_account"
                     app:layout_constraintBottom_toTopOf="@id/mountains"/>
 
                 <ImageView

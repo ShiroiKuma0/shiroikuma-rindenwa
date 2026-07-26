@@ -8,6 +8,8 @@ firebaseBomVersion = "34.15.0"
 ktlint = "12.3.0"
 
 annotations = "1.10.0"
+# shiroikuma fork: SAF tree handling for the 白い熊 臨電話 Export/Import layer.
+documentfile = "1.1.0"
 appcompat = "1.7.1"
 constraintLayout = "2.2.1"
 coreKtx = "1.19.0"
@@ -37,6 +39,7 @@ mockk = "1.13.13"
 
 [libraries]
 androidx-annotations = { group = "androidx.annotation", name = "annotation", version.ref = "annotations" }
+androidx-documentfile = { group = "androidx.documentfile", name = "documentfile", version.ref = "documentfile" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-constraint-layout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintLayout" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
