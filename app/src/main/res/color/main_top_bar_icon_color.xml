@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma fork: the top bar is black here, not an accent-coloured slab, so its icons take
+     the accent instead of color_on_main (which stays black for content drawn ON accent fills,
+     such as FAB icons and the primary button label). -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_enabled="false"
-        android:color="?attr/color_grey_300" />
+        android:color="@color/sk_ink_ghost" />
     <item android:state_pressed="true"
-        android:color="?attr/color_main2_600" />
+        android:color="@color/sk_ink_dim" />
     <item android:state_hovered="true"
-        android:color="?attr/color_main2_600" />
+        android:color="@color/sk_ink_dim" />
     <item
-        android:color="?attr/color_on_main"/>
+        android:color="?attr/color_main1_500"/>
 </selector>

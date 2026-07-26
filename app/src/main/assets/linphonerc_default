@@ -36,7 +36,9 @@ port=443
 [misc]
 log_collection_upload_server_url=https://files.linphone.org/http-file-transfer-server/hft.php
 file_transfer_server_url=https://files.linphone.org/http-file-transfer-server/hft.php
-version_check_url_root=https://download.linphone.org/releases
+# shiroikuma fork: empty disables the in-app update check (it would offer upstream Linphone
+# releases, not ours). Our updates ship from github.com/ShiroiKuma0/shiroikuma-rindenwa/releases.
+version_check_url_root=
 max_calls=10
 history_max_size=100
 conference_layout=1

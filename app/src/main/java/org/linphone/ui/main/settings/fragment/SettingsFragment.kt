@@ -36,6 +36,7 @@ import org.linphone.R
 import org.linphone.compatibility.Compatibility
 import org.linphone.core.tools.Log
 import org.linphone.databinding.SettingsFragmentBinding
+import org.linphone.shiroikuma.SkUiActivity
 import org.linphone.ui.GenericActivity
 import org.linphone.ui.main.MainActivity
 import org.linphone.ui.main.fragment.GenericMainFragment
@@ -169,6 +170,12 @@ class SettingsFragment : GenericMainFragment() {
                 val action = SettingsFragmentDirections.actionSettingsFragmentToSettingsDeveloperFragment()
                 findNavController().navigate(action)
             }
+        }
+
+        // shiroikuma fork: the 白い熊 臨電話 UI page. A plain Activity rather than a nav
+        // destination, so the drawer's long-press shortcut can reach it from anywhere too.
+        binding.setSkUiSettingsClickListener {
+            startActivity(Intent(requireContext(), SkUiActivity::class.java))
         }
 
         viewModel.recreateActivityEvent.observe(viewLifecycleOwner) {
