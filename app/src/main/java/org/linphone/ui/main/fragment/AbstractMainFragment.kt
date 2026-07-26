@@ -39,6 +39,7 @@ import com.google.android.material.textfield.TextInputLayout
 import org.linphone.LinphoneApplication.Companion.coreContext
 import org.linphone.LinphoneApplication.Companion.corePreferences
 import org.linphone.R
+import org.linphone.shiroikuma.SkAccountOrder
 import org.linphone.shiroikuma.SkUiActivity
 import org.linphone.core.tools.Log
 import org.linphone.databinding.BottomNavBarBinding
@@ -191,6 +192,11 @@ abstract class AbstractMainFragment : GenericMainFragment() {
             it.consume {
                 viewModel.resetMissedCallsCount()
             }
+        }
+
+        // shiroikuma fork: the drawer menu writes the same account order the tab strip reads.
+        SkAccountOrder.version.observe(viewLifecycleOwner) {
+            viewModel.refreshAccounts()
         }
 
         sharedViewModel.forceUpdateAvailableNavigationItems.observe(viewLifecycleOwner) {
