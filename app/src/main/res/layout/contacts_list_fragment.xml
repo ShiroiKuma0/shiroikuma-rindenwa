@@ -16,10 +16,29 @@
             type="org.linphone.ui.main.contacts.viewmodel.ContactsListViewModel" />
     </data>
 
-    <androidx.slidingpanelayout.widget.SlidingPaneLayout
-        android:id="@+id/sliding_pane_layout"
+    <!--
+      shiroikuma fork: the account tab strip is hoisted out of the sliding pane so its line runs the
+      full width of the screen, over the detail pane as well — the accounts belong to the whole
+      app, not to the list on the left. What stays inside the pane is the controls row.
+    -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@color/sk_bar_background">
+
+        <org.linphone.shiroikuma.SkAccountTabsView
+            android:id="@+id/account_tabs"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/sk_account_tab_strip_height"
+            skAccounts="@{viewModel.skAccounts}"
+            skActiveAccount="@{viewModel.account}" />
+
+        <androidx.slidingpanelayout.widget.SlidingPaneLayout
+            android:id="@+id/sliding_pane_layout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="@dimen/sliding_pane_left_fragment_width"
@@ -46,7 +65,7 @@
                     bind:extraActionContentDescription="@{@string/content_description_contacts_list_filters}"
                     bind:extraActionEnabled="@{true}"
                     android:layout_width="0dp"
-                    android:layout_height="@dimen/top_bar_height"
+                    android:layout_height="@dimen/sk_main_top_bar_height"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"/>
@@ -55,7 +74,7 @@
                     android:id="@+id/shadow_effect"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:layout_marginTop="@dimen/top_bar_shadow_height"
+                    android:layout_marginTop="@dimen/sk_main_top_bar_shadow_height"
                     android:background="@drawable/shape_squircle_white_r20_top_shadow"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -63,10 +82,10 @@
                     android:id="@+id/lists"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_marginTop="@dimen/top_bar_height"
+                    android:layout_marginTop="@dimen/sk_main_top_bar_height"
                     android:orientation="vertical"
                     android:background="@drawable/shape_squircle_white_r20_top_background"
-                    app:layout_constraintBottom_toTopOf="@id/bottom_nav_bar"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
@@ -192,14 +211,6 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toTopOf="@id/bottom_nav_bar" />
-
-                <include
-                    android:id="@+id/bottom_nav_bar"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    layout="@layout/bottom_nav_bar"
-                    bind:viewModel="@{viewModel}"
                     app:layout_constraintBottom_toBottomOf="parent" />
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -216,7 +227,7 @@
                     app:backgroundTint="?attr/color_main1_500"
                     app:shapeAppearanceOverlay="@style/rounded"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintBottom_toTopOf="@id/bottom_nav_bar" />
+                    app:layout_constraintBottom_toBottomOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -231,6 +242,15 @@
             app:defaultNavHost="false"
             app:navGraph="@navigation/contacts_nav_graph"/>
 
-    </androidx.slidingpanelayout.widget.SlidingPaneLayout>
+        </androidx.slidingpanelayout.widget.SlidingPaneLayout>
+
+        <include
+            android:id="@+id/bottom_nav_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            layout="@layout/bottom_nav_bar"
+            bind:viewModel="@{viewModel}" />
+
+    </LinearLayout>
 
 </layout>

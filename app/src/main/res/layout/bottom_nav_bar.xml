@@ -18,14 +18,31 @@
         android:elevation="16dp"
         android:background="?attr/color_background_contrast_in_dark_mode">
 
+        <!--
+          shiroikuma fork: the card-folder tabs. Spans the whole bar and is declared first so it
+          draws behind the labels — each navigation entry sits inside its own tab. The selected one
+          is a bold, opaque outline open at the top; the others hang behind it, shallower, thinner
+          and more transparent. It replaces the tab name that used to be the top bar's title, so
+          switching tabs stays seamless.
+        -->
+        <org.linphone.shiroikuma.SkFolderTabsView
+            android:id="@+id/folder_tabs"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            skSelectedTab="@{viewModel.contactsSelected ? 0 : viewModel.callsSelected ? 1 : viewModel.conversationsSelected ? 2 : viewModel.meetingsSelected ? 3 : -1}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <androidx.appcompat.widget.AppCompatTextView
             style="@style/bottom_nav_bar_label_style"
             android:id="@+id/contacts"
             android:onClick="@{() -> viewModel.navigateToContacts()}"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingTop="9dp"
-            android:paddingBottom="8dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
             android:drawableTop="@drawable/address_book"
             android:background="@drawable/squircle_transparent_button_background"
             android:drawablePadding="4dp"
@@ -43,8 +60,8 @@
             android:onClick="@{() -> viewModel.navigateToHistory()}"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingTop="9dp"
-            android:paddingBottom="8dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
             android:drawableTop="@drawable/phone"
             android:background="@drawable/squircle_transparent_button_background"
             android:drawablePadding="4dp"
@@ -62,7 +79,7 @@
             android:layout_width="@dimen/unread_count_indicator_size"
             android:layout_height="@dimen/unread_count_indicator_size"
             android:layout_marginStart="50dp"
-            android:layout_marginTop="2dp"
+            android:layout_marginTop="8dp"
             android:text="@{String.valueOf(viewModel.missedCallsCount), default=`1`}"
             android:visibility="@{viewModel.missedCallsCount > 0 ? View.VISIBLE : View.GONE}"
             app:layout_constraintTop_toTopOf="parent"
@@ -75,8 +92,8 @@
             android:onClick="@{() -> viewModel.navigateToConversations()}"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingTop="9dp"
-            android:paddingBottom="8dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
             android:drawableTop="@drawable/chat_teardrop_text"
             android:background="@drawable/squircle_transparent_button_background"
             android:drawablePadding="4dp"
@@ -95,7 +112,7 @@
             android:layout_width="@dimen/unread_count_indicator_size"
             android:layout_height="@dimen/unread_count_indicator_size"
             android:layout_marginStart="50dp"
-            android:layout_marginTop="2dp"
+            android:layout_marginTop="8dp"
             android:text="@{String.valueOf(viewModel.unreadMessages), default=`1`}"
             android:visibility="@{viewModel.unreadMessages > 0 &amp;&amp; !viewModel.hideConversations ? View.VISIBLE : View.GONE}"
             app:layout_constraintTop_toTopOf="parent"
@@ -108,8 +125,8 @@
             android:onClick="@{() -> viewModel.navigateToMeetings()}"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingTop="9dp"
-            android:paddingBottom="8dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
             android:drawableTop="@drawable/video_conference"
             android:background="@drawable/squircle_transparent_button_background"
             android:drawablePadding="4dp"
