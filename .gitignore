@@ -12,3 +12,10 @@ app/release/
 .idea/
 app/bc-android.keystore
 .kotlin/
+
+# --- shiroikuma fork ---
+# Carries our signing password in plaintext — never commit it (keystore.properties_sample documents
+# the keys). Upstream tracks this file with empty values; we untrack it instead.
+/keystore.properties
+# Agent files ARE committed here (CLAUDE.md, .claude/skills/); only the local settings stay out.
+.claude/settings.local.json
