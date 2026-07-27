@@ -53,6 +53,16 @@ class LinphoneApplication : Application(), SingletonImageLoader.Factory {
     companion object {
         private const val TAG = "[Linphone Application]"
 
+        /**
+         * shiroikuma fork: the logger domain becomes the Android logcat tag for every line the
+         * SDK emits. Upstream uses the app name, which for us is "白い熊 臨電話" — and Android
+         * property names accept only [a-zA-Z0-9_.-], so `log.tag.白い熊 臨電話` is rejected
+         * outright. On a ROM that filters logcat below error level (EMUI does) that leaves the
+         * fork with no reachable logs at all. An ASCII domain keeps the escape hatch working:
+         *     adb shell setprop log.tag.Rindenwa VERBOSE
+         */
+        private const val LOGGER_DOMAIN = "Rindenwa"
+
         @SuppressLint("StaticFieldLeak")
         lateinit var corePreferences: CorePreferences
 
@@ -89,8 +99,7 @@ class LinphoneApplication : Application(), SingletonImageLoader.Factory {
         )
         corePreferences.config = config
 
-        val appName = context.getString(R.string.app_name)
-        Factory.instance().setLoggerDomain(appName)
+        Factory.instance().setLoggerDomain(LOGGER_DOMAIN)
         Factory.instance().loggingService.setLogLevel(LogLevel.Message)
         Factory.instance().enableLogcatLogs(corePreferences.printLogsInLogcat)
 

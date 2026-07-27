@@ -36,6 +36,7 @@ import org.linphone.core.Friend
 import org.linphone.databinding.GenericAddressPickerListDecorationBinding
 import org.linphone.databinding.HistoryListCellBinding
 import org.linphone.databinding.HistoryListContactSuggestionCellBinding
+import org.linphone.shiroikuma.SkStyler
 import org.linphone.ui.main.history.model.CallLogModel
 import org.linphone.ui.main.history.model.CallLogModelWrapper
 import org.linphone.ui.main.model.ConversationContactOrSuggestionModel
@@ -192,6 +193,14 @@ class HistoryListAdapter :
                 model = callLogModel
 
                 binding.root.isSelected = bindingAdapterPosition == selectedAdapterPosition
+
+                // shiroikuma fork: row spacing, line spacing and the number line's font are all
+                // 白い熊-settable, and rows are recycled, so they are re-applied on every bind.
+                SkStyler.styleCallHistoryRow(
+                    binding.root,
+                    binding.numberLabel,
+                    listOf(binding.name, binding.numberLabel, binding.dateTime)
+                )
 
                 executePendingBindings()
             }

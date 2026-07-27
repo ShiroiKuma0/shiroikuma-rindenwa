@@ -121,6 +121,15 @@ class NotificationsManager
         private const val IN_CALL_FOREGROUND_SERVICE_ERROR_ID = 8
         private const val MISSED_CALL_ID = 10
         private const val CALL_REDIRECTION_ID = 20
+
+        /**
+         * shiroikuma fork: how long an account must stay in [RegistrationState.Failed] before we
+         * bother 白い熊 with a notification. Upstream notifies on the first Failed, which in this
+         * build means every momentary re-REGISTER hiccup leaves one sticky notification per
+         * account — five at a time, several times an hour. A registration that recovers inside
+         * this window never needed announcing.
+         */
+        private const val ACCOUNT_ERROR_GRACE_PERIOD_MS = 45_000L
     }
 
     private var currentInCallServiceNotificationId = -1
@@ -142,6 +151,13 @@ class NotificationsManager
     private val chatNotificationsMap: HashMap<String, Notifiable> = HashMap()
     private val previousChatNotifications: ArrayList<Int> = arrayListOf()
     private val accountsErrorNotificationsMap: HashMap<String, Int> = HashMap()
+
+    /**
+     * shiroikuma fork: identities whose [ACCOUNT_ERROR_GRACE_PERIOD_MS] countdown is running.
+     * An entry here means "Failed seen, notification not raised yet"; removing it cancels the
+     * pending notification, which is what a recovery to [RegistrationState.Ok] does.
+     */
+    private val accountsErrorPendingIdentities: MutableSet<String> = mutableSetOf()
 
     private val notificationsMap = HashMap<Int, Notification>()
 
@@ -474,10 +490,15 @@ class NotificationsManager
             message: String
         ) {
             if (state == RegistrationState.Failed) {
-                showAccountErrorNotification(account)
+                // shiroikuma fork: wait out the grace period instead of notifying straight away
+                scheduleAccountErrorNotification(account)
             } else if (state == RegistrationState.Ok) {
                 // Check if a notification exists for that identity address and if yes, remove it
                 val identity = account.params.identityAddress?.asStringUriOnly().orEmpty()
+                // shiroikuma fork: a recovery inside the grace period cancels the pending one
+                if (accountsErrorPendingIdentities.remove(identity)) {
+                    Log.i("$TAG Account [$identity] recovered before the grace period elapsed, no notification will be shown")
+                }
                 val notificationId = accountsErrorNotificationsMap.getOrDefault(identity, -1)
                 if (notificationId != -1) {
                     accountsErrorNotificationsMap.remove(identity)
@@ -658,6 +679,16 @@ class NotificationsManager
 
         coreContext.postOnMainThread {
             createChannels(clearChannels)
+        }
+
+        // shiroikuma fork: a registration error notification is bookkept in
+        // accountsErrorNotificationsMap, which dies with the process — so one posted by a previous
+        // process can never be cancelled and hangs around for good. Clear them all at startup;
+        // any account that is genuinely still failing will re-raise its own after the grace period.
+        for (account in core.accountList) {
+            val identity = account.params.identityAddress?.asStringUriOnly().orEmpty()
+            if (identity.isEmpty()) continue
+            cancelNotification(identity.hashCode(), ACCOUNT_ERROR_TAG)
         }
 
         core.addListener(coreListener)
@@ -1238,6 +1269,42 @@ class NotificationsManager
         notify(notifiable.notificationId, notification, CHAT_TAG)
     }
 
+    /**
+     * shiroikuma fork: arm the grace period for [account] rather than notifying immediately.
+     * Nothing is shown unless the account is *still* Failed when the delay elapses, so the
+     * momentary failures around a network change or a re-REGISTER stay silent.
+     */
+    @WorkerThread
+    private fun scheduleAccountErrorNotification(account: Account) {
+        val identity = account.params.identityAddress?.asStringUriOnly().orEmpty()
+        if (identity.isEmpty()) return
+
+        // Already counting down, or already showing — either way there is nothing new to arm
+        if (!accountsErrorPendingIdentities.add(identity)) return
+        if (accountsErrorNotificationsMap.containsKey(identity)) return
+
+        Log.i("$TAG Account [$identity] registration failed, waiting [$ACCOUNT_ERROR_GRACE_PERIOD_MS]ms before notifying")
+        coreContext.postOnCoreThreadDelayed({ core ->
+            // Removed in the meantime means the account recovered, so stay quiet
+            if (!accountsErrorPendingIdentities.remove(identity)) return@postOnCoreThreadDelayed
+
+            val stillThere = core.accountList.find {
+                it.params.identityAddress?.asStringUriOnly() == identity
+            }
+            if (stillThere == null) {
+                Log.i("$TAG Account [$identity] no longer exists, not notifying")
+                return@postOnCoreThreadDelayed
+            }
+            if (stillThere.state != RegistrationState.Failed) {
+                Log.i("$TAG Account [$identity] is now in state [${stillThere.state}], not notifying")
+                return@postOnCoreThreadDelayed
+            }
+
+            Log.w("$TAG Account [$identity] is still failed after the grace period, notifying")
+            showAccountErrorNotification(stillThere)
+        }, ACCOUNT_ERROR_GRACE_PERIOD_MS)
+    }
+
     @WorkerThread
     private fun showAccountErrorNotification(account: Account) {
         // Don't do it if background mode is not enabled, otherwise it will trigger every time
@@ -1270,8 +1337,10 @@ class NotificationsManager
                 .setContentTitle(context.getString(R.string.notification_account_registration_error_title, identity))
                 .setContentText(context.getString(R.string.notification_account_registration_error_message))
                 .setSmallIcon(R.drawable.linphone_notification)
-                .setAutoCancel(false)
-                .setOngoing(true)
+                // shiroikuma fork: dismissable. Upstream pins it open, which means a notification
+                // that has already been overtaken by events can only be cleared by opening the app.
+                .setAutoCancel(true)
+                .setOngoing(false)
                 .setCategory(NotificationCompat.CATEGORY_ERROR)
                 .setWhen(System.currentTimeMillis())
                 .setShowWhen(true)
