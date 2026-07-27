@@ -1112,6 +1112,7 @@
     <string name="sk_group_avatar" translatable="false">Avatar</string>
     <string name="sk_group_fab" translatable="false">Action button</string>
     <string name="sk_group_call_buttons" translatable="false">Call buttons</string>
+    <string name="sk_group_call_history" translatable="false">Call history rows</string>
     <string name="sk_group_bubble_outgoing" translatable="false">Outgoing bubble</string>
     <string name="sk_group_bubble_incoming" translatable="false">Incoming bubble</string>
     <string name="sk_group_bubble_shape" translatable="false">Bubble shape</string>
@@ -1125,6 +1126,7 @@
     <string name="sk_slot_toolbar_title" translatable="false">Top bar title</string>
     <string name="sk_slot_toolbar_icon" translatable="false">Top bar icons</string>
     <string name="sk_slot_list_name" translatable="false">Row name</string>
+    <string name="sk_slot_list_number" translatable="false">Call number</string>
     <string name="sk_slot_list_detail" translatable="false">Row detail</string>
     <string name="sk_slot_list_background" translatable="false">Row background</string>
     <string name="sk_slot_list_border" translatable="false">Row border</string>
@@ -1153,6 +1155,8 @@
     <string name="sk_dimen_button_border_width" translatable="false">Button border</string>
     <string name="sk_dimen_button_corner_radius" translatable="false">Button roundness</string>
     <string name="sk_dimen_avatar_corner_radius" translatable="false">Avatar roundness</string>
+    <string name="sk_dimen_call_row_padding" translatable="false">Call row spacing</string>
+    <string name="sk_dimen_call_line_spacing" translatable="false">Call line spacing</string>
 
     <!-- Per-slot text controls -->
     <string name="sk_font" translatable="false">Font</string>

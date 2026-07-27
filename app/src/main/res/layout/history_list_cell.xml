@@ -25,8 +25,8 @@
         android:onContextClick="@{onLongClickListener}"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:background="@drawable/primary_cell_background">
@@ -36,10 +36,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
             layout="@layout/contact_avatar"
             bind:model="@{model.avatarModel}"
+            bind:avatarSize="@{@dimen/avatar_history_list_cell_size}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -47,14 +48,36 @@
         <androidx.appcompat.widget.AppCompatTextView
             style="@style/default_text_style"
             android:id="@+id/name"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
+            android:singleLine="true"
+            android:ellipsize="end"
             android:text="@{model.avatarModel.name, default=`John Doe`}"
             android:textSize="14sp"
             android:textColor="?attr/color_main2_800"
+            app:layout_constraintVertical_chainStyle="packed"
             app:layout_constraintStart_toEndOf="@id/avatar"
+            app:layout_constraintEnd_toStartOf="@id/call"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/number_label"/>
+
+        <!-- shiroikuma fork: which of the contact's numbers this call used, and the address-book
+             field it is filed under. Gone when there is nothing to add beyond the name. -->
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/default_text_style_300"
+            android:id="@+id/number_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:text="@{model.numberWithLabel, default=`+420-601-524-009 · Home`}"
+            android:textSize="14sp"
+            android:textColor="?attr/color_main2_600"
+            android:visibility="@{model.numberWithLabel.empty ? View.GONE : View.VISIBLE}"
+            app:layout_constraintStart_toStartOf="@id/name"
+            app:layout_constraintEnd_toEndOf="@id/name"
+            app:layout_constraintTop_toBottomOf="@id/name"
             app:layout_constraintBottom_toTopOf="@id/date_time"/>
 
         <ImageView
@@ -77,7 +100,7 @@
             android:text="@{model.dateTime, default=`13 aout 2023`}"
             android:textSize="12sp"
             app:layout_constraintStart_toEndOf="@id/call_status"
-            app:layout_constraintTop_toBottomOf="@id/name"
+            app:layout_constraintTop_toBottomOf="@id/number_label"
             app:layout_constraintBottom_toTopOf="@id/separator"/>
 
         <ImageView

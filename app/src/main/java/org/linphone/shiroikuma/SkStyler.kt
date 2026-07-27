@@ -148,6 +148,38 @@ object SkStyler {
         }
     }
 
+    /**
+     * shiroikuma fork: one call-history record. Both of its spacings are 白い熊-settable — the
+     * padding that separates one record from the next ([SkDimen.CALL_ROW_PADDING]) and the gap
+     * between the three lines inside a record ([SkDimen.CALL_LINE_SPACING]) — and the number line
+     * carries its own [SkSlot.LIST_NUMBER] font slot, so its size can be raised without dragging
+     * the name and the timestamp up with it.
+     *
+     * Applied per bind rather than through [styleTree], because RecyclerView creates these rows
+     * long after the Activity has been styled and recycles them freely.
+     */
+    fun styleCallHistoryRow(row: View, number: TextView?, lines: List<View?>) {
+        val context = row.context
+
+        val padding = SkTheme.dimenPx(context, SkDimen.CALL_ROW_PADDING)
+        row.setPadding(row.paddingLeft, padding, row.paddingRight, padding)
+
+        // The first line sits flush against the top; every later line is pushed down by the gap.
+        val spacing = SkTheme.dimenPx(context, SkDimen.CALL_LINE_SPACING)
+        for ((index, line) in lines.withIndex()) {
+            val params = line?.layoutParams as? ViewGroup.MarginLayoutParams ?: continue
+            val wanted = if (index == 0) 0 else spacing
+            if (params.topMargin == wanted) continue
+            params.topMargin = wanted
+            line.layoutParams = params
+        }
+
+        number?.let {
+            it.setTextColor(SkTheme.color(context, SkSlot.LIST_NUMBER))
+            SkFonts.applyFont(it, SkSlot.LIST_NUMBER)
+        }
+    }
+
     /** One chat bubble; [outgoing] picks the outgoing or incoming slot pair. */
     fun styleBubble(bubble: View, text: TextView?, outgoing: Boolean) {
         val context = bubble.context
