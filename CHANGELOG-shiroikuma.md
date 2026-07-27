@@ -2,7 +2,55 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha+15 — current
+## 6.3.0-alpha+17 — current
+
+Fixes that came out of tracking down missed incoming calls, plus a call log that says which number
+rang. On upstream `6.3.0-alpha`.
+
+### The call history rows
+
+- Each record gained a middle line: the number the call actually used, and the address-book field
+  it is filed under ("Home", "Work mobile", …), resolved through the same
+  `PhoneNumberUtils.vcardParamStringToAddressBookLabel` the contact detail screen uses. With
+  several numbers saved for one contact, the name alone never said which one rang.
+- The call's own number is what gets displayed, not the contact's stored one: the provider sends
+  E.164, while an address-book entry may be written any which way. The stored entry is matched only
+  to fetch the label, comparing the trailing nine digits so `+420601524009`, `0601524009` and
+  `601524009` all resolve to the same line.
+- Numbers are grouped for reading — `+420-601-524-009` for Czechia, `+1-808-500-5515` for North
+  America. A country code that is not in the table, or a digit count that does not match it, is
+  left exactly as it arrived: an internal extension or a SIP username is never mangled into
+  something that looks like a phone number.
+- The avatar rises to 56 dp to span the three lines, through a new `avatarSizeOverride` binding
+  adapter rather than by raising `avatar_list_cell_size` — that dimension is shared by every list
+  including `contact_avatar`, and the contacts and conversations rows are still two lines.
+- The three lines are a packed vertical chain now. They were spread across the row's full height
+  before, which is where the loose gaps came from, and no amount of padding would have closed them.
+- New live controls under 白い熊 臨電話 UI → Calls → Call history rows: **Call number** (family,
+  weight, size and colour, its own `LIST_NUMBER` slot, default 14 sp), **Call row spacing**
+  (0–24 dp, default 2) and **Call line spacing** (0–16 dp, default 0). Applied per bind, because
+  RecyclerView creates these rows long after the activity styling pass and recycles them freely.
+
+### Registration error notifications
+
+- An account must now stay `Failed` for 45 s before anything is shown. Upstream notifies on the
+  first `Failed`, which is reasonable when push notifications carry the load — this build has no
+  `google-services.json`, so push is never available, both of upstream's suppression guards are
+  structurally dead, and every momentary re-REGISTER hiccup left one notification per account.
+- The notification is dismissable (`setOngoing(false)`). Upstream pins it open, so one that had
+  already been overtaken by events could only be cleared by opening the app.
+- Stale notifications from a previous process are cleared at core start. Their bookkeeping map dies
+  with the process, so an orphaned one could previously never be cancelled at all.
+
+### Debuggable on an EMUI phone
+
+- The SDK's logger domain becomes the Android logcat tag, and upstream sets it from the app name —
+  for this fork, `白い熊 臨電話`. Android property names accept only `[a-zA-Z0-9_.-]`, so
+  `log.tag.白い熊 臨電話` is rejected outright, and on a ROM that filters logcat below error level
+  the fork had no reachable logs at all. The domain is the constant `Rindenwa` now, so
+  `adb shell setprop log.tag.Rindenwa VERBOSE` works.
+
+## 6.3.0-alpha+15
 
 Navigation and the account switcher redrawn as a card folder, on upstream `6.3.0-alpha`.
 

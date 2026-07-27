@@ -14,7 +14,7 @@ a sister app can back this one up unattended.
 
 Installs **side-by-side** with stock Linphone (app id `shiroikuma.rindenwa`).
 
-**📥 Latest release: [`6.3.0-alpha+15`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
+**📥 Latest release: [`6.3.0-alpha+17`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
 
 </div>
 
@@ -81,6 +81,18 @@ SIP and media settings, appearance with its imported fonts, and app settings.
 Import merges rather than clears, and it works on a **completely clean install**: the assistant
 normally refuses to let you reach the app without an account, which would make restoring impossible,
 so the setup screens carry a skip that takes you straight in.
+
+---
+
+## 📞 A call log that says which number rang
+
+Stock shows a name and a time. With several numbers saved for one contact that leaves out the part
+that matters — which of them the call came in on. Each record now carries the number and the
+address-book field it is filed under ("Home", "Work mobile"), grouped for reading as
+`+420-601-524-009` and `+1-808-500-5515`, beside an avatar sized to span the three lines. A country
+code the fork does not group is shown exactly as it arrived rather than guessed at. The number
+line's font and both spacings — between records, and between the lines inside one — are live
+controls on the UI page like everything else.
 
 ---
 
