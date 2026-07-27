@@ -87,6 +87,26 @@ fun setInflatedViewStubLifecycleOwner(view: View, enable: Boolean) {
     binding?.lifecycleOwner = view.context as AppCompatActivity
 }
 
+/**
+ * shiroikuma fork: resize an included <contact_avatar>. The avatar's size lives inside that
+ * shared layout, so an <include> cannot override it the ordinary way — and bumping the
+ * dimension itself would enlarge the avatar in every list that includes it. This lets a single
+ * caller pass its own size in pixels; zero or unset leaves the layout's own value alone.
+ */
+@UiThread
+@BindingAdapter("avatarSizeOverride")
+fun setAvatarSizeOverride(view: View, sizePx: Float) {
+    if (sizePx <= 0f) return
+
+    val size = sizePx.toInt()
+    val params = view.layoutParams ?: return
+    if (params.width == size && params.height == size) return
+
+    params.width = size
+    params.height = size
+    view.layoutParams = params
+}
+
 @UiThread
 @BindingAdapter("entries", "layout")
 fun <T> setEntries(

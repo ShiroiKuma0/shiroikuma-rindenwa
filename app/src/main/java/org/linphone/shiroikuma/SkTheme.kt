@@ -46,6 +46,8 @@ enum class SkSlot(
     TOOLBAR_ICON("sk_toolbar_icon", SkSection.TOP_BAR, R.string.sk_slot_toolbar_icon),
 
     LIST_NAME("sk_list_name", SkSection.MAIN_SCREEN, R.string.sk_slot_list_name, hasFont = true),
+    /** The number + address-book label line of a call-history record. */
+    LIST_NUMBER("sk_list_number", SkSection.MAIN_SCREEN, R.string.sk_slot_list_number, hasFont = true),
     LIST_DETAIL("sk_list_detail", SkSection.MAIN_SCREEN, R.string.sk_slot_list_detail, hasFont = true),
     LIST_BACKGROUND("sk_list_background", SkSection.MAIN_SCREEN, R.string.sk_slot_list_background),
     LIST_BORDER("sk_list_border", SkSection.MAIN_SCREEN, R.string.sk_slot_list_border),
@@ -84,6 +86,12 @@ enum class SkDimen(val key: String, val labelRes: Int, val defaultDp: Int, val m
     BUTTON_BORDER_WIDTH("sk_button_border_width", R.string.sk_dimen_button_border_width, 2, 12),
     BUTTON_CORNER_RADIUS("sk_button_corner_radius", R.string.sk_dimen_button_corner_radius, 24, 40),
     AVATAR_CORNER_RADIUS("sk_avatar_corner_radius", R.string.sk_dimen_avatar_corner_radius, 24, 40),
+
+    /** Vertical padding above and below a whole call-history record — the gap between records. */
+    CALL_ROW_PADDING("sk_call_row_padding", R.string.sk_dimen_call_row_padding, 2, 24),
+
+    /** Gap between the three lines *inside* one call-history record. */
+    CALL_LINE_SPACING("sk_call_line_spacing", R.string.sk_dimen_call_line_spacing, 0, 16),
 }
 
 object SkTheme {
@@ -135,6 +143,7 @@ object SkTheme {
         SkSlot.TOOLBAR_ICON -> color(context, SkSlot.ACCENT)
 
         SkSlot.LIST_NAME -> color(context, SkSlot.TEXT)
+        SkSlot.LIST_NUMBER -> color(context, SkSlot.TEXT_SECONDARY)
         SkSlot.LIST_DETAIL -> color(context, SkSlot.TEXT_SECONDARY)
         SkSlot.LIST_BACKGROUND -> color(context, SkSlot.BACKGROUND)
         SkSlot.LIST_BORDER -> color(context, SkSlot.ACCENT)
