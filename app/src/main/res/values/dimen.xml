@@ -18,6 +18,10 @@
 
     <dimen name="avatar_bubble_size">30dp</dimen>
     <dimen name="avatar_list_cell_size">45dp</dimen>
+    <!-- shiroikuma fork: the call history row carries three lines (name, number + label, date),
+         so its avatar is sized to span them. Its own dimension, because every other list cell
+         is still two lines and must keep avatar_list_cell_size. -->
+    <dimen name="avatar_history_list_cell_size">56dp</dimen>
     <dimen name="avatar_favorite_list_cell_size">50dp</dimen>
     <dimen name="avatar_big_size">100dp</dimen>
     <dimen name="avatar_in_call_size">120dp</dimen>

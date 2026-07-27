@@ -173,6 +173,12 @@ class SkUiActivity : AppCompatActivity() {
         addColorRow(SkSlot.CALL_BACKGROUND, 1)
         addTextSlot(SkSlot.CALL_NAME, 1)
         addTextSlot(SkSlot.CALL_STATUS, 1)
+        // The call history rows: the number line's own font, and the two spacings that decide
+        // how tightly the list reads — between records, and between the lines within a record.
+        addSubgroup(R.string.sk_group_call_history, 1)
+        addTextSlot(SkSlot.LIST_NUMBER, 2)
+        addDimenRow(SkDimen.CALL_ROW_PADDING, 2)
+        addDimenRow(SkDimen.CALL_LINE_SPACING, 2)
         addSubgroup(R.string.sk_group_call_buttons, 1)
         addColorRow(SkSlot.CALL_ANSWER, 2)
         addColorRow(SkSlot.CALL_HANGUP, 2)
