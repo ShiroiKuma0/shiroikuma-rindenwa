@@ -27,6 +27,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service.STOP_FOREGROUND_REMOVE
 import android.content.Context
+import android.content.ContentUris
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -34,6 +35,7 @@ import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
+import android.provider.ContactsContract
 import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
@@ -44,7 +46,10 @@ import androidx.core.app.Person
 import androidx.core.app.RemoteInput
 import androidx.core.app.TaskStackBuilder
 import androidx.core.content.LocusIdCompat
+import androidx.core.graphics.drawable.IconCompat
 import androidx.navigation.NavDeepLinkBuilder
+import java.util.concurrent.FutureTask
+import java.util.concurrent.TimeUnit
 import org.linphone.LinphoneApplication.Companion.coreContext
 import org.linphone.LinphoneApplication.Companion.corePreferences
 import org.linphone.R
@@ -78,6 +83,7 @@ import org.linphone.ui.main.MainActivity.Companion.ARGUMENTS_CHAT
 import org.linphone.ui.main.MainActivity.Companion.ARGUMENTS_CONVERSATION_ID
 import org.linphone.utils.AppUtils
 import org.linphone.utils.FileUtils
+import org.linphone.utils.ImageUtils
 import org.linphone.utils.LinphoneUtils
 import org.linphone.utils.ShortcutUtils
 
@@ -130,6 +136,13 @@ class NotificationsManager
          * this window never needed announcing.
          */
         private const val ACCOUNT_ERROR_GRACE_PERIOD_MS = 45_000L
+
+        /**
+         * shiroikuma fork: how long the Core thread may wait for a caller's contact photo while
+         * building a call notification. A responsive contacts provider answers in a few
+         * milliseconds; a frozen one never does, and waiting on it costs the whole call.
+         */
+        private const val AVATAR_LOAD_TIMEOUT_MS = 400L
     }
 
     private var currentInCallServiceNotificationId = -1
@@ -1516,7 +1529,8 @@ class NotificationsManager
         } else {
             val contact = friend
                 ?: coreContext.contactsManager.findContactByAddress(remoteAddress)
-            getPerson(contact, LinphoneUtils.getDisplayName(remoteAddress))
+            // shiroikuma fork: bounded avatar load, see getCallerPerson
+            getCallerPerson(contact, LinphoneUtils.getDisplayName(remoteAddress))
         }
 
         val isVideo = LinphoneUtils.isVideoEnabled(call)
@@ -1924,6 +1938,114 @@ class NotificationsManager
             .setShowsUserInterface(false)
             .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_MARK_AS_READ)
             .build()
+    }
+
+    /**
+     * shiroikuma fork: the caller's [Person] for a call notification, built so that it can never
+     * block the Core thread.
+     *
+     * Reading a contact's photo goes through the contacts ContentProvider, and on a sleeping EMUI
+     * device that provider may not answer: `openAssetFileDescriptor` and the `ImageDecoder` read
+     * behind [getAvatarBitmap] then simply *block*. Upstream does that inline on the Core thread
+     * while building the call notification, so a stalled provider stalls the notification — and
+     * with it the full screen intent that is the only thing raising the incoming call screen.
+     * Nothing is thrown and nothing is logged; the Core just rings on.
+     *
+     * Observed once on 白い熊's Mate XT, 2026-07-30: the Core thread entered here at 19:40:09.812
+     * and emitted nothing until 19:40:17.452, the instant the call ended, while 492 lines from
+     * other threads went past — so the process was live and this thread alone was stuck. It is
+     * intermittent (a responsive provider answers in milliseconds) and it was *not* the cause of
+     * that evening's dead incoming calls — that was Huawei's PowerGenie setting this app's
+     * START_FOREGROUND app-op to `ignore`, which makes `startForeground` claim success while the
+     * system quietly drops the notification. This guard is for the latent hazard only.
+     *
+     * Only the two cheap string fields are read on the Core thread here; a [Friend] is a native
+     * object and must not be touched from another one. Everything that can block runs on a thread
+     * we are willing to walk away from.
+     */
+    @WorkerThread
+    private fun getCallerPerson(friend: Friend?, fallbackDisplayName: String): Person {
+        if (friend == null) {
+            // No contact, no photo to fetch — upstream's path does no I/O at all here
+            return getPerson(null, fallbackDisplayName)
+        }
+
+        val name = friend.name?.takeIf { it.isNotEmpty() } ?: fallbackDisplayName
+        val photoPath = friend.photo
+        val refKey = friend.refKey
+
+        val bitmap = loadAvatarWithinDeadline(photoPath, refKey, name)
+        return Person.Builder()
+            .setName(name.ifEmpty { "Unknown" })
+            .setIcon(
+                if (bitmap != null) {
+                    IconCompat.createWithAdaptiveBitmap(bitmap)
+                } else {
+                    AvatarGenerator(context).setInitials(AppUtils.getInitials(name)).buildIcon()
+                }
+            )
+            .setKey(refKey ?: name)
+            .setImportant(true)
+            .build()
+    }
+
+    /**
+     * shiroikuma fork: decode the caller's photo on a throwaway thread, and give up on it after
+     * [AVATAR_LOAD_TIMEOUT_MS]. Returns null when the photo can't be had in time, which leaves the
+     * caller with a generated initials avatar — a notification that rings beats a prettier one
+     * that never arrives.
+     */
+    @WorkerThread
+    private fun loadAvatarWithinDeadline(
+        photoPath: String?,
+        refKey: String?,
+        name: String
+    ): Bitmap? {
+        if (photoPath.isNullOrEmpty() && refKey.isNullOrEmpty()) return null
+
+        val task = FutureTask {
+            val path = photoPath?.takeIf { it.isNotEmpty() }
+                ?: nativeContactPictureUri(refKey)?.toString()
+            ImageUtils.getBitmap(context, path, false)
+        }
+        // Deliberately its own thread and not a shared executor: a read that never returns must
+        // not wedge the next incoming call behind it.
+        Thread(task, "rindenwa-avatar").apply { isDaemon = true }.start()
+
+        return try {
+            task.get(AVATAR_LOAD_TIMEOUT_MS, TimeUnit.MILLISECONDS)
+        } catch (t: Throwable) {
+            task.cancel(true)
+            Log.w(
+                "$TAG Couldn't load the photo of [$name] within [$AVATAR_LOAD_TIMEOUT_MS]ms ($t), using an initials avatar instead"
+            )
+            null
+        }
+    }
+
+    /**
+     * shiroikuma fork: [org.linphone.contacts.getNativeContactPictureUri] rebuilt from the ref key
+     * alone, so it can run off the Core thread without touching the [Friend].
+     */
+    @AnyThread
+    private fun nativeContactPictureUri(refKey: String?): Uri? {
+        val contactId = refKey?.toLongOrNull() ?: return null
+        return try {
+            val lookupUri = ContentUris.withAppendedId(
+                ContactsContract.Contacts.CONTENT_URI,
+                contactId
+            )
+            val pictureUri = Uri.withAppendedPath(
+                lookupUri,
+                ContactsContract.Contacts.Photo.DISPLAY_PHOTO
+            )
+            // Check the URI points at a real file before handing it to the decoder
+            val fd = context.contentResolver.openAssetFileDescriptor(pictureUri, "r") ?: return null
+            fd.close()
+            pictureUri
+        } catch (t: Throwable) {
+            null
+        }
     }
 
     @WorkerThread
