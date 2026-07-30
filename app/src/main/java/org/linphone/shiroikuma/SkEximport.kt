@@ -72,8 +72,19 @@ object SkEximport {
     /**
      * Export categories. A category with selectable parts lists each part as a child; the
      * automation contract's `items` extra accepts every id here, children included.
+     *
+     * [default] is the fourth field of a `LIST_CATEGORIES` line — whether the item starts ticked in
+     * a picker drawn from our reply. Everything here is `true`: the flag exists for things that are
+     * large, derived *and* re-creatable (downloaded tiles, a regenerable thumbnail cache), and this
+     * app exports none of those. Stating it anyway is the point — the app declares the default
+     * rather than leaving the picker to assume one, and anything added later inherits the field.
      */
-    enum class Cat(val id: String, val labelRes: Int, val parent: String? = null) {
+    enum class Cat(
+        val id: String,
+        val labelRes: Int,
+        val parent: String? = null,
+        val default: Boolean = true,
+    ) {
         ACCOUNTS("accounts", R.string.sk_eim_cat_accounts),
         HISTORY("history", R.string.sk_eim_cat_history),
         HISTORY_CALLS("history.calls", R.string.sk_eim_cat_history_calls, parent = "history"),
