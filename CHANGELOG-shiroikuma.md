@@ -2,7 +2,53 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha+22 — current
+## 6.3.0-alpha+23 — current
+
+The 保存復元 contract's fourth field, and an export that can be stopped from outside. On upstream
+`6.3.0-alpha`.
+
+### Categories now state their own default
+
+- `LIST_CATEGORIES` answers `id⇥label⇥parent⇥on|off`. 自由作業盤's backup-item picker is drawn from
+  this reply, freshly, each time it opens — so whether an item starts ticked is this app's decision
+  to state rather than the picker's to assume.
+- The field is positional and optional, so a top-level item, which has no parent, still carries the
+  **empty third field**. Nothing already written breaks: an absent fourth field still means `on`.
+- **Every category here is `on`.** The flag is for things that are large, derived *and*
+  re-creatable — downloaded map tiles, a regenerable thumbnail cache — and this app exports none of
+  those. Sending it anyway is the point: the app declares the default instead of leaving it to be
+  guessed, and any category added later inherits a field that already exists.
+- The in-app Export/Import sheet seeds its checkboxes from the same `Cat.default`, so the sheet and
+  the automation picker start from one answer instead of two that can drift.
+
+### The export can be cancelled
+
+- `CANCEL_EXPORT` is a third action on the same exported receiver. Extras are `token` — the same
+  gate as the others — and an optional `reply_id`; absent means whatever is running, which is
+  unambiguous because two exports at once are forbidden.
+- It **answers nothing at all**: not `OK:`, not an error. Fire-and-forget, handled before the
+  broadcast is held open.
+- **Safe to send at any time.** Nothing running, a `reply_id` naming a different run, or an export
+  that already finished are all silent no-ops — not errors, not crashes.
+- It is routed through the receiver rather than a service deliberately: an exported receiver is the
+  only part of this app a third party can reach, since the services are — correctly —
+  `android:exported="false"`. A stop button the batch cannot reach is not a stop button.
+- The stop reuses the Export/Import panel's own Cancel path — interrupt the worker, which
+  `SkEximport.checkCancelled` picks up at the next entry boundary — so there is one way to unwind
+  rather than two. The `java.io` streams underneath are not interruptible, so a `write()` in flight
+  completes rather than tearing; the flag is simply seen at the next check.
+- Unwinding runs the same `catch` as any other failure, which discards the half-written file. **A
+  cancelled export leaves the backup directory exactly as it found it** — no short archive, no
+  stray partial. That is the whole point of the action.
+- The terminal `ERROR:cancelled` goes out through the normal reply channel under the existing
+  `AtomicBoolean`, so it cannot double-fire with a success, and it is sent even though nobody may
+  still be listening — it is what proves the run ended rather than carrying on unseen.
+- The run in flight is tracked in companion-object state, because a `BroadcastReceiver` instance
+  dies with its broadcast and the cancel arrives at a different object entirely. The result is
+  decided by the cancelled flag rather than by matching an exception type, so whatever the interrupt
+  surfaces as, a run we asked to stop reports as cancelled.
+
+## 6.3.0-alpha+22
 
 One fix, found while chasing incoming calls that rang without ever waking the screen. On upstream
 `6.3.0-alpha`.
