@@ -14,7 +14,7 @@ a sister app can back this one up unattended.
 
 Installs **side-by-side** with stock Linphone (app id `shiroikuma.rindenwa`).
 
-**📥 Latest release: [`6.3.0-alpha+22`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
+**📥 Latest release: [`6.3.0-alpha+23`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
 
 </div>
 
@@ -98,10 +98,13 @@ controls on the UI page like everything else.
 
 ## 🤖 Backs itself up unattended
 
-A token-gated broadcast contract (`EXPORT_STATE` / `LIST_CATEGORIES`) lets 白い熊 自由作業盤 trigger
-this app's export headlessly as part of backing up every sister app in one run — reporting real
-progress counts and replying with the path and size it wrote. Off by default; the switch and its
-token live inside the Export/Import section, where backup lives.
+A token-gated broadcast contract (`EXPORT_STATE` / `LIST_CATEGORIES` / `CANCEL_EXPORT`) lets 白い熊
+自由作業盤 trigger this app's export headlessly as part of backing up every sister app in one run —
+reporting real progress counts and replying with the path and size it wrote. The category list says
+which items should start ticked, so the picker on the other side reflects this app's answer instead
+of guessing, and a cancel stops a run in flight and takes the half-written archive with it, leaving
+the backup directory exactly as it was found. Off by default; the switch and its token live inside
+the Export/Import section, where backup lives.
 
 ---
 
