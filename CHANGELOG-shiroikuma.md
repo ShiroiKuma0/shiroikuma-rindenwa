@@ -2,7 +2,55 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha+17 — current
+## 6.3.0-alpha+22 — current
+
+One fix, found while chasing incoming calls that rang without ever waking the screen. On upstream
+`6.3.0-alpha`.
+
+### The caller's photo no longer holds up the call
+
+- Building a call notification asks the contacts provider for the caller's photo, and upstream does
+  that read inline on the Core thread. On a sleeping EMUI phone the provider may simply not answer:
+  `openAssetFileDescriptor` and the `ImageDecoder` read behind `Friend.getAvatarBitmap` block
+  outright — and because a block throws nothing, nothing is caught and nothing is logged.
+- A stalled read stalls the notification, and that notification is the *only* thing that raises the
+  incoming call screen: upstream calls `showCallActivity()` for outgoing and connected calls, never
+  for an incoming one, leaving that entirely to the notification's full screen intent. So the Core
+  rings on into a dark phone with nothing on it.
+- Caught in the act on 2026-07-30: the Core thread entered the avatar path at 19:40:09.812 and said
+  nothing further until 19:40:17.452, the instant the call ended — 7.6 s — while 492 log lines from
+  the app's other threads went past. The process was alive; that one thread alone was stuck.
+- Now only the name and the photo path are read on the Core thread, both cheap, and only those: a
+  `Friend` is a native object and must not be touched from another thread. The decode runs on a
+  throwaway daemon thread with a 400 ms deadline, and a miss falls back to the initials avatar the
+  fork already generates for callers with no picture. The thread is deliberately not pooled — a read
+  that never returns must not wedge the next call behind it. A responsive provider answers in
+  milliseconds, so the photo still shows in the ordinary case.
+
+### Not a fork bug: dead incoming calls on a Huawei phone
+
+Recorded here because it cost an evening and no amount of app code can detect it. Huawei's
+PowerGenie had set this app's `START_FOREGROUND` app-op to `ignore`, which makes
+`Service.startForeground()` **return success while the system silently discards the notification**.
+No exception, no log, nothing for the app to see — and with the notification gone, so is the full
+screen intent, so the phone rings with a dark screen. Check it before suspecting the fork:
+
+```
+adb shell cmd appops get shiroikuma.rindenwa | grep START_FOREGROUND
+```
+
+A healthy app shows `allow`. The fix is on the device: Settings → Battery → App launch → 白い熊
+臨電話 → turn off "Manage automatically", then enable Auto-launch, Secondary launch and Run in
+background. Related: the app's own logcat lines are invisible on EMUI until
+`adb shell setprop log.tag.Rindenwa VERBOSE`, which is why the fork's logger domain is ASCII.
+
+Also looked at and left alone: the missed-call notification sits near the bottom of the EMUI shade.
+Android already ranks it first of every notification on the device, above the app's own
+`IMPORTANCE_LOW` service notification, which EMUI shows at the top — the shade is simply not
+rendering Android's ranking, and no channel importance, category or priority the app can set will
+change that.
+
+## 6.3.0-alpha+17
 
 Fixes that came out of tracking down missed incoming calls, plus a call log that says which number
 rang. On upstream `6.3.0-alpha`.
