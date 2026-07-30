@@ -16,16 +16,23 @@ import org.linphone.R
  * shiroikuma-rindenwa fork — the 保存復元 state-export contract, for 白い熊 自由作業盤's one-run
  * backup of every sister app.
  *
- * Two exported, token-gated actions ([SkAutomation] is the gate — no `android:permission`, since
+ * Three exported, token-gated actions ([SkAutomation] is the gate — no `android:permission`, since
  * the caller cannot hold one):
- *  - [ACTION_LIST_CATEGORIES] — instant; replies `OK:` plus one `id<TAB>label` line per exportable
- *    category, with a third `parent-id` field on sub-options (`history.calls`, `history.chat`,
- *    `appearance.fonts`). The ids are exactly the ones `items` accepts.
+ *  - [ACTION_LIST_CATEGORIES] — instant; replies `OK:` plus one
+ *    `id<TAB>label<TAB>parent<TAB>on|off` line per exportable category. The third field is the
+ *    parent id on sub-options (`history.calls`, `history.chat`, `appearance.fonts`) and empty
+ *    otherwise; the fourth says whether the item starts ticked. The ids are exactly the ones
+ *    `items` accepts.
  *  - [ACTION_EXPORT_STATE] — runs the very same category ZIP as the Export/Import panel
  *    ([SkEximport.export]), headlessly: no Activity, no interaction, ONE zip. Extras: `token`,
  *    optional `path` (an absolute directory that OVERRIDES the configured export directory),
  *    optional `items` (comma-separated category ids; absent = everything), optional
  *    `progress_action`, plus `reply_action` / `reply_package` / `reply_id`.
+ *  - [ACTION_CANCEL_EXPORT] — stops a running export and deletes its half-written file. Extras:
+ *    `token`, optional `reply_id` (absent = whatever is running). It answers nothing at all, and is
+ *    a silent no-op if nothing is running or the run has already finished. Routed through this
+ *    receiver rather than a service on purpose: an exported receiver is the only part of the app a
+ *    third party can reach, since the services are — correctly — `android:exported="false"`.
  *
  * Directory precedence: the `path` extra → the configured export directory → `ERROR:no-directory`.
  *
@@ -51,6 +58,11 @@ class SkStateExportReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         val action = intent.action
+        if (action == ACTION_CANCEL_EXPORT) {
+            // Fire-and-forget: no goAsync, no reply, not even an error. See [cancel].
+            cancel(context.applicationContext, intent)
+            return
+        }
         if (action != ACTION_EXPORT_STATE && action != ACTION_LIST_CATEGORIES) {
             return
         }
@@ -97,9 +109,18 @@ class SkStateExportReceiver : BroadcastReceiver() {
             is Request.Done -> finishWith(request.result)
             is Request.Export -> {
                 val progress = throttledProgress(app, progressAction, replyPackage, replyId)
-                Thread {
-                    finishWith(runExport(app, request.cats, request.path, progress))
-                }.start()
+                val run = Running(replyId)
+                running = run
+                val worker = Thread {
+                    try {
+                        finishWith(runExport(app, request.cats, request.path, progress, run))
+                    } finally {
+                        // Only if still ours — a later export may already have taken the slot
+                        if (running === run) running = null
+                    }
+                }
+                run.thread = worker
+                worker.start()
             }
         }
     }
@@ -133,15 +154,21 @@ class SkStateExportReceiver : BroadcastReceiver() {
     }
 
     /**
-     * `OK:` plus one `id<TAB>label` line per category, with a third TAB-separated `parent-id`
-     * field on sub-options. Parents are emitted before their children, as the contract requires.
+     * `OK:` plus one `id<TAB>label<TAB>parent<TAB>on|off` line per category. Parents are emitted
+     * before their children, as the contract requires.
+     *
+     * The fourth field says whether the item starts ticked in a picker drawn from this reply; it is
+     * positional, so a top-level item — which has no parent — still needs the empty third field.
      */
     private fun categoryList(context: Context): String {
+        fun line(cat: SkEximport.Cat, parent: String) =
+            "${cat.id}\t${context.getString(cat.labelRes)}\t$parent\t${if (cat.default) "on" else "off"}"
+
         val lines = mutableListOf<String>()
         for (cat in SkEximport.Cat.topLevel()) {
-            lines += "${cat.id}\t${context.getString(cat.labelRes)}"
+            lines += line(cat, "")
             for (child in SkEximport.Cat.childrenOf(cat)) {
-                lines += "${child.id}\t${context.getString(child.labelRes)}\t${cat.id}"
+                lines += line(child, cat.id)
             }
         }
         return lines.joinToString(separator = "\n", prefix = "OK:")
@@ -155,12 +182,59 @@ class SkStateExportReceiver : BroadcastReceiver() {
         return cats.takeIf { it.size == ids.distinct().size }
     }
 
+    /**
+     * Stop the export in flight, if the one named is the one running. Never replies — not `OK:`,
+     * not an error — and is a silent no-op when nothing is running, when the run already finished,
+     * or when `reply_id` names a different one. It has to be safe to send at any time.
+     *
+     * The stop itself is the panel's Cancel button's path: interrupt the worker, which
+     * [SkEximport]'s `checkCancelled` picks up at the next entry boundary and unwinds. The plain
+     * `java.io` streams underneath are not interruptible, so a `write()` in flight completes rather
+     * than tearing — the flag is simply seen at the next check. Unwinding runs the same `catch` as
+     * any other failure, which discards the half-written file, so a cancelled export leaves the
+     * backup directory exactly as it found it.
+     */
+    private fun cancel(context: Context, intent: Intent) {
+        val token = intent.getStringExtra(EXTRA_TOKEN)
+        if (!SkAutomation.enabled(context) || !SkAutomation.isTokenValid(context, token)) {
+            Log.i(TAG, "cancel refused: automation disabled or bad token")
+            return
+        }
+
+        val wanted = intent.getStringExtra(EXTRA_REPLY_ID)?.trim().orEmpty()
+        val run = running
+        when {
+            run == null -> Log.i(TAG, "cancel: nothing is running, no-op")
+            wanted.isNotEmpty() && wanted != run.replyId ->
+                Log.i(TAG, "cancel: [$wanted] is not the running export [${run.replyId}], no-op")
+
+            else -> {
+                Log.i(TAG, "cancel: stopping export [${run.replyId}]")
+                run.cancelled = true
+                run.thread?.interrupt()
+            }
+        }
+    }
+
+    /**
+     * The export in flight. A [BroadcastReceiver] instance dies with its broadcast, so a later
+     * `CANCEL_EXPORT` arrives at a different object entirely — this has to be class-level state.
+     */
+    private class Running(val replyId: String) {
+        @Volatile
+        var thread: Thread? = null
+
+        @Volatile
+        var cancelled = false
+    }
+
     /** Runs on a background thread; returns the single result line and never throws. */
     private fun runExport(
         context: Context,
         cats: Set<SkEximport.Cat>,
         path: String,
         progress: ThrottledProgress,
+        run: Running,
     ): String {
         val target = try {
             SkEximport.headlessTarget(context, path) ?: return "ERROR:no-directory"
@@ -178,7 +252,8 @@ class SkStateExportReceiver : BroadcastReceiver() {
             "OK:${target.displayPath}|$bytes|${humanSize(bytes)}|${cats.size} categories"
         } catch (e: Exception) {
             target.discard() // a half-written ZIP is garbage — never leave it as "the last export"
-            storageError(path, e)
+            // Whatever the interrupt surfaced as, a run we asked to stop reports as cancelled
+            if (run.cancelled) "ERROR:cancelled" else storageError(path, e)
         }
     }
 
@@ -282,6 +357,11 @@ class SkStateExportReceiver : BroadcastReceiver() {
         // Must stay in step with the manifest's ${applicationId}.action.* intent filter.
         const val ACTION_EXPORT_STATE = BuildConfig.APPLICATION_ID + ".action.EXPORT_STATE"
         const val ACTION_LIST_CATEGORIES = BuildConfig.APPLICATION_ID + ".action.LIST_CATEGORIES"
+        const val ACTION_CANCEL_EXPORT = BuildConfig.APPLICATION_ID + ".action.CANCEL_EXPORT"
+
+        /** The export in flight, if any. Written from the worker's `finally` and from [cancel]. */
+        @Volatile
+        private var running: Running? = null
 
         // Contract extras — deliberately bare names, shared verbatim by every sister app.
         private const val EXTRA_TOKEN = "token"

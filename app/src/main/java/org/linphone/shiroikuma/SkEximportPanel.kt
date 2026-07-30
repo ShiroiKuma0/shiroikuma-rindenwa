@@ -171,8 +171,10 @@ class SkEximportPanel(
                 parentBox.setOnCheckedChangeListener { _, _ -> syncSelectAll(selectAll) }
             }
         }
-        catBoxes.values.forEach { it.isChecked = true }
-        selectAll.isChecked = true
+        // Seeded from Cat.default — the same flag the automation contract's fourth field reports,
+        // so this sheet and a picker drawn from LIST_CATEGORIES start from one answer.
+        catBoxes.forEach { (cat, box) -> box.isChecked = cat.default }
+        selectAll.isChecked = catBoxes.values.all { it.isChecked }
         bindSelectAll(selectAll)
 
         // Arcanechat button bar: Cancel alone on the left, Import + Export on the right.
