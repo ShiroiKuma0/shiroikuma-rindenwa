@@ -67,14 +67,15 @@ If `$APK` is empty, stop and tell 白い熊 there is no built APK to publish (ru
    git push origin custom
    ```
 
-5. **Tag and release.** Annotated tag at `HEAD`, then a GitHub release targeting `custom` with the
-   APK attached. **Always pin the repo with `-R ShiroiKuma0/shiroikuma-rindenwa`** — the working
+5. **Tag and release.** A **lightweight** tag at `HEAD` — never `git tag -a`, see the note below —
+   then a GitHub release targeting `custom` with the APK attached. **Always pin the repo with
+   `-R ShiroiKuma0/shiroikuma-rindenwa`** — the working
    copy has an `upstream` remote (`BelledonneCommunications/linphone-android`), and a bare
    `gh release` will otherwise 404 against upstream. Write the notes to a real file under `~/tmp`
    (do **not** rely on `$TMPDIR`, which is unset when the sandbox is off):
    ```bash
    REPO=ShiroiKuma0/shiroikuma-rindenwa
-   git tag -a "$TAG" -m "白い熊 臨電話 $VERSION"
+   git tag "$TAG"                       # lightweight — NEVER -a, see the notes below
    git push origin "$TAG"
    NOTES="$HOME/tmp/rindenwa_release_notes.md"
    sed -n "/^## ${VERSION} —/,/^## [0-9]/p" CHANGELOG-shiroikuma.md | sed '/^## [0-9]/d' | tail -n +2 > "$NOTES"
@@ -94,6 +95,13 @@ If `$APK` is empty, stop and tell 白い熊 there is no built APK to publish (ru
 
 ## Notes
 
+- **Release tags are lightweight — never annotated (`git tag -a`).** Upstream's build block in
+  `app/build.gradle.kts` computes the About screen's git string with `git describe --abbrev=0`,
+  which considers **only annotated** tags. Today that resolves to upstream's own annotated
+  `6.3.0-alpha`; an annotated fork tag would win instead and the Help screen would read
+  `6.3.0-alpha.g6441c21e+24.1+<hash>` — our version twice over, once through the fork's versionName
+  and once through upstream's describe. Every fork tag so far (`+23`, `+22`, `+17`, …) is
+  lightweight; keep it that way. (2026-08-01.)
 - `git push`, `gh` and `scp` need `~/.ssh` / `~/.config/gh`, which the command sandbox blocks — run
   the push / `gh` / tag steps with `dangerouslyDisableSandbox: true`, same as the other fork skills.
 - This skill **does not build** — it ships whatever is newest in `~/tmp/`. For a fresh build, that's
