@@ -36,6 +36,7 @@ import org.linphone.core.Friend
 import org.linphone.databinding.ChatListCellBinding
 import org.linphone.databinding.ChatListContactSuggestionCellBinding
 import org.linphone.databinding.GenericAddressPickerListDecorationBinding
+import org.linphone.shiroikuma.SkStyler
 import org.linphone.ui.GenericListAdapter
 import org.linphone.ui.main.chat.model.ConversationModel
 import org.linphone.ui.main.chat.model.ConversationModelWrapper
@@ -181,6 +182,15 @@ class ConversationsListAdapter :
                 model = conversationModel
 
                 setBindingRootSelectedAndActivatedIfNeeded(binding, bindingAdapterPosition)
+
+                // shiroikuma fork: the shared list type scale, re-applied per bind since rows are
+                // recycled. Text only — the row keeps upstream's shape.
+                SkStyler.styleListText(
+                    binding.title,
+                    binding.lastMessageSender,
+                    binding.lastMessageOrComposing,
+                    binding.dateTime
+                )
 
                 executePendingBindings()
 

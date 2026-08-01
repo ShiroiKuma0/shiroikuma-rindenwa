@@ -324,6 +324,13 @@ class ContactsListViewModel
         searchInProgress.postValue(filter.isNotEmpty())
         showResultsLimitReached.postValue(false)
 
+        // shiroikuma fork: the cap belongs to *searching*, not to the address book. Upstream left
+        // limitedSearch on for the unfiltered list too, so an address book longer than
+        // max_number_of_magic_search_results (300) simply lost its tail — with no warning, since
+        // the limit-reached notice only shows while a filter is typed. The full list is now
+        // unlimited; a typed search keeps the limit that makes it fast.
+        magicSearch.limitedSearch = filter.isNotEmpty()
+
         if (filter.isEmpty() && (favouritesList.value.orEmpty().isEmpty() || filterChanged)) {
             favouritesMagicSearch.getContactsListAsync(
                 filter,

@@ -24,14 +24,13 @@ import androidx.annotation.UiThread
 import androidx.annotation.WorkerThread
 import org.linphone.LinphoneApplication.Companion.coreContext
 import org.linphone.LinphoneApplication.Companion.corePreferences
-import org.linphone.R
+import org.linphone.core.Call
 import org.linphone.core.CallLog
 import org.linphone.core.tools.Log
+import org.linphone.shiroikuma.SkCallLog
 import org.linphone.ui.main.contacts.model.ContactAvatarModel
-import org.linphone.utils.AppUtils
 import org.linphone.utils.LinphoneUtils
 import org.linphone.utils.PhoneNumberUtils
-import org.linphone.utils.TimestampUtils
 
 class CallLogModel
     @WorkerThread
@@ -74,7 +73,33 @@ class CallLogModel
     @IntegerRes
     val iconResId: Int
 
+    /**
+     * shiroikuma fork: the record's own time line. Read on every bind rather than frozen at
+     * construction, because the format is settable while the list is on screen — the day is
+     * written once in the headline above these calls, so only the time is left here (with the
+     * headlines off, [SkCallLog] puts the date back in front of it).
+     */
     val dateTime: String
+        get() = SkCallLog.rowTimeText(coreContext.context, timestamp)
+
+    /**
+     * shiroikuma fork: how long the call lasted, in 白い熊's chosen format, or empty when there is
+     * nothing to report — a call that never connected, or the duration switched off on the UI page.
+     */
+    val duration: String
+        get() = SkCallLog.durationText(coreContext.context, callDuration, connected = connected)
+
+    private val callDuration = callLog.duration
+
+    private val connected = callLog.status == Call.Status.Success
+
+    /**
+     * shiroikuma fork: which arrow this record carries, and therefore which colour slot paints it.
+     */
+    val direction: SkCallLog.Direction
+
+    /** shiroikuma fork: the calendar day this record is filed under, for the day headlines. */
+    val dayKey: String
 
     /**
      * shiroikuma fork: the number this call actually used, plus the address-book field it is
@@ -89,15 +114,15 @@ class CallLogModel
     var friendExists: Boolean = false
 
     init {
-        val date = if (TimestampUtils.isToday(timestamp)) {
-            AppUtils.getString(R.string.today)
-        } else if (TimestampUtils.isYesterday(timestamp)) {
-            AppUtils.getString(R.string.yesterday)
-        } else {
-            TimestampUtils.toString(timestamp, onlyDate = true, shortDate = true, hideYear = true)
+        // shiroikuma fork: red is reserved for the call that rang here and went unanswered — that
+        // is what a call log is scanned for. An outgoing call keeps its own colour whatever became
+        // of it; the arrow's shape already says whether it connected.
+        direction = when {
+            callLog.dir == Call.Dir.Outgoing -> SkCallLog.Direction.OUTGOING
+            !connected -> SkCallLog.Direction.MISSED
+            else -> SkCallLog.Direction.INCOMING
         }
-        val time = TimestampUtils.timeToString(timestamp)
-        dateTime = "$date | $time"
+        dayKey = SkCallLog.dayKey(timestamp)
 
         wasConference = callLog.wasConference()
         if (wasConference) {
