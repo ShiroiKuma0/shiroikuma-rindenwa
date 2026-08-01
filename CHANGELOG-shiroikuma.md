@@ -2,9 +2,36 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha.2026-07-30.g5c0ed6a3+002 — unreleased
+## 6.3.0-alpha.2026-07-30.g5c0ed6a3+002 — current
 
-Rebased onto upstream `5c0ed6a3`. The version name now sorts, and the signing key left the repo.
+Rebased onto upstream `5c0ed6a3` (upstream `versionCode` 602003 → 602004). The version name now
+sorts, and the signing key left the repo.
+
+### From upstream
+
+- **Local network access on Android 17.** Android 17 puts LAN access behind a runtime permission, so
+  an app can no longer silently reach a SIP server on your own network. Upstream now declares
+  `ACCESS_LOCAL_NETWORK`, offers it as an optional row in the assistant's permission screen, and
+  requests it automatically when an account fails to register — a local server being the likely
+  cause. Irrelevant for public SIP providers; essential for a server on your own LAN.
+- **Photos survive rotation in chat.** A picture taken from inside a conversation was lost if the
+  device rotated before sending; the pending capture now lives in the send-message view model.
+- **Keyboard prediction is back in unencrypted conversations.** The `NoPersonalizedLearning` IME flag
+  is now applied only in end-to-end-encrypted chats instead of all of them.
+- **No-audio workaround for Samsung S23 family.** Video calls register with Telecom as audio calls on
+  S23 / S23+ / S23 Ultra / S23 FE, which otherwise lose all sound held to the ear. Gated on
+  `Build.DEVICE`, so it never fires here.
+- **Toolchain:** AGP 9.2.1 → 9.3.1, Kotlin 2.4.0 → 2.4.10, Gradle 9.6.0 → 9.6.1, Firebase BOM
+  34.15.0 → 34.16.0.
+
+### The new permission row is tappable, like the rest
+
+- Upstream ships the local-network row as display-only — the four rows above it are individually
+  tappable here only because this fork wired up the per-row listeners upstream declares but never
+  binds. The new row now behaves the same: tapping it requests the permission, or opens the app's
+  settings page once Android will no longer show a dialog for it.
+- Below Android 17 the row hides itself (the compatibility layer reports the permission as granted),
+  so on current devices this is future-proofing rather than a visible change.
 
 ### The version sorts chronologically
 
@@ -37,7 +64,7 @@ Rebased onto upstream `5c0ed6a3`. The version name now sorts, and the signing ke
 - `keystore.properties` is still read when present, so upstream's own GitLab CI keeps working; our
   builds never depend on it.
 
-## 6.3.0-alpha.g6441c21e+24 — current
+## 6.3.0-alpha.g6441c21e+24
 
 The version name now says which upstream commit the fork stands on. On upstream `6.3.0-alpha`.
 
