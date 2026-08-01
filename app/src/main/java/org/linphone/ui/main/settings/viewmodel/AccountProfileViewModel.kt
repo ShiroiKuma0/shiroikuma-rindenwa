@@ -164,8 +164,9 @@ class AccountProfileViewModel
     }
 
     init {
+        // shiroikuma fork: unfolded by default — see SettingsViewModel.
         expandDetails.value = true
-        expandDevices.value = false
+        expandDevices.value = true
         showDeviceId.value = false
         devicesFetchInProgress.value = true
         isOnDefaultDomain.value = false
