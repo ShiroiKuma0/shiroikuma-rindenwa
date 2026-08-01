@@ -30,12 +30,15 @@ import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import org.linphone.LinphoneApplication.Companion.coreContext
 import org.linphone.R
 import org.linphone.core.Address
 import org.linphone.core.Friend
 import org.linphone.databinding.GenericAddressPickerListDecorationBinding
 import org.linphone.databinding.HistoryListCellBinding
 import org.linphone.databinding.HistoryListContactSuggestionCellBinding
+import org.linphone.databinding.SkHistoryDayDecorationBinding
+import org.linphone.shiroikuma.SkCallLog
 import org.linphone.shiroikuma.SkStyler
 import org.linphone.ui.main.history.model.CallLogModel
 import org.linphone.ui.main.history.model.CallLogModelWrapper
@@ -76,11 +79,17 @@ class HistoryListAdapter :
     }
 
     override fun displayHeaderForPosition(position: Int): Boolean {
-        // Don't show header for call history section
-        if (position == 0 && getItemViewType(0) == CALL_LOG_TYPE) {
-            return false
+        if (getItemViewType(position) == CALL_LOG_TYPE) {
+            // shiroikuma fork: one headline per calendar day, standing above that day's calls.
+            // Upstream showed nothing at all here — the whole history was one undivided run.
+            if (!SkCallLog.dayHeadersEnabled(coreContext.context)) return false
+            if (position == 0) return true
+            if (getItemViewType(position - 1) != CALL_LOG_TYPE) return true
+            return dayKeyAt(position) != dayKeyAt(position - 1)
         }
 
+        // The contacts / suggestions sections below the history keep their own titles.
+        if (position == 0) return true
         return getItemViewType(position) != getItemViewType(position - 1)
     }
 
@@ -88,6 +97,10 @@ class HistoryListAdapter :
         context: Context,
         position: Int
     ): View {
+        if (getItemViewType(position) == CALL_LOG_TYPE) {
+            return dayHeaderView(context, position)
+        }
+
         val binding = GenericAddressPickerListDecorationBinding.inflate(
             LayoutInflater.from(context)
         )
@@ -100,6 +113,38 @@ class HistoryListAdapter :
             }
         }
         return binding.root
+    }
+
+    /** shiroikuma fork: the day headline itself — its text from the settings, its look from the UI page. */
+    private fun dayHeaderView(context: Context, position: Int): View {
+        val binding = SkHistoryDayDecorationBinding.inflate(LayoutInflater.from(context))
+        val timestamp = modelAt(position)?.timestamp
+        binding.skDayText.text = if (timestamp != null) {
+            SkCallLog.dayText(context, timestamp)
+        } else {
+            ""
+        }
+        SkStyler.styleDayHeader(
+            binding.root,
+            binding.skDayDivider,
+            binding.skDayText,
+            binding.skDayUnderline
+        )
+        return binding.root
+    }
+
+    private fun dayKeyAt(position: Int): String = modelAt(position)?.dayKey.orEmpty()
+
+    /**
+     * The decoration asks about positions while the list is being replaced, so — exactly as
+     * [getItemViewType] already does — an out-of-range ask is answered instead of thrown.
+     */
+    private fun modelAt(position: Int): CallLogModel? {
+        return try {
+            getItem(position).callLogModel
+        } catch (ioobe: IndexOutOfBoundsException) {
+            null
+        }
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -194,12 +239,20 @@ class HistoryListAdapter :
 
                 binding.root.isSelected = bindingAdapterPosition == selectedAdapterPosition
 
-                // shiroikuma fork: row spacing, line spacing and the number line's font are all
-                // 白い熊-settable, and rows are recycled, so they are re-applied on every bind.
+                // shiroikuma fork: spacings, per-line fonts, the arrow's colour and the record
+                // divider are all 白い熊-settable, and rows are recycled, so they are re-applied
+                // on every bind.
                 SkStyler.styleCallHistoryRow(
-                    binding.root,
-                    binding.numberLabel,
-                    listOf(binding.name, binding.numberLabel, binding.dateTime)
+                    row = binding.root,
+                    avatar = binding.avatar.avatar,
+                    name = binding.name,
+                    number = binding.numberLabel,
+                    time = binding.dateTime,
+                    durationSeparator = binding.durationSeparator,
+                    duration = binding.duration,
+                    directionIcon = binding.callStatus,
+                    direction = callLogModel.direction,
+                    rowDivider = binding.separator
                 )
 
                 executePendingBindings()

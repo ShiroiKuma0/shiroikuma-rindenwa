@@ -56,13 +56,7 @@ object SkStyler {
 
     fun refreshOverrideState(context: android.content.Context) {
         overridesPresent = SkSlot.entries.any { SkTheme.hasOverride(context, it) } ||
-            SkSlot.entries.any {
-                it.hasFont && (
-                    SkTheme.fontFamily(context, it).isNotEmpty() ||
-                        SkTheme.fontWeight(context, it) > 0 ||
-                        SkTheme.fontSize(context, it) > 0
-                    )
-            }
+            SkSlot.entries.any { it.hasFont && SkTheme.hasFontOverride(context, it) }
     }
 
     /** Walk a subtree applying the role rules for overridden slots only. */
@@ -149,24 +143,46 @@ object SkStyler {
     }
 
     /**
-     * shiroikuma fork: one call-history record. Both of its spacings are 白い熊-settable — the
-     * padding that separates one record from the next ([SkDimen.CALL_ROW_PADDING]) and the gap
-     * between the three lines inside a record ([SkDimen.CALL_LINE_SPACING]) — and the number line
-     * carries its own [SkSlot.LIST_NUMBER] font slot, so its size can be raised without dragging
-     * the name and the timestamp up with it.
+     * shiroikuma fork: one call-history record — every text line, the direction arrow and the
+     * hairline below it.
+     *
+     * Both of its spacings are 白い熊-settable — the padding that separates one record from the
+     * next ([SkDimen.CALL_ROW_PADDING]) and the gap between the lines inside a record
+     * ([SkDimen.CALL_LINE_SPACING]) — and each line carries its own font slot, so the number or
+     * the time can be raised without dragging the rest of the record up with it.
      *
      * Applied per bind rather than through [styleTree], because RecyclerView creates these rows
      * long after the Activity has been styled and recycles them freely.
      */
-    fun styleCallHistoryRow(row: View, number: TextView?, lines: List<View?>) {
+    fun styleCallHistoryRow(
+        row: View,
+        avatar: View?,
+        name: TextView?,
+        number: TextView?,
+        time: TextView?,
+        durationSeparator: TextView?,
+        duration: TextView?,
+        directionIcon: ImageView?,
+        direction: SkCallLog.Direction?,
+        rowDivider: View?,
+    ) {
         val context = row.context
 
         val padding = SkTheme.dimenPx(context, SkDimen.CALL_ROW_PADDING)
         row.setPadding(row.paddingLeft, padding, row.paddingRight, padding)
 
+        val avatarSize = SkTheme.dimenPx(context, SkDimen.CALL_AVATAR_SIZE)
+        avatar?.layoutParams?.let { params ->
+            if (params.width != avatarSize || params.height != avatarSize) {
+                params.width = avatarSize
+                params.height = avatarSize
+                avatar.layoutParams = params
+            }
+        }
+
         // The first line sits flush against the top; every later line is pushed down by the gap.
         val spacing = SkTheme.dimenPx(context, SkDimen.CALL_LINE_SPACING)
-        for ((index, line) in lines.withIndex()) {
+        for ((index, line) in listOf(name, number, time).withIndex()) {
             val params = line?.layoutParams as? ViewGroup.MarginLayoutParams ?: continue
             val wanted = if (index == 0) 0 else spacing
             if (params.topMargin == wanted) continue
@@ -174,9 +190,196 @@ object SkStyler {
             line.layoutParams = params
         }
 
-        number?.let {
-            it.setTextColor(SkTheme.color(context, SkSlot.LIST_NUMBER))
-            SkFonts.applyFont(it, SkSlot.LIST_NUMBER)
+        paint(name, SkSlot.CALL_ROW_NAME)
+        paint(number, SkSlot.LIST_NUMBER)
+        paint(time, SkSlot.CALL_TIME)
+        paint(duration, SkSlot.CALL_DURATION)
+        paint(durationSeparator, SkSlot.CALL_DURATION)
+
+        directionIcon?.let { icon ->
+            val shown = direction != null && SkCallLog.directionShown(context)
+            icon.visibility = if (shown) View.VISIBLE else View.GONE
+            if (direction != null) {
+                icon.imageTintList = ColorStateList.valueOf(
+                    SkTheme.color(context, directionSlot(direction)),
+                )
+            }
+        }
+
+        applyRule(
+            rowDivider,
+            SkTheme.color(context, SkSlot.CALL_ROW_DIVIDER),
+            SkTheme.dimenPx(context, SkDimen.CALL_ROW_DIVIDER_WIDTH),
+        )
+    }
+
+    /**
+     * shiroikuma fork: the day headline standing above the calls made on that day — the band that
+     * closes off the day before it, the date itself, and the rule under the text. Both rules go
+     * down to 0, which removes them.
+     */
+    fun styleDayHeader(holder: View, divider: View?, text: TextView?, underline: View?) {
+        val context = holder.context
+
+        // The decoration is drawn sticky, over the rows scrolling beneath it — it has to be opaque.
+        holder.setBackgroundColor(SkTheme.color(context, SkSlot.BACKGROUND))
+
+        applyRule(
+            divider,
+            SkTheme.color(context, SkSlot.CALL_DAY_DIVIDER),
+            SkTheme.dimenPx(context, SkDimen.CALL_DAY_DIVIDER_WIDTH),
+        )
+        text?.let {
+            it.setTextColor(SkTheme.color(context, SkSlot.CALL_DAY))
+            SkFonts.applyFont(it, SkSlot.CALL_DAY, Typeface.BOLD)
+        }
+        applyRule(
+            underline,
+            SkTheme.color(context, SkSlot.CALL_DAY_UNDERLINE),
+            SkTheme.dimenPx(context, SkDimen.CALL_DAY_UNDERLINE_WIDTH),
+        )
+    }
+
+    /**
+     * shiroikuma fork: the text of an ordinary list row (contacts, conversations) on the shipped
+     * type scale.
+     *
+     * Deliberately NOT [styleListRow]: that one also repaints the row's frame from the LIST_*
+     * background/border slots, which would draw a bordered box around every contact. Here only the
+     * type is touched, so the rows keep upstream's shape and gain the scale.
+     */
+    fun styleListText(name: TextView?, vararg details: TextView?) {
+        paint(name, SkSlot.LIST_NAME)
+        for (detail in details) {
+            paint(detail, SkSlot.LIST_DETAIL)
+        }
+    }
+
+    /**
+     * shiroikuma fork: one contact row, in the sister address book's shape — the avatar spanning
+     * the name and the number written under it, closed off by a full-width line. Avatar size, row
+     * padding, both text slots and the line are all 白い熊-settable, and rows are recycled, so
+     * everything is re-applied on every bind.
+     */
+    fun styleContactRow(row: View, avatar: View?, name: TextView?, number: TextView?, divider: View?) {
+        val context = row.context
+
+        val padding = SkTheme.dimenPx(context, SkDimen.CONTACT_ROW_PADDING)
+        row.setPadding(row.paddingLeft, padding, row.paddingRight, padding)
+
+        val size = SkTheme.dimenPx(context, SkDimen.CONTACT_AVATAR_SIZE)
+        avatar?.layoutParams?.let { params ->
+            if (params.width != size || params.height != size) {
+                params.width = size
+                params.height = size
+                avatar.layoutParams = params
+            }
+        }
+
+        paint(name, SkSlot.LIST_NAME)
+        paint(number, SkSlot.CONTACT_NUMBER)
+
+        applyRule(
+            divider,
+            SkTheme.color(context, SkSlot.CONTACT_ROW_DIVIDER),
+            SkTheme.dimenPx(context, SkDimen.CONTACT_ROW_DIVIDER_WIDTH),
+        )
+    }
+
+    /**
+     * shiroikuma fork: one Favorites tile — a large round photo with the name centred under it.
+     * Photo size, the gap between tiles and the name's own type are all 白い熊-settable.
+     */
+    fun styleFavouriteTile(tile: View, avatar: View?, name: TextView?) {
+        val context = tile.context
+
+        val padding = SkTheme.dimenPx(context, SkDimen.FAVOURITE_TILE_PADDING)
+        tile.setPadding(padding, padding, padding, padding)
+
+        val size = SkTheme.dimenPx(context, SkDimen.FAVOURITE_AVATAR_SIZE)
+        avatar?.layoutParams?.let { params ->
+            if (params.width != size || params.height != size) {
+                params.width = size
+                params.height = size
+                avatar.layoutParams = params
+            }
+        }
+
+        paint(name, SkSlot.FAVOURITE_NAME)
+    }
+
+    /**
+     * shiroikuma fork: one letter heading of the Contacts list — the band framing open content,
+     * the letter with its fold indicator, and the rule under the text. Mirrors the sister address
+     * book (shiroikuma-renrakusaki): bold unless a weight is set for the slot, and both rules go
+     * down to 0, which removes them.
+     */
+    fun styleContactSection(holder: View, divider: View?, title: TextView?, indicator: TextView?, underline: View?, content: View?, showDivider: Boolean) {
+        val context = holder.context
+
+        // Drawn as a real row rather than a decoration — it has to be tappable — so it sits on the
+        // list background like any other row.
+        holder.setBackgroundColor(SkTheme.color(context, SkSlot.BACKGROUND))
+
+        applyRule(
+            divider,
+            SkTheme.color(context, SkSlot.CONTACT_SECTION_DIVIDER),
+            if (showDivider) SkTheme.dimenPx(context, SkDimen.CONTACT_SECTION_DIVIDER_WIDTH) else 0,
+        )
+
+        // Bold by default; an explicit slot weight is a deliberate choice and wins.
+        val baseStyle = if (SkTheme.fontWeight(context, SkSlot.CONTACT_SECTION) == 0) {
+            Typeface.BOLD
+        } else {
+            Typeface.NORMAL
+        }
+        for (view in listOf(title, indicator)) {
+            view ?: continue
+            view.setTextColor(SkTheme.color(context, SkSlot.CONTACT_SECTION))
+            SkFonts.applyFont(view, SkSlot.CONTACT_SECTION, baseStyle)
+        }
+
+        val padding = SkTheme.dimenPx(context, SkDimen.CONTACT_SECTION_PADDING)
+        (content?.layoutParams as? ViewGroup.MarginLayoutParams)?.let { params ->
+            if (params.topMargin != padding || params.bottomMargin != padding) {
+                params.topMargin = padding
+                params.bottomMargin = padding
+                content.layoutParams = params
+            }
+        }
+
+        applyRule(
+            underline,
+            SkTheme.color(context, SkSlot.CONTACT_SECTION_UNDERLINE),
+            SkTheme.dimenPx(context, SkDimen.CONTACT_SECTION_UNDERLINE_WIDTH),
+        )
+    }
+
+    private fun directionSlot(direction: SkCallLog.Direction): SkSlot = when (direction) {
+        SkCallLog.Direction.INCOMING -> SkSlot.CALL_DIR_INCOMING
+        SkCallLog.Direction.OUTGOING -> SkSlot.CALL_DIR_OUTGOING
+        SkCallLog.Direction.MISSED -> SkSlot.CALL_DIR_MISSED
+    }
+
+    private fun paint(view: TextView?, slot: SkSlot) {
+        view ?: return
+        view.setTextColor(SkTheme.color(view.context, slot))
+        SkFonts.applyFont(view, slot)
+    }
+
+    /** A settable rule: painted at [thicknessPx], or taken out of the layout entirely at 0. */
+    private fun applyRule(view: View?, color: Int, thicknessPx: Int) {
+        view ?: return
+        if (thicknessPx <= 0) {
+            view.visibility = View.GONE
+            return
+        }
+        view.visibility = View.VISIBLE
+        view.setBackgroundColor(color)
+        val params = view.layoutParams
+        if (params != null && params.height != thicknessPx) {
+            params.height = thicknessPx
+            view.layoutParams = params
         }
     }
 

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  shiroikuma-rindenwa fork — the live sample of a call-history entry on the UI page: one day
+  headline and one record beneath it, drawn through the very same SkStyler calls the real list
+  uses, so nothing on this page is ever applied blind.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="4dp"
+    android:layout_marginBottom="8dp"
+    android:orientation="vertical">
+
+    <View
+        android:id="@+id/sk_preview_day_divider"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:importantForAccessibility="no" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="4dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/sk_preview_day_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <View
+            android:id="@+id/sk_preview_day_underline"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginTop="2dp"
+            android:importantForAccessibility="no" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/sk_preview_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/sk_preview_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/sk_preview_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp" />
+
+        <LinearLayout
+            android:id="@+id/sk_preview_time_line"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/sk_preview_arrow"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:contentDescription="@null"
+                android:src="@drawable/incoming_call" />
+
+            <TextView
+                android:id="@+id/sk_preview_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/sk_preview_separator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="@string/sk_call_duration_separator"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/sk_preview_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/sk_preview_row_divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:importantForAccessibility="no" />
+
+</LinearLayout>

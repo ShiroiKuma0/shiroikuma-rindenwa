@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  shiroikuma fork — the Favorites tab. The same screen as Contacts, bound to the favourites list
+  instead of the whole address book; favourites used to be a strip inside the Contacts tab.
+-->
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:bind="http://schemas.android.com/tools">
@@ -53,7 +57,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:constraint_referenced_ids="no_contacts_image, no_contacts_label"
-                    android:visibility="@{viewModel.contactsList.empty ? View.VISIBLE : View.GONE}" />
+                    android:visibility="@{viewModel.favouritesList.empty ? View.VISIBLE : View.GONE}" />
 
                 <include
                     android:id="@+id/top_bar"
@@ -110,12 +114,12 @@
                         android:visibility="@{viewModel.showResultsLimitReached ? View.VISIBLE : View.GONE, default=gone}"/>
 
                     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-                        android:id="@+id/contactsListSwipeRefresh"
+                        android:id="@+id/favouritesListSwipeRefresh"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
 
                         <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/contactsList"
+                            android:id="@+id/favouritesList"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent" />
 
@@ -165,7 +169,7 @@
                     android:textColor="@color/secondary_button_label_color"
                     android:gravity="center"
                     android:background="@drawable/secondary_button_background"
-                    android:visibility="@{viewModel.contactsList.empty &amp;&amp; !viewModel.areAllContactsDisplayed ? View.VISIBLE : View.GONE}"
+                    android:visibility="@{viewModel.favouritesList.empty &amp;&amp; !viewModel.areAllContactsDisplayed ? View.VISIBLE : View.GONE}"
                     app:layout_constraintTop_toBottomOf="@id/no_contacts_label"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"/>

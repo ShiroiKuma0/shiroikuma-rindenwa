@@ -62,6 +62,9 @@ open class AbstractMainViewModel
 
     val contactsSelected = MutableLiveData<Boolean>()
 
+    /** shiroikuma fork: the Favorites tab, between Contacts and Calls. */
+    val favouritesSelected = MutableLiveData<Boolean>()
+
     val callsSelected = MutableLiveData<Boolean>()
 
     val conversationsSelected = MutableLiveData<Boolean>()
@@ -93,6 +96,10 @@ open class AbstractMainViewModel
     }
 
     val navigateToContactsEvent: MutableLiveData<Event<Boolean>> by lazy {
+        MutableLiveData()
+    }
+
+    val navigateToFavouritesEvent: MutableLiveData<Event<Boolean>> by lazy {
         MutableLiveData()
     }
 
@@ -295,6 +302,11 @@ open class AbstractMainViewModel
     @UiThread
     fun navigateToContacts() {
         navigateToContactsEvent.value = Event(true)
+    }
+
+    @UiThread
+    fun navigateToFavourites() {
+        navigateToFavouritesEvent.value = Event(true)
     }
 
     @UiThread
