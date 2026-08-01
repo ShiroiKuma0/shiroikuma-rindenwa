@@ -42,11 +42,17 @@ installable side-by-side with stock Linphone.
   **byte-identical to upstream** and read back by the fork block just below `defaultConfig`, so an
   upstream bump flows through with no hand-editing and no conflict on those lines.
   `BUILD_NUMBER` (`gradle.properties`) is our increment — bumped every build, reset to 1 on each new
-  upstream version. Fork `versionName = "<upstream>+<BUILD_NUMBER>"`,
+  upstream version. Fork `versionName = "<upstream>.g<upstream base sha>+<BUILD_NUMBER>"`,
   `versionCode = <upstream versionCode> * 1000 + BUILD_NUMBER` (602003 → `602003001`).
   **The multiplier is 1000, not the sister forks' 10000** — Linphone's upstream code is already
   ~602003, and ×10000 would overflow Android's 2,100,000,000 versionCode ceiling. Never "restore"
   ×10000 while resolving a rebase conflict.
+- **Upstream tracking: `git`** — `custom` is rebased onto every upstream commit, and upstream's
+  `6.3.0-alpha` literal stands still for months, so the versionName pins the **upstream base sha**:
+  `git merge-base HEAD master`, first 8 chars, as `.g<sha>` before the `+N`
+  (e.g. `6.3.0-alpha.g6441c21e+24`). It changes only on an upstream sync, so two builds under the
+  same sha are built on the same upstream base. See the global **`git-versioning`** skill.
+  Never use our own HEAD sha, and never `master`'s tip. The sha never touches `versionCode`.
 - **APK filename:** `shiroikuma-rindenwa_<versionName>_arm64-v8a.apk`, single-ABI arm64-v8a build
   (upstream ships armeabi-v7a as well; we drop it).
 - **Signing:** release signed from the **gitignored** `keystore.properties`

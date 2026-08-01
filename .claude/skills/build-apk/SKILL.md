@@ -42,7 +42,8 @@ empty (it only matters when pointing at a locally built SDK).
    grep BUILD_NUMBER gradle.properties
    grep -E 'versionCode|versionName' app/build.gradle.kts | head -2
    ```
-   - The APK will be `shiroikuma-rindenwa_<upstream versionName>+<BUILD_NUMBER>_arm64-v8a.apk`,
+   - The APK will be
+     `shiroikuma-rindenwa_<upstream versionName>.g<upstream base sha>+<BUILD_NUMBER>_arm64-v8a.apk`,
      using the `BUILD_NUMBER` value **before** the build (`buildApk` bumps it afterward).
    - versionCode for that build = `<upstream versionCode> * 1000 + BUILD_NUMBER`
      (e.g. 602003 → `602003001`). The multiplier is **1000**, not 10000 — see the
@@ -96,8 +97,9 @@ untracks it and tolerates its absence (the release APK is then simply unsigned).
   upstream writes them; the fork block just below `defaultConfig` reads them back and derives ours.
 - `BUILD_NUMBER` in `gradle.properties` is **our** increment, bumped on every `buildApk`, reset to
   `1` on each new upstream version (see the `upstream-new-version` skill).
-- Fork `versionName = "<upstream>+<BUILD_NUMBER>"`;
-  `versionCode = <upstream versionCode> * 1000 + BUILD_NUMBER`.
+- Fork `versionName = "<upstream>.g<upstream base sha>+<BUILD_NUMBER>"`;
+  `versionCode = <upstream versionCode> * 1000 + BUILD_NUMBER` (the sha never enters the code).
+  The pin is `git merge-base HEAD master`, first 8 chars — see the global **`git-versioning`** skill.
 - Single-ABI **arm64-v8a** build (upstream ships armeabi-v7a too) — matches the APK filename.
 
 ---
