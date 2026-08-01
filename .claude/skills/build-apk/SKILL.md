@@ -43,7 +43,7 @@ empty (it only matters when pointing at a locally built SDK).
    grep -E 'versionCode|versionName' app/build.gradle.kts | head -2
    ```
    - The APK will be
-     `shiroikuma-rindenwa_<upstream versionName>.g<upstream base sha>+<BUILD_NUMBER>_arm64-v8a.apk`,
+     `shiroikuma-rindenwa_<upstream versionName>.<base date>.g<base sha>+<BUILD_NUMBER>_arm64-v8a.apk`,
      using the `BUILD_NUMBER` value **before** the build (`buildApk` bumps it afterward).
    - versionCode for that build = `<upstream versionCode> * 1000 + BUILD_NUMBER`
      (e.g. 602003 → `602003001`). The multiplier is **1000**, not 10000 — see the
@@ -81,15 +81,35 @@ empty (it only matters when pointing at a locally built SDK).
 
 ## Signing
 
-Release signing is non-interactive: `app/build.gradle.kts` reads credentials from the **gitignored**
-`keystore.properties` at the repo root (`keystore.properties_sample` documents the keys). This fork
-uses its own keystore `~/.android-keystores/shiroikuma-rindenwa.jks` (alias `rindenwa`); the
-store/key password is recorded in `~/〇/[666] 私資料/[666][27] 暗号/android-keystores.org`, with a
-backup of the `.jks` in the `android-keystores/` directory next to it. Losing both loses the signing
-identity — updates could no longer install over an existing app.
+Release signing is non-interactive: `app/build.gradle.kts` reads the credentials from Gradle
+properties, which live **outside the repo** in `~/.gradle/gradle.properties`:
 
-Upstream tracks `keystore.properties` with empty values and loads it unconditionally; our fork
-untracks it and tolerates its absence (the release APK is then simply unsigned).
+```properties
+RINDENWA_RELEASE_STORE_FILE=/home/shiroikuma/.android-keystores/shiroikuma-rindenwa.jks
+RINDENWA_RELEASE_STORE_PASSWORD=<password>
+RINDENWA_RELEASE_KEY_ALIAS=rindenwa
+RINDENWA_RELEASE_KEY_PASSWORD=<password>
+```
+
+This fork uses its own keystore `~/.android-keystores/shiroikuma-rindenwa.jks` (alias `rindenwa`);
+the store/key password is also recorded in `~/〇/[666] 私資料/[666][27] 暗号/android-keystores.org`,
+with a backup of the `.jks` in the `android-keystores/` directory next to it. Losing both loses the
+signing identity — updates could no longer install over an existing app.
+
+**Nothing signing-related belongs in the working tree.** Credentials sat in a repo-root
+`keystore.properties` until 2026-08-01, when an upstream sync destroyed them: upstream tracks that
+file with empty values and our `custom` branch deletes it, so `git checkout master` overwrote the
+real one and the switch back deleted it. The build still reads `keystore.properties` when present
+(upstream's GitLab CI writes one) but never depends on it — do not recreate it here.
+
+**Confirm the build actually signed.** The configuration log must print
+`Signing config release is using keystore [...]`; if it prints `Signing is not configured`, stop —
+the APK will not install. To check a finished APK, its certificate must match every earlier build:
+
+```bash
+$ANDROID_HOME/build-tools/*/apksigner verify --print-certs ~/tmp/shiroikuma-rindenwa_*.apk
+# SHA-256: 55f83339c1b8856c02a2c76283bb67df4865685f41fc85f0792dd81ea372242b
+```
 
 ## Versioning (how the numbers are formed)
 
@@ -97,7 +117,7 @@ untracks it and tolerates its absence (the release APK is then simply unsigned).
   upstream writes them; the fork block just below `defaultConfig` reads them back and derives ours.
 - `BUILD_NUMBER` in `gradle.properties` is **our** increment, bumped on every `buildApk`, reset to
   `1` on each new upstream version (see the `upstream-new-version` skill).
-- Fork `versionName = "<upstream>.g<upstream base sha>+<BUILD_NUMBER>"`;
+- Fork `versionName = "<upstream>.<upstream base date>.g<upstream base sha>+<BUILD_NUMBER, padded to 3>"`;
   `versionCode = <upstream versionCode> * 1000 + BUILD_NUMBER` (the sha never enters the code).
   The pin is `git merge-base HEAD master`, first 8 chars — see the global **`git-versioning`** skill.
 - Single-ABI **arm64-v8a** build (upstream ships armeabi-v7a too) — matches the APK filename.
