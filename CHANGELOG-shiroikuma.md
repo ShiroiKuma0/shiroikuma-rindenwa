@@ -2,6 +2,41 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
+## 6.3.0-alpha.2026-07-30.g5c0ed6a3+002 — unreleased
+
+Rebased onto upstream `5c0ed6a3`. The version name now sorts, and the signing key left the repo.
+
+### The version sorts chronologically
+
+- `.g<sha>` alone made the name unsortable. A sha is random text, so `g5c0ed6a3` (2026-07-30, newer)
+  sorts *before* `g6441c21e` (2026-07-13, older) — the newest APK landed in the middle of the
+  phone's file-manager listing instead of at the end.
+- The pin is now `.<YYYY-MM-DD>.g<8-char sha>`, e.g. `6.3.0-alpha.2026-07-30.g5c0ed6a3+002`. The date
+  is the **base commit's own committer date**, not build time, so it keeps the property that every
+  build on one upstream base carries an identical pin — it moves only on a sync.
+- `BUILD_NUMBER` is zero-padded to three digits **in the name only** (`+002`), because the same
+  defect applied there: under a plain lexicographic sort `+10` reads as earlier than `+3`. This caps
+  the counter at 999, which the `× 1000` tail already required.
+- `versionCode` is unchanged in form and value — still `<upstream code> × 1000 + BUILD_NUMBER`,
+  `602004002` here. Neither the date nor the sha has any business in the number Android upgrades by.
+- The `g` is kept. It is the `git describe` idiom, it marks the field as a commit id rather than
+  another number, and about one sha in forty is all digits — `…2026-07-30.12345678+002` would
+  otherwise read as a second numeric field.
+- The APK filename is the versionName verbatim, so both change together; there is only ever one
+  string.
+
+### Signing moved out of the repo
+
+- Credentials now live in `~/.gradle/gradle.properties` as `RINDENWA_RELEASE_STORE_FILE` /
+  `_STORE_PASSWORD` / `_KEY_ALIAS` / `_KEY_PASSWORD`, and the repo carries none.
+- The old repo-root `keystore.properties` was destroyed by this very sync: upstream tracks that file
+  with empty values while `custom` deletes it, so `git checkout master` silently overwrote the real
+  one (git clobbers ignored files without warning) and the switch back deleted it. It was restored
+  from the recorded password and the signing identity verified unchanged, but the trap is now
+  disarmed rather than documented.
+- `keystore.properties` is still read when present, so upstream's own GitLab CI keeps working; our
+  builds never depend on it.
+
 ## 6.3.0-alpha.g6441c21e+24 — current
 
 The version name now says which upstream commit the fork stands on. On upstream `6.3.0-alpha`.
@@ -247,9 +282,14 @@ First public release of the fork, on upstream `6.3.0-alpha` (upstream versionCod
 - Single-ABI **arm64-v8a** build (upstream also ships armeabi-v7a), roughly half the size.
 - APK named `shiroikuma-rindenwa_<version>_arm64-v8a.apk`; backups follow the family convention
   `shiroikuma-rindenwa_<yyyy-MM-dd_HH-mm-ss>.zip`.
-- Own signing key. `keystore.properties` is untracked here — upstream ships it tracked-and-empty and
-  loads it unconditionally; ours carries a real password, so the build now tolerates its absence and
-  `keystore.properties_sample` documents the keys.
+- Own signing key, configured **outside the repo** in `~/.gradle/gradle.properties` as
+  `RINDENWA_RELEASE_STORE_FILE` / `_STORE_PASSWORD` / `_KEY_ALIAS` / `_KEY_PASSWORD`. Upstream ships
+  `keystore.properties` tracked-and-empty and loads it unconditionally, while our `custom` branch
+  deletes it — the combination silently destroyed our signing password during the 2026-08-01
+  upstream sync, since `git checkout master` overwrites a gitignored file without warning and the
+  switch back deletes it. Gradle properties leave nothing in the working tree to clobber. The build
+  still reads `keystore.properties` when present, so upstream's GitLab CI keeps working, but never
+  depends on it; with nothing configured the release APK is simply unsigned.
 - Upstream's Firebase config is removed: our package is not in their project, and linphone.org push
   only targets theirs, so the fork builds without FCM and Crashlytics — the same shape as upstream's
   F-Droid build. The keep-alive foreground service covers registration instead.

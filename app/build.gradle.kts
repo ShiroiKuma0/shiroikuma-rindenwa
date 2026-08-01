@@ -129,36 +129,59 @@ android {
 
     // shiroikuma fork versioning. Upstream's versionCode/versionName literals above are left exactly
     // as upstream writes them and read back here, so an upstream bump flows through untouched:
-    //   versionName = "<upstream>.g<upstream base sha>+<BUILD_NUMBER>"
+    //   versionName = "<upstream>.<upstream base date>.g<upstream base sha>+<BUILD_NUMBER, 3 digits>"
     //   versionCode = <upstream> * 1000 + <BUILD_NUMBER>
     // The x1000 tail (not x10000 as in the sister forks) is forced by Linphone's large upstream code:
     // 602003 * 10000 would overflow Android's 2100000000 versionCode ceiling.
     val upstreamVersionCode = defaultConfig.versionCode!!
     val upstreamVersionName = defaultConfig.versionName!!
 
+    fun gitOutput(vararg command: String): String = try {
+        ProcessBuilder()
+            .command(*command)
+            .directory(project.rootDir)
+            .start()
+            .inputStream.bufferedReader().use(BufferedReader::readText)
+            .trim()
+    } catch (e: Exception) {
+        println("Git command [${command.joinToString(" ")}] failed [$e]")
+        ""
+    }
+
     // shiroikuma fork: upstream-base pin (global "git-versioning" skill). We rebase `custom` onto
-    // every upstream commit, so upstream's versionName stands still for months — this sha is what
+    // every upstream commit, so upstream's versionName stands still for months — this pin is what
     // says whether we are behind upstream. It is the merge-base of HEAD and `master` (the upstream
     // mirror), i.e. the upstream commit our patches sit on: NOT our own HEAD (that identifies our
     // commits, which +BUILD_NUMBER already covers) and NOT master's tip (which overstates the base
     // when master has been fast-forwarded but custom not yet rebased). A missing sha — shallow
     // clone, tarball, no git — must never fail the build; the version just degrades to <upstream>+N.
-    val upstreamBaseSha: String = try {
-        ProcessBuilder()
-            .command("git", "merge-base", "HEAD", "master")
-            .directory(project.rootDir)
-            .start()
-            .inputStream.bufferedReader().use(BufferedReader::readText)
-            .trim()
-            .take(8)
-    } catch (e: Exception) {
-        println("Git not found [$e], version will carry no upstream-base pin")
+    val upstreamBaseSha = gitOutput("git", "merge-base", "HEAD", "master").take(8)
+
+    // The date of that same commit, so versions sort chronologically. A bare sha is random text:
+    // g5c0ed6a3 (newer) sorts before g6441c21e (older), which puts the newest APK in the middle of
+    // the file manager's list. The date is the upstream commit's own committer date, NOT build time,
+    // so every build on one upstream base keeps an identical pin.
+    val upstreamBaseDate = if (upstreamBaseSha.length == 8) {
+        gitOutput("git", "show", "-s", "--format=%cd", "--date=format:%Y-%m-%d", upstreamBaseSha)
+    } else {
         ""
     }
-    val upstreamPin = if (upstreamBaseSha.length == 8) ".g$upstreamBaseSha" else ""
+
+    val upstreamPin = when {
+        upstreamBaseSha.length != 8 -> ""
+        upstreamBaseDate.length == 10 -> ".$upstreamBaseDate.g$upstreamBaseSha"
+        else -> ".g$upstreamBaseSha"
+    }
     println("Upstream base pin: ${if (upstreamPin.isEmpty()) "(none)" else upstreamPin}")
 
-    val forkVersionName = "$upstreamVersionName$upstreamPin+$shiroikumaBuild"
+    // Zero-padded to 3 digits so +002 sorts before +010 under a plain lexicographic sort (a file
+    // manager that sorts by name would otherwise read "+10" as earlier than "+3"). Name only —
+    // versionCode below stays a plain integer. Three digits is also the ceiling the x1000 tail
+    // allows: BUILD_NUMBER must stay under 1000 or forkVersionCode would collide with the next
+    // upstream version's range.
+    val paddedBuild = shiroikumaBuild.toString().padStart(3, '0')
+
+    val forkVersionName = "$upstreamVersionName$upstreamPin+$paddedBuild"
     val forkVersionCode = upstreamVersionCode * 1000 + shiroikumaBuild
     defaultConfig.versionCode = forkVersionCode
     defaultConfig.versionName = forkVersionName
@@ -179,29 +202,51 @@ android {
             }
     }
 
+    // shiroikuma fork: our signing credentials live OUTSIDE the repo, in
+    // ~/.gradle/gradle.properties, as RINDENWA_RELEASE_STORE_FILE / _STORE_PASSWORD / _KEY_ALIAS /
+    // _KEY_PASSWORD. Upstream tracks keystore.properties and our `custom` branch deletes it, so a
+    // `git checkout master` during an upstream sync overwrote our real file with upstream's empty
+    // one and the switch back then deleted it — silently losing the signing password, with no way
+    // to recover it from git (it is gitignored). A Gradle property leaves nothing in the working
+    // tree for a branch switch to clobber. See CLAUDE.md → "Build, versioning, signing".
     val keystorePropertiesFile = rootProject.file("keystore.properties")
     val keystoreProperties = Properties()
-    // shiroikuma fork: keystore.properties is gitignored here (it carries our signing password),
-    // so tolerate its absence instead of failing configuration — see keystore.properties_sample.
+    // Still honoured when present, so upstream's own GitLab CI (which writes this file from CI
+    // secrets) keeps working; our builds never rely on it.
     if (keystorePropertiesFile.exists()) {
         keystoreProperties.load(FileInputStream(keystorePropertiesFile))
-    } else {
-        println("keystore.properties not found — release builds will be unsigned")
     }
+
+    // Gradle property first, keystore.properties second, null when neither supplies a value.
+    fun signingSetting(gradleProperty: String, fileKey: String): String? =
+        (providers.gradleProperty(gradleProperty).orNull ?: keystoreProperties[fileKey] as String?)
+            ?.takeIf { it.isNotBlank() }
+
+    val releaseStorePath = signingSetting("RINDENWA_RELEASE_STORE_FILE", "storeFile") ?: ""
+    val releaseStorePassword = signingSetting("RINDENWA_RELEASE_STORE_PASSWORD", "storePassword")
+    val releaseKeyAlias = signingSetting("RINDENWA_RELEASE_KEY_ALIAS", "keyAlias")
+    val releaseKeyPassword =
+        signingSetting("RINDENWA_RELEASE_KEY_PASSWORD", "keyPassword") ?: releaseStorePassword
 
     signingConfigs {
         create("release") {
-            // shiroikuma fork: empty path when keystore.properties is absent (see above).
-            val keyStorePath = keystoreProperties["storeFile"] as String? ?: ""
-            val keyStore = project.file(keyStorePath.ifEmpty { "keystore-not-configured" })
-            if (keyStore.exists()) {
+            // shiroikuma fork: empty path when nothing is configured — configuration must not fail.
+            val keyStore = project.file(releaseStorePath.ifEmpty { "keystore-not-configured" })
+            if (keyStore.exists() &&
+                releaseStorePassword != null &&
+                releaseKeyAlias != null &&
+                releaseKeyPassword != null
+            ) {
                 storeFile = keyStore
-                storePassword = keystoreProperties["storePassword"] as String
-                keyAlias = keystoreProperties["keyAlias"] as String
-                keyPassword = keystoreProperties["keyPassword"] as String
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
                 println("Signing config release is using keystore [$storeFile]")
             } else {
-                println("Keystore [$storeFile] doesn't exists!")
+                println(
+                    "Signing is not configured — set RINDENWA_RELEASE_* in " +
+                        "~/.gradle/gradle.properties (see CLAUDE.md). Release builds will be unsigned!"
+                )
             }
         }
     }
