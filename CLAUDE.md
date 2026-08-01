@@ -42,25 +42,43 @@ installable side-by-side with stock Linphone.
   **byte-identical to upstream** and read back by the fork block just below `defaultConfig`, so an
   upstream bump flows through with no hand-editing and no conflict on those lines.
   `BUILD_NUMBER` (`gradle.properties`) is our increment — bumped every build, reset to 1 on each new
-  upstream version. Fork `versionName = "<upstream>.g<upstream base sha>+<BUILD_NUMBER>"`,
+  upstream version. Fork
+  `versionName = "<upstream>.<upstream base date>.g<upstream base sha>+<BUILD_NUMBER padded to 3>"`,
   `versionCode = <upstream versionCode> * 1000 + BUILD_NUMBER` (602003 → `602003001`).
   **The multiplier is 1000, not the sister forks' 10000** — Linphone's upstream code is already
   ~602003, and ×10000 would overflow Android's 2,100,000,000 versionCode ceiling. Never "restore"
   ×10000 while resolving a rebase conflict.
 - **Upstream tracking: `git`** — `custom` is rebased onto every upstream commit, and upstream's
-  `6.3.0-alpha` literal stands still for months, so the versionName pins the **upstream base sha**:
-  `git merge-base HEAD master`, first 8 chars, as `.g<sha>` before the `+N`
-  (e.g. `6.3.0-alpha.g6441c21e+24`). It changes only on an upstream sync, so two builds under the
-  same sha are built on the same upstream base. See the global **`git-versioning`** skill.
-  Never use our own HEAD sha, and never `master`'s tip. The sha never touches `versionCode`.
+  `6.3.0-alpha` literal stands still for months, so the versionName pins the **upstream base**:
+  `git merge-base HEAD master`, as `.<YYYY-MM-DD>.g<8-char sha>` before the `+N`
+  (e.g. `6.3.0-alpha.2026-07-30.g5c0ed6a3+002`). It changes only on an upstream sync, so two builds
+  under the same pin are built on the same upstream base. See the global **`git-versioning`** skill.
+  Never use our own HEAD sha, and never `master`'s tip. The pin never touches `versionCode`.
+- **Both halves of the pin exist to sort.** The date is the base commit's own committer date (not
+  build time), because a bare sha is random text: `g5c0ed6a3` (newer) sorts *before* `g6441c21e`
+  (older), which buried the newest APK mid-list in the phone's file manager. `BUILD_NUMBER` is
+  zero-padded to 3 digits in the **name only** for the same reason (`+002` before `+010`; unpadded,
+  `+10` reads as earlier than `+3`). `versionCode` keeps the plain integer. **This caps
+  `BUILD_NUMBER` at 999** — beyond that the ×1000 tail would collide with the next upstream
+  version's range.
 - **APK filename:** `shiroikuma-rindenwa_<versionName>_arm64-v8a.apk`, single-ABI arm64-v8a build
   (upstream ships armeabi-v7a as well; we drop it).
-- **Signing:** release signed from the **gitignored** `keystore.properties`
-  (`keystore.properties_sample` documents the keys) → `~/.android-keystores/shiroikuma-rindenwa.jks`
-  (alias `rindenwa`). Password recorded in `~/〇/[666] 私資料/[666][27] 暗号/android-keystores.org`
-  (jks backup in `android-keystores/` next to it). Losing both loses the signing identity.
-  Upstream tracks `keystore.properties` with empty values and loads it unconditionally; we untrack
-  it and tolerate its absence (release APK then simply unsigned).
+- **Signing:** credentials live **outside the repo**, in `~/.gradle/gradle.properties`:
+  ```properties
+  RINDENWA_RELEASE_STORE_FILE=/home/shiroikuma/.android-keystores/shiroikuma-rindenwa.jks
+  RINDENWA_RELEASE_STORE_PASSWORD=<password>
+  RINDENWA_RELEASE_KEY_ALIAS=rindenwa
+  RINDENWA_RELEASE_KEY_PASSWORD=<password>
+  ```
+  Keystore `~/.android-keystores/shiroikuma-rindenwa.jks` (alias `rindenwa`); password recorded in
+  `~/〇/[666] 私資料/[666][27] 暗号/android-keystores.org` (jks backup in `android-keystores/` next
+  to it). Losing both loses the signing identity. **Never put them back in a repo-root
+  `keystore.properties`:** upstream tracks that file with empty values and our `custom` branch
+  deletes it, so `git checkout master` during a sync overwrites the real one and the switch back
+  deletes it — the password is gone, unrecoverable (it is gitignored). This cost us the key on
+  2026-08-01. The build still *reads* `keystore.properties` if present (upstream's GitLab CI writes
+  one from CI secrets) but never depends on it; with nothing configured the release APK is simply
+  unsigned and won't install.
 - **Delivery:** APK to `~/tmp`, then `/after-build` (adb push to `/sdcard/tmp/` or scp to skhw);
   **白い熊 installs from the on-device file manager** (never `adb install`).
 
@@ -88,7 +106,7 @@ installable side-by-side with stock Linphone.
 | Label | `白い熊 臨電話` | `<!ENTITY appName>` in `app/src/main/res/values/strings.xml` |
 | Icon | black-yellow traced handset (yellow `#FFFF00` line-art on black) | `mipmap-*/ic_launcher*`, `mipmap-anydpi/` |
 | Version logic | `shiroikumaBuild` + the `* 1000` fork block + `buildApk` task | `app/build.gradle.kts` |
-| Signing | `keystore.properties` (gitignored) → `~/.android-keystores/shiroikuma-rindenwa.jks` | `app/build.gradle.kts` |
+| Signing | `RINDENWA_RELEASE_*` in `~/.gradle/gradle.properties` → `~/.android-keystores/shiroikuma-rindenwa.jks` | `app/build.gradle.kts` |
 | Single ABI | `abiFilters += listOf("arm64-v8a")` | `app/build.gradle.kts` |
 
 Because `applicationId` (`shiroikuma.rindenwa`) differs from `namespace` (`org.linphone`), the
@@ -115,5 +133,10 @@ so they would `ClassNotFound` here — fully-qualify them to `org.linphone.…` 
 **Phase 0 — repo bootstrap (2026-07-26).** Fork created from `BelledonneCommunications/linphone-android`;
 `master` mirrors upstream, `custom` created with the identity layer: app id `shiroikuma.rindenwa`,
 label `白い熊 臨電話`, fork versioning (`+N` / `×1000`), single-ABI arm64 build, house APK naming,
-own keystore + gitignored `keystore.properties`, and the three skills above. Icon and full
-de-branding follow next, then the first build.
+own keystore, and the three skills above. Icon and full de-branding follow next, then the first
+build.
+
+**Signing moved out of the repo (2026-08-01).** The `6441c21e → 5c0ed6a3` upstream sync destroyed
+the gitignored `keystore.properties` — upstream tracks it, `custom` deletes it, so the branch
+switches overwrote and then deleted our real one. Credentials now live in
+`~/.gradle/gradle.properties` as `RINDENWA_RELEASE_*`, where no branch switch can reach them.

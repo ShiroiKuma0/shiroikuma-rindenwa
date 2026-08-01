@@ -126,15 +126,24 @@ documentation remain at [linphone.org](https://linphone.org).
 ```bash
 git clone git@github.com:ShiroiKuma0/shiroikuma-rindenwa.git
 cd shiroikuma-rindenwa
-cp keystore.properties_sample keystore.properties   # then fill in your signing key
 export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ANDROID_HOME="$HOME/android-sdk"
 ./gradlew buildApk
 ```
 
+To produce a *signed* APK, put your signing key in `~/.gradle/gradle.properties` — deliberately
+outside the repo, so no branch switch or upstream sync can clobber it:
+
+```properties
+RINDENWA_RELEASE_STORE_FILE=/path/to/your.jks
+RINDENWA_RELEASE_STORE_PASSWORD=…
+RINDENWA_RELEASE_KEY_ALIAS=…
+RINDENWA_RELEASE_KEY_PASSWORD=…
+```
+
 `buildApk` assembles the signed release APK, copies it to `~/tmp/` as
 `shiroikuma-rindenwa_<version>_arm64-v8a.apk`, and bumps the build counter. The Linphone SDK is
-pulled as a prebuilt AAR from `download.linphone.org`, so no NDK toolchain work is needed. Without a
-`keystore.properties` the build still configures — the release APK is simply unsigned.
+pulled as a prebuilt AAR from `download.linphone.org`, so no NDK toolchain work is needed. With no
+signing key configured the build still succeeds — the release APK is simply unsigned.
 
 ## Branch model
 
