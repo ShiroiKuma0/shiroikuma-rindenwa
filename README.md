@@ -7,14 +7,15 @@
 **A SIP/VoIP phone that looks the way I want it to, and can restore itself from a single file.**
 
 A fork of [Linphone for Android](https://github.com/BelledonneCommunications/linphone-android) with
-**major additions**: a black-yellow theme applied through the whole app, a card-folder tab
-navigation with an account strip you can drag into order, a settings page that makes colours, fonts
-and shapes live-editable, a full-app Export/Import backup, and a token-gated automation contract so
-a sister app can back this one up unattended.
+**major additions**: a call history written in Japanese with imperial-era day headlines, an address
+book with foldable gojūon letter headings, a Favorites tab of draggable tiles, a black-yellow theme
+applied through the whole app, a card-folder tab navigation with an account strip you can drag into
+order, a settings page that makes colours, fonts and shapes live-editable, a full-app Export/Import
+backup, and a token-gated automation contract so a sister app can back this one up unattended.
 
 Installs **side-by-side** with stock Linphone (app id `shiroikuma.rindenwa`).
 
-**📥 Latest release: [`6.3.0-alpha.2026-07-30.g5c0ed6a3+002`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
+**📥 Latest release: [`6.3.0-alpha.2026-07-30.g5c0ed6a3+014`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
 
 </div>
 
@@ -39,9 +40,9 @@ side because that tab *is* the panel you are looking at. Every other tab is the 
 and half transparent, filed behind that line. Switching interpolates, so the line dives around the
 tab you are moving to while the one you left closes up.
 
-At the bottom that folder is the navigation: Contacts, Calls, Conversations, each inside its own
-tab. Which screen you are on is told by the folder, so the screen no longer has to name itself in
-the title bar.
+At the bottom that folder is the navigation: Contacts, Favorites, Calls, Conversations, each inside
+its own tab. Which screen you are on is told by the folder, so the screen no longer has to name
+itself in the title bar.
 
 ---
 
@@ -93,6 +94,45 @@ address-book field it is filed under ("Home", "Work mobile"), grouped for readin
 code the fork does not group is shown exactly as it arrived rather than guessed at. The number
 line's font and both spacings — between records, and between the lines inside one — are live
 controls on the UI page like everything else.
+
+---
+
+## 🗓 The call history in Japanese
+
+The day is written once, as an underlined headline standing above the calls made on it —
+`令和八年七月三十日（木曜日）` in imperial era, or the Common Era spelled the same way, with today
+and yesterday named instead of dated. Each record then carries only its own time, as a
+Sino-Japanese clock reading: `午後三時三十六分`, where a whole hour drops its minutes, `:30` becomes
+`半`, and noon and midnight get their own words, `正午` and `正子`. How long the call ran follows in
+kanji inside full-width parentheses — `（十一分一秒）` — and an arrow in front says whether it came
+in, went out, or rang unanswered, each in its own colour.
+
+Every part of that is a setting: headlines on or off, 和暦 / 西暦 / system dates, Japanese / system /
+24-hour / 12-hour times, kanji or digital durations, the arrow shown or hidden. The UI page draws a
+live sample of a headline and a record while you turn the knobs.
+
+---
+
+## 🔤 An address book that folds by kana
+
+Contacts are grouped under one-letter headings and each one folds shut with a tap. The letters are
+Japanese-aware: gojūon rows (あ か さ た な は ま や ら わ, with voiced, semi-voiced and small kana
+folded into their base row and ん in the わ row), then A–Z with diacritics stripped, then ＃.
+Crucially the grouping runs on the contact's **reading** (フリガナ) where the address book stores
+one — bucketing a kanji name by its kanji puts every Japanese contact under ＃, which is exactly
+what it did before.
+
+Which letters stand open is remembered across restarts, separately for each tab. Rows carry the
+photo spanning both lines with the number written under the name, closed off by a full-width rule.
+
+---
+
+## ⭐ Favorites, as a wall of faces
+
+Favourites used to be a strip pinned above the contacts list, eating its top and showing a handful.
+They are their own tab now — a grid of large round photos with the name centred beneath. **Long-press
+a tile and drag it anywhere on the grid**; the arrangement is yours and it is remembered, because
+the SIP core knows only that a contact is starred, not where you want it.
 
 ---
 
