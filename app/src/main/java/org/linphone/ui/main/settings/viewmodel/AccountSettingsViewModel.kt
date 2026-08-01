@@ -108,8 +108,9 @@ class AccountSettingsViewModel
     private lateinit var natPolicyAuthInfo: AuthInfo
 
     init {
-        expandAdvancedSettings.value = false
-        expandNatPolicySettings.value = false
+        // shiroikuma fork: unfolded by default — see SettingsViewModel.
+        expandAdvancedSettings.value = true
+        expandNatPolicySettings.value = true
         showTurnPassword.value = false
 
         availableTransports.add(TransportType.Udp.name.uppercase(Locale.getDefault()))

@@ -305,19 +305,21 @@ class SettingsViewModel
         }
         showContactsSettings.value = true
 
-        expandSecurity.value = false
-        expandCalls.value = false
-        expandConversations.value = false
-        expandContacts.value = false
-        expandMeetings.value = false
-        expandNetwork.value = false
-        expandUserInterface.value = false
-        expandTunnel.value = false
-        expandAudioDevices.value = false
-        expandAudioCodecs.value = false
-        expandVideoCodecs.value = false
-        expandEarlyMedia.value = false
-        expandAutoAnswer.value = false
+        // shiroikuma fork: every group opens unfolded. Upstream folds all of them shut, so
+        // reaching any one setting costs a tap first and hides what else is in the page.
+        expandSecurity.value = true
+        expandCalls.value = true
+        expandConversations.value = true
+        expandContacts.value = true
+        expandMeetings.value = true
+        expandNetwork.value = true
+        expandUserInterface.value = true
+        expandTunnel.value = true
+        expandAudioDevices.value = true
+        expandAudioCodecs.value = true
+        expandVideoCodecs.value = true
+        expandEarlyMedia.value = true
+        expandAutoAnswer.value = true
 
         val vfsEnabled = VFS.isEnabled(coreContext.context)
         isVfsEnabled.value = vfsEnabled

@@ -247,7 +247,10 @@ class ContactViewModel
         isReadOnly.value = false
         isNative.value = false
 
+        // shiroikuma fork: unfolded by default — see SettingsViewModel. Upstream never gave
+        // expandDevicesTrust a starting value at all, so it unboxed to false and stayed shut.
         expandNumbersAndAddresses.value = true
+        expandDevicesTrust.value = true
         trustedDevicesPercentage.value = 0
 
         atLeastOneSipAddressOrPhoneNumber.value = false
