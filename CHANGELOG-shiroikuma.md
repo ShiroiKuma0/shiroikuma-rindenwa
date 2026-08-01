@@ -2,7 +2,111 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha.2026-07-30.g5c0ed6a3+002 — current
+## 6.3.0-alpha.2026-07-30.g5c0ed6a3+014 — current
+
+Same upstream base (`5c0ed6a3`). The three main lists — call history, contacts, favourites — were
+rebuilt to read the way the sister apps read: **shiroikuma-denwa** for the call log,
+**shiroikuma-renrakusaki** for the address book. Formats and sizes were taken from those apps'
+own settings and code rather than invented.
+
+### The call history in Japanese
+
+- **Day headlines.** Each calendar day is written once above its calls, underlined, with a band
+  closing off the day before it. Today and yesterday are named instead of dated. Upstream drew
+  nothing here — the whole history was one undivided run, with the date repeated on every row.
+- **Imperial-era or Common-Era dates,** written in Japanese: `令和八年七月三十日（木曜日）` or
+  `二〇二六年七月三十日（木曜日）`. Eras resolve from fixed boundaries rather than the platform's
+  era table, so the output cannot shift underneath us; the first year of an era is written `元年`.
+- **Sino-Japanese clock readings** — `午後三時三十六分`. A whole hour drops its minute part, `:30`
+  becomes `半`, and noon and midnight get `正午` / `正子` (and `正午半` / `正子半`).
+- **Kanji durations** in full-width parentheses — `（十一分一秒）`, `（三分半）` — shown only for a
+  call that actually connected. A trailing 30s or 30m becomes `半` of the unit above it.
+- **Direction arrows** coloured by kind: incoming blue, outgoing green, unanswered red. Red is
+  reserved for a call that rang here and went unanswered; an outgoing call keeps its own colour
+  whatever became of it, since the arrow's shape already says whether it connected.
+- **Every format is settable** on the UI page, in one group: headlines on/off, date format
+  (和暦 / 西暦 / system), name today and yesterday, time format (日本語 / system / 24h / 12h),
+  duration on/off and its format, direction arrow on/off. Colours, fonts, weights and sizes for the
+  headline, the name, the time and the duration; underline, band and record-separator thickness;
+  row and line spacing; photo size. A live sample of a headline and a record redraws as you drag.
+
+### Contacts
+
+- **One-letter headings, foldable.** Gojūon rows (あ か さ た な は ま や ら わ — voiced,
+  semi-voiced and small kana fold into their base row, ん lands in わ), then A–Z with diacritics
+  stripped, then ＃; ordered kana → A–Z → ＃. Ported from renrakusaki's own `JapaneseSort`, so both
+  apps bucket identically. Headings show their count and a fold indicator, are underlined, and are
+  real tappable rows rather than decorations.
+- **The fold state persists** across restarts and is kept **separately for each tab** — folding B on
+  Contacts has no business folding B on Favorites. Letters start shut. While a search is typed every
+  section is forced open, so a fold can never hide a match.
+- **Rows rebuilt:** the photo spans both lines, the phone number is written under the name and
+  grouped for reading (`+420 737 831 885`), and a full-width rule closes each row off. Photo size,
+  row spacing, separator colour and thickness, and the number line's type are all settable.
+- **A contact with no photo gets the house 人 mark** instead of an initials tile, as in both sister
+  apps. Initials remain one switch away.
+
+### Favorites
+
+- **Their own tab,** between Contacts and Calls, with a star in the bottom bar. The favourites strip
+  that used to sit above the contacts list is gone — it cost that list its top and only ever showed
+  a handful.
+- **A tile grid** — five across by default — of large round photos with the name centred beneath,
+  wrapping to two lines.
+- **Long-press and drag a tile anywhere on the grid,** and the arrangement is remembered. The SIP
+  core records only that a friend is starred, never where it belongs, so the order is stored here as
+  a list of contact ids; a newly starred contact appends at the end rather than displacing anything.
+- Tiles per row, photo size, tile spacing and the tile name's type are settable.
+
+### Two bugs that were hiding contacts
+
+- **The address book was silently truncated at 300.** Upstream leaves the magic-search result cap on
+  for the *unfiltered* list as well as for searches, so a longer address book simply lost its tail —
+  with no warning, because the "limit reached" notice only appears while a filter is typed. The cap
+  now applies to searching only.
+- **Every Japanese contact fell under ＃.** Grouping ran on the kanji name, and kanji belong to no
+  gojūon row. Phonetic readings (フリガナ) are now read from the address book in one pass and cached,
+  which is what puts kana rows on the screen. A contact stored without a reading still buckets under
+  ＃ — renrakusaki behaves the same way.
+
+### An avatar that never loaded
+
+`picturePath` is posted from a worker thread, but the layouts named only the model, so an expression
+bound before the path arrived had no reason to re-run: on a cold start the account strip came up as
+a row of 人 marks and righted itself the moment a tab was switched. The path is now a binding
+dependency in the shared avatar includes and the account tab, so the real picture loads the moment
+it is known. The bug predates this release; changing the fallback from an initials tile to the 人
+mark is what made it visible.
+
+### Typography, matched rather than guessed
+
+The shipped type scale is now a real thing — each slot carries a default size, and a stored value
+still wins — and the numbers came from the sister apps' own exports, with the reasoning recorded in
+`SkTheme.kt` so a future reading of those exports does not "correct" them back:
+
+- **Call log:** 22 sp for the caller name and 27 sp for the day headline, which denwa stores as slot
+  overrides; 18 sp for the time and duration, which it derives rather than stores.
+- **Contacts and conversations:** 24 sp. renrakusaki stores 18, but applies it down a code path that
+  scales linearly by the system font scale where this fork's scales differently — the same declared
+  18 renders about a third larger there. Calibrated against a control that both apps set the same
+  way (the 21 sp letter heading renders 62 px there against 63 px here), the rows needed 24.
+- Denwa stores **no weight overrides at all**: what reads as heavy there is the font itself
+  (Animo-Regular for names, A-OTF 勘亭流 Std Ultra for the day headline), so nothing here fakes it
+  with a weight.
+
+### Everything unfolds
+
+Upstream folds every group in the settings shut, so reaching one setting costs a tap first and the
+page hides what else is in it. Settings (security, calls, conversations, contacts, meetings, network,
+user interface, tunnel, audio devices, audio and video codecs, early media, auto answer), account
+settings (advanced, NAT policy), the account profile's devices, the assistant's third-party SIP
+advanced block and the contact detail's device trust all start open. That last one never had a
+starting value at all — it unboxed from null to false and stayed shut.
+
+In-call bottom sheets are deliberately untouched: they are drag-up panels, not settings folds, and
+forcing them open would cover the call screen.
+
+## 6.3.0-alpha.2026-07-30.g5c0ed6a3+002
 
 Rebased onto upstream `5c0ed6a3` (upstream `versionCode` 602003 → 602004). The version name now
 sorts, and the signing key left the repo.
