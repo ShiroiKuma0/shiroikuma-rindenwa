@@ -17,6 +17,10 @@
         <variable
             name="firstContactStartingByThatLetter"
             type="Boolean" />
+        <!-- shiroikuma fork: true when letter headings are drawn above the rows. -->
+        <variable
+            name="sectioned"
+            type="Boolean" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -27,8 +31,8 @@
         android:layout_height="wrap_content"
         android:paddingStart="4dp"
         android:paddingEnd="16dp"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp"
+        android:paddingTop="0dp"
+        android:paddingBottom="0dp"
         android:background="@drawable/primary_cell_background">
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -38,7 +42,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:text="@{model.firstLetter, default=`A`}"
-            android:visibility="@{firstContactStartingByThatLetter ? View.VISIBLE : View.INVISIBLE}"
+            android:visibility="@{sectioned ? View.GONE : (firstContactStartingByThatLetter ? View.VISIBLE : View.INVISIBLE)}"
             android:textColor="?attr/color_main2_400"
             android:textSize="20sp"
             android:gravity="center"
@@ -51,36 +55,59 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
             layout="@layout/contact_avatar"
             bind:model="@{model}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/header"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <!-- shiroikuma fork: name over number, with the avatar spanning both — the sister address
+             book's row (shiroikuma-renrakusaki). The pair is a packed vertical chain so it stays
+             centred against the avatar whether or not the contact has a number. -->
         <androidx.appcompat.widget.AppCompatTextView
             style="@style/default_text_style"
             android:id="@+id/name"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:singleLine="true"
+            android:ellipsize="end"
             android:text="@{model.name, default=`John Doe`}"
             android:textSize="14sp"
             android:layout_marginStart="10dp"
             android:textColor="?attr/color_main2_800"
+            app:layout_constraintVertical_chainStyle="packed"
             app:layout_constraintStart_toEndOf="@id/avatar"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/number"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/default_text_style_300"
+            android:id="@+id/number"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:text="@{model.skPhoneNumber, default=`+420 737 831 885`}"
+            android:textSize="14sp"
+            android:textColor="?attr/color_main2_600"
+            android:visibility="@{model.skPhoneNumber.empty ? View.GONE : View.VISIBLE}"
+            app:layout_constraintStart_toStartOf="@id/name"
+            app:layout_constraintEnd_toEndOf="@id/name"
+            app:layout_constraintTop_toBottomOf="@id/name"
             app:layout_constraintBottom_toBottomOf="parent"/>
 
+        <!-- Edge to edge, under the avatar as well — thickness and colour come from the UI page. -->
         <View
             android:id="@+id/separator"
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:layout_marginEnd="10dp"
             android:background="?attr/color_separator"
             android:visibility="gone"
             android:importantForAccessibility="no"
-            app:layout_constraintStart_toStartOf="@id/name"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
 

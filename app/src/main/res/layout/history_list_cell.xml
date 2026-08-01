@@ -36,11 +36,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
-            android:layout_marginTop="2dp"
-            android:layout_marginBottom="2dp"
             layout="@layout/contact_avatar"
             bind:model="@{model.avatarModel}"
-            bind:avatarSize="@{@dimen/avatar_history_list_cell_size}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -97,11 +94,45 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
             android:gravity="center"
-            android:text="@{model.dateTime, default=`13 aout 2023`}"
+            android:text="@{model.dateTime, default=`午後八時四十七分`}"
             android:textSize="12sp"
             app:layout_constraintStart_toEndOf="@id/call_status"
             app:layout_constraintTop_toBottomOf="@id/number_label"
             app:layout_constraintBottom_toTopOf="@id/separator"/>
+
+        <!-- shiroikuma fork: how long the call lasted, written after its time exactly as the
+             sister dialer writes it — a dot, then the duration. Both go when there is nothing to
+             report (a call that never connected, or the duration turned off on the UI page). -->
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/default_text_style_300"
+            android:id="@+id/duration_separator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:gravity="center"
+            android:text="@string/sk_call_duration_separator"
+            android:textSize="12sp"
+            android:visibility="@{model.duration.empty ? View.GONE : View.VISIBLE}"
+            app:layout_constraintStart_toEndOf="@id/date_time"
+            app:layout_constraintTop_toTopOf="@id/date_time"
+            app:layout_constraintBottom_toBottomOf="@id/date_time"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/default_text_style_300"
+            android:id="@+id/duration"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:gravity="start|center_vertical"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:text="@{model.duration, default=`（十一分一秒）`}"
+            android:textSize="12sp"
+            android:visibility="@{model.duration.empty ? View.GONE : View.VISIBLE}"
+            app:layout_constraintStart_toEndOf="@id/duration_separator"
+            app:layout_constraintEnd_toStartOf="@id/call"
+            app:layout_constraintTop_toTopOf="@id/date_time"
+            app:layout_constraintBottom_toBottomOf="@id/date_time"/>
 
         <ImageView
             android:onClick="@{onCallClickListener}"
@@ -123,11 +154,12 @@
             android:id="@+id/separator"
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:layout_marginEnd="10dp"
+            android:layout_marginStart="-16dp"
+            android:layout_marginEnd="-16dp"
             android:background="?attr/color_separator"
             android:visibility="gone"
             android:importantForAccessibility="no"
-            app:layout_constraintStart_toStartOf="@id/name"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
 

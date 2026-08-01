@@ -17,8 +17,12 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import java.time.LocalDate
+import java.time.ZoneId
 import org.linphone.R
 import org.linphone.databinding.ActivitySkUiBinding
+import org.linphone.databinding.ItemSkCallPreviewBinding
+import org.linphone.databinding.ItemSkChoiceBinding
 import org.linphone.databinding.ItemSkColorBinding
 import org.linphone.databinding.ItemSkDimenBinding
 import org.linphone.databinding.ItemSkPreviewBoxBinding
@@ -46,6 +50,7 @@ class SkUiActivity : AppCompatActivity() {
     private var listPreview: TextView? = null
     private var bubblePreview: TextView? = null
     private var buttonPreview: TextView? = null
+    private var callPreview: ItemSkCallPreviewBinding? = null
     private var eximPanel: SkEximportPanel? = null
 
     private val indentStepPx: Int
@@ -130,6 +135,7 @@ class SkUiActivity : AppCompatActivity() {
         listPreview = null
         bubblePreview = null
         buttonPreview = null
+        callPreview = null
 
         // ---- Export / Import — always first, per the Kōjiki page ----
         addSection(R.string.sk_section_eximport)
@@ -161,6 +167,47 @@ class SkUiActivity : AppCompatActivity() {
         addDimenRow(SkDimen.LIST_BORDER_WIDTH, 2)
         addDimenRow(SkDimen.LIST_CORNER_RADIUS, 2)
         addListPreview(2)
+        // The Contacts letter headings, in the sister address book's shape.
+        addSubgroup(R.string.sk_group_contact_sections, 1)
+        addSwitchRow(
+            R.string.sk_contact_sections,
+            R.string.sk_contact_sections_desc,
+            SkContacts.sectionsEnabled(this),
+            2,
+        ) {
+            SkContacts.setSectionsEnabled(this, it)
+        }
+        addTextSlot(SkSlot.CONTACT_SECTION, 2)
+        addColorRow(SkSlot.CONTACT_SECTION_UNDERLINE, 2)
+        addDimenRow(SkDimen.CONTACT_SECTION_UNDERLINE_WIDTH, 2)
+        addColorRow(SkSlot.CONTACT_SECTION_DIVIDER, 2)
+        addDimenRow(SkDimen.CONTACT_SECTION_DIVIDER_WIDTH, 2)
+        addDimenRow(SkDimen.CONTACT_SECTION_PADDING, 2)
+
+        // The contact rows: the number line under the name, the avatar spanning both, the line
+        // closing each row off.
+        addSubgroup(R.string.sk_group_contact_rows, 1)
+        addSwitchRow(
+            R.string.sk_contact_initials,
+            R.string.sk_contact_initials_desc,
+            SkContacts.initialsEnabled(this),
+            2,
+        ) {
+            SkContacts.setInitialsEnabled(this, it)
+        }
+        addTextSlot(SkSlot.CONTACT_NUMBER, 2)
+        addDimenRow(SkDimen.CONTACT_AVATAR_SIZE, 2)
+        addDimenRow(SkDimen.CONTACT_ROW_PADDING, 2)
+        addColorRow(SkSlot.CONTACT_ROW_DIVIDER, 2)
+        addDimenRow(SkDimen.CONTACT_ROW_DIVIDER_WIDTH, 2)
+
+        // The Favorites tab: a tile grid, draggable, in the sister address book's shape.
+        addSubgroup(R.string.sk_group_favourites, 1)
+        addTextSlot(SkSlot.FAVOURITE_NAME, 2)
+        addDimenRow(SkDimen.FAVOURITE_COLUMNS, 2)
+        addDimenRow(SkDimen.FAVOURITE_AVATAR_SIZE, 2)
+        addDimenRow(SkDimen.FAVOURITE_TILE_PADDING, 2)
+
         addSubgroup(R.string.sk_group_avatar, 1)
         addColorRow(SkSlot.AVATAR_BACKGROUND, 2)
         addTextSlot(SkSlot.AVATAR_TEXT, 2)
@@ -173,12 +220,92 @@ class SkUiActivity : AppCompatActivity() {
         addColorRow(SkSlot.CALL_BACKGROUND, 1)
         addTextSlot(SkSlot.CALL_NAME, 1)
         addTextSlot(SkSlot.CALL_STATUS, 1)
-        // The call history rows: the number line's own font, and the two spacings that decide
-        // how tightly the list reads — between records, and between the lines within a record.
+
+        // What a call-history record says: which day it is filed under, in which calendar, and
+        // how its time and length are written. Every knob for the reading is in this one group.
+        addSubgroup(R.string.sk_group_call_reading, 1)
+        addSwitchRow(
+            R.string.sk_call_day_headers,
+            R.string.sk_call_day_headers_desc,
+            SkCallLog.dayHeadersEnabled(this),
+            2,
+        ) {
+            SkCallLog.setDayHeadersEnabled(this, it)
+        }
+        addChoiceRow(
+            R.string.sk_call_date_format,
+            SkCallLog.DateFormatOption.entries.map { getString(it.labelRes) },
+            SkCallLog.dateFormat(this).ordinal,
+            2,
+        ) { picked ->
+            SkCallLog.setDateFormat(this, SkCallLog.DateFormatOption.entries[picked])
+        }
+        addSwitchRow(
+            R.string.sk_call_relative_days,
+            R.string.sk_call_relative_days_desc,
+            SkCallLog.relativeDaysEnabled(this),
+            2,
+        ) {
+            SkCallLog.setRelativeDaysEnabled(this, it)
+        }
+        addChoiceRow(
+            R.string.sk_call_time_format,
+            SkCallLog.TimeFormatOption.entries.map { getString(it.labelRes) },
+            SkCallLog.timeFormat(this).ordinal,
+            2,
+        ) { picked ->
+            SkCallLog.setTimeFormat(this, SkCallLog.TimeFormatOption.entries[picked])
+        }
+        addSwitchRow(
+            R.string.sk_call_show_duration,
+            R.string.sk_call_show_duration_desc,
+            SkCallLog.durationShown(this),
+            2,
+        ) {
+            SkCallLog.setDurationShown(this, it)
+        }
+        addChoiceRow(
+            R.string.sk_call_duration_format,
+            SkCallLog.DurationFormatOption.entries.map { getString(it.labelRes) },
+            SkCallLog.durationFormat(this).ordinal,
+            2,
+        ) { picked ->
+            SkCallLog.setDurationFormat(this, SkCallLog.DurationFormatOption.entries[picked])
+        }
+        addSwitchRow(
+            R.string.sk_call_show_direction,
+            R.string.sk_call_show_direction_desc,
+            SkCallLog.directionShown(this),
+            2,
+        ) {
+            SkCallLog.setDirectionShown(this, it)
+        }
+
+        // How the day headline is drawn: its own text slot, the rule under it, the band above it.
+        addSubgroup(R.string.sk_group_call_day, 1)
+        addTextSlot(SkSlot.CALL_DAY, 2)
+        addColorRow(SkSlot.CALL_DAY_UNDERLINE, 2)
+        addDimenRow(SkDimen.CALL_DAY_UNDERLINE_WIDTH, 2)
+        addColorRow(SkSlot.CALL_DAY_DIVIDER, 2)
+        addDimenRow(SkDimen.CALL_DAY_DIVIDER_WIDTH, 2)
+
+        // The records themselves: a font slot per line, the arrow colours, and the two spacings
+        // that decide how tightly the list reads — between records, and within one record.
         addSubgroup(R.string.sk_group_call_history, 1)
+        addTextSlot(SkSlot.CALL_ROW_NAME, 2)
         addTextSlot(SkSlot.LIST_NUMBER, 2)
+        addTextSlot(SkSlot.CALL_TIME, 2)
+        addTextSlot(SkSlot.CALL_DURATION, 2)
+        addColorRow(SkSlot.CALL_DIR_INCOMING, 2)
+        addColorRow(SkSlot.CALL_DIR_OUTGOING, 2)
+        addColorRow(SkSlot.CALL_DIR_MISSED, 2)
+        addDimenRow(SkDimen.CALL_AVATAR_SIZE, 2)
         addDimenRow(SkDimen.CALL_ROW_PADDING, 2)
         addDimenRow(SkDimen.CALL_LINE_SPACING, 2)
+        addColorRow(SkSlot.CALL_ROW_DIVIDER, 2)
+        addDimenRow(SkDimen.CALL_ROW_DIVIDER_WIDTH, 2)
+        addCallRowPreview(2)
+
         addSubgroup(R.string.sk_group_call_buttons, 1)
         addColorRow(SkSlot.CALL_ANSWER, 2)
         addColorRow(SkSlot.CALL_HANGUP, 2)
@@ -426,6 +553,59 @@ class SkUiActivity : AppCompatActivity() {
         binding.skHolder.addView(row.root)
     }
 
+    /**
+     * A generic on/off row. [onChange] stores the value; the previews are redrawn straight after,
+     * so a toggle is never applied blind.
+     */
+    private fun addSwitchRow(
+        titleRes: Int,
+        descRes: Int,
+        checked: Boolean,
+        level: Int,
+        onChange: (Boolean) -> Unit,
+    ) {
+        val row = ItemSkSwitchBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
+        val accent = SkTheme.color(this, SkSlot.ACCENT)
+        row.skSwitchTitle.setText(titleRes)
+        row.skSwitchTitle.setTextColor(SkTheme.color(this, SkSlot.TEXT))
+        row.skSwitchDesc.setText(descRes)
+        row.skSwitchDesc.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
+        row.skSwitchToggle.thumbTintList = ColorStateList.valueOf(accent)
+        row.skSwitchToggle.trackTintList = ColorStateList.valueOf(accent)
+        row.skSwitchToggle.isChecked = checked
+        row.skSwitchToggle.setOnCheckedChangeListener { _, value ->
+            onChange(value)
+            updatePreviews()
+        }
+        row.root.setOnClickListener { row.skSwitchToggle.toggle() }
+        indentRow(row.root, level)
+        binding.skHolder.addView(row.root)
+    }
+
+    /** A row naming a setting and the option currently picked for it; tapping opens the list. */
+    private fun addChoiceRow(
+        labelRes: Int,
+        options: List<String>,
+        selectedIndex: Int,
+        level: Int,
+        onPick: (Int) -> Unit,
+    ) {
+        val row = ItemSkChoiceBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
+        row.skChoiceLabel.setText(labelRes)
+        row.skChoiceLabel.setTextColor(SkTheme.color(this, SkSlot.TEXT))
+        row.skChoiceValue.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
+        row.skChoiceValue.text = options.getOrElse(selectedIndex) { "" }
+        row.root.setOnClickListener {
+            SkChoiceDialog(this, getString(labelRes), options, selectedIndex) { picked ->
+                onPick(picked)
+                row.skChoiceValue.text = options.getOrElse(picked) { "" }
+                updatePreviews()
+            }
+        }
+        indentRow(row.root, level)
+        binding.skHolder.addView(row.root)
+    }
+
     private fun addDimenRow(dimen: SkDimen, level: Int) {
         val row = ItemSkDimenBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
         row.skDimenLabel.setText(dimen.labelRes)
@@ -434,12 +614,13 @@ class SkUiActivity : AppCompatActivity() {
         tintSeekBar(row.skDimenSeekbar, SkTheme.color(this, SkSlot.ACCENT))
         row.skDimenSeekbar.max = dimen.maxDp
         row.skDimenSeekbar.progress = SkTheme.dimenDp(this, dimen)
-        row.skDimenValue.text = getString(R.string.sk_dp_value, SkTheme.dimenDp(this, dimen))
+        row.skDimenValue.text = dimenLabel(dimen, SkTheme.dimenDp(this, dimen))
         row.skDimenSeekbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(bar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (!fromUser) return
-                SkTheme.setDimenDp(this@SkUiActivity, dimen, progress)
-                row.skDimenValue.text = getString(R.string.sk_dp_value, progress)
+                val value = progress.coerceAtLeast(dimen.minValue)
+                SkTheme.setDimenDp(this@SkUiActivity, dimen, value)
+                row.skDimenValue.text = dimenLabel(dimen, value)
                 updatePreviews()
             }
 
@@ -456,6 +637,18 @@ class SkUiActivity : AppCompatActivity() {
     private fun addListPreview(level: Int) {
         val row = ItemSkPreviewBoxBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
         listPreview = row.skPreviewBox
+        indentRow(row.root, level)
+        binding.skHolder.addView(row.root)
+        updatePreviews()
+    }
+
+    /**
+     * The call-history sample: a day headline and one record, drawn through the same two
+     * [SkStyler] entry points the real list uses, so the page shows exactly what will land.
+     */
+    private fun addCallRowPreview(level: Int) {
+        val row = ItemSkCallPreviewBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
+        callPreview = row
         indentRow(row.root, level)
         binding.skHolder.addView(row.root)
         updatePreviews()
@@ -507,6 +700,45 @@ class SkUiActivity : AppCompatActivity() {
                     SkTheme.color(this@SkUiActivity, SkSlot.ACCENT),
                 )
             }
+        }
+        callPreview?.let { preview ->
+            // A day two back and a call at 15:36 that ran 11:01 — old enough that the headline
+            // shows a real date rather than "Yesterday", and long enough to exercise both units.
+            val sampleSecs = LocalDate.now()
+                .minusDays(SAMPLE_DAYS_BACK)
+                .atTime(SAMPLE_HOUR, SAMPLE_MINUTE)
+                .atZone(ZoneId.systemDefault())
+                .toEpochSecond()
+
+            preview.skPreviewDayText.text = SkCallLog.dayText(this, sampleSecs)
+            preview.skPreviewName.text = getString(R.string.sk_preview_call_name)
+            preview.skPreviewNumber.text = getString(R.string.sk_preview_call_number)
+            preview.skPreviewTime.text = SkCallLog.timeText(this, sampleSecs)
+
+            val duration = SkCallLog.durationText(this, SAMPLE_DURATION_SECS, connected = true)
+            preview.skPreviewDuration.text = duration
+            val durationShown = if (duration.isEmpty()) View.GONE else View.VISIBLE
+            preview.skPreviewDuration.visibility = durationShown
+            preview.skPreviewSeparator.visibility = durationShown
+
+            SkStyler.styleDayHeader(
+                preview.root,
+                preview.skPreviewDayDivider,
+                preview.skPreviewDayText,
+                preview.skPreviewDayUnderline,
+            )
+            SkStyler.styleCallHistoryRow(
+                row = preview.skPreviewRow,
+                avatar = null,
+                name = preview.skPreviewName,
+                number = preview.skPreviewNumber,
+                time = preview.skPreviewTime,
+                durationSeparator = preview.skPreviewSeparator,
+                duration = preview.skPreviewDuration,
+                directionIcon = preview.skPreviewArrow,
+                direction = SkCallLog.Direction.INCOMING,
+                rowDivider = preview.skPreviewRowDivider,
+            )
         }
         buttonPreview?.let { preview ->
             preview.text = getString(R.string.sk_preview_button)
@@ -564,6 +796,10 @@ class SkUiActivity : AppCompatActivity() {
 
     // ------------------------------------------------------------------ helpers
 
+    /** A count reads as a bare number; everything else is a dp length. */
+    private fun dimenLabel(dimen: SkDimen, value: Int): String =
+        if (dimen.isCount) value.toString() else getString(R.string.sk_dp_value, value)
+
     private fun sizeLabel(sizeSp: Int): String =
         if (sizeSp <= 0) getString(R.string.sk_default) else getString(R.string.sk_sp_value, sizeSp)
 
@@ -600,5 +836,11 @@ class SkUiActivity : AppCompatActivity() {
         private const val BASE_INDENT_DP = 54
         private const val INDENT_STEP_DP = 18
         private const val EXIM_WARN_COLOR = 0xFFFF5252.toInt()
+
+        // The call-history sample: two days back, 15:36, an 11:01 call.
+        private const val SAMPLE_DAYS_BACK = 2L
+        private const val SAMPLE_HOUR = 15
+        private const val SAMPLE_MINUTE = 36
+        private const val SAMPLE_DURATION_SECS = 661
     }
 }

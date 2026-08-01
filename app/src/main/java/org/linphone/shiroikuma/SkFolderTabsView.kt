@@ -45,6 +45,7 @@ class SkFolderTabsView
         /** Left-to-right, matching the ids in @layout/bottom_nav_bar. */
         private val anchorIds = intArrayOf(
             R.id.contacts,
+            R.id.favourites,
             R.id.calls,
             R.id.conversations,
             R.id.meetings,

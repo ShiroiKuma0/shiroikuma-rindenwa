@@ -72,7 +72,6 @@ class ContactsListFragment : AbstractMainFragment() {
     private lateinit var listViewModel: ContactsListViewModel
 
     private lateinit var adapter: ContactsListAdapter
-    private lateinit var favouritesAdapter: ContactsListAdapter
 
     private var bottomSheetDialog: BottomSheetDialogFragment? = null
 
@@ -112,7 +111,6 @@ class ContactsListFragment : AbstractMainFragment() {
         super.onCreate(savedInstanceState)
 
         adapter = ContactsListAdapter()
-        favouritesAdapter = ContactsListAdapter(favourites = true)
     }
 
     override fun onCreateView(
@@ -141,13 +139,7 @@ class ContactsListFragment : AbstractMainFragment() {
         binding.contactsList.layoutManager = LinearLayoutManager(requireContext())
         binding.contactsList.outlineProvider = outlineProvider
 
-        binding.favouritesContactsList.setHasFixedSize(true)
-        val favouritesLayoutManager = LinearLayoutManager(requireContext())
-        favouritesLayoutManager.orientation = LinearLayoutManager.HORIZONTAL
-        binding.favouritesContactsList.layoutManager = favouritesLayoutManager
-
         configureAdapter(adapter)
-        configureAdapter(favouritesAdapter)
 
         listViewModel.isListFiltered.observe(viewLifecycleOwner) { filtered ->
             binding.contactsList.clipToOutline = filtered
@@ -156,7 +148,9 @@ class ContactsListFragment : AbstractMainFragment() {
         listViewModel.contactsList.observe(
             viewLifecycleOwner
         ) {
-            adapter.submitList(it)
+            // shiroikuma fork: submitted through the section builder, which wraps the contacts in
+            // their letter headings. A filtered list is never sectioned — every match must show.
+            adapter.submitContacts(it, filtering = listViewModel.isListFiltered.value == true)
 
             // Wait for adapter to have items before setting it in the RecyclerView,
             // otherwise scroll position isn't retained
@@ -166,20 +160,6 @@ class ContactsListFragment : AbstractMainFragment() {
 
             Log.i("$TAG Contacts list updated with [${it.size}] items")
             listViewModel.fetchInProgress.value = false
-        }
-
-        listViewModel.favouritesList.observe(
-            viewLifecycleOwner
-        ) {
-            favouritesAdapter.submitList(it)
-
-            // Wait for adapter to have items before setting it in the RecyclerView,
-            // otherwise scroll position isn't retained
-            if (binding.favouritesContactsList.adapter != favouritesAdapter) {
-                binding.favouritesContactsList.adapter = favouritesAdapter
-            }
-
-            Log.i("$TAG Favourites contacts list updated with [${it.size}] items")
         }
 
         listViewModel.vCardTerminatedEvent.observe(viewLifecycleOwner) {
@@ -292,6 +272,10 @@ class ContactsListFragment : AbstractMainFragment() {
 
     override fun onResume() {
         super.onResume()
+
+        // shiroikuma fork: the letter headings and the type scale are settable on the UI page, and
+        // the rows on screen were bound under the settings as they were then.
+        adapter.rebuildSections()
 
         coreContext.postOnCoreThread { core ->
             val cardDavFriendList = core.friendsLists.find {

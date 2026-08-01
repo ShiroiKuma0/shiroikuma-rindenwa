@@ -47,6 +47,7 @@ import org.linphone.databinding.MainActivityTopBarBinding
 import org.linphone.ui.main.MainActivity
 import org.linphone.ui.main.chat.fragment.ConversationsListFragmentDirections
 import org.linphone.ui.main.contacts.fragment.ContactsListFragmentDirections
+import org.linphone.ui.main.contacts.fragment.FavouritesListFragmentDirections
 import org.linphone.ui.main.history.fragment.HistoryListFragmentDirections
 import org.linphone.ui.main.meetings.fragment.MeetingsListFragmentDirections
 import org.linphone.ui.main.viewmodel.AbstractMainViewModel
@@ -151,6 +152,14 @@ abstract class AbstractMainFragment : GenericMainFragment() {
             }
         }
 
+        viewModel.navigateToFavouritesEvent.observe(viewLifecycleOwner) {
+            it.consume {
+                if (currentFragmentId != R.id.favouritesListFragment) {
+                    goToFavouritesList()
+                }
+            }
+        }
+
         viewModel.navigateToHistoryEvent.observe(viewLifecycleOwner) {
             it.consume {
                 if (currentFragmentId != R.id.historyListFragment) {
@@ -183,6 +192,7 @@ abstract class AbstractMainFragment : GenericMainFragment() {
 
         sharedViewModel.currentlyDisplayedFragment.observe(viewLifecycleOwner) {
             viewModel.contactsSelected.value = it == R.id.contactsListFragment
+            viewModel.favouritesSelected.value = it == R.id.favouritesListFragment
             viewModel.callsSelected.value = it == R.id.historyListFragment
             viewModel.conversationsSelected.value = it == R.id.conversationsListFragment
             viewModel.meetingsSelected.value = it == R.id.meetingsListFragment
@@ -382,6 +392,37 @@ abstract class AbstractMainFragment : GenericMainFragment() {
                 val action = HistoryListFragmentDirections.actionHistoryListFragmentToContactsListFragment()
                 navigateTo(action)
             }
+            R.id.favouritesListFragment -> {
+                Log.i("$TAG Leaving favourites list")
+                val action = FavouritesListFragmentDirections.actionFavouritesListFragmentToContactsListFragment()
+                navigateTo(action)
+            }
+        }
+    }
+
+    private fun goToFavouritesList() {
+        Log.i("$TAG Navigating to favourites list")
+        when (currentFragmentId) {
+            R.id.contactsListFragment -> {
+                Log.i("$TAG Leaving contacts list")
+                val action = ContactsListFragmentDirections.actionContactsListFragmentToFavouritesListFragment()
+                navigateTo(action)
+            }
+            R.id.historyListFragment -> {
+                Log.i("$TAG Leaving history list")
+                val action = HistoryListFragmentDirections.actionHistoryListFragmentToFavouritesListFragment()
+                navigateTo(action)
+            }
+            R.id.conversationsListFragment -> {
+                Log.i("$TAG Leaving conversations list")
+                val action = ConversationsListFragmentDirections.actionConversationsListFragmentToFavouritesListFragment()
+                navigateTo(action)
+            }
+            R.id.meetingsListFragment -> {
+                Log.i("$TAG Leaving meetings list")
+                val action = MeetingsListFragmentDirections.actionMeetingsListFragmentToFavouritesListFragment()
+                navigateTo(action)
+            }
         }
     }
 
@@ -401,6 +442,11 @@ abstract class AbstractMainFragment : GenericMainFragment() {
             R.id.meetingsListFragment -> {
                 Log.i("$TAG Leaving meetings list")
                 val action = MeetingsListFragmentDirections.actionMeetingsListFragmentToHistoryListFragment()
+                navigateTo(action)
+            }
+            R.id.favouritesListFragment -> {
+                Log.i("$TAG Leaving favourites list")
+                val action = FavouritesListFragmentDirections.actionFavouritesListFragmentToHistoryListFragment()
                 navigateTo(action)
             }
         }
@@ -424,6 +470,11 @@ abstract class AbstractMainFragment : GenericMainFragment() {
                 val action = HistoryListFragmentDirections.actionHistoryListFragmentToConversationsListFragment()
                 navigateTo(action)
             }
+            R.id.favouritesListFragment -> {
+                Log.i("$TAG Leaving favourites list")
+                val action = FavouritesListFragmentDirections.actionFavouritesListFragmentToConversationsListFragment()
+                navigateTo(action)
+            }
         }
     }
 
@@ -443,6 +494,11 @@ abstract class AbstractMainFragment : GenericMainFragment() {
             R.id.historyListFragment -> {
                 Log.i("$TAG Leaving history list")
                 val action = HistoryListFragmentDirections.actionHistoryListFragmentToMeetingsListFragment()
+                navigateTo(action)
+            }
+            R.id.favouritesListFragment -> {
+                Log.i("$TAG Leaving favourites list")
+                val action = FavouritesListFragmentDirections.actionFavouritesListFragmentToMeetingsListFragment()
                 navigateTo(action)
             }
         }

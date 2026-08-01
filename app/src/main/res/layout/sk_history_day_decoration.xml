@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  shiroikuma-rindenwa fork — the day headline standing above the calls made on that day, in the
+  sister dialer's shape: a band closing off the previous day, the date, and a rule under its text.
+
+  Both rules and every colour/font come from the UI page at draw time (SkStyler.styleDayHeader),
+  so nothing here fixes the look — the sizes below are only what an unstyled measure pass uses.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/sk_day_holder"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/color_main2_000"
+    android:orientation="vertical">
+
+    <View
+        android:id="@+id/sk_day_divider"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:importantForAccessibility="no" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="6dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/sk_day_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <View
+            android:id="@+id/sk_day_underline"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginTop="2dp"
+            android:importantForAccessibility="no" />
+
+    </LinearLayout>
+
+</LinearLayout>

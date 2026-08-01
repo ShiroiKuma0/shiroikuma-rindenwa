@@ -19,6 +19,7 @@
  */
 package org.linphone.ui.main.history.fragment
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -316,6 +317,8 @@ class HistoryListFragment : AbstractMainFragment() {
         bottomSheetDialog = null
     }
 
+    // notifyDataSetChanged is the point below: every visible row has to re-read the settings.
+    @SuppressLint("NotifyDataSetChanged")
     override fun onResume() {
         super.onResume()
 
@@ -326,6 +329,15 @@ class HistoryListFragment : AbstractMainFragment() {
         if (shouldRefreshDataInOnResume()) {
             Log.i("$TAG Keep app alive setting is enabled, refreshing view just in case")
             listViewModel.filter()
+        }
+
+        // shiroikuma fork: how a record reads — the day headlines, the time and duration formats,
+        // the fonts and the colours — is all settable on the UI page, and the rows already on
+        // screen were bound under the settings as they were then. Re-bind them, and let the
+        // headline decoration measure itself again in case it has just been turned on or off.
+        if (binding.historyList.adapter === adapter) {
+            adapter.notifyDataSetChanged()
+            binding.historyList.invalidateItemDecorations()
         }
     }
 

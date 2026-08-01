@@ -20,9 +20,8 @@
         android:onClick="@{onClickListener}"
         android:onLongClick="@{onLongClickListener}"
         android:onContextClick="@{onLongClickListener}"
-        android:layout_width="75dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
         android:padding="5dp"
         android:background="@drawable/primary_cell_background">
 
@@ -45,7 +44,7 @@
             android:gravity="center"
             android:text="@{model.name, default=`John Doe`}"
             android:textSize="14sp"
-            android:maxLines="1"
+            android:maxLines="2"
             android:ellipsize="end"
             android:textColor="?attr/color_main2_800"
             app:layout_constraintStart_toStartOf="parent"
