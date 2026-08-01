@@ -129,13 +129,36 @@ android {
 
     // shiroikuma fork versioning. Upstream's versionCode/versionName literals above are left exactly
     // as upstream writes them and read back here, so an upstream bump flows through untouched:
-    //   versionName = "<upstream>+<BUILD_NUMBER>"
+    //   versionName = "<upstream>.g<upstream base sha>+<BUILD_NUMBER>"
     //   versionCode = <upstream> * 1000 + <BUILD_NUMBER>
     // The x1000 tail (not x10000 as in the sister forks) is forced by Linphone's large upstream code:
     // 602003 * 10000 would overflow Android's 2100000000 versionCode ceiling.
     val upstreamVersionCode = defaultConfig.versionCode!!
     val upstreamVersionName = defaultConfig.versionName!!
-    val forkVersionName = "$upstreamVersionName+$shiroikumaBuild"
+
+    // shiroikuma fork: upstream-base pin (global "git-versioning" skill). We rebase `custom` onto
+    // every upstream commit, so upstream's versionName stands still for months — this sha is what
+    // says whether we are behind upstream. It is the merge-base of HEAD and `master` (the upstream
+    // mirror), i.e. the upstream commit our patches sit on: NOT our own HEAD (that identifies our
+    // commits, which +BUILD_NUMBER already covers) and NOT master's tip (which overstates the base
+    // when master has been fast-forwarded but custom not yet rebased). A missing sha — shallow
+    // clone, tarball, no git — must never fail the build; the version just degrades to <upstream>+N.
+    val upstreamBaseSha: String = try {
+        ProcessBuilder()
+            .command("git", "merge-base", "HEAD", "master")
+            .directory(project.rootDir)
+            .start()
+            .inputStream.bufferedReader().use(BufferedReader::readText)
+            .trim()
+            .take(8)
+    } catch (e: Exception) {
+        println("Git not found [$e], version will carry no upstream-base pin")
+        ""
+    }
+    val upstreamPin = if (upstreamBaseSha.length == 8) ".g$upstreamBaseSha" else ""
+    println("Upstream base pin: ${if (upstreamPin.isEmpty()) "(none)" else upstreamPin}")
+
+    val forkVersionName = "$upstreamVersionName$upstreamPin+$shiroikumaBuild"
     val forkVersionCode = upstreamVersionCode * 1000 + shiroikumaBuild
     defaultConfig.versionCode = forkVersionCode
     defaultConfig.versionName = forkVersionName
