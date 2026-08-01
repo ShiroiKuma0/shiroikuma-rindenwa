@@ -30,9 +30,10 @@ our patches and is rebased onto each new upstream tip.
   so an upstream bump flows through with **no hand-editing and no conflict on those two lines**.
 - `BUILD_NUMBER` (in `gradle.properties`) is our increment: bumped by every `buildApk`,
   **reset to `1`** on each new upstream version.
-- Fork `versionName = "<upstream>.g<upstream base sha>+<BUILD_NUMBER>"`;
+- Fork `versionName = "<upstream>.<upstream base date>.g<upstream base sha>+<BUILD_NUMBER, padded to 3>"`;
   `versionCode = <upstream versionCode> * 1000 + BUILD_NUMBER` (the sha never enters the code).
-- The `.g<sha>` pin is `git merge-base HEAD master`, first 8 chars — the upstream commit `custom`
+- The `.<date>.g<sha>` pin is `git merge-base HEAD master` (first 8 chars, plus that commit's own
+  committer date so versions sort chronologically) — the upstream commit `custom`
   is rebased onto (global **`git-versioning`** skill). **Nothing to hand-edit on a sync:** the
   rebase moves the merge-base, so the next build picks the new sha up by itself.
 - **The multiplier is `1000`, not the sister forks' `10000`.** Linphone's upstream `versionCode` is
@@ -101,6 +102,18 @@ touches our identity or icon layer, so the rebase should be clean".
 
 ## Step 3 — fast-forward master, rebase custom (after the go-ahead)
 
+> ### ⚠️ Never create a repo-root `keystore.properties`
+>
+> The signing credentials live in **`~/.gradle/gradle.properties`** (`RINDENWA_RELEASE_*`),
+> deliberately outside the repo, so the branch switches below cannot touch them.
+>
+> They used to sit in a gitignored `keystore.properties` at the repo root, and the
+> `6441c21e → 5c0ed6a3` sync on 2026-08-01 destroyed them: **upstream tracks that file and `custom`
+> deletes it**, so `git checkout master` silently overwrote the real one with upstream's
+> empty-valued version (git clobbers ignored files without warning) and `git checkout custom` then
+> deleted it. Unrecoverable from git. If you ever find yourself re-adding that file, you are
+> re-arming the same trap — put the values in `~/.gradle/gradle.properties` instead.
+
 ```bash
 cd ~/git/shiroikuma-rindenwa
 git status --short          # must be clean before rebasing
@@ -133,8 +146,9 @@ Conflict-prone files, and the shape each must end up in:
      `defaultConfig` stay untouched** — if a conflict lands there, take *upstream's* side verbatim.
   4. Single-ABI `abiFilters += listOf("arm64-v8a")`.
   5. The `outputFileName` → `shiroikuma-rindenwa_<forkVersionName>_arm64-v8a.apk`.
-  6. The defensive `keystore.properties` load (`if (keystorePropertiesFile.exists())`) and the
-     null-tolerant `storeFile` read.
+  6. The `signingSetting(...)` helper and the `RINDENWA_RELEASE_*` reads — credentials come from
+     `~/.gradle/gradle.properties`, with `keystore.properties` only as an optional fallback, and
+     configuration must never fail when nothing is configured.
   7. The `buildApk` task at the end of the file.
 - **`gradle.properties`** — keep `BUILD_NUMBER` (and reset it, Step 5). Keep upstream's other flags.
 - **`.gitignore`** — keep `/keystore.properties` and `.claude/settings.local.json` un-ignored/ignored
@@ -159,7 +173,8 @@ In `gradle.properties`, set **`BUILD_NUMBER=1`** — the new upstream line start
 | Launcher icon | black-yellow traced handset | `mipmap-*/ic_launcher*`, `mipmap-anydpi/` |
 | Fork version logic | `shiroikumaBuild`, `* 1000 +`, `forkVersionName` | `app/build.gradle.kts` |
 | APK naming | `shiroikuma-rindenwa_…_arm64-v8a.apk` | `app/build.gradle.kts` → `outputFileName` |
-| Signing | `keystore.properties` → `~/.android-keystores/shiroikuma-rindenwa.jks` | `app/build.gradle.kts` |
+| Signing | `RINDENWA_RELEASE_*` → `~/.android-keystores/shiroikuma-rindenwa.jks` | `~/.gradle/gradle.properties`, read by `app/build.gradle.kts` |
+| **No stray credentials file** | `keystore.properties` **absent** from the repo root (see Step 3) | repo root |
 | Build tail | `BUILD_NUMBER=1` | `gradle.properties` |
 | De-branding | no "Linphone"/`linphone.org`/upstream GitHub links in user-visible strings, Help or About | `values/strings.xml`, About/Help screens |
 | Committed agent files | `CLAUDE.md`, `.claude/skills/` tracked | `.gitignore` |
@@ -168,9 +183,15 @@ Sanity-check that the script still evaluates, then build the new `+1` via the **
 
 ```bash
 export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ANDROID_HOME=/home/shiroikuma/android-sdk
+grep -q '^RINDENWA_RELEASE_STORE_PASSWORD=.' ~/.gradle/gradle.properties \
+  || echo '!!! signing config missing from ~/.gradle/gradle.properties — see Step 3'
 ./gradlew :app:tasks --console=plain | head      # config sanity
 ./gradlew buildApk --console=plain < /dev/null   # the new <newVersion>+1
 ```
+
+The build log must contain `Signing config release is using keystore [...]`; if it says the
+keystore doesn't exist, **stop** — the APK is unsigned and won't install. After the build, confirm
+the APK's certificate SHA-256 still matches the previously shipped one (commands in Step 3).
 
 `build-apk` then delivers the APK automatically via the global **`/after-build`** skill (adb push if
 the phone is reachable, else scp to skhw — no prompt, no transfer question).
@@ -196,6 +217,9 @@ ff `master` → rebase `custom` (reconcile per Step 4) → `BUILD_NUMBER=1` → 
 
 ## Hard rules
 
+- **Never move the signing credentials into the repo.** They belong in `~/.gradle/gradle.properties`
+  (`RINDENWA_RELEASE_*`); a repo-root `keystore.properties` is destroyed by the branch switches in
+  Step 3, with no warning and no way to recover it from git.
 - Never `adb install` / `adb uninstall` — 白い熊 installs manually from `/sdcard/tmp/`.
 - Never commit or push unprompted; wait for **"Push"**.
 - Never rename the `org.linphone` namespace — only the installed `applicationId` differs.
