@@ -137,7 +137,8 @@ class ThirdPartySipAccountLoginViewModel
 
     init {
         showPassword.value = false
-        expandAdvancedSettings.value = false
+        // shiroikuma fork: unfolded by default — see SettingsViewModel.
+        expandAdvancedSettings.value = true
         registrationInProgress.value = false
 
         loginEnabled.addSource(username) {
