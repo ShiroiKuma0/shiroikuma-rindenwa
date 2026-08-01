@@ -2,7 +2,39 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha+23 — current
+## 6.3.0-alpha.g6441c21e+24 — current
+
+The version name now says which upstream commit the fork stands on. On upstream `6.3.0-alpha`.
+
+### The version pins the upstream base
+
+- Upstream's `versionName` is a release-time literal: `6.3.0-alpha` has stood still across hundreds
+  of upstream commits, while `custom` is rebased onto every one of them. `6.3.0-alpha+23` therefore
+  said nothing about whether upstream had moved on — the number after the `+` counts **our** builds,
+  not upstream's.
+- The name now carries the base: `<upstream>.g<8-char sha>+<BUILD_NUMBER>`, this build being
+  `6.3.0-alpha.g6441c21e+24`. `6441c21e` is an upstream commit id, so the question "are we behind
+  upstream?" is one comparison against `BelledonneCommunications/linphone-android` rather than a
+  guess.
+- The sha is `git merge-base HEAD master` — the upstream commit our patches sit on. **Not our own
+  `HEAD`**, which identifies our commits and is what `+N` and the release tag already do, and **not
+  `master`'s tip**, which overstates the base whenever `master` has been fast-forwarded but `custom`
+  is not yet rebased onto it.
+- It therefore moves **only on an upstream sync**. Two builds under the same sha are, by
+  construction, built on the same upstream base — the steadiness is the signal, not a shortcoming.
+- `versionCode` is untouched: still `<upstream code> × 1000 + BUILD_NUMBER`, `602003024` here. A sha
+  carries no ordering and has no business in the number Android upgrades by.
+- The APK filename and the release tag follow the version verbatim, so both grow the pin. The
+  separator is `.g`, never `_` — the filename uses `_` as its own field separator, and an underscore
+  inside the version would have split it into a field that the delivery and release tooling reads
+  as an ABI.
+- `-alpha` stays. It is upstream's own designation and it is true; dropping it would claim a stable
+  6.3.0 that does not exist, and rewriting upstream's literal would reintroduce a rebase conflict on
+  a line that currently flows through untouched.
+- A missing sha — shallow clone, source tarball, no git at all — degrades the name back to
+  `<upstream>+N` rather than failing the build.
+
+## 6.3.0-alpha+23
 
 The 保存復元 contract's fourth field, and an export that can be stopped from outside. On upstream
 `6.3.0-alpha`.
