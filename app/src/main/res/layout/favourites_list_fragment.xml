@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  shiroikuma fork — the Favorites tab. The same screen as Contacts, bound to the favourites list
+  instead of the whole address book; favourites used to be a strip inside the Contacts tab.
+-->
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:bind="http://schemas.android.com/tools">
+
+    <data>
+        <import type="android.view.View" />
+        <variable
+            name="onNewContactClicked"
+            type="View.OnClickListener" />
+        <variable
+            name="filterClickListener"
+            type="View.OnClickListener" />
+        <variable
+            name="viewModel"
+            type="org.linphone.ui.main.contacts.viewmodel.ContactsListViewModel" />
+    </data>
+
+    <!--
+      shiroikuma fork: the account tab strip is hoisted out of the sliding pane so its line runs the
+      full width of the screen, over the detail pane as well — the accounts belong to the whole
+      app, not to the list on the left. What stays inside the pane is the controls row.
+    -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@color/sk_bar_background">
+
+        <org.linphone.shiroikuma.SkAccountTabsView
+            android:id="@+id/account_tabs"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/sk_account_tab_strip_height"
+            skAccounts="@{viewModel.skAccounts}"
+            skActiveAccount="@{viewModel.account}" />
+
+        <androidx.slidingpanelayout.widget.SlidingPaneLayout
+            android:id="@+id/sliding_pane_layout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:layout_width="@dimen/sliding_pane_left_fragment_width"
+            android:layout_height="match_parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/sk_bar_background">
+
+                <androidx.constraintlayout.widget.Group
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:constraint_referenced_ids="no_contacts_image, no_contacts_label"
+                    android:visibility="@{viewModel.favouritesList.empty ? View.VISIBLE : View.GONE}" />
+
+                <include
+                    android:id="@+id/top_bar"
+                    layout="@layout/main_activity_top_bar"
+                    bind:viewModel="@{viewModel}"
+                    bind:showExtraAction="@{viewModel.showFilter}"
+                    bind:extraActionIcon="@{@drawable/funnel}"
+                    bind:extraActionClickListener="@{filterClickListener}"
+                    bind:extraActionContentDescription="@{@string/content_description_contacts_list_filters}"
+                    bind:extraActionEnabled="@{true}"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/sk_main_top_bar_height"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+                <View
+                    android:id="@+id/shadow_effect"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="@dimen/sk_main_top_bar_shadow_height"
+                    android:background="@drawable/shape_squircle_white_r20_top_shadow"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <LinearLayout
+                    android:id="@+id/lists"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="@dimen/sk_main_top_bar_height"
+                    android:orientation="vertical"
+                    android:background="@drawable/shape_squircle_white_r20_top_background"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <!-- shiroikuma fork: the favourites strip and its "All contacts" label are
+                         gone from this tab — favourites have their own tab in the bottom bar now,
+                         so this list is nothing but the contacts, headed by their letters. -->
+
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        style="@style/default_text_style_300"
+                        android:id="@+id/results_limit_reached"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp"
+                        android:text="@string/contacts_list_search_results_limit_reached_label"
+                        android:textColor="?attr/color_main2_600"
+                        android:textSize="12sp"
+                        android:maxLines="2"
+                        android:ellipsize="end"
+                        android:gravity="center"
+                        android:visibility="@{viewModel.showResultsLimitReached ? View.VISIBLE : View.GONE, default=gone}"/>
+
+                    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                        android:id="@+id/favouritesListSwipeRefresh"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/favouritesList"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent" />
+
+                    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/no_contacts_image"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:src="@drawable/illu"
+                    android:contentDescription="@null"
+                    app:layout_constraintHeight_max="200dp"
+                    app:layout_constraintBottom_toTopOf="@id/no_contacts_label"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/lists" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/section_header_style"
+                    android:id="@+id/no_contacts_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@{viewModel.isFilterEmpty ? (viewModel.areAllContactsDisplayed ? @string/contacts_list_empty : @string/contacts_list_sip_empty) : @string/list_filter_no_result_found, default=@string/contacts_list_sip_empty}"
+                    android:textAlignment="center"
+                    app:layout_constraintBottom_toTopOf="@id/lists"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/no_contacts_image" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/default_text_style_600"
+                    android:id="@+id/show_contacts_filter"
+                    android:onClick="@{filterClickListener}"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="6dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:text="@string/contacts_change_filter_label"
+                    android:textSize="13sp"
+                    android:textColor="@color/secondary_button_label_color"
+                    android:gravity="center"
+                    android:background="@drawable/secondary_button_background"
+                    android:visibility="@{viewModel.favouritesList.empty &amp;&amp; !viewModel.areAllContactsDisplayed ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintTop_toBottomOf="@id/no_contacts_label"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"/>
+
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/fetch_in_progress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:indeterminate="true"
+                    android:visibility="@{viewModel.fetchInProgress || viewModel.searchInProgress ? View.VISIBLE : View.GONE}"
+                    app:indicatorColor="?attr/color_main1_500"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/new_contact"
+                    android:onClick="@{onNewContactClicked}"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|bottom"
+                    android:layout_margin="16dp"
+                    android:src="@drawable/user_plus"
+                    android:contentDescription="@string/content_description_contact_create"
+                    android:visibility="@{viewModel.disableAddContact ? View.GONE : View.VISIBLE}"
+                    app:tint="?attr/color_on_main"
+                    app:backgroundTint="?attr/color_main1_500"
+                    app:shapeAppearanceOverlay="@style/rounded"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/contacts_nav_container"
+            android:name="androidx.navigation.fragment.NavHostFragment"
+            android:layout_width="@dimen/sliding_pane_right_fragment_width"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            app:defaultNavHost="false"
+            app:navGraph="@navigation/contacts_nav_graph"/>
+
+        </androidx.slidingpanelayout.widget.SlidingPaneLayout>
+
+        <include
+            android:id="@+id/bottom_nav_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            layout="@layout/bottom_nav_bar"
+            bind:viewModel="@{viewModel}" />
+
+    </LinearLayout>
+
+</layout>

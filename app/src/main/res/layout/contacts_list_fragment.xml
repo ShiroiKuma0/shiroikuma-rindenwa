@@ -90,41 +90,9 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
-                    <androidx.appcompat.widget.AppCompatTextView
-                        style="@style/section_header_style"
-                        android:id="@+id/favourites_label"
-                        android:visibility="@{!viewModel.isListFiltered &amp;&amp; viewModel.favouritesList.size() > 0 ? View.VISIBLE : View.GONE}"
-                        onClickListener="@{() -> viewModel.toggleFavouritesVisibility()}"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="10dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginBottom="4dp"
-                        android:text="@string/contacts_list_favourites_title"
-                        android:background="@drawable/squircle_transparent_button_background"
-                        android:drawableEnd="@{viewModel.showFavourites ? @drawable/caret_up : @drawable/caret_down, default=@drawable/caret_up}"
-                        android:drawableTint="?attr/color_main2_600" />
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/favourites_contacts_list"
-                        android:visibility="@{viewModel.showFavourites &amp;&amp; !viewModel.isListFiltered &amp;&amp; viewModel.favouritesList.size() > 0 ? View.VISIBLE : View.GONE}"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-
-                    <androidx.appcompat.widget.AppCompatTextView
-                        android:id="@+id/all_contacts_label"
-                        style="@style/section_header_style"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginEnd="16dp"
-                        android:layout_marginBottom="4dp"
-                        android:padding="5dp"
-                        android:text="@string/contacts_list_all_contacts_title"
-                        android:visibility="@{!viewModel.isListFiltered &amp;&amp; viewModel.favouritesList.size() > 0 ? View.VISIBLE : View.GONE}" />
+                    <!-- shiroikuma fork: the favourites strip and its "All contacts" label are
+                         gone from this tab — favourites have their own tab in the bottom bar now,
+                         so this list is nothing but the contacts, headed by their letters. -->
 
                     <androidx.appcompat.widget.AppCompatTextView
                         style="@style/default_text_style_300"

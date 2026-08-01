@@ -29,7 +29,7 @@
             android:id="@+id/folder_tabs"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            skSelectedTab="@{viewModel.contactsSelected ? 0 : viewModel.callsSelected ? 1 : viewModel.conversationsSelected ? 2 : viewModel.meetingsSelected ? 3 : -1}"
+            skSelectedTab="@{viewModel.contactsSelected ? 0 : viewModel.favouritesSelected ? 1 : viewModel.callsSelected ? 2 : viewModel.conversationsSelected ? 3 : viewModel.meetingsSelected ? 4 : -1}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -50,8 +50,28 @@
             android:text="@string/bottom_navigation_contacts_label"
             textFont="@{viewModel.contactsSelected ? NotoSansFont.NotoSansBold : NotoSansFont.NotoSansRegular}"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/calls"
+            app:layout_constraintEnd_toStartOf="@id/favourites"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- shiroikuma fork: the Favorites tab, between Contacts and Calls. -->
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/bottom_nav_bar_label_style"
+            android:id="@+id/favourites"
+            android:onClick="@{() -> viewModel.navigateToFavourites()}"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:drawableTop="@drawable/sk_star"
+            android:background="@drawable/squircle_transparent_button_background"
+            android:drawablePadding="4dp"
+            android:drawableTint="@{viewModel.favouritesSelected ? @color/main1_500 : @color/main2_600, default=@color/main2_600}"
+            android:text="@string/bottom_navigation_favourites_label"
+            textFont="@{viewModel.favouritesSelected ? NotoSansFont.NotoSansBold : NotoSansFont.NotoSansRegular}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/calls"
+            app:layout_constraintStart_toEndOf="@id/contacts"
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -70,7 +90,7 @@
             textFont="@{viewModel.callsSelected ? NotoSansFont.NotoSansBold : NotoSansFont.NotoSansRegular}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/conversations"
-            app:layout_constraintStart_toEndOf="@id/contacts"
+            app:layout_constraintStart_toEndOf="@id/favourites"
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.appcompat.widget.AppCompatTextView

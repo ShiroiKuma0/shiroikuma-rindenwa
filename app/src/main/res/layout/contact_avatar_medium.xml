@@ -25,6 +25,7 @@
             android:layout_height="@dimen/avatar_favorite_list_cell_size"
             android:contentDescription="@null"
             coilAvatar="@{model}"
+            skAvatarPicture="@{model.picturePath}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

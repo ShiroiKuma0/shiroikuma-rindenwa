@@ -38,7 +38,8 @@
                 android:layout_width="@dimen/sk_account_tab_avatar_size"
                 android:layout_height="@dimen/sk_account_tab_avatar_size"
                 android:contentDescription="@null"
-                coilBigAvatar="@{model}" />
+                coilBigAvatar="@{model}"
+            skAvatarPicture="@{model.picturePath}" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 style="@style/default_text_style_800"
@@ -63,7 +64,8 @@
             android:layout_height="@dimen/sk_account_tab_avatar_size"
             android:contentDescription="@{model.displayName}"
             android:visibility="@{active ? View.GONE : View.VISIBLE}"
-            coilBigAvatar="@{model}" />
+            coilBigAvatar="@{model}"
+            skAvatarPicture="@{model.picturePath}" />
 
     </FrameLayout>
 
