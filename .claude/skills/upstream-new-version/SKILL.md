@@ -30,8 +30,11 @@ our patches and is rebased onto each new upstream tip.
   so an upstream bump flows through with **no hand-editing and no conflict on those two lines**.
 - `BUILD_NUMBER` (in `gradle.properties`) is our increment: bumped by every `buildApk`,
   **reset to `1`** on each new upstream version.
-- Fork `versionName = "<upstream>+<BUILD_NUMBER>"`;
-  `versionCode = <upstream versionCode> * 1000 + BUILD_NUMBER`.
+- Fork `versionName = "<upstream>.g<upstream base sha>+<BUILD_NUMBER>"`;
+  `versionCode = <upstream versionCode> * 1000 + BUILD_NUMBER` (the sha never enters the code).
+- The `.g<sha>` pin is `git merge-base HEAD master`, first 8 chars — the upstream commit `custom`
+  is rebased onto (global **`git-versioning`** skill). **Nothing to hand-edit on a sync:** the
+  rebase moves the merge-base, so the next build picks the new sha up by itself.
 - **The multiplier is `1000`, not the sister forks' `10000`.** Linphone's upstream `versionCode` is
   already ~602003; ×10000 would be 6,020,030,001 and blow through Android's hard ceiling of
   2,100,000,000. ×1000 keeps every code legal (`602003001`) and still monotonic across upstream
