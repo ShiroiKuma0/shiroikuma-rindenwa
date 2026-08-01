@@ -22,13 +22,12 @@ package org.linphone.ui.main.history.model
 import androidx.annotation.IntegerRes
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.MutableLiveData
-import org.linphone.R
+import org.linphone.LinphoneApplication.Companion.coreContext
 import org.linphone.core.Call
 import org.linphone.core.Call.Dir
 import org.linphone.core.CallLog
-import org.linphone.utils.AppUtils
+import org.linphone.shiroikuma.SkCallLog
 import org.linphone.utils.LinphoneUtils
-import org.linphone.utils.TimestampUtils
 
 class CallLogHistoryModel
     @WorkerThread
@@ -49,19 +48,20 @@ class CallLogHistoryModel
     init {
         isOutgoing.postValue(callLog.dir == Dir.Outgoing)
 
+        // shiroikuma fork: one call of a contact's history reads in the same formats the list
+        // above it uses — the day always spelled out here, since there are no headlines to carry it.
+        val context = coreContext.context
         val startDate = callLog.startDate
-        val date = if (TimestampUtils.isToday(startDate)) {
-            AppUtils.getString(R.string.today)
-        } else if (TimestampUtils.isYesterday(startDate)) {
-            AppUtils.getString(R.string.yesterday)
-        } else {
-            TimestampUtils.toString(startDate, onlyDate = true, shortDate = false, hideYear = true)
-        }
-        val time = TimestampUtils.timeToString(startDate)
-        dateTime.postValue("$date | $time")
+        dateTime.postValue(
+            "${SkCallLog.dayText(context, startDate)} ${SkCallLog.timeText(context, startDate)}"
+        )
 
         duration.postValue(
-            TimestampUtils.durationToString(callLog.duration)
+            SkCallLog.durationText(
+                context,
+                callLog.duration,
+                connected = callLog.status == Call.Status.Success
+            )
         )
 
         isSuccessful.postValue(callLog.status == Call.Status.Success)

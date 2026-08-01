@@ -71,8 +71,7 @@ class ContactsListFragment : AbstractMainFragment() {
 
     private lateinit var listViewModel: ContactsListViewModel
 
-    private lateinit var allContactsAdapter: ContactsListAdapter
-    private lateinit var favouritesContactsAdapter: ContactsListAdapter
+    private lateinit var adapter: ContactsListAdapter
 
     private var bottomSheetDialog: BottomSheetDialogFragment? = null
 
@@ -101,7 +100,7 @@ class ContactsListFragment : AbstractMainFragment() {
 
     override fun onSlidingPaneClosed() {
         listViewModel.currentlyDisplayedItemId = ""
-        allContactsAdapter.resetSelection()
+        adapter.resetSelection()
     }
 
     override fun onCreateAnimation(transit: Int, enter: Boolean, nextAnim: Int): Animation? {
@@ -116,8 +115,7 @@ class ContactsListFragment : AbstractMainFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        allContactsAdapter = ContactsListAdapter()
-        favouritesContactsAdapter = ContactsListAdapter(favourites = true)
+        adapter = ContactsListAdapter()
     }
 
     override fun onCreateView(
@@ -147,25 +145,21 @@ class ContactsListFragment : AbstractMainFragment() {
         binding.contactsList.setHasFixedSize(true)
         binding.contactsList.layoutManager = LinearLayoutManager(requireContext())
 
-        binding.favouritesContactsList.setHasFixedSize(true)
-        val favouritesLayoutManager = LinearLayoutManager(requireContext())
-        favouritesLayoutManager.orientation = LinearLayoutManager.HORIZONTAL
-        binding.favouritesContactsList.layoutManager = favouritesLayoutManager
-
-        configureAdapter(allContactsAdapter)
-        configureAdapter(favouritesContactsAdapter)
+        configureAdapter(adapter)
 
         listViewModel.isListFiltered.observe(viewLifecycleOwner) { filtered ->
             binding.contactsList.clipToOutline = filtered
         }
 
         listViewModel.contactsList.observe(viewLifecycleOwner) {
-            allContactsAdapter.submitList(it)
+            // shiroikuma fork: submitted through the section builder, which wraps the contacts in
+            // their letter headings. A filtered list is never sectioned — every match must show.
+            adapter.submitContacts(it, filtering = listViewModel.isListFiltered.value == true)
 
             // Wait for adapter to have items before setting it in the RecyclerView,
             // otherwise scroll position isn't retained
-            if (binding.contactsList.adapter != allContactsAdapter) {
-                binding.contactsList.adapter = allContactsAdapter
+            if (binding.contactsList.adapter != adapter) {
+                binding.contactsList.adapter = adapter
 
                 coreContext.postOnMainThreadDelayed({
                     // Delay update to give the adapter enough time to update the list first
@@ -175,18 +169,6 @@ class ContactsListFragment : AbstractMainFragment() {
 
             Log.i("$TAG Contacts list updated with [${it.size}] items")
             listViewModel.fetchInProgress.value = false
-        }
-
-        listViewModel.favouritesList.observe(viewLifecycleOwner) {
-            favouritesContactsAdapter.submitList(it)
-
-            // Wait for adapter to have items before setting it in the RecyclerView,
-            // otherwise scroll position isn't retained
-            if (binding.favouritesContactsList.adapter != favouritesContactsAdapter) {
-                binding.favouritesContactsList.adapter = favouritesContactsAdapter
-            }
-
-            Log.i("$TAG Favourites contacts list updated with [${it.size}] items")
         }
 
         listViewModel.vCardTerminatedEvent.observe(viewLifecycleOwner) {
@@ -295,6 +277,10 @@ class ContactsListFragment : AbstractMainFragment() {
     override fun onResume() {
         super.onResume()
 
+        // shiroikuma fork: the letter headings and the type scale are settable on the UI page, and
+        // the rows on screen were bound under the settings as they were then.
+        adapter.rebuildSections()
+
         coreContext.postOnCoreThread { core ->
             val cardDavFriendList = core.friendsLists.find {
                 it.type == FriendList.Type.CardDAV
@@ -343,7 +329,7 @@ class ContactsListFragment : AbstractMainFragment() {
         adapter.favouriteContactClickedEvent.observe(viewLifecycleOwner) {
             it.consume { model ->
                 sharedViewModel.displayedFriend = model.friend
-                allContactsAdapter.resetSelection()
+                adapter.resetSelection()
                 showContact(model.id)
                 highlightSelectedContactIfAny()
             }
@@ -470,11 +456,15 @@ class ContactsListFragment : AbstractMainFragment() {
 
     private fun highlightSelectedContactIfAny() {
         if (listViewModel.currentlyDisplayedItemId.isNotEmpty()) {
-            val index = listViewModel.contactsList.value.orEmpty().indexOfFirst { contact ->
-                contact.id == listViewModel.currentlyDisplayedItemId
-            }
+            // shiroikuma fork: asked of the adapter, whose positions count the letter headings —
+            // and a contact inside a folded section has no row to highlight.
+            val index = adapter.positionOf(listViewModel.currentlyDisplayedItemId)
             Log.i("$TAG Found contact with RefKey [${listViewModel.currentlyDisplayedItemId}] at index [$index]")
-            allContactsAdapter.notifyItemHasBeenSelected(index)
+            if (index >= 0) {
+                adapter.notifyItemHasBeenSelected(index)
+            } else {
+                adapter.resetSelection()
+            }
         } else {
             Log.i("$TAG No currently selected item ID")
         }
