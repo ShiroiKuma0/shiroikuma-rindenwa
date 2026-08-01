@@ -66,6 +66,7 @@ import com.google.android.flexbox.FlexboxLayout
 import org.linphone.BR
 import org.linphone.LinphoneApplication.Companion.coreContext
 import org.linphone.R
+import org.linphone.shiroikuma.SkContacts
 import org.linphone.contacts.AbstractAvatarModel
 import org.linphone.core.ConsolidatedPresence
 import org.linphone.core.tools.Log
@@ -457,6 +458,29 @@ fun ImageView.loadBubbleAvatarWithCoil(model: AbstractAvatarModel?) {
     loadContactPictureWithCoil(this, model, size = size, textSize = initialsSize)
 }
 
+/**
+ * shiroikuma fork: the same loaders, but with the model's picture path bound alongside the model.
+ *
+ * `picturePath` is posted from a worker thread, so on a cold start a view can bind before the path
+ * arrives — and an expression that names only the model has no reason to re-run when it does, so
+ * the avatar stays on its fallback until something else rebuilds the view. (That is why the
+ * account strip came up as a row of 人 marks and righted itself the moment a tab was switched.)
+ * Naming the path in the layout as well makes it a binding dependency: data binding re-evaluates,
+ * and the real picture loads the moment it is known. The parameter is deliberately unused — its
+ * job is to be depended upon.
+ */
+@UiThread
+@BindingAdapter(value = ["coilAvatar", "skAvatarPicture"], requireAll = true)
+fun ImageView.loadAvatarWithCoil(model: AbstractAvatarModel?, @Suppress("UNUSED_PARAMETER") picture: String?) {
+    loadContactPictureWithCoil(this, model)
+}
+
+@UiThread
+@BindingAdapter(value = ["coilBigAvatar", "skAvatarPicture"], requireAll = true)
+fun ImageView.loadBigAvatarWithCoil(model: AbstractAvatarModel?, @Suppress("UNUSED_PARAMETER") picture: String?) {
+    loadContactPictureWithCoil(this, model, size = R.dimen.avatar_big_size, textSize = R.dimen.avatar_initials_big_text_size)
+}
+
 @UiThread
 @BindingAdapter("coilBigAvatar")
 fun ImageView.loadBigAvatarWithCoil(model: AbstractAvatarModel?) {
@@ -515,13 +539,19 @@ private fun getErrorImageLoader(
     textSize: Int
 ): Any {
     val initials = model.initials.value.orEmpty()
-    return if (initials.isEmpty() || initials == "+" || model.skipInitials.value == true) {
+    // shiroikuma fork: a contact with no photo gets the house 人 mark, the same one the sister
+    // address book and dialer use, rather than an initials tile — unless initials are turned back
+    // on from the UI page. The conference and conversation marks still win where they apply.
+    val useInitials = SkContacts.initialsEnabled(context)
+    return if (initials.isEmpty() || initials == "+" || model.skipInitials.value == true || !useInitials) {
         if (model.defaultToConferenceIcon.value == true) {
             R.drawable.inset_video_conference
         } else if (model.defaultToConversationIcon.value == true) {
             R.drawable.inset_users_three
-        } else {
+        } else if (useInitials) {
             R.drawable.inset_user_circle
+        } else {
+            R.drawable.ic_unknown_contact
         }
     } else {
         ImageUtils.generatedAvatarIfNeededAndReturnPath(context, initials)
