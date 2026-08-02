@@ -2,7 +2,65 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha.2026-07-30.g5c0ed6a3+014 — current
+## 6.3.0-alpha.2026-07-30.g5c0ed6a3+016 — current
+
+Same upstream base (`5c0ed6a3`). The settings pages take the sister apps' shape, and the
+Conversations tab stops being shown to accounts that cannot use it.
+
+### The Conversations tab is hidden by default
+
+- **`disableChat` defaults to `true`** instead of upstream's `false`, and became writable so the
+  choice can be stored. The tab is SIP instant messaging, never SMS: with a third-party account the
+  app can only create a `Backend.Basic` chat room, whose messages are plain SIP `MESSAGE` requests
+  that a commercial proxy typically refuses to relay. Group chat, encryption, delivery receipts and
+  ephemeral messages all need a `conference_factory_uri` and a LIME server, which only Flexisip
+  deployments expose — upstream's own third-party account profile ships both fields empty and sets
+  `push_notification_allowed=0` alongside them.
+- **A switch to bring it back**, "Show the Conversations tab", under Settings → User interface. That
+  section rather than the Conversations one on purpose: the Conversations settings section hides
+  itself along with the tab, so a switch placed there would vanish with what it controls and leave
+  no way back.
+- **The bottom navigation bar rebuilds at once.** Toggling fires the existing
+  `forceUpdateAvailableNavigationItems` event, since each main fragment computes its nav bar once in
+  a view model that survives the trip to Settings; without it the bar kept its old shape until the
+  app restarted. The Conversations settings section follows the tab in the same toggle.
+
+### Settings groups in yellow boxes
+
+- **Every foldable group sits in a `#FFFF00` round-corner box** — three new drawables, a header
+  (top corners rounded), a folded header (all four, since nothing shows below it) and a body
+  (bottom corners). Yellow border over a near-black fill, never a yellow fill: the ink in this fork
+  is yellow too.
+- **The seam is one line, not two.** The body drawable sits in a layer-list inset `-2dp` at the top
+  so its stroke is drawn over the header's rather than beside it; stacked plainly, the two 2 dp
+  strokes read as a 4 dp double rule.
+- Applied to **17 group bodies and 12 standalone panels** across Settings, Advanced, Advanced calls,
+  Account settings and Account profile. Spinner dropdown backgrounds are deliberately untouched —
+  they are popups, not groups.
+
+### Fold state, and which way the chevron points
+
+- **Down when unfolded, right when folded**, the platform's own tree convention and the one the
+  sister apps use. Upstream drew up/down, which is ambiguous in both states: a down chevron reads as
+  "this is open" just as easily as "tap to open". Applied to all 21 folds, including the three
+  outside the settings pages (conversation info, contact detail, the third-party login assistant),
+  so the gesture means one thing everywhere.
+- **Fold state survives a relaunch**, stored per group under `ui/sk_settings_group_expanded_*`.
+  Upstream keeps it in `MutableLiveData` scoped to the navigation graph, so a group folded shut
+  reopened on the next cold start and folding was only ever a way to lose a group until the process
+  died. Groups still default to open (`+002`'s behaviour); only a deliberate fold is remembered.
+  One shared `toggleGroup` helper does it in all three settings view models — 13 groups in Settings,
+  2 in account settings, 2 in the account profile.
+
+### #FFFF00 as the main colour
+
+- **`themeMainColor` defaults to a new `yellow` variant** rather than upstream's `orange`, backed by
+  `Theme.LinphoneYellow` and `Theme.LinphoneInCallYellow`, registered in both `GenericActivity` and
+  `CallActivity` and added to the colour picker's list. The fork palette was already `#FFFF00`
+  throughout and `Theme.SkBlackYellow` is applied last, but it does not redefine every attribute
+  upstream's colour variants touch, so orange still showed through in the gaps.
+
+## 6.3.0-alpha.2026-07-30.g5c0ed6a3+014
 
 Same upstream base (`5c0ed6a3`). The three main lists — call history, contacts, favourites — were
 rebuilt to read the way the sister apps read: **shiroikuma-denwa** for the call log,
