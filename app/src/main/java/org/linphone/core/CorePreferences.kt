@@ -355,12 +355,35 @@ class CorePreferences
             config.setBool("ui", "automatically_show_dialpad", value)
         }
 
+    /**
+     * shiroikuma fork: "yellow" (#FFFF00) instead of upstream's "orange". See Theme.LinphoneYellow
+     * in values/sk_theme.xml — the black-yellow overlay on top already forces the accent, this
+     * makes the variant underneath it yellow too so nothing orange shows through in the gaps.
+     */
     @get:AnyThread @set:WorkerThread
     var themeMainColor: String
-        get() = config.getString("ui", "theme_main_color", "orange")!!
+        get() = config.getString("ui", "theme_main_color", "yellow")!!
         set(value) {
             config.setString("ui", "theme_main_color", value)
         }
+
+    /**
+     * shiroikuma fork: whether a foldable settings group is open, remembered across relaunches.
+     *
+     * Upstream keeps fold state in `MutableLiveData` inside each settings view model, which is
+     * nav-graph scoped — so a group folded shut reopens on the next cold start, and folding is
+     * only ever a way to lose a group until the process dies. Groups still default to open (see
+     * the view models' init blocks); this only persists a deliberate change away from that.
+     */
+    @AnyThread
+    fun isSettingsGroupExpanded(group: String): Boolean {
+        return config.getBool("ui", "sk_settings_group_expanded_$group", true)
+    }
+
+    @WorkerThread
+    fun setSettingsGroupExpanded(group: String, expanded: Boolean) {
+        config.setBool("ui", "sk_settings_group_expanded_$group", expanded)
+    }
 
     // Customization options
 
@@ -398,9 +421,20 @@ class CorePreferences
     val hideSipAddresses: Boolean
         get() = config.getBool("ui", "hide_sip_addresses", false)
 
-    @get:AnyThread
-    val disableChat: Boolean
-        get() = config.getBool("ui", "disable_chat_feature", false)
+    /**
+     * shiroikuma fork: the Conversations tab is hidden by default (upstream defaults to false,
+     * i.e. shown). SIP instant messaging only reaches anyone when the account's proxy relays
+     * MESSAGE requests and, for group chat & encryption, exposes a conference factory — none of
+     * which our third-party accounts do, so the tab is opt-in instead of opt-out. Made writable
+     * so Settings → User interface can turn it back on; once written, the stored value wins over
+     * the default.
+     */
+    @get:AnyThread @set:WorkerThread
+    var disableChat: Boolean
+        get() = config.getBool("ui", "disable_chat_feature", true)
+        set(value) {
+            config.setBool("ui", "disable_chat_feature", value)
+        }
 
     @get:AnyThread
     val disableMeetings: Boolean
