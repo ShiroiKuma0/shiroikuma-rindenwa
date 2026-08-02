@@ -54,7 +54,8 @@ open class GenericActivity : AppCompatActivity() {
 
     private lateinit var toastsArea: ViewGroup
 
-    private var mainColor: String = "orange"
+    // shiroikuma fork: yellow, matching the themeMainColor default
+    private var mainColor: String = "yellow"
 
     override fun getTheme(): Resources.Theme {
         mainColor = corePreferences.themeMainColor
@@ -69,6 +70,8 @@ open class GenericActivity : AppCompatActivity() {
             "plum" -> theme.applyStyle(R.style.Theme_LinphonePlum, true)
             "titanium" -> theme.applyStyle(R.style.Theme_LinphoneTitanium, true)
             "mineral_blue" -> theme.applyStyle(R.style.Theme_LinphoneMineralBlue, true)
+            // shiroikuma fork: our own #FFFF00 variant, and the default one
+            "yellow" -> theme.applyStyle(R.style.Theme_LinphoneYellow, true)
             else -> theme.applyStyle(R.style.Theme_Linphone, true)
         }
         // shiroikuma fork: the 白い熊 臨電話 look, applied LAST so it overrides whichever colour

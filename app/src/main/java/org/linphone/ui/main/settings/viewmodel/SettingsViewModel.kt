@@ -169,6 +169,15 @@ class SettingsViewModel
     // User Interface settings
     val autoShowDialpad = MutableLiveData<Boolean>()
 
+    // shiroikuma fork: mirrors !corePreferences.disableChat, the Conversations tab being hidden
+    // by default here. Kept in the always-visible User interface section on purpose — putting it
+    // in the Conversations section would make the switch disappear along with the tab.
+    val showConversationsTab = MutableLiveData<Boolean>()
+
+    val updateAvailableNavigationItemsEvent: MutableLiveData<Event<Boolean>> by lazy {
+        MutableLiveData<Event<Boolean>>()
+    }
+
     val showThemeSelector = MutableLiveData<Boolean>()
     val theme = MutableLiveData<Int>()
     val availableThemesNames = arrayListOf(
@@ -191,6 +200,7 @@ class SettingsViewModel
         AppUtils.getString(R.string.plum),
         AppUtils.getString(R.string.titanium),
         AppUtils.getString(R.string.mineral_blue),
+        AppUtils.getString(R.string.yellow),
     )
     val availableColorsValues = arrayListOf(
         "orange",
@@ -202,7 +212,8 @@ class SettingsViewModel
         "coral",
         "plum",
         "titanium",
-        "mineral_blue"
+        "mineral_blue",
+        "yellow"
     )
 
     // Tunnel settings
@@ -296,6 +307,7 @@ class SettingsViewModel
             isCrashlyticsAvailable.postValue(coreContext.isCrashlyticsAvailable())
 
             showConversationsSettings.postValue(!corePreferences.disableChat)
+            showConversationsTab.postValue(!corePreferences.disableChat)
             showMeetingsSettings.postValue(!corePreferences.disableMeetings)
             ldapAvailable.postValue(core.ldapAvailable())
             showThemeSelector.postValue(corePreferences.darkModeAllowed)
@@ -305,21 +317,22 @@ class SettingsViewModel
         }
         showContactsSettings.value = true
 
-        // shiroikuma fork: every group opens unfolded. Upstream folds all of them shut, so
-        // reaching any one setting costs a tap first and hides what else is in the page.
-        expandSecurity.value = true
-        expandCalls.value = true
-        expandConversations.value = true
-        expandContacts.value = true
-        expandMeetings.value = true
-        expandNetwork.value = true
-        expandUserInterface.value = true
-        expandTunnel.value = true
-        expandAudioDevices.value = true
-        expandAudioCodecs.value = true
-        expandVideoCodecs.value = true
-        expandEarlyMedia.value = true
-        expandAutoAnswer.value = true
+        // shiroikuma fork: every group opens unfolded — upstream folds all of them shut, so
+        // reaching any one setting costs a tap first and hides what else is in the page — and a
+        // group folded by hand stays folded across relaunches instead of springing back open.
+        expandSecurity.value = corePreferences.isSettingsGroupExpanded("security")
+        expandCalls.value = corePreferences.isSettingsGroupExpanded("calls")
+        expandConversations.value = corePreferences.isSettingsGroupExpanded("conversations")
+        expandContacts.value = corePreferences.isSettingsGroupExpanded("contacts")
+        expandMeetings.value = corePreferences.isSettingsGroupExpanded("meetings")
+        expandNetwork.value = corePreferences.isSettingsGroupExpanded("network")
+        expandUserInterface.value = corePreferences.isSettingsGroupExpanded("user_interface")
+        expandTunnel.value = corePreferences.isSettingsGroupExpanded("tunnel")
+        expandAudioDevices.value = corePreferences.isSettingsGroupExpanded("audio_devices")
+        expandAudioCodecs.value = corePreferences.isSettingsGroupExpanded("audio_codecs")
+        expandVideoCodecs.value = corePreferences.isSettingsGroupExpanded("video_codecs")
+        expandEarlyMedia.value = corePreferences.isSettingsGroupExpanded("early_media")
+        expandAutoAnswer.value = corePreferences.isSettingsGroupExpanded("auto_answer")
 
         val vfsEnabled = VFS.isEnabled(coreContext.context)
         isVfsEnabled.value = vfsEnabled
@@ -436,9 +449,22 @@ class SettingsViewModel
         super.onCleared()
     }
 
+    /**
+     * shiroikuma fork: flip a settings group and remember it. [group] is the persistence key, so
+     * it must stay stable — renaming one silently reopens that group for everybody once.
+     */
+    @UiThread
+    private fun toggleGroup(group: String, expanded: MutableLiveData<Boolean>) {
+        val newValue = expanded.value == false
+        expanded.value = newValue
+        coreContext.postOnCoreThread {
+            corePreferences.setSettingsGroupExpanded(group, newValue)
+        }
+    }
+
     @UiThread
     fun toggleSecurityExpand() {
-        expandSecurity.value = expandSecurity.value == false
+        toggleGroup("security", expandSecurity)
     }
 
     @UiThread
@@ -470,7 +496,7 @@ class SettingsViewModel
 
     @UiThread
     fun toggleCallsExpand() {
-        expandCalls.value = expandCalls.value == false
+        toggleGroup("calls", expandCalls)
     }
 
     @UiThread
@@ -579,7 +605,7 @@ class SettingsViewModel
 
     @UiThread
     fun toggleConversationsExpand() {
-        expandConversations.value = expandConversations.value == false
+        toggleGroup("conversations", expandConversations)
     }
 
     @UiThread
@@ -620,7 +646,7 @@ class SettingsViewModel
 
     @UiThread
     fun toggleContactsExpand() {
-        expandContacts.value = expandContacts.value == false
+        toggleGroup("contacts", expandContacts)
     }
 
     @UiThread
@@ -711,7 +737,7 @@ class SettingsViewModel
 
     @UiThread
     fun toggleMeetingsExpand() {
-        expandMeetings.value = expandMeetings.value == false
+        toggleGroup("meetings", expandMeetings)
     }
 
     @UiThread
@@ -736,7 +762,7 @@ class SettingsViewModel
 
     @UiThread
     fun toggleNetworkExpand() {
-        expandNetwork.value = expandNetwork.value == false
+        toggleGroup("network", expandNetwork)
     }
 
     @UiThread
@@ -759,7 +785,7 @@ class SettingsViewModel
 
     @UiThread
     fun toggleUserInterfaceExpand() {
-        expandUserInterface.value = expandUserInterface.value == false
+        toggleGroup("user_interface", expandUserInterface)
     }
 
     @UiThread
@@ -768,6 +794,22 @@ class SettingsViewModel
         coreContext.postOnCoreThread { core ->
             corePreferences.automaticallyShowDialpad = newValue
             autoShowDialpad.postValue(newValue)
+        }
+    }
+
+    @UiThread
+    fun toggleShowConversationsTab() {
+        val newValue = showConversationsTab.value == false
+        coreContext.postOnCoreThread {
+            corePreferences.disableChat = !newValue
+            Log.i(
+                "$TAG Conversations tab is now [${if (newValue) "visible" else "hidden"}]"
+            )
+            showConversationsTab.postValue(newValue)
+            // The Conversations settings section follows the tab
+            showConversationsSettings.postValue(newValue)
+            // Bottom navigation bar is built once, ask the main fragments to rebuild it
+            updateAvailableNavigationItemsEvent.postValue(Event(true))
         }
     }
 
@@ -791,7 +833,7 @@ class SettingsViewModel
 
     @UiThread
     fun toggleTunnelExpand() {
-        expandTunnel.value = expandTunnel.value == false
+        toggleGroup("tunnel", expandTunnel)
     }
 
     @WorkerThread
@@ -978,7 +1020,7 @@ class SettingsViewModel
 
     @UiThread
     fun toggleEarlyMediaExpand() {
-        expandEarlyMedia.value = expandEarlyMedia.value == false
+        toggleGroup("early_media", expandEarlyMedia)
     }
 
     @UiThread
@@ -1013,7 +1055,7 @@ class SettingsViewModel
 
     @UiThread
     fun toggleAutoAnswerExpand() {
-        expandAutoAnswer.value = expandAutoAnswer.value == false
+        toggleGroup("auto_answer", expandAutoAnswer)
     }
 
     @UiThread
@@ -1111,7 +1153,7 @@ class SettingsViewModel
 
     @UiThread
     fun toggleAudioDevicesExpand() {
-        expandAudioDevices.value = expandAudioDevices.value == false
+        toggleGroup("audio_devices", expandAudioDevices)
     }
 
     @UiThread
@@ -1172,12 +1214,12 @@ class SettingsViewModel
 
     @UiThread
     fun toggleAudioCodecsExpand() {
-        expandAudioCodecs.value = expandAudioCodecs.value == false
+        toggleGroup("audio_codecs", expandAudioCodecs)
     }
 
     @UiThread
     fun toggleVideoCodecsExpand() {
-        expandVideoCodecs.value = expandVideoCodecs.value == false
+        toggleGroup("video_codecs", expandVideoCodecs)
     }
 
     @WorkerThread

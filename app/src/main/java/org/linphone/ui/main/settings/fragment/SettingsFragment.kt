@@ -353,6 +353,14 @@ class SettingsFragment : GenericMainFragment() {
             }
         }
 
+        // shiroikuma fork: showing/hiding the Conversations tab has to reach the bottom nav bar,
+        // which the main fragments compute once in their own view model.
+        viewModel.updateAvailableNavigationItemsEvent.observe(viewLifecycleOwner) {
+            it.consume {
+                sharedViewModel.forceUpdateAvailableNavigationItems.postValue(Event(true))
+            }
+        }
+
         binding.setTurnOnVfsClickListener {
             showConfirmVfsDialog()
         }

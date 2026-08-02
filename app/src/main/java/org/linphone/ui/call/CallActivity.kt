@@ -123,6 +123,8 @@ class CallActivity : GenericActivity() {
             "plum" -> theme.applyStyle(R.style.Theme_LinphoneInCallPlum, true)
             "titanium" -> theme.applyStyle(R.style.Theme_LinphoneInCallTitanium, true)
             "mineral_blue" -> theme.applyStyle(R.style.Theme_LinphoneInCallMineralBlue, true)
+            // shiroikuma fork: our own #FFFF00 variant, and the default one
+            "yellow" -> theme.applyStyle(R.style.Theme_LinphoneInCallYellow, true)
             else -> theme.applyStyle(R.style.Theme_LinphoneInCall, true)
         }
         return theme
