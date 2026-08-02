@@ -75,7 +75,7 @@
                 android:layout_height="0dp"
                 android:layout_margin="10dp"
                 android:fillViewport="true"
-                android:background="@drawable/shape_squircle_white_background"
+                android:background="@drawable/sk_settings_panel"
                 app:layout_constraintWidth_max="@dimen/section_max_width"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"

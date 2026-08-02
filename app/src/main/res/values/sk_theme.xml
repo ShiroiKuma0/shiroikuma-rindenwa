@@ -112,4 +112,22 @@
         <item name="color_bottom_sheet_background">@color/sk_surface_alt</item>
         <item name="color_bottom_sheet_disabled_menu">@color/sk_ink_ghost</item>
     </style>
+
+    <!--
+      The fork's own entry in upstream's main-colour list, and the default one.
+
+      Theme.SkBlackYellow above is applied last and already forces the accent to #FFFF00, but it
+      does not redefine every attribute upstream's colour variants touch — so whichever variant is
+      selected underneath still shows through in the gaps, and upstream's default is orange. This
+      variant makes the layer below yellow as well, so no orange survives anywhere.
+    -->
+    <style name="Theme.LinphoneYellow" parent="Theme.Linphone">
+        <item name="color_main1_100">@color/sk_yellow_wash</item>
+        <item name="color_main1_500">@color/sk_yellow</item>
+        <item name="color_chat_bubble_outgoing">@color/sk_surface_raised</item>
+    </style>
+
+    <style name="Theme.LinphoneInCallYellow" parent="Theme.LinphoneYellow">
+        <item name="android:windowBackground">@color/sk_surface</item>
+    </style>
 </resources>
