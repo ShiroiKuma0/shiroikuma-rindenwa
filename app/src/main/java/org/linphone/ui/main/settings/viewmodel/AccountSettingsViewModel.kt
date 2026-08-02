@@ -108,9 +108,10 @@ class AccountSettingsViewModel
     private lateinit var natPolicyAuthInfo: AuthInfo
 
     init {
-        // shiroikuma fork: unfolded by default — see SettingsViewModel.
-        expandAdvancedSettings.value = true
-        expandNatPolicySettings.value = true
+        // shiroikuma fork: unfolded by default, and a hand-folded group stays folded
+        // across relaunches — see SettingsViewModel.
+        expandAdvancedSettings.value = corePreferences.isSettingsGroupExpanded("account_advanced")
+        expandNatPolicySettings.value = corePreferences.isSettingsGroupExpanded("account_nat_policy")
         showTurnPassword.value = false
 
         availableTransports.add(TransportType.Udp.name.uppercase(Locale.getDefault()))
@@ -349,14 +350,27 @@ class AccountSettingsViewModel
         return limeServerUrl.value.orEmpty().isNotEmpty() && conferenceFactoryUri.value.orEmpty().isNotEmpty()
     }
 
+    /**
+     * shiroikuma fork: flip a settings group and remember it across relaunches — same keyspace as
+     * SettingsViewModel.toggleGroup, so [group] must stay stable once shipped.
+     */
+    @UiThread
+    private fun toggleGroup(group: String, expanded: MutableLiveData<Boolean>) {
+        val newValue = expanded.value == false
+        expanded.value = newValue
+        coreContext.postOnCoreThread {
+            corePreferences.setSettingsGroupExpanded(group, newValue)
+        }
+    }
+
     @UiThread
     fun toggleNatPolicySettingsExpand() {
-        expandNatPolicySettings.value = expandNatPolicySettings.value == false
+        toggleGroup("account_nat_policy", expandNatPolicySettings)
     }
 
     @UiThread
     fun toggleAdvancedSettingsExpand() {
-        expandAdvancedSettings.value = expandAdvancedSettings.value == false
+        toggleGroup("account_advanced", expandAdvancedSettings)
     }
 
     @UiThread

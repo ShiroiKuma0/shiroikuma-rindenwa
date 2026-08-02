@@ -335,6 +335,7 @@
     <string name="settings_network_allow_ipv6">Allow IPv6</string>
     <string name="settings_user_interface_title">User interface</string>
     <string name="settings_user_interface_auto_show_dialpad_title">Automatically open dialpad</string>
+    <string name="settings_user_interface_show_conversations_tab_title">Show the Conversations tab</string>
     <string name="settings_user_interface_theme_title">Theme</string>
     <string name="settings_user_interface_dark_theme_label">Dark theme</string>
     <string name="settings_user_interface_light_theme_label">Light theme</string>
@@ -923,6 +924,7 @@
 
     <!-- Colors -->
     <string name="orange">Orange</string>
+    <string name="yellow">Yellow</string>
     <string name="terracotta">Terracotta</string>
     <string name="lavender">Lavender</string>
     <string name="honey">Honey</string>
