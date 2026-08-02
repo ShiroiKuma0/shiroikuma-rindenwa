@@ -19,7 +19,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/shape_squircle_white_background">
+        android:background="@drawable/sk_settings_group_body">
 
         <androidx.appcompat.widget.AppCompatTextView
             style="@style/settings_title_padding_style"
