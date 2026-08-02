@@ -164,9 +164,10 @@ class AccountProfileViewModel
     }
 
     init {
-        // shiroikuma fork: unfolded by default — see SettingsViewModel.
-        expandDetails.value = true
-        expandDevices.value = true
+        // shiroikuma fork: unfolded by default, and a hand-folded group stays folded
+        // across relaunches — see SettingsViewModel.
+        expandDetails.value = corePreferences.isSettingsGroupExpanded("profile_details")
+        expandDevices.value = corePreferences.isSettingsGroupExpanded("profile_devices")
         showDeviceId.value = false
         devicesFetchInProgress.value = true
         isOnDefaultDomain.value = false
@@ -339,14 +340,27 @@ class AccountProfileViewModel
         }
     }
 
+    /**
+     * shiroikuma fork: flip a settings group and remember it across relaunches — same keyspace as
+     * SettingsViewModel.toggleGroup, so [group] must stay stable once shipped.
+     */
+    @UiThread
+    private fun toggleGroup(group: String, expanded: MutableLiveData<Boolean>) {
+        val newValue = expanded.value == false
+        expanded.value = newValue
+        coreContext.postOnCoreThread {
+            corePreferences.setSettingsGroupExpanded(group, newValue)
+        }
+    }
+
     @UiThread
     fun toggleDetailsExpand() {
-        expandDetails.value = expandDetails.value == false
+        toggleGroup("profile_details", expandDetails)
     }
 
     @UiThread
     fun toggleDevicesExpand() {
-        expandDevices.value = expandDevices.value == false
+        toggleGroup("profile_devices", expandDevices)
     }
 
     @UiThread

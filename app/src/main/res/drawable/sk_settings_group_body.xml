@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  shiroikuma fork — the content half of a settings group's yellow box.
+
+  The -2dp top inset lifts the shape by exactly the stroke width so its top edge is drawn over the
+  header's bottom edge instead of beside it: without it the two 2dp strokes stack into a 4dp double
+  line at the seam.
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:top="-2dp">
+        <shape android:shape="rectangle">
+            <corners
+                android:topLeftRadius="0dp"
+                android:topRightRadius="0dp"
+                android:bottomLeftRadius="15dp"
+                android:bottomRightRadius="15dp" />
+            <solid android:color="@color/sk_surface" />
+            <stroke android:width="2dp" android:color="@color/sk_yellow" />
+        </shape>
+    </item>
+</layer-list>
