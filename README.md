@@ -10,12 +10,13 @@ A fork of [Linphone for Android](https://github.com/BelledonneCommunications/lin
 **major additions**: a call history written in Japanese with imperial-era day headlines, an address
 book with foldable gojūon letter headings, a Favorites tab of draggable tiles, a black-yellow theme
 applied through the whole app, a card-folder tab navigation with an account strip you can drag into
-order, a settings page that makes colours, fonts and shapes live-editable, a full-app Export/Import
-backup, and a token-gated automation contract so a sister app can back this one up unattended.
+order, a settings page that makes colours, fonts and shapes live-editable, settings groups boxed in
+yellow that remember what you folded, a full-app Export/Import backup, and a token-gated automation
+contract so a sister app can back this one up unattended.
 
 Installs **side-by-side** with stock Linphone (app id `shiroikuma.rindenwa`).
 
-**📥 Latest release: [`6.3.0-alpha.2026-07-30.g5c0ed6a3+014`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
+**📥 Latest release: [`6.3.0-alpha.2026-07-30.g5c0ed6a3+016`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
 
 </div>
 
@@ -69,6 +70,30 @@ Every surface is a slot you can set: colours through an RGBA slider picker with 
 your recent choices; fonts imported from your own `.ttf`/`.otf` files and **rendered in their own
 glyphs** in the picker; per-slot weight and size; and border and roundness sliders that go all the
 way to zero. Everything previews live.
+
+---
+
+## 🟨 Settings that stay where you left them
+
+Every foldable group in Settings — and in the account, profile and advanced pages — sits in its own
+`#FFFF00` round-corner box, header and content framed as one with a single divider between them. The
+chevron follows the platform's tree convention: **down when the group is open, right when it is
+folded**, so it says what the group is rather than what a tap will do.
+
+Groups open unfolded, because upstream folds all of them shut and reaching any one setting costs a
+tap first. And a group you *do* fold stays folded — upstream keeps that state in a view model scoped
+to the navigation graph, so folding was only ever a way to lose a group until the next cold start.
+
+---
+
+## 💬 Conversations, off unless you want them
+
+The Conversations tab is SIP instant messaging, not SMS, and with an ordinary SIP provider it can
+only ever open a basic chat room whose messages are plain `MESSAGE` requests that most proxies
+refuse to relay — group chat and encryption need a conference factory that only Flexisip servers
+run. So the tab is hidden by default here instead of shown, and there is a switch under
+Settings → User interface to bring it back. Turning it on rebuilds the bottom navigation bar
+immediately rather than waiting for a restart.
 
 ---
 
