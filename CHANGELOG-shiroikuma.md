@@ -2,7 +2,49 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha.2026-07-30.g5c0ed6a3+016 — current
+## 6.3.0-alpha.2026-08-07.g5bc702e4+002 — current
+
+Rebased onto upstream `5bc702e4` (upstream `versionCode` 602004 → 602005), so the build counter
+restarts at 1 and the fork `versionCode` becomes 602005002. Upstream fixed the assistant's window
+insets and finished the Italian translation; the fork's de-branding follows it into Italian.
+
+### From upstream
+
+- **The assistant's insets land on the right view.** `AssistantActivity` attached its
+  `setOnApplyWindowInsetsListener` to `binding.root` and padded that; it now attaches to
+  `binding.assistantNavContainer` instead. The listener reads the system-bar and IME insets
+  together, so padding the activity root meant the status bar and the keyboard pushed the whole
+  window rather than the navigation container inside it. This is the fork's first screen — the
+  welcome pages, the permissions list and the third-party SIP login, all of which we restyle — so
+  the fix lands directly on our own layouts (`5bc702e4`).
+- **A complete Italian translation, and Lao as a new language.** Italian went from a stub to 942
+  lines, and `values-lo` arrives whole at 448 lines. Czech gains three strings, Brazilian
+  Portuguese seven, and Simplified Chinese ninety-nine — the newer chat and settings strings, plus
+  sentence-final punctuation added to several dialogs (`9ed491cf0`).
+- **Upstream's 6.2.5 bookkeeping.** `versionCode` moves to 602005 and `CHANGELOG.md` records the
+  6.2.5 release: the Italian translation, the photo-capture-survives-rotation fix (already our
+  `+016` base) and "delete for all" being hidden on chat messages that have not been sent yet
+  (`1d91c40e7`).
+
+### The Italian locale is de-branded
+
+- **`values-it` said "Linphone" everywhere.** Its DOCTYPE still carried
+  `<!ENTITY appName "Linphone">` — harmless while the file was a stub, but upstream's full
+  translation made twenty-one Italian strings resolve to the upstream name at once. The entity now
+  reads `白い熊 臨電話`, matching the other thirteen locales.
+- **One line was the whole fix.** Every Italian string that names the app already routes through
+  `&appName;`, including the three whose resource names still carry upstream's
+  (`contacts_list_filter_popup_see_linphone_only`,
+  `assistant_third_party_sip_account_create_linphone_account`,
+  `settings_contacts_edit_native_contacts_in_linphone_title`). No hardcoded-name rewrites were
+  needed, unlike `values-hu`, which had five.
+- **The other locales were audited and need nothing.** `ca`, `eu`, `fi`, `lo`, `mk` and `pt` define
+  no `appName` entity because they never name the app. The only `linphone` text left in any
+  resource is `https://sip.linphone.org` in `manage_account_dialog_remove_account_message` — the
+  real account-deletion service, kept deliberately, exactly as the base `values/strings.xml` keeps
+  it.
+
+## 6.3.0-alpha.2026-07-30.g5c0ed6a3+016
 
 Same upstream base (`5c0ed6a3`). The settings pages take the sister apps' shape, and the
 Conversations tab stops being shown to accounts that cannot use it.
