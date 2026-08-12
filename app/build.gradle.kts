@@ -4,6 +4,9 @@ import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsPlugin
 import com.google.gms.googleservices.GoogleServicesPlugin
 import java.io.BufferedReader
 import java.io.FileInputStream
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import java.util.Properties
 
 plugins {
@@ -157,20 +160,34 @@ android {
     // clone, tarball, no git — must never fail the build; the version just degrades to <upstream>+N.
     val upstreamBaseSha = gitOutput("git", "merge-base", "HEAD", "master").take(8)
 
-    // The date of that same commit, so versions sort chronologically. A bare sha is random text:
-    // g5c0ed6a3 (newer) sorts before g6441c21e (older), which puts the newest APK in the middle of
-    // the file manager's list. The date is the upstream commit's own committer date, NOT build time,
-    // so every build on one upstream base keeps an identical pin.
-    val upstreamBaseDate = if (upstreamBaseSha.length == 8) {
-        gitOutput("git", "show", "-s", "--format=%cd", "--date=format:%Y-%m-%d", upstreamBaseSha)
+    // The timestamp of that same commit, so versions sort chronologically. A bare sha is random
+    // text: g5c0ed6a3 (newer) sorts before g6441c21e (older), which puts the newest APK in the
+    // middle of the file manager's list. A bare DATE is not enough either — two syncs in one day
+    // tie it, and the next field along is that same random sha, so the newer build again lands
+    // anywhere in the list. Hence HH-MM (白い熊, 2026-08-12). The upstream commit's own committer
+    // time, NOT build time, so every build on one upstream base keeps an identical pin.
+    //
+    // In UTC — format the raw epoch, never `--date=format:` (the commit's own offset, which this
+    // repo used until 2026-08-12) and never `--date=format-local:` (the build host's). Kakutoku's
+    // linked-version watcher reads the same commit back from the GitHub API, which normalises
+    // committer dates to Z, so UTC is the only rendering both sides can compute.
+    val upstreamBaseStamp = if (upstreamBaseSha.length == 8) {
+        gitOutput("git", "show", "-s", "--format=%ct", upstreamBaseSha).toLongOrNull()?.let {
+            Instant.ofEpochSecond(it).atZone(ZoneOffset.UTC)
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd.HH-mm"))
+        } ?: ""
     } else {
         ""
     }
 
+    // `+` opens each top-level group — upstream's version, the pin, our counter — while the pin's
+    // own date, time and sha stay dot-joined, since all three describe one commit. Never `~`: git
+    // rejects it in a refname (no release tag), it sorts above every digit (putting 0.2.8 after
+    // 0.2.86), and dpkg reads it as a pre-release marker.
     val upstreamPin = when {
         upstreamBaseSha.length != 8 -> ""
-        upstreamBaseDate.length == 10 -> ".$upstreamBaseDate.g$upstreamBaseSha"
-        else -> ".g$upstreamBaseSha"
+        upstreamBaseStamp.length == 16 -> "+$upstreamBaseStamp.g$upstreamBaseSha"
+        else -> "+g$upstreamBaseSha"
     }
     println("Upstream base pin: ${if (upstreamPin.isEmpty()) "(none)" else upstreamPin}")
 

@@ -43,15 +43,17 @@ installable side-by-side with stock Linphone.
   upstream bump flows through with no hand-editing and no conflict on those lines.
   `BUILD_NUMBER` (`gradle.properties`) is our increment — bumped every build, reset to 1 on each new
   upstream version. Fork
-  `versionName = "<upstream>.<upstream base date>.g<upstream base sha>+<BUILD_NUMBER padded to 3>"`,
+  `versionName = "<upstream>+<upstream base date>.<HH-MM>.g<upstream base sha>+<BUILD_NUMBER padded to 3>"`,
   `versionCode = <upstream versionCode> * 1000 + BUILD_NUMBER` (602003 → `602003001`).
   **The multiplier is 1000, not the sister forks' 10000** — Linphone's upstream code is already
   ~602003, and ×10000 would overflow Android's 2,100,000,000 versionCode ceiling. Never "restore"
   ×10000 while resolving a rebase conflict.
 - **Upstream tracking: `git`** — `custom` is rebased onto every upstream commit, and upstream's
   `6.3.0-alpha` literal stands still for months, so the versionName pins the **upstream base**:
-  `git merge-base HEAD master`, as `.<YYYY-MM-DD>.g<8-char sha>` before the `+N`
-  (e.g. `6.3.0-alpha.2026-07-30.g5c0ed6a3+002`). It changes only on an upstream sync, so two builds
+  `git merge-base HEAD master`, as `+<YYYY-MM-DD>.<HH-MM>.g<8-char sha>` before the `+N`
+  (e.g. `6.3.0-alpha+2026-08-07.11-31.g5bc702e4+002`). The `HH-MM` and the `+` grouping arrived
+  2026-08-12, together with a fix to render the timestamp in **UTC** rather than the commit's own
+  timezone. It changes only on an upstream sync, so two builds
   under the same pin are built on the same upstream base. See the global **`git-versioning`** skill.
   Never use our own HEAD sha, and never `master`'s tip. The pin never touches `versionCode`.
 - **Both halves of the pin exist to sort.** The date is the base commit's own committer date (not
