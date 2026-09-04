@@ -142,7 +142,12 @@ class SkUiActivity : AppCompatActivity() {
         addEximportRow(1)
         // The 保存復元 automation lives where backup lives — inside this section, below its rows.
         addAutomationSwitchRow(1)
-        addAutomationTokenRow(1)
+        addAutomationRequireTokenRow(1)
+        // Hidden while the token is not being asked for: a 48-character secret sitting under an
+        // off switch invites pasting it somewhere it will do nothing.
+        if (SkAutomation.requireToken(this)) {
+            addAutomationTokenRow(1)
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             addAllFilesAccessRow(1)
         }
@@ -388,8 +393,10 @@ class SkUiActivity : AppCompatActivity() {
     }
 
     /**
-     * The 保存復元 master switch — OFF until 白い熊 turns it on; nothing in
-     * [SkStateExportReceiver] is reachable before that.
+     * The 保存復元 master switch — **ON by default** since contract v2, so this app is on the batch
+     * with nothing to configure, and answers a restore on a phone that has just been wiped. It
+     * stays a switch rather than being removed because it is the only way to close this app off
+     * entirely, and a feature that can be turned on but never off is one 白い熊 cannot retreat from.
      */
     private fun addAutomationSwitchRow(level: Int) {
         val row = ItemSkSwitchBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
@@ -405,6 +412,36 @@ class SkUiActivity : AppCompatActivity() {
             SkAutomation.setEnabled(this, checked)
         }
         // The switch itself is not clickable — the whole row is its hit area.
+        row.root.setOnClickListener { row.skSwitchToggle.toggle() }
+        indentRow(row.root, level)
+        binding.skHolder.addView(row.root)
+    }
+
+    /**
+     * 「Use authorization token?」 — **OFF by default** since contract v2.
+     *
+     * Off, any sister app may drive the automation; on, a caller must also present the token below.
+     * The data door checks the caller's package name, uid and signing certificate either way, which
+     * is what makes the token affordable to switch off: a pasted secret cannot survive the wipe
+     * that 応用管理's restore exists to recover from.
+     */
+    private fun addAutomationRequireTokenRow(level: Int) {
+        val row = ItemSkSwitchBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
+        val accent = SkTheme.color(this, SkSlot.ACCENT)
+        row.skSwitchTitle.setText(R.string.sk_auto_require_token_title)
+        row.skSwitchTitle.setTextColor(SkTheme.color(this, SkSlot.TEXT))
+        row.skSwitchDesc.setText(R.string.sk_auto_require_token_desc)
+        row.skSwitchDesc.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
+        row.skSwitchToggle.thumbTintList = ColorStateList.valueOf(accent)
+        row.skSwitchToggle.trackTintList = ColorStateList.valueOf(accent)
+        row.skSwitchToggle.isChecked = SkAutomation.requireToken(this)
+        row.skSwitchToggle.setOnCheckedChangeListener { _, checked ->
+            SkAutomation.setRequireToken(this, checked)
+            // The token row appears and disappears with this switch, so the page is rebuilt —
+            // posted rather than immediate, so the holder is not emptied inside the click dispatch
+            // of one of its own children.
+            binding.skHolder.post { buildRows() }
+        }
         row.root.setOnClickListener { row.skSwitchToggle.toggle() }
         indentRow(row.root, level)
         binding.skHolder.addView(row.root)

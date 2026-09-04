@@ -1293,7 +1293,9 @@
 
     <!-- 保存復元 automation (inside the Export/Import section, never its own) -->
     <string name="sk_auto_title" translatable="false">Automation export</string>
-    <string name="sk_auto_desc" translatable="false">Let a sister app trigger this app\'s export with the token below. Off by default.</string>
+    <string name="sk_auto_desc" translatable="false">Let sister apps trigger this app\'s export and back up its data. On by default.</string>
+    <string name="sk_auto_require_token_title" translatable="false">Use authorization token?</string>
+    <string name="sk_auto_require_token_desc" translatable="false">Off: any sister app may drive the automation. On: a caller must also present the token below. The data door checks the caller\'s package, uid and signing certificate either way.</string>
     <string name="sk_auto_token_title" translatable="false">Automation token</string>
     <string name="sk_auto_token_regenerate" translatable="false">Regenerate</string>
     <string name="sk_auto_token_copied" translatable="false">Token copied to the clipboard</string>
