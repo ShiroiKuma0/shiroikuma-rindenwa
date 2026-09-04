@@ -16,8 +16,13 @@ import org.linphone.R
  * shiroikuma-rindenwa fork — the 保存復元 state-export contract, for 白い熊 自由作業盤's one-run
  * backup of every sister app.
  *
- * Three exported, token-gated actions ([SkAutomation] is the gate — no `android:permission`, since
- * the caller cannot hold one):
+ * Three exported actions, gated by [SkAutomation] — no `android:permission`, since the caller
+ * cannot hold one. Since contract v2 that gate is a master switch which is **on** by default plus
+ * an **optional** token: a token sent while 「Use authorization token?」 is off is ignored, never
+ * refused. This receiver is therefore the deliberately *unauthenticated* half of the automation
+ * surface — it only ever writes where it was told to and reports what it did. Everything that moves
+ * data through a caller-supplied descriptor lives behind `automation.AutomationProvider`, which
+ * knows who is calling.
  *  - [ACTION_LIST_CATEGORIES] — instant; replies `OK:` plus one
  *    `id<TAB>label<TAB>parent<TAB>on|off` line per exportable category. The third field is the
  *    parent id on sub-options (`history.calls`, `history.chat`, `appearance.fonts`) and empty
@@ -81,11 +86,15 @@ class SkStateExportReceiver : BroadcastReceiver() {
         fun finishWith(result: String) {
             if (!finished.compareAndSet(false, true)) return
             Log.i(TAG, "result → $result")
-            if (replyAction.isNotEmpty() && replyId.isNotEmpty()) {
+            // replyPackage is NOT optional: since API 26 an implicit broadcast is not delivered
+            // to a manifest-declared receiver at all, so a reply without setPackage is not a weak
+            // reply, it is none — and it would be shouted at every registered receiver on the
+            // phone on the way to nowhere.
+            if (replyAction.isNotEmpty() && replyId.isNotEmpty() && replyPackage.isNotEmpty()) {
                 try {
                     app.sendBroadcast(
                         Intent(replyAction)
-                            .setPackage(replyPackage.ifEmpty { null })
+                            .setPackage(replyPackage)
                             .putExtra(EXTRA_REPLY_ID, replyId)
                             .putExtra(EXTRA_RESULT, result)
                             .addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES),
@@ -138,12 +147,13 @@ class SkStateExportReceiver : BroadcastReceiver() {
         Log.i(
             TAG,
             "received $action: enabled=${SkAutomation.enabled(context)}, " +
+                "requireToken=${SkAutomation.requireToken(context)}, " +
                 "tokenLen=${token?.length ?: 0}, items=$itemsRaw, path=$path",
         )
 
+        val refusal = SkAutomation.refuse(context, token)
         return when {
-            !SkAutomation.enabled(context) -> Request.Done("ERROR:automation disabled")
-            !SkAutomation.isTokenValid(context, token) -> Request.Done("ERROR:bad token")
+            refusal != null -> Request.Done(refusal)
             action == ACTION_LIST_CATEGORIES -> Request.Done(categoryList(context))
             cats == null -> Request.Done("ERROR:unknown category in items: $itemsRaw")
             path.isNotEmpty() && !path.startsWith("/") ->
@@ -196,8 +206,8 @@ class SkStateExportReceiver : BroadcastReceiver() {
      */
     private fun cancel(context: Context, intent: Intent) {
         val token = intent.getStringExtra(EXTRA_TOKEN)
-        if (!SkAutomation.enabled(context) || !SkAutomation.isTokenValid(context, token)) {
-            Log.i(TAG, "cancel refused: automation disabled or bad token")
+        SkAutomation.refuse(context, token)?.let {
+            Log.i(TAG, "cancel refused: $it")
             return
         }
 
@@ -287,11 +297,16 @@ class SkStateExportReceiver : BroadcastReceiver() {
         val appLabel = context.getString(R.string.app_name)
         val unit = context.getString(R.string.sk_state_progress_unit)
 
+        // Same rule as the reply: a progress line without setPackage reaches no manifest
+        // receiver, so progress_action is useless without reply_package rather than independent
+        // of it (contract correction, 2026-09-04).
+        val canSend = progressAction.isNotEmpty() && replyPackage.isNotEmpty()
+
         fun send(current: Long, total: Long, text: String) {
             try {
                 context.sendBroadcast(
                     Intent(progressAction)
-                        .setPackage(replyPackage.ifEmpty { null })
+                        .setPackage(replyPackage)
                         .putExtra(EXTRA_REPLY_ID, replyId)
                         .putExtra(EXTRA_PROGRESS_APP, appLabel)
                         .putExtra(EXTRA_PROGRESS_TEXT, text)
@@ -311,13 +326,13 @@ class SkStateExportReceiver : BroadcastReceiver() {
             listener = { done, total, stage ->
                 lastTotal = total.toLong()
                 val now = System.currentTimeMillis()
-                if (progressAction.isNotEmpty() && now - lastSent >= PROGRESS_THROTTLE_MS) {
+                if (canSend && now - lastSent >= PROGRESS_THROTTLE_MS) {
                     lastSent = now
                     send(done.toLong(), total.toLong(), "$unit $done/$total — $stage")
                 }
             },
             final = {
-                if (progressAction.isNotEmpty()) {
+                if (canSend) {
                     send(lastTotal, lastTotal, "$unit $lastTotal/$lastTotal")
                 }
             },
