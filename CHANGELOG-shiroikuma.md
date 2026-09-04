@@ -2,7 +2,91 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha.2026-08-07.g5bc702e4+002 — current
+## 6.3.0-alpha+2026-08-07.11-31.g5bc702e4+003 — current
+
+Same upstream base (`5bc702e4`); the version pin now groups with `+` and carries the minute, so the
+name reads `6.3.0-alpha+2026-08-07.11-31.g5bc702e4+003`. The fork's automation grows a second half —
+a data door that lets 白い熊 応用管理 rebuild this app *with its data* on a wiped phone — and the
+token that used to guard the first half becomes optional. Three faults in the existing automation
+surface turned up while doing it, all of which failed silently, and one of which meant the feature
+had never worked at all.
+
+### The state-export path had never once worked
+
+- **There was no `<queries>` element in the manifest.** Since Android 11 a `setPackage()` broadcast
+  to a package outside your visibility filter is not delivered and no error is raised, so every
+  reply this fork has ever sent to 白い熊 自由作業盤 was discarded in silence. The export ran, wrote
+  a correct archive, and reported to nobody. The element now names both `shiroikuma.oyokanri` and
+  `shiroikuma.jiyusagyoban`; `adb shell dumpsys package queries` shows the mapping, which is what
+  distinguishes a fixed manifest from an edited one.
+- **The reply and progress broadcasts fell back to an implicit send.** Both passed
+  `setPackage(replyPackage.ifEmpty { null })`, and passing `null` there does not broadcast more
+  widely — it broadcasts where nothing can hear, because since API 26 an implicit broadcast reaches
+  no manifest-declared receiver at all. Both now decline to send without a target package.
+- **A stale job id crashed the data service.** `startForeground` was reached only on the path that
+  had work to do, so a duplicate or already-answered id returned first and earned a
+  `ForegroundServiceDidNotStartInTimeException`. It is now called first and unconditionally, and a
+  stale id stops silently rather than sending a second terminal reply for a request that has
+  already had one.
+
+### The token is optional, and the switch ships on
+
+- **`automation_enabled` now defaults to on and `automation_require_token` to off.** A pasted
+  48-character secret cannot survive a wipe, and the case this whole family now serves is 応用管理
+  restoring apps onto a clean phone where nothing has been configured yet. A gate that only works
+  once the phone is already set up is no gate for setting the phone up.
+- **A token sent to an app that is not asking for one is ignored, never refused.** Tokens outlive
+  the setting they were pasted for; refusing them would turn one switch being off into half a batch
+  mysteriously failing.
+- **Both checks live in one function.** `SkAutomation.refuse()` answers either `null` or the exact
+  `ERROR:` line, so "automation disabled" and "bad token" cannot drift apart between the receiver,
+  the provider and the service.
+- **The switches are written with `commit()`, not `apply()`.** This matters only now that the
+  default flipped: under the old default a lost write fell back to "closed", which was merely
+  inconvenient. It now falls back to **open**, and 応用管理 force-stops an app the moment it
+  reports a successful import.
+- 「Use authorization token?」 sits under the master switch in the Export/Import section, and the
+  token row appears only while it is on — a long secret under an off switch invites pasting it
+  somewhere it will do nothing.
+
+### The data door
+
+- **A `ContentProvider` at `shiroikuma.rindenwa.automation`** with `describe`, `export`, `import`
+  and `cancel`. `describe` answers a header — app id, version, format, whether a launch is required
+  first, and what the archive would contain — without exporting anything, so a caller can draw a row
+  and judge compatibility before streaming tens of megabytes.
+- **The caller is identified three ways: exact package name, process uid, and a pinned signing
+  certificate.** Not a `shiroikuma.*` prefix, which is not an identity — package names are not a
+  namespace anyone owns, so any sideloaded app could take one and, since the caller supplies the
+  destination, be handed this app's complete data. The certificate pin is what covers the case the
+  restore exists for: whichever caller is *absent* from the device is a name anyone can claim, and a
+  clean phone is precisely where not everything is installed yet.
+- **The payload travels down a `ParcelFileDescriptor` the caller opened**, duplicated before it
+  leaves the provider call and closed in the service's `finally`. Not a path: 応用管理 assembles a
+  backup in a temporary directory it renames on commit, and encrypts and checksums per file it knows
+  about, so a file this app dropped in itself would be renamed out from under it and would sit in
+  plaintext inside an otherwise encrypted archive.
+- **`import` exists only here and never as a broadcast action.** The state-export receiver is
+  exported without a permission, so an import there would let any app on the phone overwrite this
+  one's accounts and history.
+- The work runs in a foreground service with the export engine's own cancellation, so a long run is
+  stoppable and a cancelled one leaves nothing half-written.
+
+### What the archive carries
+
+- **A backup of this app is a backup of its SIP credentials.** The `accounts` category copies
+  `.linphonerc`'s `proxy_*`, `auth_info_*` and `nat_policy_*` sections verbatim, and `auth_info_*` is
+  where the password lives — as cleartext `passwd=`, or as the `ha1=` digest, which is equally usable
+  to authenticate. A restore therefore puts working credentials on whatever phone it lands on. That
+  is arguably what a restore should do, since accounts are most of what makes this app useful, but it
+  is a property of the archive worth knowing rather than discovering.
+
+### Note
+
+- **Installing a new build drops SIP registration** while the process restarts, so the app is briefly
+  unreachable for calls. Ordinary for a reinstall, and worth expecting rather than reading as a fault.
+
+## 6.3.0-alpha.2026-08-07.g5bc702e4+002
 
 Rebased onto upstream `5bc702e4` (upstream `versionCode` 602004 → 602005), so the build counter
 restarts at 1 and the fork `versionCode` becomes 602005002. Upstream fixed the assistant's window
