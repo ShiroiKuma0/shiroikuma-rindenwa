@@ -58,6 +58,18 @@
     <!-- Simply to prevent "attributionTag  not declared in manifest of org.linphone" error in logs -->
     <attribution android:tag="@string/empty" android:label="@string/app_name" />
 
+    <!-- shiroikuma fork: package visibility for the two automation callers. Without this the
+         reply broadcast's setPackage() resolves to nothing on Android 11+ and FAILS SILENTLY —
+         the export runs, writes correctly, and is never heard of. BOTH are required and this
+         element was missing entirely until contract v2 (2026-09-04): 自由作業盤 drives the
+         保存復元 batch of the broadcast contract, 応用管理 drives the data door. A third caller
+         is one more line here — never QUERY_ALL_PACKAGES, which is Play-policy-restricted and
+         buys nothing this needs. -->
+    <queries>
+        <package android:name="shiroikuma.oyokanri" />
+        <package android:name="shiroikuma.jiyusagyoban" />
+    </queries>
+
     <application
         android:name=".LinphoneApplication"
         android:allowBackup="true"
@@ -180,6 +192,35 @@
                 <action android:name="${applicationId}.action.CANCEL_EXPORT" />
             </intent-filter>
         </receiver>
+
+        <!-- shiroikuma fork: the contract v2 data door. No android:permission, and this time for a
+             real reason rather than v1's: a custom permission would have to be `normal` (any app
+             may hold it) or `signature` (impossible — every app in this family has its own
+             keystore, 42 of them). Neither buys anything AutomationCallers does not, and that
+             checks the caller three ways: exact package name, uid cross-check, pinned signing
+             certificate. `import` exists ONLY here — the receiver above is exported with no
+             permission, so an import there would let any app on the phone wipe this one. -->
+        <provider
+            android:name=".shiroikuma.automation.AutomationProvider"
+            android:authorities="${applicationId}.automation"
+            android:exported="true" />
+
+        <service
+            android:name=".shiroikuma.automation.AutomationDataService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Automation data export/import" />
+        </service>
+
+        <!-- Capability discovery, read WITHOUT waking this app — 応用管理 builds its list across
+             every installed package with MATCH_UNINSTALLED_PACKAGES | MATCH_DISABLED_COMPONENTS,
+             because 白い熊 freezes apps aggressively and a frozen app cannot be asked anything.
+             An app without these entries is simply not offered for data backup or restore. -->
+        <meta-data android:name="shiroikuma.automation.contract" android:value="2" />
+        <meta-data android:name="shiroikuma.automation.format" android:value="1" />
+        <meta-data android:name="shiroikuma.automation.min_format" android:value="1" />
 
         <activity
             android:name=".ui.fileviewer.MediaViewerActivity"
