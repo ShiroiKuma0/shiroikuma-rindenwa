@@ -11,12 +11,12 @@ A fork of [Linphone for Android](https://github.com/BelledonneCommunications/lin
 book with foldable gojūon letter headings, a Favorites tab of draggable tiles, a black-yellow theme
 applied through the whole app, a card-folder tab navigation with an account strip you can drag into
 order, a settings page that makes colours, fonts and shapes live-editable, settings groups boxed in
-yellow that remember what you folded, a full-app Export/Import backup, and a token-gated automation
-contract so a sister app can back this one up unattended.
+yellow that remember what you folded, a full-app Export/Import backup, and an automation contract
+that lets a sister app back this one up — and its data — without being asked twice.
 
 Installs **side-by-side** with stock Linphone (app id `shiroikuma.rindenwa`).
 
-**📥 Latest release: [`6.3.0-alpha.2026-08-07.g5bc702e4+002`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
+**📥 Latest release: [`6.3.0-alpha+2026-08-07.11-31.g5bc702e4+003`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
 
 </div>
 
@@ -163,13 +163,24 @@ the SIP core knows only that a contact is starred, not where you want it.
 
 ## 🤖 Backs itself up unattended
 
-A token-gated broadcast contract (`EXPORT_STATE` / `LIST_CATEGORIES` / `CANCEL_EXPORT`) lets 白い熊
-自由作業盤 trigger this app's export headlessly as part of backing up every sister app in one run —
-reporting real progress counts and replying with the path and size it wrote. The category list says
-which items should start ticked, so the picker on the other side reflects this app's answer instead
-of guessing, and a cancel stops a run in flight and takes the half-written archive with it, leaving
-the backup directory exactly as it was found. Off by default; the switch and its token live inside
-the Export/Import section, where backup lives.
+A broadcast contract (`EXPORT_STATE` / `LIST_CATEGORIES` / `CANCEL_EXPORT`) lets 白い熊 自由作業盤
+trigger this app's export headlessly as part of backing up every sister app in one run — reporting
+real progress counts and replying with the path and size it wrote. The category list says which
+items should start ticked, so the picker on the other side reflects this app's answer instead of
+guessing, and a cancel stops a run in flight and takes the half-written archive with it, leaving the
+backup directory exactly as it was found.
+
+Alongside it, a **data door**: a content provider that hands this app's whole state — accounts, call
+and chat history, settings, appearance, fonts — straight down a file descriptor the caller opened,
+and takes it back the same way. That is what lets 白い熊 応用管理 rebuild this app *with its data* on
+a phone that has just been wiped, where an APK alone would restore an empty phone book. It answers
+only 応用管理 and 自由作業盤, each checked by exact package name, process uid **and pinned signing
+certificate** — the identity check a broadcast cannot make, which is why restoring data lives here
+and never on the receiver above.
+
+**It ships switched on**, because a backup that needs configuring first is no use on a clean phone.
+An authorization token is still available for a caller that should have to prove itself, but it is
+opt-in now; both switches live inside the Export/Import section, where backup lives.
 
 ---
 
