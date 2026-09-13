@@ -2,7 +2,51 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha+2026-09-11.12-50.g75c4ce26+001 — current
+## 6.3.0-alpha+2026-09-11.12-50.g75c4ce26+002 — current
+
+Same upstream base (`75c4ce26`). A restore made by 応用管理 onto a freshly installed phone on
+2026-09-13 came out with the accounts but without the call history or a single favourite; this
+build fixes the Export/Import layer so that cannot happen again, and makes favourites survive a
+change of phone at all.
+
+### The restore is staged, and applied at the next cold start
+
+- **Config sections and databases are no longer written into place by the import.** They used to
+  be: `.linphonerc` sections merged on disk and `linphone.db` overwritten while the Core held
+  those very files open — and on the 応用管理 path the process is *started by* the restore
+  request, so the Core's own start-up writes raced the overwrite. The accounts happened to
+  survive; the history database did not.
+- They now go to `filesDir/sk_pending_import/`, with a `ready` marker written last so a stage the
+  process died halfway through is discarded rather than applied. `LinphoneApplication.onCreate()`
+  brings the stage live at the next cold start — after the default assets exist, before the Config
+  is read, long before the Core opens a database — and removes stale `-journal`/`-wal`/`-shm`
+  siblings as each database is moved in.
+- 応用管理's force-stop after a restore is therefore the plan, not a hazard; the Export/Import
+  panel's "Restart now" does the same, and "Later" simply leaves the stage for the next start.
+  The panel's import-done dialog now says which categories wait for the restart, and only offers a
+  restart when something is staged.
+- **Preferences are `commit()`ted, not `apply()`ed.** `apply()` only promises the disk write
+  eventually, and the process is force-stopped or restarted straight after the reply — imported
+  settings had gone missing exactly that way.
+- **An export re-reads a database that had a hot `-journal` during the copy**, so an archive never
+  carries half a transaction.
+
+### Favourites survive a change of phone
+
+- A favourite in the Linphone SDK is a star on a friend keyed by the *native contact id*, and the
+  fork's tile order stored the same ids. Neither survives a move: the address book arrives with
+  new ids, the first contact sync throws the old friends away, and every star goes with them —
+  so even a perfectly restored database lost the Favourites tab.
+- When the staged `linphone.db` is applied, its starred friends are read out as something
+  portable — the name, the numbers and the SIP addresses of the vCard the SDK stored, in the
+  stored tile order — and parked. Once the native contacts have been loaded, each one is matched
+  by number (suffix-tolerant, so `0737…` and `+420737…` are the same line), by SIP address, or —
+  for a contact with neither — by name; it is starred again and the tile order is rewritten in the
+  new phone's ids. A favourite nothing matches is dropped with a log line.
+- This reads the archive's own database, so **an archive made by an older build restores its
+  favourites too** — no need to update the old phone before exporting from it.
+
+## 6.3.0-alpha+2026-09-11.12-50.g75c4ce26+001
 
 New upstream base: `custom` rebased from `5bc702e4` onto `75c4ce26` (2026-09-11), which carries
 upstream's 6.2.6 and 6.2.7 release lines; the upstream `versionCode` moves 602005 → 602007, so
