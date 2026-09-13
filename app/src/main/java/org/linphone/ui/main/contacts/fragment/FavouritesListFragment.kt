@@ -65,6 +65,11 @@ class FavouritesListFragment : AbstractMainFragment() {
         listViewModel.applyCurrentDefaultAccountFilter()
     }
 
+    override fun onSlidingPaneClosed() {
+        // Tiles carry no side-by-side highlight, but the base class asks every list to clear one.
+        adapter.resetSelection()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
