@@ -53,6 +53,7 @@ import org.linphone.core.MagicSearch
 import org.linphone.core.MagicSearchListenerStub
 import org.linphone.core.SecurityLevel
 import org.linphone.core.tools.Log
+import org.linphone.shiroikuma.SkFavourites
 import org.linphone.ui.main.MainActivity
 import org.linphone.ui.main.contacts.model.ContactAvatarModel
 import org.linphone.ui.main.contacts.model.ContactNumberOrAddressClickListener
@@ -401,6 +402,10 @@ class ContactsManager
     fun onNativeContactsLoaded() {
         nativeContactsLoaded = true
         Log.i("$TAG Native contacts have been loaded, cleaning avatars maps")
+
+        // shiroikuma fork: favourites parked by a restore are matched to the friends the sync
+        // just produced — the restored stars were keyed by the previous phone's contact ids.
+        SkFavourites.applyPendingRestore(coreContext.context, coreContext.core)
 
         knownContactsAvatarsMap.values.forEach(ContactAvatarModel::destroy)
         knownContactsAvatarsMap.clear()

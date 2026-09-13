@@ -1272,7 +1272,8 @@
     <string name="sk_eim_export_done_title" translatable="false">Export finished</string>
     <string name="sk_eim_export_done_body" translatable="false">Written to %1$s\n\n%2$s</string>
     <string name="sk_eim_import_done_title" translatable="false">Import finished</string>
-    <string name="sk_eim_import_done_body" translatable="false">%1$s\n\nAccounts, history and settings are read when the app starts — restart to bring them live.</string>
+    <string name="sk_eim_import_done_body" translatable="false">%1$s\n\nAccounts, history and SIP settings are brought live when the app starts — restart now, or the next start will do it. Favourites follow once the contacts have been read.</string>
+    <string name="sk_eim_import_done_body_live" translatable="false">%1$s\n\nApplied.</string>
     <string name="sk_eim_restart_later" translatable="false">Later</string>
     <string name="sk_eim_restart_now" translatable="false">Restart now</string>
     <string name="sk_eim_warn_nodir" translatable="false">No backup directory set</string>

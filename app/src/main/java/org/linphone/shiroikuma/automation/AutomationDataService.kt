@@ -183,9 +183,11 @@ class AutomationDataService : Service() {
         val cats = present intersect requested
         if (cats.isEmpty()) return "ERROR:archive carries none of the requested categories"
         val summary = SkEximport.import(this, bytes, cats, progress)
-        // The caller force-stops us straight after this. That is deliberate and belongs on its
-        // side: a running process writes its cached SharedPreferences back out at orderly shutdown
-        // and silently undoes the import that just happened (応用管理 paid for this one already).
+        // Settings and fonts are on disk when this returns (the preferences are committed, not
+        // applied). Config sections and databases are only *staged* — the Core in this very
+        // process has the live copies open — and are brought in by the next cold start. The
+        // caller force-stops us straight after this reply, which is exactly what makes that next
+        // start happen at the next tap on the icon (応用管理, 2026-09-13).
         return "OK:${summary.lines().size} restored"
     }
 
