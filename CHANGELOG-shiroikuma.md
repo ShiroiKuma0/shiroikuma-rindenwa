@@ -2,7 +2,58 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha+2026-08-07.11-31.g5bc702e4+003 — current
+## 6.3.0-alpha+2026-09-11.12-50.g75c4ce26+001 — current
+
+New upstream base: `custom` rebased from `5bc702e4` onto `75c4ce26` (2026-09-11), which carries
+upstream's 6.2.6 and 6.2.7 release lines; the upstream `versionCode` moves 602005 → 602007, so
+this build is `602007001`. The fork's own code is unchanged apart from what the rebase required.
+
+### From upstream (6.2.6 / 6.2.7)
+
+- **Answering an incoming call from the notification shows the call screen again.** The "Answer"
+  action used to go through a broadcast receiver that then started `CallActivity` — a notification
+  trampoline, which Android 12+ silently refuses. The action now launches `CallActivity` directly
+  with an `AnswerIncomingCall` extra and the activity answers on arrival. The same fix covers the
+  call-redirection notification.
+- **An account with only an outbound proxy and no registrar now uses that proxy.** Both the
+  third-party SIP login and the account settings used to drop the outbound proxy when the server
+  field was empty; the proxy now becomes the server address.
+- **Copying an address from the call history copies just the number** when it is a phone number,
+  with its own toast.
+- Selected item stays highlighted in every list when the sliding pane is side-by-side (landscape
+  or desktop mode) and survives rotation; smoother sliding-pane open animation; going back onto
+  an empty grey pane no longer happens.
+- Contact creator can be pre-filled with a display name; the contact editor says when an address
+  will not parse instead of dropping it.
+- Meeting invitations are sent by chat even without LIME; the active speaker updates as soon as
+  the first participant joins; Linphone-Web participants show their name rather than an IP.
+- Media player and recordings keep their position across rotation; forwarded incoming messages in
+  a 1-1 room no longer draw an empty bubble or extra top space; the conversation list shows a
+  queued sent message at once; the contacts list no longer clips at the top when nobody is a
+  favourite; a null contact name no longer crashes the contacts list.
+- Desktop mode (`sw600dp-land`) keeps the system-bar colour on the device theme rather than
+  orange.
+- Tooling: Gradle 9.6.1 → 9.7.1, AGP 9.3.1 → 9.4.0, Kotlin 2.4.10 → 2.4.20, `androidx.core:telecom`
+  1.1.0-alpha06 → 1.1.0-beta01, navigation 2.10.1, appcompat 1.8.0, coil 3.6.2. The Linphone SDK
+  stays on `5.6.+`.
+
+### Ported through the rebase
+
+- Upstream moved list activation and selection into a shared `GenericListAdapter` base and made
+  `onSlidingPaneClosed()` abstract on every main fragment. The fork's contacts, history and
+  conversations adapters now extend that base — the letter sections, the favourites order and the
+  per-row styling are unchanged — and the fork-only favourites tab implements the new member.
+- Upstream renamed the name views in the contact and call-log rows (`name` →
+  `contact_name` / `call_log_display_name`); the fork's number line, full-width dividers and
+  styler calls follow the new ids.
+- Favourite tiles now fire upstream's `favouriteContactClickedEvent`; the favourites tab listens
+  to it, so tapping a tile still opens the contact.
+- Upstream's "highlight the open contact" looks the contact up by index in the view model's list;
+  here the letter headings sit between the rows, so the fork asks the adapter for the position
+  instead, and a contact hidden inside a folded section clears the highlight rather than
+  pointing at a row that is not there.
+
+## 6.3.0-alpha+2026-08-07.11-31.g5bc702e4+003
 
 Same upstream base (`5bc702e4`); the version pin now groups with `+` and carries the minute, so the
 name reads `6.3.0-alpha+2026-08-07.11-31.g5bc702e4+003`. The fork's automation grows a second half —
