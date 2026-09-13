@@ -47,6 +47,7 @@ import org.linphone.core.LogLevel
 import org.linphone.core.ManagedConfigurationReceiver
 import org.linphone.core.VFS
 import org.linphone.core.tools.Log
+import org.linphone.shiroikuma.SkEximport
 
 @MainThread
 class LinphoneApplication : Application(), SingletonImageLoader.Factory {
@@ -89,6 +90,13 @@ class LinphoneApplication : Application(), SingletonImageLoader.Factory {
 
         corePreferences = CorePreferences(context)
         corePreferences.copyAssetsFromPackage()
+
+        // shiroikuma fork: a restore staged by the Export/Import panel or by 応用管理 is brought
+        // live here — after the default assets exist, before the Config is read and long before
+        // the Core opens its databases. Nothing in the process has those files open yet, which
+        // is the one moment they can be replaced safely.
+        runCatching { SkEximport.applyPendingImport(context) }
+            .onFailure { Log.e("$TAG Pending import failed to apply: $it") }
 
         if (VFS.isEnabled(context)) {
             VFS.setup(context)

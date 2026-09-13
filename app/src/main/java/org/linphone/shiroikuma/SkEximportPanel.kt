@@ -516,8 +516,20 @@ class SkEximportPanel(
         )
     }
 
-    /** "Later" closes the whole chain; "Restart now" restarts the app. */
+    /**
+     * With config or databases staged: "Later" closes the whole chain, "Restart now" restarts the
+     * app — the staged files are applied at the next cold start either way. With only settings
+     * and fonts, which are live already, a plain OK.
+     */
     private fun showImportDone(summary: String) {
+        if (!SkEximport.hasPendingImport(activity)) {
+            infoDialog(
+                activity.getString(R.string.sk_eim_import_done_title),
+                activity.getString(R.string.sk_eim_import_done_body_live, summary),
+                listOf(activity.getString(R.string.sk_ok) to { info: AlertDialog -> closeChain(info) }),
+            )
+            return
+        }
         infoDialog(
             activity.getString(R.string.sk_eim_import_done_title),
             activity.getString(R.string.sk_eim_import_done_body, summary),
