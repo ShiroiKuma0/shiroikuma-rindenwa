@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Environment
 import android.provider.DocumentsContract
+import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import java.io.ByteArrayInputStream
 import java.io.File
@@ -36,8 +37,15 @@ import org.linphone.R
  *
  * plus our own appearance preferences and imported font files.
  *
- * Import is partial by category: absent entries are skipped, preferences merge (never clear),
- * and restored config/database files need an app restart — which the panel offers.
+ * Import is partial by category: absent entries are skipped and preferences merge (never clear).
+ * The config sections and the database files are **not** written into place by the import
+ * itself: the Core holds those files open, and a file replaced underneath a live SQLite
+ * connection is at the mercy of whatever the Core writes next (2026-09-13: a restore made by
+ * 応用管理 onto a freshly installed phone lost the whole call history and every favourite that
+ * way — the Core was still starting up, and its own start-up writes won). They are staged in
+ * [PENDING_DIR] instead and moved into place by [applyPendingImport] at the next cold start,
+ * before the Core is created — which is why the panel offers a restart, and why 応用管理's
+ * force-stop after a restore is not a problem but the plan.
  *
  * The export directory (SAF tree URI) lives in its own device-local prefs file, deliberately
  * outside the exported preference set.
@@ -59,6 +67,28 @@ object SkEximport {
     private const val SIP_SETTINGS_ENTRY = "sip_settings.rc"
     private const val DB_DIR_ENTRY = "db/"
     private const val FONTS_DIR_ENTRY = "fonts/"
+
+    /** Where an import parks the config sections and database files until the next cold start. */
+    private const val PENDING_DIR = "sk_pending_import"
+
+    /**
+     * Written last, so a stage the process died halfway through is thrown away rather than
+     * applied: half a `linphone.db` is worse than none.
+     */
+    private const val PENDING_READY = "ready"
+
+    /** The SDK's main database — call history, conversations, and the friends with their stars. */
+    private const val MAIN_DB = "linphone.db"
+
+    /**
+     * SQLite's sidecar files. A restored database must not inherit the running Core's, and a
+     * copy taken while one exists may be mid-transaction.
+     */
+    private val DB_SIDECARS = listOf("-journal", "-wal", "-shm")
+
+    /** How many times an export re-reads a database that had a hot journal during the copy. */
+    private const val SNAPSHOT_ATTEMPTS = 4
+    private const val SNAPSHOT_RETRY_MS = 150L
 
     /** linphonerc sections that constitute "the accounts and their full configuration". */
     private val ACCOUNT_SECTION_PREFIXES = listOf("proxy_", "auth_info_", "nat_policy_")
@@ -363,7 +393,7 @@ object SkEximport {
                 for (db in dbs) {
                     checkCancelled()
                     listener.onProgress(done, total, label)
-                    writeEntry(zip, DB_DIR_ENTRY + db.name, db.readBytes())
+                    writeEntry(zip, DB_DIR_ENTRY + db.name, snapshotOf(db))
                     done++
                 }
                 listener.onProgress(done, total, label)
@@ -418,6 +448,28 @@ object SkEximport {
     }
 
     /**
+     * The bytes of a database the Core may be writing to at this very moment.
+     *
+     * The SDK runs SQLite in rollback-journal mode, so a write transaction announces itself with
+     * a `-journal` sibling: a copy taken while one exists, or during which one appeared, may hold
+     * half a transaction. Such a copy is retried a few times; if the journal never goes away the
+     * last copy is taken anyway, since SQLite rolls a hot journal back on open and the entry
+     * would otherwise be missing altogether. A `-wal` sibling (should the SDK ever switch modes)
+     * is exported as its own entry by [dbFiles], as before.
+     */
+    private fun snapshotOf(db: File): ByteArray {
+        val journal = File(db.parentFile, db.name + "-journal")
+        var bytes = db.readBytes()
+        repeat(SNAPSHOT_ATTEMPTS) {
+            val before = journal.exists()
+            bytes = db.readBytes()
+            if (!before && !journal.exists()) return bytes
+            Thread.sleep(SNAPSHOT_RETRY_MS)
+        }
+        return bytes
+    }
+
+    /**
      * Per the automation contract, a parent id without its children means "that category's own
      * data only" — so `appearance` alone is the preference set, and the font files ride on
      * `appearance.fonts`.
@@ -457,8 +509,10 @@ object SkEximport {
      * Apply the selected categories from a ZIP. Missing entries are skipped. Returns a multi-line
      * human summary; throws if nothing at all could be applied.
      *
-     * Config and database files are restored in place — the Core reads them at startup, so the
-     * panel's "Restart now" is what actually brings them live.
+     * Preferences and fonts land at once. Config sections and database files are staged for
+     * [applyPendingImport] — the Core owns the live copies, and only a cold start can replace
+     * them safely — so the panel's "Restart now" (or 応用管理's force-stop) is what brings them
+     * live.
      */
     fun import(
         context: Context,
@@ -498,7 +552,10 @@ object SkEximport {
         var done = 0
 
         val parts = mutableListOf<String>()
-        syncConfig()
+        val pending = pendingDir(context)
+        // A fresh stage every time: whatever an earlier, never-applied import left behind is
+        // superseded by this one, and the ready marker goes last (see PENDING_READY).
+        pending.deleteRecursively()
 
         if (Cat.ACCOUNTS in cats) {
             files[ACCOUNTS_ENTRY]?.let { bytes ->
@@ -506,7 +563,7 @@ object SkEximport {
                 val label = context.getString(Cat.ACCOUNTS.labelRes)
                 listener.onProgress(done, total, label)
                 val incoming = parseSections(bytes.decodeToString())
-                writeSections(configFile(context), incoming)
+                stage(pending, ACCOUNTS_ENTRY, bytes)
                 done++
                 listener.onProgress(done, total, label)
                 parts += "$label: " +
@@ -521,7 +578,7 @@ object SkEximport {
                 listener.onProgress(done, total, label)
                 val base = File(name).name // basename only — no path traversal
                 if (base.isNotEmpty()) {
-                    files[name]?.let { File(context.filesDir, base).writeBytes(it) }
+                    files[name]?.let { stage(pending, DB_DIR_ENTRY + base, it) }
                 }
                 done++
             }
@@ -535,7 +592,7 @@ object SkEximport {
                 val label = context.getString(Cat.SIP_SETTINGS.labelRes)
                 listener.onProgress(done, total, label)
                 val incoming = parseSections(bytes.decodeToString())
-                writeSections(configFile(context), incoming)
+                stage(pending, SIP_SETTINGS_ENTRY, bytes)
                 done++
                 listener.onProgress(done, total, label)
                 parts += "$label: " +
@@ -588,13 +645,82 @@ object SkEximport {
         }
 
         if (parts.isEmpty()) {
+            pending.deleteRecursively()
             throw IOException("no category could be applied")
+        }
+        if (pending.isDirectory) {
+            File(pending, PENDING_READY).writeText(System.currentTimeMillis().toString())
         }
         return parts.joinToString("\n")
     }
 
     private fun wantsHistory(cats: Set<Cat>): Boolean =
         Cat.HISTORY in cats || anyChildSelected(cats)
+
+    // ------------------------------------------------------------- the staged half
+
+    private fun pendingDir(context: Context): File = File(context.filesDir, PENDING_DIR)
+
+    private fun stage(pending: File, entry: String, bytes: ByteArray) {
+        val target = File(pending, entry)
+        target.parentFile?.mkdirs()
+        target.writeBytes(bytes)
+    }
+
+    /** Whether a restart still has something to bring live. */
+    fun hasPendingImport(context: Context): Boolean =
+        File(pendingDir(context), PENDING_READY).isFile
+
+    /**
+     * Bring a staged import live. Called from `LinphoneApplication.onCreate()` after the default
+     * assets exist and **before** the Config and the Core are created — at that moment nothing in
+     * the process has any of these files open, which is the whole point.
+     *
+     * Order matters: the databases first, then the favourites they carry are read out of the
+     * staged main database (see [SkFavourites.stageFromDatabase]) — a favourite in the SDK is a
+     * star on a friend keyed by the *native contact id*, which the next phone does not share, so
+     * the restored stars would be dropped by the first contact sync. The portable list is what
+     * survives that, and it is applied once the native contacts are in.
+     */
+    fun applyPendingImport(context: Context) {
+        val pending = pendingDir(context)
+        if (!pending.isDirectory) return
+        try {
+            if (!File(pending, PENDING_READY).isFile) {
+                Log.w(TAG, "pending import without ready marker — discarded")
+                return
+            }
+            val dbDir = File(pending, DB_DIR_ENTRY.trimEnd('/'))
+            // Name order puts a database before its own sidecars, so the sidecar sweep below
+            // never eats a `-wal` that was itself just moved into place.
+            val dbs = dbDir.listFiles()?.filter { it.isFile }.orEmpty().sortedBy { it.name }
+            val mainDb = dbs.firstOrNull { it.name.equals(MAIN_DB, ignoreCase = true) }
+            if (mainDb != null) {
+                runCatching { SkFavourites.stageFromDatabase(context, mainDb) }
+                    .onFailure { Log.w(TAG, "favourites not read from staged db: $it") }
+            }
+            for (db in dbs) {
+                val target = File(context.filesDir, db.name)
+                // The running Core's sidecars belong to the file being replaced, never to this one.
+                for (suffix in DB_SIDECARS) {
+                    File(context.filesDir, db.name + suffix).delete()
+                }
+                if (!db.renameTo(target)) {
+                    target.writeBytes(db.readBytes())
+                }
+                Log.i(TAG, "restored ${db.name} (${target.length()} bytes)")
+            }
+            for (entry in listOf(ACCOUNTS_ENTRY, SIP_SETTINGS_ENTRY)) {
+                val staged = File(pending, entry)
+                if (!staged.isFile) continue
+                val incoming = parseSections(staged.readText())
+                writeSections(configFile(context), incoming)
+                Log.i(TAG, "merged ${incoming.size} sections from $entry")
+            }
+        } finally {
+            pending.deleteRecursively()
+        }
+    }
 
     private fun parseSections(text: String): LinkedHashMap<String, String> {
         val sections = LinkedHashMap<String, String>()
@@ -664,7 +790,13 @@ object SkEximport {
         return root.toString(2) to count
     }
 
-    /** Merge matching typed keys into [sp] (no clear); returns the number applied. */
+    /**
+     * Merge matching typed keys into [sp] (no clear); returns the number applied.
+     *
+     * Written with `commit()`, not `apply()`: the process is about to die — the panel restarts it,
+     * 応用管理 force-stops it — and `apply()` only promises the disk write *eventually*. Settings
+     * that had been imported went missing on 2026-09-13 exactly that way.
+     */
     private fun importPrefs(sp: SharedPreferences, json: String, filter: (String) -> Boolean): Int {
         val root = JSONObject(json)
         val editor = sp.edit()
@@ -686,7 +818,9 @@ object SkEximport {
             }
             count++
         }
-        editor.apply()
+        editor.commit()
         return count
     }
+
+    private const val TAG = "RindenwaEximport"
 }
