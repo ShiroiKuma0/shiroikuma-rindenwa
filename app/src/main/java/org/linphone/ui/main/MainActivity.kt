@@ -65,6 +65,7 @@ import org.linphone.R
 import org.linphone.compatibility.Compatibility
 import org.linphone.core.tools.Log
 import org.linphone.databinding.MainActivityBinding
+import org.linphone.shiroikuma.SkRinger
 import org.linphone.ui.GenericActivity
 import org.linphone.shiroikuma.SkStartup
 import org.linphone.ui.assistant.AssistantActivity
@@ -521,6 +522,10 @@ class MainActivity : GenericActivity() {
         viewModel.enableAccountMonitoring(true)
         viewModel.updateMissingPermissionAlert()
         viewModel.updateAccountsAndNetworkReachability()
+
+        // shiroikuma fork: without "Display over other apps" an incoming call can only drop a
+        // notification when the screen is already on, so ask for it rather than fail quietly.
+        SkRinger.ensureCallScreenPermission(this)
     }
 
     override fun onNewIntent(intent: Intent) {
