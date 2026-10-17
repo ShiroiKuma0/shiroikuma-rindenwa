@@ -2,7 +2,49 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha+2026-09-11.12-50.g75c4ce26+002 — current
+## 6.3.0-alpha+2026-09-11.12-50.g75c4ce26+004 — current
+
+Same upstream base (`75c4ce26`). An incoming call now takes the whole screen even when the phone is
+already in your hand, and the ringing can be silenced without answering or declining.
+
+### A call screen that actually appears
+
+- **Upstream only ever asked for one.** A call was announced with a single notification carrying a
+  full-screen intent, and Android honours such an intent only while the device is locked or its
+  screen is off. On an unlocked phone it is downgraded to a heads-up banner — so a call arriving
+  while the phone was in use dropped a strip at the top of the screen and nothing more. No
+  notification flag changes that; it is documented platform behaviour.
+- The fork therefore **starts the call screen itself** the moment a call comes in, and leaves
+  upstream's notification exactly as it was, so the locked screen, the shade and Android Auto are
+  all still served by it.
+- **It is raised once per call.** The call-state listener fires again for early media and for every
+  state after it, and the notification is rebuilt more often still; raising the screen each time
+  would drag you back into it every time you pressed Home while the phone rang.
+- **"Display over other apps" is the price.** With none of the app's own activities in front, that
+  start is a *background activity start*, which Android 10+ allows only to an app holding
+  `SYSTEM_ALERT_WINDOW`. No overlay window is ever drawn — the permission is purely the licence to
+  start the activity. The app asks for it on start, and the Calls section of the 臨電話 UI page
+  reports whether it is held and opens the system screen carrying the switch. Without the grant the
+  app falls back to upstream's banner rather than failing silently.
+
+### Silence, as a third button
+
+- The incoming screen and the notification both carry a **Silence** button beside Answer and
+  Decline, and it does neither: it takes the ringtone and the vibration away and leaves everything
+  else alone. The call stays up, the caller goes on hearing it ring, and you can still answer.
+- **One call does it.** Upstream creates the incoming-call notification channel without a ringtone
+  and never enables its vibration — both come from the Linphone SDK's own Core, which plays the
+  ringtone on the ringer device and drives the vibrator itself. So `Core.stopRinging()` silences
+  both with the call untouched, and no second "silent" notification channel is needed.
+- It is **re-applied on every later incoming state**, because a call moving on to early media with
+  ring-during-early-media enabled can start the ringer up again.
+- Silencing is **one-way**: the button dims and relabels itself to "Silenced" rather than offering
+  an un-mute, and the notification drops its button once used. A second press is a no-op either way.
+- The control sits **above** the answer/decline pair and above the lock screen's answer slider, so
+  it is in the same place whichever of the two the screen shows, and clear of the slider's travel.
+  The incoming action bar is taller than upstream's to seat it.
+
+## 6.3.0-alpha+2026-09-11.12-50.g75c4ce26+002
 
 Same upstream base (`75c4ce26`). A restore made by 応用管理 onto a freshly installed phone on
 2026-09-13 came out with the accounts but without the call history or a single favourite; this
