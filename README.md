@@ -7,7 +7,8 @@
 **A SIP/VoIP phone that looks the way I want it to, and can restore itself from a single file.**
 
 A fork of [Linphone for Android](https://github.com/BelledonneCommunications/linphone-android) with
-**major additions**: a call history written in Japanese with imperial-era day headlines, an address
+**major additions**: an incoming call that takes the whole screen with a button to silence the
+ringing, a call history written in Japanese with imperial-era day headlines, an address
 book with foldable gojūon letter headings, a Favorites tab of draggable tiles, a black-yellow theme
 applied through the whole app, a card-folder tab navigation with an account strip you can drag into
 order, a settings page that makes colours, fonts and shapes live-editable, settings groups boxed in
@@ -16,7 +17,7 @@ that lets a sister app back this one up — and its data — without being asked
 
 Installs **side-by-side** with stock Linphone (app id `shiroikuma.rindenwa`).
 
-**📥 Latest release: [`6.3.0-alpha+2026-09-11.12-50.g75c4ce26+002`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
+**📥 Latest release: [`6.3.0-alpha+2026-09-11.12-50.g75c4ce26+004`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
 
 </div>
 
@@ -107,6 +108,21 @@ SIP and media settings, appearance with its imported fonts, and app settings.
 Import merges rather than clears, and it works on a **completely clean install**: the assistant
 normally refuses to let you reach the app without an account, which would make restoring impossible,
 so the setup screens carry a skip that takes you straight in.
+
+---
+
+## 📲 An incoming call takes the whole screen
+
+Stock Linphone announces a call with a notification carrying a full-screen intent, and Android
+honours that only on a locked or dark screen — so a call arriving while the phone was in your hand
+dropped a banner at the top and nothing else. This fork starts the call screen itself instead, once
+per call, and keeps upstream's notification for the locked screen and the shade.
+
+Beside Answer and Decline there is a third button that does neither: **Silence** takes the ringtone
+and the vibration away and leaves the call standing, so the caller goes on hearing it ring and you
+can still answer when you are ready. It sits in the same place whether the screen is locked or not,
+clear of the answer slider's travel. The one thing it needs is Android's "Display over other apps"
+permission, which the app asks for on start — without it a call can only raise a notification.
 
 ---
 
