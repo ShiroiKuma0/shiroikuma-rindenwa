@@ -52,6 +52,7 @@ import org.linphone.compatibility.Compatibility
 import org.linphone.contacts.ContactsManager
 import org.linphone.core.tools.Log
 import org.linphone.notifications.NotificationsManager
+import org.linphone.shiroikuma.SkRinger
 import org.linphone.telecom.TelecomManager
 import org.linphone.utils.ActivityMonitor
 import org.linphone.utils.AppUtils
@@ -334,6 +335,12 @@ class CoreContext
             Log.i(
                 "$TAG Call [${call.remoteAddress.asStringUriOnly()}] state changed [$currentState]"
             )
+
+            // shiroikuma fork: an incoming call raises the full call screen even with the screen
+            // already on (upstream's full-screen intent only does it on a locked/dark screen), and
+            // a ringer 白い熊 silenced stays silent across a re-ring. See SkRinger.
+            SkRinger.onCallStateChanged(core, call, currentState)
+
             when (currentState) {
                 Call.State.IncomingReceived -> {
                     if (corePreferences.autoAnswerEnabled) {

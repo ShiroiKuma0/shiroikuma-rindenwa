@@ -20,4 +20,13 @@
          filed away. -->
     <dimen name="sk_account_tab_avatar_size">90dp</dimen>
     <dimen name="sk_account_tab_name_max_width">220dp</dimen>
+
+    <!-- The incoming-call action bar carries one control more than upstream's: a Silence button
+         above the answer/decline pair, and above the lock screen's answer slider. So the bar is
+         taller than upstream's call_main_actions_menu_height (110dp), and the pair below it is
+         shortened by about as much as the button and its label take, which keeps the avatar above
+         roughly where upstream has it. -->
+    <dimen name="sk_call_incoming_actions_height">165dp</dimen>
+    <dimen name="sk_call_incoming_unlocked_bar_height">85dp</dimen>
+    <dimen name="sk_call_silence_button_size">50dp</dimen>
 </resources>

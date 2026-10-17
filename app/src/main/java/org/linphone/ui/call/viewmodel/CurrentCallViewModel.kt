@@ -56,6 +56,7 @@ import org.linphone.core.MediaDirection
 import org.linphone.core.MediaEncryption
 import org.linphone.core.SecurityLevel
 import org.linphone.core.tools.Log
+import org.linphone.shiroikuma.SkRinger
 import org.linphone.ui.GenericViewModel
 import org.linphone.ui.call.conference.viewmodel.ConferenceViewModel
 import org.linphone.ui.call.model.AudioDeviceModel
@@ -267,6 +268,10 @@ class CurrentCallViewModel
 
     val isScreenLocked = MutableLiveData<Boolean>()
 
+    // shiroikuma fork: whether this call's ringer has been silenced, which is what dims the
+    // incoming screen's Silence button and relabels it. One-way — see SkRinger.
+    val isRingingSilenced = MutableLiveData<Boolean>()
+
     lateinit var currentCall: Call
 
     private val contactsListener = object : ContactsListener {
@@ -449,6 +454,8 @@ class CurrentCallViewModel
             isOutgoingRinging.postValue(call.state == Call.State.OutgoingRinging)
             isIncomingEarlyMedia.postValue(call.state == Call.State.IncomingEarlyMedia)
             isOutgoingEarlyMedia.postValue(call.state == Call.State.OutgoingEarlyMedia)
+            // shiroikuma fork: it may have been silenced from the notification instead
+            isRingingSilenced.postValue(SkRinger.isSilenced(call))
 
             if (::currentCall.isInitialized) {
                 if (call != currentCall) {
@@ -529,6 +536,8 @@ class CurrentCallViewModel
 
     init {
         fullScreenMode.value = false
+        // shiroikuma fork: the incoming screen's binding unboxes this one, so never leave it null
+        isRingingSilenced.value = false
         operationInProgress.value = false
         proximitySensorEnabled.value = false
         videoUpdateInProgress.value = false
@@ -628,6 +637,24 @@ class CurrentCallViewModel
     @UiThread
     fun answer() {
         answerCallFrom("")
+    }
+
+    /**
+     * shiroikuma fork: take the ringtone and the vibration away without answering or declining.
+     * The call stays exactly as it was and the caller goes on hearing it ring.
+     */
+    @UiThread
+    fun silenceRinging() {
+        coreContext.postOnCoreThread { core ->
+            if (::currentCall.isInitialized) {
+                if (SkRinger.silence(core, currentCall)) {
+                    isRingingSilenced.postValue(true)
+                    coreContext.notificationsManager.refreshCallNotification(currentCall)
+                }
+            } else {
+                Log.e("$TAG No call to silence!")
+            }
+        }
     }
 
     @UiThread
@@ -1076,6 +1103,8 @@ class CurrentCallViewModel
 
         terminatedByUser = false
         currentCall = call
+        // shiroikuma fork
+        isRingingSilenced.postValue(SkRinger.isSilenced(call))
         callStatsModel.update(call, call.audioStats)
         callMediaEncryptionModel.update(call)
         call.addListener(callListener)

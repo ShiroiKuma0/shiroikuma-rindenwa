@@ -58,6 +58,7 @@ import org.linphone.contacts.AvatarGenerator
 import org.linphone.contacts.ContactsManager.ContactsListener
 import org.linphone.contacts.getAvatarBitmap
 import org.linphone.contacts.getPerson
+import org.linphone.shiroikuma.SkRinger
 import org.linphone.core.Account
 import org.linphone.core.Address
 import org.linphone.core.AudioDevice
@@ -99,10 +100,16 @@ class NotificationsManager
         const val INTENT_FOREGROUND_SERVICE_NOTIF_DISMISSED_ACTION = "org.linphone.INTENT_FOREGROUND_SERVICE_NOTIF_DISMISSED_ACTION"
         const val INTENT_DENY_CALL_REDIRECTION_ACTION = "org.linphone.INTENT_DENY_CALL_REDIRECTION_ACTION"
 
+        // shiroikuma fork: silence the ringer of an incoming call without answering or declining it
+        const val INTENT_SILENCE_CALL_NOTIF_ACTION = "org.linphone.SILENCE_CALL_ACTION"
+
         const val INTENT_ANSWER_CALL_NOTIF_CODE = 2
         const val INTENT_HANGUP_CALL_NOTIF_CODE = 3
         const val INTENT_TOGGLE_SPEAKER_CALL_NOTIF_CODE = 4
         const val INTENT_CALL_REDIRECTION_NOTIF_CODE = 5
+
+        // shiroikuma fork
+        const val INTENT_SILENCE_CALL_NOTIF_CODE = 6
 
         const val INTENT_NOTIF_ID = "NOTIFICATION_ID"
 
@@ -1594,6 +1601,25 @@ class NotificationsManager
             setFullScreenIntent(pendingIntent, true)
         }
 
+        if (isIncoming) {
+            // shiroikuma fork: a third button that neither answers nor declines — it only takes the
+            // ringtone and the vibration away, and the caller goes on hearing it ring. CallStyle
+            // renders added actions next to its own answer/decline pair (upstream relies on that
+            // for the speaker toggle below). Once silenced the button is dropped rather than shown
+            // dead: silencing is one-way, and there is nothing a second press could do.
+            if (!SkRinger.isSilenced(call)) {
+                val silenceIntent = getCallSilencePendingIntent(notifiable)
+                val text = AppUtils.getString(R.string.sk_call_silence_ringer)
+                builder.addAction(
+                    NotificationCompat.Action.Builder(
+                        R.drawable.bell_slash,
+                        text,
+                        silenceIntent
+                    ).build()
+                )
+            }
+        }
+
         if (!isIncoming) {
             val toggleSpeakerIntent = getCallToggleSpeakerPendingIntent(notifiable)
 
@@ -1613,6 +1639,15 @@ class NotificationsManager
         }
 
         return builder.build()
+    }
+
+    /**
+     * shiroikuma fork: redraw a call's notification in place. Used after the ringer is silenced, to
+     * take the Silence button away again.
+     */
+    @WorkerThread
+    fun refreshCallNotification(call: Call) {
+        updateCallNotification(getNotifiableForCall(call), call, null)
     }
 
     @WorkerThread
@@ -1817,6 +1852,28 @@ class NotificationsManager
             )!!
         }
         return pendingIntent
+    }
+
+    /**
+     * shiroikuma fork: the notification's own Silence button. It is a broadcast, not an Activity —
+     * silencing must not pull the call screen forward, since the whole point is to leave 白い熊
+     * where he was.
+     */
+    @AnyThread
+    fun getCallSilencePendingIntent(notifiable: Notifiable): PendingIntent {
+        val silenceIntent = Intent(context, NotificationBroadcastReceiver::class.java)
+        silenceIntent.apply {
+            action = INTENT_SILENCE_CALL_NOTIF_ACTION
+            putExtra(INTENT_NOTIF_ID, notifiable.notificationId)
+            putExtra(INTENT_REMOTE_SIP_URI, notifiable.remoteAddress)
+        }
+
+        return PendingIntent.getBroadcast(
+            context,
+            INTENT_SILENCE_CALL_NOTIF_CODE,
+            silenceIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
     }
 
     @AnyThread
