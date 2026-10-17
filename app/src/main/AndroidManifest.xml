@@ -18,6 +18,14 @@
 
     <!-- Needed for full screen intent in incoming call notifications -->
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+
+    <!-- shiroikuma fork: the licence to start the call screen ourselves when a call comes in.
+         A full screen intent (just above) goes full screen only while the device is locked or its
+         screen is off; on an unlocked phone Android downgrades it to a heads-up banner, so SkRinger
+         starts CallActivity itself. With no Activity of ours in front that is a background activity
+         start, which Android 10+ allows only to an app holding this. No overlay window is ever
+         drawn, and without the grant the app simply falls back to upstream's heads-up. -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <!-- To vibrate while receiving an incoming call -->
     <uses-permission android:name="android.permission.VIBRATE" />
 

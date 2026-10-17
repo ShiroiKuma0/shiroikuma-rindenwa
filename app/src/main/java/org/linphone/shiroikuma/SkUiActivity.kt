@@ -222,6 +222,9 @@ class SkUiActivity : AppCompatActivity() {
         addColorRow(SkSlot.FAB_ICON, 2)
 
         addSection(SkSection.CALLS)
+        // Without this grant an incoming call can only drop a banner when the screen is already on,
+        // so it belongs at the top of the section rather than buried under the colours.
+        addCallScreenOverlayRow(1)
         addColorRow(SkSlot.CALL_BACKGROUND, 1)
         addTextSlot(SkSlot.CALL_NAME, 1)
         addTextSlot(SkSlot.CALL_STATUS, 1)
@@ -522,6 +525,30 @@ class SkUiActivity : AppCompatActivity() {
         if (!isFinishing) {
             buildRows()
         }
+    }
+
+    /**
+     * "Display over other apps" — the licence [SkRinger] needs to open the full call screen itself
+     * when a call arrives with the screen already on. Built like [addAllFilesAccessRow]: it reports
+     * the current state and opens the settings screen, and onResume rebuilds the page so the state
+     * is right again on the way back. Re-read on every build because the grant can be withdrawn.
+     */
+    private fun addCallScreenOverlayRow(level: Int) {
+        val row = ItemSkValueBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
+        val granted = SkRinger.canRaiseCallScreen(this)
+        row.skValueTitle.setText(R.string.sk_call_overlay_title)
+        row.skValueTitle.setTextColor(SkTheme.color(this, SkSlot.TEXT))
+        row.skValueDesc.setText(R.string.sk_call_overlay_desc)
+        row.skValueDesc.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
+        row.skValueStatus.setText(
+            if (granted) R.string.sk_call_overlay_granted else R.string.sk_call_overlay_needed,
+        )
+        row.skValueStatus.setTextColor(
+            if (granted) SkTheme.color(this, SkSlot.TEXT_SECONDARY) else EXIM_WARN_COLOR,
+        )
+        row.root.setOnClickListener { SkRinger.openCallScreenPermissionSettings(this) }
+        indentRow(row.root, level)
+        binding.skHolder.addView(row.root)
     }
 
     private fun addColorRow(slot: SkSlot, level: Int) {

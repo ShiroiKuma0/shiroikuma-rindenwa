@@ -29,6 +29,7 @@ import org.linphone.core.Address
 import org.linphone.core.AudioDevice
 import org.linphone.core.ConferenceParams
 import org.linphone.core.tools.Log
+import org.linphone.shiroikuma.SkRinger
 import org.linphone.telecom.RedirectionHandler
 import org.linphone.utils.AudioUtils
 
@@ -49,7 +50,9 @@ class NotificationBroadcastReceiver : BroadcastReceiver() {
 
         if (
             action == NotificationsManager.INTENT_HANGUP_CALL_NOTIF_ACTION ||
-            action == NotificationsManager.INTENT_TOGGLE_SPEAKER_CALL_NOTIF_ACTION
+            action == NotificationsManager.INTENT_TOGGLE_SPEAKER_CALL_NOTIF_ACTION ||
+            // shiroikuma fork: the notification's Silence button
+            action == NotificationsManager.INTENT_SILENCE_CALL_NOTIF_ACTION
         ) {
             handleCallIntent(intent, notificationId, action)
         } else if (
@@ -83,6 +86,16 @@ class NotificationBroadcastReceiver : BroadcastReceiver() {
                     NotificationsManager.INTENT_HANGUP_CALL_NOTIF_ACTION -> {
                         Log.i("$TAG Declining/terminating call with remote address [$remoteSipUri]")
                         coreContext.terminateCall(call)
+                    }
+                    // shiroikuma fork: take the ringtone and the vibration away, and leave
+                    // everything else alone — the call stays up, the caller still hears it ring.
+                    NotificationsManager.INTENT_SILENCE_CALL_NOTIF_ACTION -> {
+                        if (SkRinger.silence(core, call)) {
+                            Log.i("$TAG Silenced the ringer for call [$remoteSipUri]")
+                            coreContext.notificationsManager.refreshCallNotification(call)
+                        } else {
+                            Log.i("$TAG Call [$remoteSipUri] was already silenced")
+                        }
                     }
                     NotificationsManager.INTENT_TOGGLE_SPEAKER_CALL_NOTIF_ACTION -> {
                         val audioDevice = call.outputAudioDevice

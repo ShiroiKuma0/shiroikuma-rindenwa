@@ -1309,4 +1309,14 @@
     <string name="sk_auto_allfiles_needed" translatable="false">Not granted — tap to allow</string>
     <string name="sk_state_progress_unit" translatable="false">項目</string>
     <string name="sk_assistant_skip" translatable="false">Skip — restore from a backup instead</string>
+    <string name="sk_call_silence_ringer" translatable="false">Silence</string>
+    <string name="sk_call_silence_ringer_done" translatable="false">Silenced</string>
+    <string name="sk_content_description_silence_ringer" translatable="false">Silence the ringer without answering or declining</string>
+    <string name="sk_call_overlay_title" translatable="false">Display over other apps</string>
+    <string name="sk_call_overlay_desc" translatable="false">Needed to open the full call screen when a call arrives while the screen is already on. Without it an incoming call only drops a banner from the top.</string>
+    <string name="sk_call_overlay_granted" translatable="false">Granted</string>
+    <string name="sk_call_overlay_needed" translatable="false">Not granted — tap to allow</string>
+    <string name="sk_call_overlay_prompt_title" translatable="false">Let calls open the call screen</string>
+    <string name="sk_call_overlay_prompt_message" translatable="false">白い熊 臨電話 needs “Display over other apps” to show the full call screen when a call arrives while you are using the phone. Without it an incoming call can only drop a banner from the top of the screen.\n\nThe next screen is Android’s own: find 白い熊 臨電話 in the list and turn the switch on.</string>
+    <string name="sk_call_overlay_prompt_confirm" translatable="false">Open settings</string>
 </resources>
