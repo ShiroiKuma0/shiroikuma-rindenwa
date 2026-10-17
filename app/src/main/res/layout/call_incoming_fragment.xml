@@ -131,7 +131,7 @@
             android:id="@+id/bottom_bar"
             layout="@layout/call_incoming_actions"
             android:layout_width="0dp"
-            android:layout_height="@dimen/call_main_actions_menu_height"
+            android:layout_height="@dimen/sk_call_incoming_actions_height"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
