@@ -21,12 +21,31 @@
     <dimen name="sk_account_tab_avatar_size">90dp</dimen>
     <dimen name="sk_account_tab_name_max_width">220dp</dimen>
 
-    <!-- The incoming-call action bar carries one control more than upstream's: a Silence button
-         above the answer/decline pair, and above the lock screen's answer slider. So the bar is
-         taller than upstream's call_main_actions_menu_height (110dp), and the pair below it is
-         shortened by about as much as the button and its label take, which keeps the avatar above
-         roughly where upstream has it. -->
-    <dimen name="sk_call_incoming_actions_height">165dp</dimen>
-    <dimen name="sk_call_incoming_unlocked_bar_height">85dp</dimen>
-    <dimen name="sk_call_silence_button_size">50dp</dimen>
+    <!-- The incoming-call panel (sk_call_incoming_actions.xml). Three 112dp columns across the
+         top row make 336dp, which still fits inside the narrowest screen this fork ever meets —
+         the Mate XT's folded cover panel — with room to spare; the decision pair below is
+         72 + 56 + 72 = 200dp. The panel measures itself (wrap_content), so no bar height is
+         declared here: changing a button size or a label moves the whole screen with it. -->
+    <dimen name="sk_call_round_button_size">72dp</dimen>
+    <dimen name="sk_call_round_button_padding">20dp</dimen>
+    <dimen name="sk_call_action_column_width">112dp</dimen>
+    <dimen name="sk_call_answer_decline_gap">56dp</dimen>
+    <dimen name="sk_call_actions_row_gap">24dp</dimen>
+    <dimen name="sk_call_actions_vertical_padding">20dp</dimen>
+    <dimen name="sk_call_action_label_size">16sp</dimen>
+    <!-- The dial panel (sk_dialpad_panel.xml). Three 76dp keys with 16dp between them make
+         244dp, so the keypad keeps its shape on the folded cover panel as well as unfolded; the
+         sheet itself is as tall as its contents and nothing below it is pushed off screen. -->
+    <dimen name="sk_dialpad_key_size">76dp</dimen>
+    <dimen name="sk_dialpad_key_gap">16dp</dimen>
+    <dimen name="sk_dialpad_digit_size">28sp</dimen>
+    <dimen name="sk_dialpad_sub_label_size">12sp</dimen>
+    <dimen name="sk_dialpad_digits_size">30sp</dimen>
+    <dimen name="sk_dialpad_chrome_size">44dp</dimen>
+    <dimen name="sk_dialpad_call_button_size">76dp</dimen>
+    <dimen name="sk_dialpad_panel_padding">16dp</dimen>
+    <dimen name="sk_dialpad_panel_corner">20dp</dimen>
+    <!-- The yellow rule along the sheet's top edge. -->
+    <dimen name="sk_dialpad_panel_edge">2dp</dimen>
+
 </resources>

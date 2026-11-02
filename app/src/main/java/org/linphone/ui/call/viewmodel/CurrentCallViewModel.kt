@@ -56,6 +56,7 @@ import org.linphone.core.MediaDirection
 import org.linphone.core.MediaEncryption
 import org.linphone.core.SecurityLevel
 import org.linphone.core.tools.Log
+import org.linphone.shiroikuma.SkDeclineMessages
 import org.linphone.shiroikuma.SkRinger
 import org.linphone.ui.GenericViewModel
 import org.linphone.ui.call.conference.viewmodel.ConferenceViewModel
@@ -272,6 +273,39 @@ class CurrentCallViewModel
     // incoming screen's Silence button and relabels it. One-way — see SkRinger.
     val isRingingSilenced = MutableLiveData<Boolean>()
 
+    // shiroikuma fork: the caller's bare SIP address, which is the key the decline messages kept
+    // for one particular caller are filed under. Not displayedAddress: that one is for reading,
+    // and can be hidden, shortened or replaced by a contact's name.
+    val skCallerKey = MutableLiveData<String>()
+
+    /** shiroikuma fork: the DID this call arrived on — the line a written reply leaves from. */
+    val skCallerDid = MutableLiveData<String>()
+
+    /**
+     * shiroikuma fork: raised the moment a decline-with-message starts and dropped once the reply
+     * has been handed to the sister messenger and the keep question answered. `EndedCallFragment`
+     * waits for it instead of finishing on its own timer, which is what lets the call be hung up
+     * first and still leaves a screen to ask the question on (白い熊, 2026-11-02).
+     */
+    val skReplyInProgress = MutableLiveData<Boolean>()
+
+    /** Ask whether a hand-typed reply is worth keeping. Carries the caller's key and the text. */
+    val skAskToKeepReplyEvent: MutableLiveData<Event<Pair<String, String>>> by lazy {
+        MutableLiveData()
+    }
+
+    /** The reply was refused outright. Carries the reason and the text. */
+    val skReplyFailedEvent: MutableLiveData<Event<Pair<String, String>>> by lazy {
+        MutableLiveData()
+    }
+
+    /**
+     * shiroikuma fork: set by [answerOnSpeaker] and cleared by the first audio route it manages to
+     * make. The loudspeaker cannot be chosen before the call is up — the output list does not
+     * exist until then — so the wish has to survive from the tap until the streams run.
+     */
+    private var answerOnSpeakerPending = false
+
     lateinit var currentCall: Call
 
     private val contactsListener = object : ContactsListener {
@@ -380,6 +414,14 @@ class CurrentCallViewModel
                         conferenceModel.destroy()
                     }
                 } else if (call.state == Call.State.StreamsRunning) {
+                    // shiroikuma fork: the loudspeaker asked for at answer time. First state that
+                    // can actually carry it; the wish is dropped once it is granted, so the
+                    // speaker button is a free toggle for the rest of the call.
+                    if (answerOnSpeakerPending) {
+                        answerOnSpeakerPending = false
+                        Log.i("$TAG Call was answered on the loudspeaker, routing audio there")
+                        AudioUtils.routeAudioToSpeaker(call)
+                    }
                     videoUpdateInProgress.postValue(false)
                     updateCallDuration()
                     if (corePreferences.automaticallyStartCallRecording) {
@@ -655,6 +697,93 @@ class CurrentCallViewModel
                 Log.e("$TAG No call to silence!")
             }
         }
+    }
+
+    /**
+     * shiroikuma fork: answer with the loudspeaker already on, so a call taken while the phone is
+     * on the desk does not have to be lifted to the ear first and re-routed afterwards. Upstream
+     * only ever routes to the speaker by itself when video is switched on.
+     */
+    @UiThread
+    fun answerOnSpeaker() {
+        Log.i("$TAG Answering call on the loudspeaker")
+        answerOnSpeakerPending = true
+        answer()
+    }
+
+    /**
+     * shiroikuma fork: refuse the call but write back.
+     *
+     * The order is 白い熊's: **decline first, then send** — the call is what they wanted rid of,
+     * and the message is the courtesy that follows. Everything the reply needs is read off the
+     * call before it is terminated, because terminating releases it.
+     *
+     * The send itself goes to the sister messenger through a content provider, so it runs on an
+     * IO thread rather than on the core thread or the main one. [skReplyInProgress] holds the
+     * ended-call screen up for the whole sequence, which is the only reason there is still a
+     * screen to put the keep question on.
+     */
+    @UiThread
+    fun declineWithMessage(message: String, typed: Boolean) {
+        skReplyInProgress.value = true
+        coreContext.postOnCoreThread { core ->
+            if (!::currentCall.isInitialized) {
+                Log.e("$TAG No call to decline with a message!")
+                skReplyInProgress.postValue(false)
+                finishActivityEvent.postValue(Event(true))
+                return@postOnCoreThread
+            }
+
+            val target = SkDeclineMessages.targetOf(currentCall.callLog, displayedName.value.orEmpty())
+            SkRinger.silence(core, currentCall)
+            Log.i("$TAG Declining [${currentCall.remoteAddress.asStringUriOnly()}] before writing back")
+            terminatedByUser = true
+            coreContext.terminateCall(currentCall)
+
+            sendReply(target, message, typed)
+        }
+    }
+
+    /**
+     * shiroikuma fork: hand the text to the sister messenger, then decide what the held screen
+     * still has to say. A refusal is shown there and nowhere else — nothing was queued, so this
+     * is the only place that failure exists.
+     */
+    @AnyThread
+    private fun sendReply(
+        target: SkDeclineMessages.ReplyTarget?,
+        message: String,
+        typed: Boolean,
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = if (target == null) {
+                SkDeclineMessages.SendResult.Refused(
+                    AppUtils.getString(R.string.sk_call_decline_no_did),
+                )
+            } else {
+                SkDeclineMessages.send(coreContext.context, target, message)
+            }
+
+            when (result) {
+                is SkDeclineMessages.SendResult.Refused -> {
+                    skReplyFailedEvent.postValue(Event(Pair(result.reason, message)))
+                }
+                is SkDeclineMessages.SendResult.Accepted -> {
+                    val callerKey = target?.callerKey.orEmpty()
+                    if (typed && SkDeclineMessages.isNew(coreContext.context, callerKey, message)) {
+                        skAskToKeepReplyEvent.postValue(Event(Pair(callerKey, message)))
+                    } else {
+                        skReplyInProgress.postValue(false)
+                    }
+                }
+            }
+        }
+    }
+
+    /** Called once the held screen has had its answer, so it may finish. */
+    @UiThread
+    fun skReplyDone() {
+        skReplyInProgress.value = false
     }
 
     @UiThread
@@ -1105,6 +1234,8 @@ class CurrentCallViewModel
         currentCall = call
         // shiroikuma fork
         isRingingSilenced.postValue(SkRinger.isSilenced(call))
+        skCallerKey.postValue(SkDeclineMessages.callerKey(call.remoteAddress))
+        skCallerDid.postValue(SkDeclineMessages.didOf(call.callLog.localAddress))
         callStatsModel.update(call, call.audioStats)
         callMediaEncryptionModel.update(call)
         call.addListener(callListener)

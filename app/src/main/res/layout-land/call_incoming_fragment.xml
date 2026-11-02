@@ -13,33 +13,31 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/gray_900">
+        android:background="@color/sk_surface">
 
         <include
             android:id="@+id/avatar"
             android:layout_width="@dimen/avatar_in_call_size"
             android:layout_height="@dimen/avatar_in_call_size"
-            android:layout_marginBottom="@dimen/call_main_actions_menu_height"
             layout="@layout/contact_avatar_huge"
             bind:model="@{viewModel.contact}"
             app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintEnd_toStartOf="@id/name_address"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/call_direction_label"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintBottom_toTopOf="@id/bottom_bar" />
 
         <LinearLayout
             android:id="@+id/name_address"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/call_main_actions_menu_height"
             android:layout_marginStart="30dp"
             android:orientation="vertical"
             android:gravity="center"
             app:layout_constraintStart_toEndOf="@id/avatar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/call_direction_label"
-            app:layout_constraintBottom_toBottomOf="parent">
+            app:layout_constraintBottom_toTopOf="@id/bottom_bar">
 
             <androidx.appcompat.widget.AppCompatTextView
                 style="@style/default_text_style_300"
@@ -48,7 +46,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
                 android:text="@{viewModel.displayedName, default=`John Doe`}"
-                android:textColor="@color/bc_white"
+                android:textColor="@color/sk_yellow"
                 android:textSize="22sp" />
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -57,7 +55,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@{viewModel.displayedAddress, default=`sip:johndoe@sip.linphone.org`}"
-                android:textColor="@color/bc_white"
+                android:textColor="@color/sk_ink_dim"
                 android:textSize="14sp"
                 android:visibility="@{viewModel.hideSipAddresses || viewModel.conferenceModel.isCurrentCallInConference ? View.GONE : View.VISIBLE}" />
 
@@ -68,7 +66,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:indeterminate="true"
-            app:indicatorColor="@color/bc_white"
+            app:indicatorColor="@color/sk_yellow"
             app:indicatorSize="28dp"
             app:layout_constraintStart_toEndOf="@id/name_address"
             app:layout_constraintEnd_toEndOf="parent"
@@ -92,6 +90,7 @@
             android:adjustViewBounds="true"
             android:src="@drawable/incoming_call"
             android:contentDescription="@null"
+            app:tint="@color/sk_yellow"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/call_direction_label"
             app:layout_constraintBottom_toBottomOf="@id/call_direction_label"/>
@@ -109,9 +108,9 @@
         <include
             bind:viewModel="@{viewModel}"
             android:id="@+id/bottom_bar"
-            layout="@layout/call_incoming_actions"
+            layout="@layout/sk_call_incoming_actions"
             android:layout_width="0dp"
-            android:layout_height="@dimen/sk_call_incoming_actions_height"
+            android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
@@ -123,7 +122,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:text="@{viewModel.displayedName, default=`John Doe`}"
-            android:textColor="@color/bc_white"
+            android:textColor="@color/sk_yellow"
             android:textSize="22sp"
             android:visibility="@{viewModel.isIncomingEarlyMedia ? View.VISIBLE : View.GONE, default=gone}"
             app:layout_constraintBottom_toTopOf="@id/early_media_address"
@@ -137,7 +136,7 @@
             android:layout_marginStart="10dp"
             android:layout_marginBottom="5dp"
             android:text="@{viewModel.displayedAddress, default=`sip:johndoe@sip.linphone.org`}"
-            android:textColor="@color/bc_white"
+            android:textColor="@color/sk_yellow"
             android:textSize="14sp"
             android:visibility="@{viewModel.isIncomingEarlyMedia ? View.VISIBLE : View.GONE, default=gone}"
             app:layout_constraintBottom_toTopOf="@id/bottom_bar"

@@ -20,6 +20,7 @@
 package org.linphone.ui.call.fragment
 
 import android.os.Bundle
+import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -42,6 +43,10 @@ class EndedCallFragment : GenericCallFragment() {
 
         private const val LOCALLY_TERMINATED_CALL_TIMEOUT: Long = 1000
         private const val REMOTELY_TERMINATED_CALL_TIMEOUT: Long = 2000
+
+        /** shiroikuma fork: how long this screen will wait on a written reply before giving up. */
+        private const val REPLY_HOLD_TIMEOUT: Long = 60000
+        private const val REPLY_HOLD_POLL: Long = 100
     }
 
     private lateinit var binding: CallEndedFragmentBinding
@@ -92,6 +97,17 @@ class EndedCallFragment : GenericCallFragment() {
                 }
 
                 withContext(Dispatchers.Main) {
+                    // shiroikuma fork: a call declined with a message is hung up FIRST and the
+                    // reply handed over afterwards, so this screen has to outlive the hang-up —
+                    // it is what the "keep this one?" question, and any refusal, are shown on.
+                    // Capped, so a wedged provider call can never leave the screen standing.
+                    val deadline = SystemClock.elapsedRealtime() + REPLY_HOLD_TIMEOUT
+                    while (callViewModel.skReplyInProgress.value == true &&
+                        SystemClock.elapsedRealtime() < deadline
+                    ) {
+                        delay(REPLY_HOLD_POLL)
+                    }
+
                     Log.i("$TAG Finishing activity")
                     requireActivity().finish()
                 }

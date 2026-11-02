@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma fork: the label written under an in-call control. -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_enabled="false"
-        android:color="@color/gray_500" />
+        android:color="@color/sk_ink_ghost" />
     <item
-        android:color="@color/bc_white"/>
+        android:color="@color/sk_yellow"/>
 </selector>
