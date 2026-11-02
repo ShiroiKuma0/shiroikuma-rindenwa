@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  shiroikuma-rindenwa fork — the incoming-call controls, in the sister app's (shiroikuma-jami)
+  geometry.
+
+  Upstream shipped two different bars here: a decline/answer pair when the screen is unlocked, and
+  a drag-the-handset-sideways slider when it is locked. Both are replaced by this one panel, used
+  in either state — the fork already raises this screen over the lock screen itself, so there is
+  no reason for the controls to change shape underneath 白い熊 depending on how the call arrived.
+
+  Two rows, and the split between them is the point:
+
+    · the top row never answers and never refuses — Silence takes the ringtone away and leaves the
+      call ringing for the caller, Speaker answers *with the loudspeaker already on*, Message
+      refuses the call but says something back. They are black circles with a yellow ring.
+    · the bottom row is the decision — red Decline, yellow Answer, filled, nothing else near them.
+
+  Each top column is a fixed 112 dp (336 dp across), against the bottom pair's 72 + 56 + 72 = 200
+  dp; both rows are centred, so the thumb never has to hunt for the row it wants.
+-->
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="android.view.View" />
+        <variable
+            name="viewModel"
+            type="org.linphone.ui.call.viewmodel.CurrentCallViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:paddingTop="@dimen/sk_call_actions_vertical_padding"
+        android:paddingBottom="@dimen/sk_call_actions_vertical_padding">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:baselineAligned="false">
+
+            <LinearLayout
+                android:layout_width="@dimen/sk_call_action_column_width"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal">
+
+                <ImageView
+                    android:id="@+id/silence_ringer"
+                    android:layout_width="@dimen/sk_call_round_button_size"
+                    android:layout_height="@dimen/sk_call_round_button_size"
+                    android:background="@drawable/sk_round_outlined_button"
+                    android:onClick="@{() -> viewModel.silenceRinging()}"
+                    android:clickable="@{!viewModel.isRingingSilenced}"
+                    android:alpha="@{viewModel.isRingingSilenced ? 0.4f : 1f}"
+                    android:focusable="true"
+                    android:padding="@dimen/sk_call_round_button_padding"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/bell_slash"
+                    android:contentDescription="@string/sk_content_description_silence_ringer"
+                    app:tint="@color/sk_yellow" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/default_text_style_700"
+                    android:id="@+id/silence_ringer_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:alpha="@{viewModel.isRingingSilenced ? 0.4f : 1f}"
+                    android:text="@{viewModel.isRingingSilenced ? @string/sk_call_silence_ringer_done : @string/sk_call_silence_ringer, default=@string/sk_call_silence_ringer}"
+                    android:textColor="@color/sk_yellow"
+                    android:textSize="@dimen/sk_call_action_label_size" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="@dimen/sk_call_action_column_width"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal">
+
+                <ImageView
+                    android:id="@+id/answer_on_speaker"
+                    android:layout_width="@dimen/sk_call_round_button_size"
+                    android:layout_height="@dimen/sk_call_round_button_size"
+                    android:background="@drawable/sk_round_outlined_button"
+                    android:onClick="@{() -> viewModel.answerOnSpeaker()}"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="@dimen/sk_call_round_button_padding"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/speaker_high"
+                    android:contentDescription="@string/sk_content_description_answer_on_speaker"
+                    app:tint="@color/sk_yellow" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/default_text_style_700"
+                    android:id="@+id/answer_on_speaker_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:text="@string/sk_call_answer_on_speaker"
+                    android:textColor="@color/sk_yellow"
+                    android:textSize="@dimen/sk_call_action_label_size" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="@dimen/sk_call_action_column_width"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal">
+
+                <ImageView
+                    android:id="@+id/decline_with_message"
+                    android:layout_width="@dimen/sk_call_round_button_size"
+                    android:layout_height="@dimen/sk_call_round_button_size"
+                    android:background="@drawable/sk_round_outlined_button"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="@dimen/sk_call_round_button_padding"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/chat_teardrop_text"
+                    android:contentDescription="@string/sk_content_description_decline_with_message"
+                    app:tint="@color/sk_yellow" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/default_text_style_700"
+                    android:id="@+id/decline_with_message_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:text="@string/sk_call_decline_with_message"
+                    android:textColor="@color/sk_yellow"
+                    android:textSize="@dimen/sk_call_action_label_size" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/sk_call_actions_row_gap"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/hang_up"
+                android:layout_width="@dimen/sk_call_round_button_size"
+                android:layout_height="@dimen/sk_call_round_button_size"
+                android:background="@drawable/sk_round_danger_button"
+                android:onClick="@{() -> viewModel.hangUp()}"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="@dimen/sk_call_round_button_padding"
+                android:scaleType="fitCenter"
+                android:src="@drawable/phone_disconnect"
+                android:contentDescription="@string/content_description_hang_up_call"
+                app:tint="@color/bc_white" />
+
+            <ImageView
+                android:id="@+id/answer_call"
+                android:layout_width="@dimen/sk_call_round_button_size"
+                android:layout_height="@dimen/sk_call_round_button_size"
+                android:layout_marginStart="@dimen/sk_call_answer_decline_gap"
+                android:background="@drawable/sk_round_filled_button"
+                android:onClick="@{() -> viewModel.answer()}"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="@dimen/sk_call_round_button_padding"
+                android:scaleType="fitCenter"
+                android:src="@{viewModel.isVideoEnabled ? @drawable/video_camera : @drawable/phone, default=@drawable/phone}"
+                android:contentDescription="@{viewModel.isVideoEnabled ? @string/content_description_answer_video_call : @string/content_description_answer_audio_call}"
+                app:tint="@color/sk_black" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</layout>

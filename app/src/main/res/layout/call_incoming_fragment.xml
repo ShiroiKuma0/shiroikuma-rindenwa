@@ -13,7 +13,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/gray_900">
+        android:background="@color/sk_surface">
 
         <com.google.android.material.progressindicator.CircularProgressIndicator
             android:id="@+id/in_progress"
@@ -21,7 +21,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
             android:indeterminate="true"
-            app:indicatorColor="@color/bc_white"
+            app:indicatorColor="@color/sk_yellow"
             app:indicatorSize="28dp"
             app:layout_constraintStart_toStartOf="@id/avatar"
             app:layout_constraintEnd_toEndOf="@id/avatar"
@@ -47,7 +47,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
             android:text="@{viewModel.displayedName, default=`John Doe`}"
-            android:textColor="@color/bc_white"
+            android:textColor="@color/sk_yellow"
             android:textSize="22sp"
             app:layout_constraintTop_toBottomOf="@id/avatar"
             app:layout_constraintBottom_toBottomOf="@id/address"
@@ -60,11 +60,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@{viewModel.displayedAddress, default=`sip:johndoe@sip.linphone.org`}"
-            android:textColor="@color/bc_white"
+            android:textColor="@color/sk_ink_dim"
             android:textSize="14sp"
             android:visibility="@{viewModel.hideSipAddresses || viewModel.conferenceModel.isCurrentCallInConference ? View.GONE : View.VISIBLE}"
             app:layout_constraintTop_toBottomOf="@id/name"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/bottom_bar"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
@@ -85,6 +85,7 @@
             android:adjustViewBounds="true"
             android:src="@drawable/incoming_call"
             android:contentDescription="@null"
+            app:tint="@color/sk_yellow"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/call_direction_label"
             app:layout_constraintBottom_toBottomOf="@id/call_direction_label"/>
@@ -106,7 +107,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:text="@{viewModel.displayedName, default=`John Doe`}"
-            android:textColor="@color/bc_white"
+            android:textColor="@color/sk_yellow"
             android:textSize="22sp"
             android:visibility="@{viewModel.isIncomingEarlyMedia &amp;&amp; viewModel.isVideoEnabled ? View.VISIBLE : View.GONE, default=gone}"
             app:layout_constraintBottom_toTopOf="@id/early_media_address"
@@ -120,7 +121,7 @@
             android:layout_marginStart="10dp"
             android:layout_marginBottom="5dp"
             android:text="@{viewModel.displayedAddress, default=`sip:johndoe@sip.linphone.org`}"
-            android:textColor="@color/bc_white"
+            android:textColor="@color/sk_yellow"
             android:textSize="14sp"
             android:visibility="@{viewModel.isIncomingEarlyMedia &amp;&amp; viewModel.isVideoEnabled ? View.VISIBLE : View.GONE, default=gone}"
             app:layout_constraintBottom_toTopOf="@id/bottom_bar"
@@ -129,9 +130,9 @@
         <include
             bind:viewModel="@{viewModel}"
             android:id="@+id/bottom_bar"
-            layout="@layout/call_incoming_actions"
+            layout="@layout/sk_call_incoming_actions"
             android:layout_width="0dp"
-            android:layout_height="@dimen/sk_call_incoming_actions_height"
+            android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>

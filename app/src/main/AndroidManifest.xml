@@ -76,6 +76,11 @@
     <queries>
         <package android:name="shiroikuma.oyokanri" />
         <package android:name="shiroikuma.jiyusagyoban" />
+        <!-- shiroikuma fork: a call declined with a message is written back as a real SMS, which
+             only the sister messenger can send — through its automation provider, from the SIM
+             behind the DID the call arrived on. Package visibility is required to reach it at
+             SDK 30+. See SkDeclineMessages. -->
+        <package android:name="shiroikuma.messeji" />
     </queries>
 
     <application
