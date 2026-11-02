@@ -20,6 +20,9 @@
         <variable
             name="viewModel"
             type="org.linphone.ui.main.history.viewmodel.HistoryListViewModel" />
+        <variable
+            name="dialpad"
+            type="org.linphone.shiroikuma.SkDialpadViewModel" />
     </data>
 
     <!--
@@ -40,11 +43,21 @@
             skAccounts="@{viewModel.skAccounts}"
             skActiveAccount="@{viewModel.account}" />
 
-        <androidx.slidingpanelayout.widget.SlidingPaneLayout
-            android:id="@+id/sliding_pane_layout"
+        <!--
+          shiroikuma fork: the sliding pane sits in a CoordinatorLayout of its own so the dial
+          panel can slide up over the call history — over the list, but under the folder tabs at
+          the bottom, which stay reachable the whole time.
+        -->
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:id="@+id/dialpad_host"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1">
+
+        <androidx.slidingpanelayout.widget.SlidingPaneLayout
+            android:id="@+id/sliding_pane_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="@dimen/sliding_pane_left_fragment_width"
@@ -161,7 +174,8 @@
                     android:layout_gravity="end|bottom"
                     android:layout_margin="16dp"
                     android:src="@drawable/phone_plus"
-                    android:contentDescription="@string/content_description_call_start"
+                    android:contentDescription="@string/sk_content_description_show_dialpad"
+                    android:visibility="@{dialpad.isVisible ? View.GONE : View.VISIBLE}"
                     app:tint="?attr/color_on_main"
                     app:backgroundTint="?attr/color_main1_500"
                     app:shapeAppearanceOverlay="@style/rounded"
@@ -182,6 +196,25 @@
             app:navGraph="@navigation/history_nav_graph"/>
 
         </androidx.slidingpanelayout.widget.SlidingPaneLayout>
+
+        <!--
+          The bottom-sheet behaviour has to be declared HERE, not on the panel's own root: an
+          <include> that carries layout_width/layout_height builds its LayoutParams from the
+          include tag and silently drops the included root's layout_behavior, which left
+          BottomSheetBehavior.from() with nothing to find and crashed the Calls tab on launch.
+        -->
+        <include
+            android:id="@+id/dialpad_panel"
+            layout="@layout/sk_dialpad_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+            app:behavior_hideable="true"
+            app:behavior_peekHeight="0dp"
+            bind:model="@{dialpad.numpadModel}"
+            bind:dialpad="@{dialpad}" />
+
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
         <include
             android:id="@+id/bottom_nav_bar"

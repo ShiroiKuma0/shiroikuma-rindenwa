@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  shiroikuma-rindenwa fork — styles owned by the 白い熊 臨電話 layer, kept out of upstream's
+  styles.xml so a rebase can never conflict on them.
+-->
+<resources>
+    <!-- One row of the dial panel: three keys, centred, laid out left to right. -->
+    <style name="sk_dialpad_row_style">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+</resources>
