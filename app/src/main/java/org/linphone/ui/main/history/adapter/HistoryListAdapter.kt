@@ -64,6 +64,11 @@ class HistoryListAdapter :
         MutableLiveData()
     }
 
+    /** shiroikuma fork: the Message button on a missed call. */
+    val callLogReplyClickedEvent: MutableLiveData<Event<CallLogModel>> by lazy {
+        MutableLiveData()
+    }
+
     val callLogCallBackClickedEvent: MutableLiveData<Event<CallLogModel>> by lazy {
         MutableLiveData()
     }
@@ -187,6 +192,11 @@ class HistoryListAdapter :
 
                     setOnCallClickListener {
                         callLogCallBackClickedEvent.value = Event(model!!)
+                    }
+
+                    // shiroikuma fork
+                    setOnReplyClickListener {
+                        callLogReplyClickedEvent.value = Event(model!!)
                     }
                 }
                 viewHolder

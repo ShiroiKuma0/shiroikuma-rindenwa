@@ -26,19 +26,30 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.UiThread
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.linphone.LinphoneApplication.Companion.coreContext
 import org.linphone.R
 import org.linphone.contacts.getListOfSipAddressesAndPhoneNumbers
 import org.linphone.core.Address
 import org.linphone.core.tools.Log
 import org.linphone.databinding.HistoryListFragmentBinding
+import org.linphone.shiroikuma.SkDeclineMessageDialog
+import org.linphone.shiroikuma.SkDeclineMessages
+import org.linphone.shiroikuma.SkDialpadViewModel
+import org.linphone.shiroikuma.SkKeepMessageDialog
+import org.linphone.shiroikuma.SkReplyFailedDialog
 import org.linphone.ui.GenericActivity
 import org.linphone.ui.main.contacts.model.ContactNumberOrAddressClickListener
 import org.linphone.ui.main.contacts.model.ContactNumberOrAddressModel
@@ -64,6 +75,11 @@ class HistoryListFragment : AbstractMainFragment() {
 
     private lateinit var listViewModel: HistoryListViewModel
 
+    /** shiroikuma fork: the dial panel that slides up over this list. See SkDialpadViewModel. */
+    private lateinit var dialpadViewModel: SkDialpadViewModel
+
+    private var dialpadBehavior: BottomSheetBehavior<View>? = null
+
     private lateinit var adapter: HistoryListAdapter
 
     private var bottomSheetDialog: BottomSheetDialogFragment? = null
@@ -81,6 +97,89 @@ class HistoryListFragment : AbstractMainFragment() {
         }
 
         override fun onLongPress(model: ContactNumberOrAddressModel) { }
+    }
+
+    /**
+     * shiroikuma fork: the dial panel is a hideable bottom sheet over the call history, and every
+     * digit typed into it becomes the list's filter — so the number being dialled and the calls
+     * already made to it are on screen at the same time.
+     */
+    private fun setUpDialpad() {
+        val behavior = BottomSheetBehavior.from(binding.dialpadPanel.root)
+        behavior.isHideable = true
+        behavior.skipCollapsed = true
+        behavior.state = BottomSheetBehavior.STATE_HIDDEN
+        behavior.addBottomSheetCallback(
+            object : BottomSheetBehavior.BottomSheetCallback() {
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+                        // Dragged shut rather than dismissed by the chevron.
+                        dialpadViewModel.onHiddenBySheet()
+                    }
+                }
+
+                override fun onSlide(bottomSheet: View, slideOffset: Float) { }
+            }
+        )
+        dialpadBehavior = behavior
+
+        dialpadViewModel.visibilityRequestEvent.observe(viewLifecycleOwner) {
+            it.consume { visible ->
+                behavior.state = if (visible) {
+                    BottomSheetBehavior.STATE_EXPANDED
+                } else {
+                    BottomSheetBehavior.STATE_HIDDEN
+                }
+            }
+        }
+
+        dialpadViewModel.digits.observe(viewLifecycleOwner) { digits ->
+            listViewModel.applyFilter(digits)
+        }
+
+        // While the panel is up, back puts it away rather than leaving the Calls tab.
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(false) {
+                override fun handleOnBackPressed() {
+                    dialpadViewModel.hide()
+                }
+            }.also { callback ->
+                dialpadViewModel.isVisible.observe(viewLifecycleOwner) { visible ->
+                    callback.isEnabled = visible
+                }
+            }
+        )
+    }
+
+    /**
+     * shiroikuma fork: hand a written reply to the sister messenger and say what came of it.
+     * Nothing holds a screen up here — the list is still in front — so the keep question and any
+     * refusal are plain dialogs over it.
+     */
+    private fun sendWrittenReply(
+        target: SkDeclineMessages.ReplyTarget,
+        message: String,
+        typed: Boolean
+    ) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                SkDeclineMessages.send(requireContext(), target, message)
+            }
+            when (result) {
+                is SkDeclineMessages.SendResult.Refused -> {
+                    Log.e("$TAG The written reply was refused: [${result.reason}]")
+                    SkReplyFailedDialog(requireActivity(), result.reason, message) { }.show()
+                }
+                is SkDeclineMessages.SendResult.Accepted -> {
+                    if (typed &&
+                        SkDeclineMessages.isNew(requireContext(), target.callerKey, message)
+                    ) {
+                        SkKeepMessageDialog(requireActivity(), target.callerKey, message) { }.show()
+                    }
+                }
+            }
+        }
     }
 
     override fun onDefaultAccountChanged() {
@@ -129,9 +228,14 @@ class HistoryListFragment : AbstractMainFragment() {
         }
         listViewModel.keepCallsFilterOnViewRecreation = false
 
+        dialpadViewModel = ViewModelProvider(this)[SkDialpadViewModel::class.java]
+
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = listViewModel
+        binding.dialpad = dialpadViewModel
         observeToastEvents(listViewModel)
+
+        setUpDialpad()
 
         binding.historyList.setHasFixedSize(true)
         binding.historyList.layoutManager = LinearLayoutManager(requireContext())
@@ -193,6 +297,37 @@ class HistoryListFragment : AbstractMainFragment() {
                     val action =
                         HistoryFragmentDirections.actionGlobalHistoryFragment(uri)
                     navController.navigate(action)
+                }
+            }
+        }
+
+        // shiroikuma fork: write back to a missed call from the list. Same picker as the
+        // incoming-call screen, without the declining — the call is long over.
+        adapter.callLogReplyClickedEvent.observe(viewLifecycleOwner) {
+            it.consume { model ->
+                coreContext.postOnCoreThread {
+                    val target = SkDeclineMessages.targetOf(
+                        model.skCallLog,
+                        model.avatarModel.contactName.orEmpty()
+                    )
+                    coreContext.postOnMainThread {
+                        if (target == null) {
+                            Log.e("$TAG No number to write back to on that record")
+                            (requireActivity() as GenericActivity).showRedToast(
+                                getString(R.string.sk_call_decline_no_did),
+                                R.drawable.warning_circle
+                            )
+                        } else {
+                            SkDeclineMessageDialog(
+                                requireActivity(),
+                                target.name,
+                                target.callerKey,
+                                target.did
+                            ) { message, typed ->
+                                sendWrittenReply(target, message, typed)
+                            }.show()
+                        }
+                    }
                 }
             }
         }
@@ -319,13 +454,11 @@ class HistoryListFragment : AbstractMainFragment() {
             showDeleteAllConfirmationDialog()
         }
 
+        // shiroikuma fork: the FAB raises the dial panel over this list instead of navigating
+        // to upstream's separate "new call" screen. Nothing is left behind, so there is nothing
+        // to come back from.
         binding.setStartCallClickListener {
-            if (findNavController().currentDestination?.id == R.id.historyListFragment) {
-                Log.i("$TAG Navigating to start call fragment")
-                val action =
-                    HistoryListFragmentDirections.actionHistoryListFragmentToStartCallFragment()
-                findNavController().navigate(action)
-            }
+            dialpadViewModel.show()
         }
 
         // AbstractMainFragment related
