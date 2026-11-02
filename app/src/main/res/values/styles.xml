@@ -49,7 +49,9 @@
     </style>
     <style name="call_header_style">
         <item name="android:fontFamily">@font/noto_sans_800</item>
-        <item name="android:textColor">@color/bc_white</item>
+        <!-- shiroikuma fork: the "Incoming call" / "Outgoing call" header, yellow like the rest
+             of the call screens. Used by nothing outside them. -->
+        <item name="android:textColor">@color/sk_yellow</item>
         <item name="android:textSize">16sp</item>
     </style>
     <style name="section_header_style">

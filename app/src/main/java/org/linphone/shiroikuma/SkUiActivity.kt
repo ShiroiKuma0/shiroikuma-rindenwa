@@ -225,6 +225,7 @@ class SkUiActivity : AppCompatActivity() {
         // Without this grant an incoming call can only drop a banner when the screen is already on,
         // so it belongs at the top of the section rather than buried under the colours.
         addCallScreenOverlayRow(1)
+        addDeclineMessagesRow(1)
         addColorRow(SkSlot.CALL_BACKGROUND, 1)
         addTextSlot(SkSlot.CALL_NAME, 1)
         addTextSlot(SkSlot.CALL_STATUS, 1)
@@ -549,6 +550,55 @@ class SkUiActivity : AppCompatActivity() {
         row.root.setOnClickListener { SkRinger.openCallScreenPermissionSettings(this) }
         indentRow(row.root, level)
         binding.skHolder.addView(row.root)
+    }
+
+    /**
+     * The lines offered when a call is refused with a message — the general list, and a list of
+     * its own for any caller that has earned one. Kept here rather than on the call screen: the
+     * picker there is for using them in a hurry, and a list is not maintained in a hurry.
+     */
+    private fun addDeclineMessagesRow(level: Int) {
+        val row = ItemSkValueBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
+        row.skValueTitle.setText(R.string.sk_call_decline_messages_title)
+        row.skValueTitle.setTextColor(SkTheme.color(this, SkSlot.TEXT))
+        row.skValueDesc.setText(R.string.sk_call_decline_messages_desc)
+        row.skValueDesc.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
+        row.skValueStatus.text = getString(
+            R.string.sk_call_decline_messages_status,
+            SkDeclineMessages.general(this).size,
+            SkDeclineMessages.callersWithOwnMessages(this).size,
+        )
+        row.skValueStatus.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
+        row.root.setOnClickListener { openDeclineMessages() }
+        indentRow(row.root, level)
+        binding.skHolder.addView(row.root)
+    }
+
+    /** Pick which list to edit: the general one, or one belonging to a particular caller. */
+    private fun openDeclineMessages() {
+        val callers = SkDeclineMessages.callersWithOwnMessages(this)
+        val options = listOf(getString(R.string.sk_call_decline_editor_title)) + callers
+        SkChoiceDialog(
+            this,
+            getString(R.string.sk_call_decline_messages_title),
+            options,
+            -1,
+        ) { index ->
+            if (index == 0) {
+                SkDeclineMessagesEditor(
+                    this,
+                    "",
+                    getString(R.string.sk_call_decline_editor_title),
+                ) { buildRows() }.show()
+            } else {
+                val address = callers[index - 1]
+                SkDeclineMessagesEditor(
+                    this,
+                    address,
+                    getString(R.string.sk_call_decline_editor_contact_title, address),
+                ) { buildRows() }.show()
+            }
+        }
     }
 
     private fun addColorRow(slot: SkSlot, level: Int) {

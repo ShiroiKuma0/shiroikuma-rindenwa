@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  shiroikuma fork — the filled round button: solid yellow, black icon. The one that commits —
+  Answer on the incoming screen, Call on the dial panel.
+
+  Yellow rather than upstream's green: yellow is this fork's positive colour everywhere else, and
+  a green pill on a black-and-yellow screen reads as somebody else's button.
+-->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/sk_yellow_wash_strong">
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="@color/sk_yellow" />
+        </shape>
+    </item>
+</ripple>

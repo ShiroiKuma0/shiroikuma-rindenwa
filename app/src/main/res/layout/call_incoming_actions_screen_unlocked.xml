@@ -11,7 +11,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/sk_call_incoming_unlocked_bar_height"
+        android:layout_height="@dimen/call_main_actions_menu_height"
         android:background="@drawable/shape_call_bottom_sheet_background">
 
         <ImageView

@@ -57,6 +57,8 @@ import org.linphone.compatibility.Api28Compatibility
 import org.linphone.compatibility.Compatibility
 import org.linphone.core.tools.Log
 import org.linphone.databinding.CallActivityBinding
+import org.linphone.shiroikuma.SkKeepMessageDialog
+import org.linphone.shiroikuma.SkReplyFailedDialog
 import org.linphone.telecom.RedirectionHandler
 import org.linphone.ui.GenericActivity
 import org.linphone.ui.call.conference.fragment.ActiveConferenceCallFragmentDirections
@@ -240,6 +242,27 @@ class CallActivity : GenericActivity() {
             it.consume {
                 Log.i("$TAG Finishing activity")
                 finish()
+            }
+        }
+
+        // shiroikuma fork: a call declined with a message keeps this activity alive past the
+        // hang-up (see EndedCallFragment), so the two things it may still have to say are said
+        // here, on the activity, rather than on a fragment that has already been navigated away
+        // from. Either answer releases the hold and the screen then closes as usual.
+        callViewModel.skAskToKeepReplyEvent.observe(this) {
+            it.consume { (callerKey, message) ->
+                SkKeepMessageDialog(this, callerKey, message) {
+                    callViewModel.skReplyDone()
+                }.show()
+            }
+        }
+
+        callViewModel.skReplyFailedEvent.observe(this) {
+            it.consume { (reason, message) ->
+                Log.e("$TAG The written reply was refused: [$reason]")
+                SkReplyFailedDialog(this, reason, message) {
+                    callViewModel.skReplyDone()
+                }.show()
             }
         }
 
