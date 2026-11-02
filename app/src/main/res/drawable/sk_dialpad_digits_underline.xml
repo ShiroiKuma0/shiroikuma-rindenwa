@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  shiroikuma fork — the rule under the number being typed, as the sister dialer draws it. Only
+  the bottom edge shows: the other three are pushed outside the view's own bounds.
+-->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:insetLeft="-2dp"
+    android:insetRight="-2dp"
+    android:insetTop="-2dp">
+    <shape android:shape="rectangle">
+        <solid android:color="@android:color/transparent" />
+        <stroke
+            android:width="2dp"
+            android:color="@color/sk_yellow" />
+    </shape>
+</inset>

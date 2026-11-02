@@ -17,6 +17,9 @@
         <variable
             name="onCallClickListener"
             type="View.OnClickListener" />
+        <variable
+            name="onReplyClickListener"
+            type="View.OnClickListener" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -130,9 +133,27 @@
             android:textSize="12sp"
             android:visibility="@{model.duration.empty ? View.GONE : View.VISIBLE}"
             app:layout_constraintStart_toEndOf="@id/duration_separator"
-            app:layout_constraintEnd_toStartOf="@id/call"
+            app:layout_constraintEnd_toStartOf="@id/reply"
             app:layout_constraintTop_toTopOf="@id/date_time"
             app:layout_constraintBottom_toBottomOf="@id/date_time"/>
+
+        <!-- shiroikuma fork: write back to a call that was missed. The same picker the
+             incoming-call screen uses, minus the declining: there is nothing left to decline. -->
+        <ImageView
+            android:onClick="@{onReplyClickListener}"
+            android:id="@+id/reply"
+            android:layout_width="@dimen/large_icon_size"
+            android:layout_height="@dimen/large_icon_size"
+            android:padding="5dp"
+            android:layout_marginEnd="2dp"
+            android:src="@drawable/chat_teardrop_text"
+            android:background="@drawable/circle_transparent_button_background"
+            android:contentDescription="@string/sk_content_description_reply_to_missed_call"
+            android:visibility="@{model.skIsMissed &amp;&amp; !model.wasConference ? View.VISIBLE : View.GONE}"
+            app:tint="?attr/color_main2_500"
+            app:layout_constraintEnd_toStartOf="@id/call"
+            app:layout_constraintTop_toTopOf="@id/call"
+            app:layout_constraintBottom_toBottomOf="@id/call" />
 
         <ImageView
             android:onClick="@{onCallClickListener}"
