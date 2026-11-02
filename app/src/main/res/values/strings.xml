@@ -1099,6 +1099,7 @@
     <string name="sk_settings_entry_subtitle" translatable="false">Colours, fonts, shapes, and the full-app backup</string>
     <string name="sk_ok" translatable="false">OK</string>
     <string name="sk_cancel" translatable="false">Cancel</string>
+    <string name="sk_delete" translatable="false">Delete</string>
     <string name="sk_default" translatable="false">Default</string>
     <string name="sk_sp_value" translatable="false">%1$d sp</string>
     <string name="sk_dp_value" translatable="false">%1$d dp</string>
@@ -1319,4 +1320,45 @@
     <string name="sk_call_overlay_prompt_title" translatable="false">Let calls open the call screen</string>
     <string name="sk_call_overlay_prompt_message" translatable="false">白い熊 臨電話 needs “Display over other apps” to show the full call screen when a call arrives while you are using the phone. Without it an incoming call can only drop a banner from the top of the screen.\n\nThe next screen is Android’s own: find 白い熊 臨電話 in the list and turn the switch on.</string>
     <string name="sk_call_overlay_prompt_confirm" translatable="false">Open settings</string>
+
+    <!-- shiroikuma fork: the incoming-call panel's two new controls, and the decline-with-a-message
+         flow behind one of them. -->
+    <string name="sk_call_answer_on_speaker" translatable="false">Speaker</string>
+    <string name="sk_content_description_answer_on_speaker" translatable="false">Answer with the loudspeaker already on</string>
+    <string name="sk_call_decline_with_message" translatable="false">Message</string>
+    <string name="sk_content_description_decline_with_message" translatable="false">Decline the call and write back</string>
+    <string name="sk_call_decline_title" translatable="false">Decline with a message</string>
+    <string name="sk_call_decline_for_contact" translatable="false">For %1$s</string>
+    <string name="sk_call_decline_general" translatable="false">For everyone</string>
+    <string name="sk_call_decline_hint" translatable="false">Write a message…</string>
+    <string name="sk_call_decline_send" translatable="false">Decline and send</string>
+    <string name="sk_call_decline_save_title" translatable="false">Keep this message?</string>
+    <string name="sk_call_decline_save_everyone" translatable="false">For everyone</string>
+    <string name="sk_call_decline_save_contact" translatable="false">Only for this caller</string>
+    <string name="sk_call_decline_save_no" translatable="false">Don’t keep it</string>
+    <string name="sk_call_decline_default_1" translatable="false">Can’t talk now — I’ll call you back.</string>
+    <string name="sk_call_decline_default_2" translatable="false">I’m in a meeting.</string>
+    <string name="sk_call_decline_default_3" translatable="false">Please write to me instead.</string>
+    <string name="sk_call_decline_default_4" translatable="false">I’ll call you later.</string>
+    <string name="sk_call_decline_from_line" translatable="false">Sent from %1$s</string>
+    <string name="sk_call_decline_failed_title" translatable="false">The reply wasn’t sent</string>
+    <string name="sk_call_decline_no_did" translatable="false">This call didn’t arrive on a line 白い熊 臨電話 can name, so there is nothing to send from.</string>
+    <string name="sk_call_decline_no_messeji" translatable="false">白い熊 メッセージ didn’t answer. It may not be installed, or 白い熊 臨電話 may not be allowed to send through it yet.</string>
+    <string name="sk_call_decline_refused" translatable="false">白い熊 メッセージ refused the message without saying why.</string>
+    <string name="sk_call_decline_messages_title" translatable="false">Decline messages</string>
+    <string name="sk_call_decline_messages_status" translatable="false">%1$d general · %2$d callers</string>
+    <string name="sk_call_decline_messages_desc" translatable="false">The lines offered when a call is refused with a message. One list for everyone, and a list of its own for any caller that earns one.</string>
+    <string name="sk_call_decline_editor_title" translatable="false">For everyone</string>
+    <string name="sk_call_decline_editor_contact_title" translatable="false">For %1$s</string>
+    <string name="sk_call_decline_editor_empty" translatable="false">Nothing kept yet.</string>
+    <string name="sk_call_decline_editor_callers" translatable="false">Callers with their own</string>
+    <string name="sk_call_decline_add" translatable="false">+ Add</string>
+    <string name="sk_call_decline_edit" translatable="false">Edit</string>
+    <string name="sk_call_decline_move_up" translatable="false">Move up</string>
+    <string name="sk_call_decline_move_down" translatable="false">Move down</string>
+    <string name="sk_content_description_reply_to_missed_call" translatable="false">Write back to this missed call</string>
+
+    <!-- shiroikuma fork: the dial panel that replaces upstream's separate "New call" screen. -->
+    <string name="sk_content_description_show_dialpad" translatable="false">Open the dial panel</string>
+    <string name="sk_content_description_hide_dialpad" translatable="false">Put the dial panel away</string>
 </resources>

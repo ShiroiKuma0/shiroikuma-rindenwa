@@ -12,52 +12,14 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/sk_call_incoming_actions_height">
-
-        <!-- shiroikuma fork: neither answer nor decline — it only takes the ringtone and the
-             vibration away, and the caller goes on hearing it ring. It sits above both variants
-             below, so it is in the same place whether the screen is locked (answer slider) or
-             unlocked (answer/decline pair), and clear of the slider's travel. Silencing is one-way:
-             once done the button dims and relabels itself rather than offering an un-mute. -->
-        <ImageView
-            android:id="@+id/silence_ringer"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/sk_call_silence_button_size"
-            android:background="@drawable/sk_squircle_silence_button_background"
-            android:onClick="@{() -> viewModel.silenceRinging()}"
-            android:clickable="@{!viewModel.isRingingSilenced}"
-            android:alpha="@{viewModel.isRingingSilenced ? 0.4f : 1f}"
-            android:paddingStart="25dp"
-            android:paddingTop="12dp"
-            android:paddingEnd="25dp"
-            android:paddingBottom="12dp"
-            android:src="@drawable/bell_slash"
-            android:contentDescription="@string/sk_content_description_silence_ringer"
-            app:tint="@color/bc_white"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            style="@style/default_text_style_700"
-            android:id="@+id/silence_ringer_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:alpha="@{viewModel.isRingingSilenced ? 0.4f : 1f}"
-            android:text="@{viewModel.isRingingSilenced ? @string/sk_call_silence_ringer_done : @string/sk_call_silence_ringer, default=@string/sk_call_silence_ringer}"
-            android:textColor="@color/bc_white"
-            android:textSize="13sp"
-            app:layout_constraintTop_toBottomOf="@id/silence_ringer"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+        android:layout_height="@dimen/call_main_actions_menu_height">
 
         <include
             bind:viewModel="@{viewModel}"
             android:id="@+id/unlock_screen_bottom_bar"
             layout="@layout/call_incoming_actions_screen_unlocked"
             android:layout_width="0dp"
-            android:layout_height="@dimen/sk_call_incoming_unlocked_bar_height"
+            android:layout_height="@dimen/call_main_actions_menu_height"
             android:visibility="@{viewModel.isScreenLocked ? View.GONE : View.VISIBLE, default=gone}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

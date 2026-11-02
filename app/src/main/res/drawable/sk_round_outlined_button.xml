@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  shiroikuma fork — the outlined round button: black fill, yellow ring. The fork's neutral key.
+
+  It is the three incoming-call controls that neither answer nor decline (Silence, Speaker,
+  Message) and every key of the dial panel. Only a FILLED circle commits to anything, which is
+  what keeps "silence the ringer" and "answer" from looking like the same kind of button.
+-->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/sk_yellow_wash">
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="@color/sk_surface" />
+            <stroke
+                android:width="2dp"
+                android:color="@color/sk_yellow" />
+        </shape>
+    </item>
+</ripple>
