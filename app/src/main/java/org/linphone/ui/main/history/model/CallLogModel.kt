@@ -113,6 +113,21 @@ class CallLogModel
 
     var friendExists: Boolean = false
 
+    /**
+     * shiroikuma fork: a call that rang here and was not taken — the only kind this fork offers to
+     * write back to from the list, because it is the only kind that still owes the caller an
+     * answer.
+     */
+    val skIsMissed: Boolean
+        get() = direction == SkCallLog.Direction.MISSED
+
+    /**
+     * shiroikuma fork: the record itself, for building a reply target out of it. A written reply
+     * needs the DID the call came in on as well as the caller, and only the log carries both.
+     */
+    val skCallLog: CallLog
+        get() = callLog
+
     init {
         // shiroikuma fork: red is reserved for the call that rang here and went unanswered — that
         // is what a call log is scanned for. An outgoing call keeps its own colour whatever became

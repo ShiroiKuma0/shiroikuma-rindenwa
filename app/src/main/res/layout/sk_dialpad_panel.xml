@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  shiroikuma-rindenwa fork — the dial panel, in the sister dialer's (shiroikuma-denwa) shape.
+
+  Upstream's "new call" is a whole screen of its own: tapping the FAB navigated away from the
+  history, put a search field and a contact list on top and a grey numpad underneath. Two screens
+  for one thought. This is a sheet that slides up *over* the history instead, so the list stays
+  where it was — and every digit filters it, which is what actually finds the number: the call
+  you want is almost always one you have already had.
+
+  Its row of chrome is the sheet's own: the number as it is being typed, a backspace (long press
+  clears), and the chevron that puts the sheet away. Nothing navigates; nothing is lost.
+
+  Four plain rows rather than a ConstraintLayout Flow: the sheet has to measure its own height,
+  and rows of fixed-size keys say what that height is without anybody having to trust a virtual
+  helper to report it.
+-->
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:bind="http://schemas.android.com/tools">
+
+    <data>
+        <import type="android.view.View" />
+        <variable
+            name="model"
+            type="org.linphone.ui.main.history.model.NumpadModel" />
+        <variable
+            name="dialpad"
+            type="org.linphone.shiroikuma.SkDialpadViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:background="@drawable/sk_dialpad_panel_background"
+        android:clickable="true"
+        android:focusable="true"
+        android:layoutDirection="ltr"
+        android:paddingTop="@dimen/sk_dialpad_panel_padding"
+        android:paddingBottom="@dimen/sk_dialpad_panel_padding"
+        bind:ignore="HardcodedText">
+
+        <!--
+          The bottom-sheet behaviour is NOT declared here. This layout is pulled in by an
+          <include> that sets its own width and height, and such an include builds the child's
+          LayoutParams from its own attributes — anything layout_* written on this root is
+          thrown away, layout_behavior included. It lives on the include in
+          history_list_fragment.xml instead.
+        -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:baselineAligned="false"
+            android:paddingStart="@dimen/sk_dialpad_panel_padding"
+            android:paddingEnd="@dimen/sk_dialpad_panel_padding">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/default_text_style_300"
+                android:id="@+id/digits"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/sk_dialpad_digits_underline"
+                android:gravity="center"
+                android:maxLines="1"
+                android:ellipsize="start"
+                android:minHeight="@dimen/sk_dialpad_chrome_size"
+                android:paddingBottom="6dp"
+                android:text="@{dialpad.digits}"
+                android:textColor="@color/sk_yellow"
+                android:textSize="@dimen/sk_dialpad_digits_size" />
+
+            <ImageView
+                android:id="@+id/backspace"
+                android:layout_width="@dimen/sk_dialpad_chrome_size"
+                android:layout_height="@dimen/sk_dialpad_chrome_size"
+                android:onClick="@{() -> model.onBackspaceClicked()}"
+                android:onLongClick="@{() -> model.onBackspaceLongClicked()}"
+                android:padding="8dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/backspace_fill"
+                android:contentDescription="@string/content_description_erase_last_input"
+                app:tint="@color/sk_yellow" />
+
+            <ImageView
+                android:id="@+id/collapse"
+                android:layout_width="@dimen/sk_dialpad_chrome_size"
+                android:layout_height="@dimen/sk_dialpad_chrome_size"
+                android:layout_marginStart="8dp"
+                android:onClick="@{() -> dialpad.hide()}"
+                android:padding="8dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/caret_down"
+                android:contentDescription="@string/sk_content_description_hide_dialpad"
+                app:tint="@color/sk_yellow" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            style="@style/sk_dialpad_row_style"
+            android:layout_marginTop="@dimen/sk_dialpad_panel_padding">
+
+            <include
+                android:id="@+id/digit_1"
+                layout="@layout/sk_dialpad_key"
+                android:layout_width="@dimen/sk_dialpad_key_size"
+                android:layout_height="@dimen/sk_dialpad_key_size"
+                bind:digit="@{`1`}"
+                bind:subLabel="@{``}"
+                bind:isVoicemail="@{true}"
+                bind:alwaysShowSubLabel="@{false}"
+                bind:model="@{model}" />
+
+            <include
+                android:id="@+id/digit_2"
+                layout="@layout/sk_dialpad_key"
+                android:layout_width="@dimen/sk_dialpad_key_size"
+                android:layout_height="@dimen/sk_dialpad_key_size"
+                android:layout_marginStart="@dimen/sk_dialpad_key_gap"
+                bind:digit="@{`2`}"
+                bind:subLabel="@{`ABC`}"
+                bind:isVoicemail="@{false}"
+                bind:alwaysShowSubLabel="@{false}"
+                bind:model="@{model}" />
+
+            <include
+                android:id="@+id/digit_3"
+                layout="@layout/sk_dialpad_key"
+                android:layout_width="@dimen/sk_dialpad_key_size"
+                android:layout_height="@dimen/sk_dialpad_key_size"
+                android:layout_marginStart="@dimen/sk_dialpad_key_gap"
+                bind:digit="@{`3`}"
+                bind:subLabel="@{`DEF`}"
+                bind:isVoicemail="@{false}"
+                bind:alwaysShowSubLabel="@{false}"
+                bind:model="@{model}" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            style="@style/sk_dialpad_row_style"
+            android:layout_marginTop="@dimen/sk_dialpad_key_gap">
+
+            <include
+                android:id="@+id/digit_4"
+                layout="@layout/sk_dialpad_key"
+                android:layout_width="@dimen/sk_dialpad_key_size"
+                android:layout_height="@dimen/sk_dialpad_key_size"
+                bind:digit="@{`4`}"
+                bind:subLabel="@{`GHI`}"
+                bind:isVoicemail="@{false}"
+                bind:alwaysShowSubLabel="@{false}"
+                bind:model="@{model}" />
+
+            <include
+                android:id="@+id/digit_5"
+                layout="@layout/sk_dialpad_key"
+                android:layout_width="@dimen/sk_dialpad_key_size"
+                android:layout_height="@dimen/sk_dialpad_key_size"
+                android:layout_marginStart="@dimen/sk_dialpad_key_gap"
+                bind:digit="@{`5`}"
+                bind:subLabel="@{`JKL`}"
+                bind:isVoicemail="@{false}"
+                bind:alwaysShowSubLabel="@{false}"
+                bind:model="@{model}" />
+
+            <include
+                android:id="@+id/digit_6"
+                layout="@layout/sk_dialpad_key"
+                android:layout_width="@dimen/sk_dialpad_key_size"
+                android:layout_height="@dimen/sk_dialpad_key_size"
+                android:layout_marginStart="@dimen/sk_dialpad_key_gap"
+                bind:digit="@{`6`}"
+                bind:subLabel="@{`MNO`}"
+                bind:isVoicemail="@{false}"
+                bind:alwaysShowSubLabel="@{false}"
+                bind:model="@{model}" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            style="@style/sk_dialpad_row_style"
+            android:layout_marginTop="@dimen/sk_dialpad_key_gap">
+
+            <include
+                android:id="@+id/digit_7"
+                layout="@layout/sk_dialpad_key"
+                android:layout_width="@dimen/sk_dialpad_key_size"
+                android:layout_height="@dimen/sk_dialpad_key_size"
+                bind:digit="@{`7`}"
+                bind:subLabel="@{`PQRS`}"
+                bind:isVoicemail="@{false}"
+                bind:alwaysShowSubLabel="@{false}"
+                bind:model="@{model}" />
+
+            <include
+                android:id="@+id/digit_8"
+                layout="@layout/sk_dialpad_key"
+                android:layout_width="@dimen/sk_dialpad_key_size"
+                android:layout_height="@dimen/sk_dialpad_key_size"
+                android:layout_marginStart="@dimen/sk_dialpad_key_gap"
+                bind:digit="@{`8`}"
+                bind:subLabel="@{`TUV`}"
+                bind:isVoicemail="@{false}"
+                bind:alwaysShowSubLabel="@{false}"
+                bind:model="@{model}" />
+
+            <include
+                android:id="@+id/digit_9"
+                layout="@layout/sk_dialpad_key"
+                android:layout_width="@dimen/sk_dialpad_key_size"
+                android:layout_height="@dimen/sk_dialpad_key_size"
+                android:layout_marginStart="@dimen/sk_dialpad_key_gap"
+                bind:digit="@{`9`}"
+                bind:subLabel="@{`WXYZ`}"
+                bind:isVoicemail="@{false}"
+                bind:alwaysShowSubLabel="@{false}"
+                bind:model="@{model}" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            style="@style/sk_dialpad_row_style"
+            android:layout_marginTop="@dimen/sk_dialpad_key_gap">
+
+            <include
+                android:id="@+id/digit_star"
+                layout="@layout/sk_dialpad_key"
+                android:layout_width="@dimen/sk_dialpad_key_size"
+                android:layout_height="@dimen/sk_dialpad_key_size"
+                bind:digit="@{`*`}"
+                bind:subLabel="@{``}"
+                bind:isVoicemail="@{false}"
+                bind:alwaysShowSubLabel="@{false}"
+                bind:model="@{model}" />
+
+            <include
+                android:id="@+id/digit_0"
+                layout="@layout/sk_dialpad_key"
+                android:layout_width="@dimen/sk_dialpad_key_size"
+                android:layout_height="@dimen/sk_dialpad_key_size"
+                android:layout_marginStart="@dimen/sk_dialpad_key_gap"
+                bind:digit="@{`0`}"
+                bind:subLabel="@{`+`}"
+                bind:isVoicemail="@{false}"
+                bind:alwaysShowSubLabel="@{true}"
+                bind:model="@{model}" />
+
+            <include
+                android:id="@+id/digit_sharp"
+                layout="@layout/sk_dialpad_key"
+                android:layout_width="@dimen/sk_dialpad_key_size"
+                android:layout_height="@dimen/sk_dialpad_key_size"
+                android:layout_marginStart="@dimen/sk_dialpad_key_gap"
+                bind:digit="@{`#`}"
+                bind:subLabel="@{``}"
+                bind:isVoicemail="@{false}"
+                bind:alwaysShowSubLabel="@{false}"
+                bind:model="@{model}" />
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/call"
+            android:layout_width="@dimen/sk_dialpad_call_button_size"
+            android:layout_height="@dimen/sk_dialpad_call_button_size"
+            android:layout_marginTop="@dimen/sk_dialpad_panel_padding"
+            android:onClick="@{() -> model.onCallClicked()}"
+            android:background="@drawable/sk_round_filled_button"
+            android:padding="20dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/phone"
+            android:contentDescription="@string/content_description_call_start"
+            app:tint="@color/sk_black" />
+
+    </LinearLayout>
+
+</layout>

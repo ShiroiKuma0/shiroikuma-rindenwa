@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  shiroikuma-rindenwa fork — one key of the dial panel.
+
+  Upstream has four separate numpad-key layouts (plain, with letters, with a plus, with a
+  voicemail icon); this is one layout with three bindings, which is what lets the panel declare
+  its twelve keys as twelve identical includes. [subLabel] is the small line under the digit —
+  the letters, or the "+" that long-pressing 0 produces — and [isVoicemail] is only true for the
+  1 key, whose long press calls the voicemail box instead, and [alwaysShowSubLabel] only for the
+  0 key, because its "+" is a real affordance rather than the letters 白い熊 may have switched off.
+-->
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="android.view.View" />
+        <variable
+            name="digit"
+            type="String" />
+        <variable
+            name="subLabel"
+            type="String" />
+        <variable
+            name="isVoicemail"
+            type="Boolean" />
+        <variable
+            name="alwaysShowSubLabel"
+            type="Boolean" />
+        <variable
+            name="model"
+            type="org.linphone.ui.main.history.model.NumpadModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:onClick="@{() -> model.onDigitClicked(digit)}"
+        android:onLongClick="@{() -> isVoicemail ? model.onVoicemailLongClicked() : model.onDigitLongClicked(digit)}"
+        android:tag="@{digit}"
+        onTouchListener="@{model.touchListener}"
+        android:layout_width="@dimen/sk_dialpad_key_size"
+        android:layout_height="@dimen/sk_dialpad_key_size"
+        android:background="@drawable/sk_round_outlined_button">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/default_text_style"
+            android:id="@+id/digit_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{digit, default=`9`}"
+            android:textSize="@dimen/sk_dialpad_digit_size"
+            android:includeFontPadding="false"
+            android:textColor="@color/sk_yellow"
+            app:layout_constraintVertical_chainStyle="packed"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/sub_label"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/default_text_style"
+            android:id="@+id/sub_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{subLabel, default=`WXYZ`}"
+            android:textSize="@dimen/sk_dialpad_sub_label_size"
+            android:includeFontPadding="false"
+            android:textColor="@color/sk_ink_dim"
+            android:visibility="@{subLabel.empty ? View.GONE : (alwaysShowSubLabel || model.showLetters ? View.VISIBLE : View.GONE), default=gone}"
+            app:layout_constraintTop_toBottomOf="@id/digit_label"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>
