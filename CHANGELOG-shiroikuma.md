@@ -2,7 +2,140 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha+2026-09-11.12-50.g75c4ce26+004 — current
+## 6.3.0-alpha+2026-09-11.12-50.g75c4ce26+009 — current
+
+Same upstream base (`75c4ce26`). The screen a call arrives on is the fork's own now, in black and
+yellow, with five controls instead of two; refusing a call can answer it with a real SMS, sent from
+the SIM behind the line it rang on; the dial pad has stopped being a screen of its own and become a
+sheet that rises over the call history and filters it as you type; and the main screen no longer
+falls apart when the phone is turned sideways.
+
+### An incoming-call screen in the fork's own colours
+
+- **It was still stock Linphone's** — a white sheet, upstream's own tint lists, and a lock-screen
+  slider you had to drag. The fork's black-yellow theme works by remapping about sixty theme
+  attributes, and the call layouts bypass that entirely by naming raw `@color/` resources, so they
+  were the one part of the app the overlay could not reach.
+- Repainting is therefore done where the raw references land: the three in-call colour state lists
+  (`in_call_button_tint_color`, `in_call_label_color`,
+  `in_call_button_background_tint_color`) now carry yellow icons and labels on raised surfaces,
+  invert to a black glyph on yellow when pressed, and dim to the fork's ghost and disabled inks.
+  `call_header_style`'s white text becomes yellow — that style is used by nothing but the call
+  screens. **`bc_white` itself is left alone**, because sixty-eight other resource files read it.
+- The panel is the fork's own layout rather than an edit of upstream's, and both orientations use
+  it. Three 112 dp columns across the top row make 336 dp, which still fits the Mate XT's folded
+  cover panel with room to spare; the decision pair below is 72 + 56 + 72. Labels are centred at
+  their full column width with a single line and an ellipsis, so a long one cannot spill into its
+  neighbour.
+- **No bar height is declared any more.** The panel measures itself, so changing a button size or
+  a label moves the whole screen with it instead of leaving the avatar block overlapping or
+  floating; the land variant's two hard-coded bottom margins are gone with it.
+- **The lock-screen slider is dropped and upstream's two action bars go back to their original
+  contents.** One panel now serves a locked and an unlocked screen alike, which is also one layout
+  fewer to keep in step on every upstream sync.
+
+### Silence, Speaker, Message — and the decision pair
+
+- **Silence** is unchanged from the previous build and keeps its place, now as the first of the
+  three columns.
+- **Speaker** answers the call and latches the audio route to the speaker. The latch is applied at
+  `StreamsRunning` and not on the tap, because upstream forces the earpiece at `Connected`
+  whenever ring-during-early-media is on — routing at the tap is overridden a moment later by the
+  SDK itself, which looks exactly like the button not working.
+- **Message** refuses the call and writes back; see below.
+- **Decline** and **Answer** sit on their own row underneath, red and yellow, far enough apart
+  that the one you did not mean is not the one you hit.
+
+### Refusing a call, and still answering it
+
+- **The reply does not leave through this app.** These lines are SIP DIDs forwarded from real SIMs
+  in a bridge phone elsewhere, so a SIP `MESSAGE` sent back down a DID arrives at the gateway, not
+  at the caller's handset. The previous attempt at this feature did exactly that and could never
+  have worked.
+- The text is handed instead to the sister messenger (**白い熊 メッセージ**, `shiroikuma.messeji`)
+  through its automation provider, which sends it as a real SMS from the SIM behind that DID over
+  the 自由作業盤 bridge. The call is identified by **the DID it arrived on** — the user part of the
+  account identity it is bound to, read off the call *before* it is declined, because declining
+  releases the addresses it is read from.
+- **Which SIM that is, is none of this app's business.** The DID → SIM table lives in 携帯, so one
+  list is edited instead of two. Note that the DID is whatever the provider puts in the SIP
+  username: Odorik's six-digit line id on one account, E.164 on another. A DID missing from the
+  table comes back as a refusal naming it, which is the only way a gap in that table can surface
+  here — so the refusal is put on screen rather than written to a log.
+- **A success means queued, not sent.** The bridge may be asleep and the relay phone out of
+  signal. メッセージ never drops a message it has accepted and its own thread carries the delivery
+  ticks, so that thread is the record and nothing here polls for one.
+- **The call is always declined first**, before a single byte is handed over. Everything after that
+  is bookkeeping, and bookkeeping must never be what keeps a phone ringing.
+- **The ended-call screen is then held open** — up to a minute — until the hand-off has answered.
+  That is what makes the two things that have to be seen visible without a notification: a refusal
+  from メッセージ, and the question of whether to keep a line that was just typed.
+- **A line that was typed is sent first and only then offered for keeping**, to everyone or to this
+  caller alone. Tapping a line that is already stored sends it and asks nothing — one tap, call
+  refused, answer on its way.
+
+### The lists, on the UI page
+
+- Two lists: the one offered for every caller, seeded with four defaults, and a per-caller one
+  keyed by the caller's bare SIP address, which is how a recurring call gets its own answer without
+  that line cluttering every other call.
+- Both are edited in the CALLS section of the 臨電話 UI page, which reports how many lines and how
+  many callers have their own. Tap a line to edit it, move it up or down, or delete it; the picker
+  on the call screen is for using them, not for keeping them in order.
+- **Deleting every general line sticks.** An empty list is stored as an empty list rather than by
+  removing the key, which would have fallen back to the four defaults at the next call.
+
+### The dial pad is a sheet over the history, not a screen
+
+- **Tapping "new call" used to navigate away** to a whole screen of its own: its own search field,
+  its own contact list, a grey numpad in a sheet underneath. Leaving the history to dial is
+  backwards, because the number wanted is nearly always one the history already holds.
+- It is now a bottom sheet that rises **over** the list, in the sister dialer's shape — the typed
+  number over a yellow rule, a backspace whose long press clears it, a chevron that puts the sheet
+  away. Nothing navigates and nothing is lost.
+- **Every digit is pushed straight into the list's own filter underneath**, so the call being
+  looked for walks up to meet the number being typed.
+- **Closing the sheet clears the digits.** A filter left behind by a panel that is no longer on
+  screen is a list that lies. The hardware back button closes the sheet while it is up rather than
+  leaving the Calls tab, and the "new call" button hides itself while it is open rather than
+  floating on top of it.
+- The twelve keys are twelve includes of **one** layout instead of upstream's four near-identical
+  ones, and upstream's own `NumpadModel` is kept untouched behind them, so the DTMF tones, the
+  long-press rules (`0` gives `+`, `1` calls the voicemail box) and the system's
+  "play tones while dialling" setting are all still its own. Only where its callbacks lead is ours.
+- The rows are plain `LinearLayout`s rather than a `ConstraintLayout` `Flow`: the sheet has to
+  measure its own height, and rows of fixed-size keys say what that height is without anyone
+  having to trust a virtual helper to report it. Three 76 dp keys with 16 dp between them make
+  244 dp, so the keypad keeps its shape on the folded cover panel as well as unfolded.
+- The digits survive a rotation, which on a Mate XT is a thing that happens by unfolding, and are
+  scoped to the Calls tab, so leaving it forgets a half-typed number.
+- **A note for whoever touches this next:** the bottom-sheet behaviour is declared on the
+  `<include>`, not on the panel's own root. An include that sets its own `layout_width` and
+  `layout_height` builds the child's `LayoutParams` from the include tag and **discards every
+  `layout_*` attribute written on the included root**, `app:layout_behavior` among them. Getting
+  that wrong is not a layout that misbehaves — it is `IllegalArgumentException: The view is not
+  associated with BottomSheetBehavior` on startup. Both files now carry a comment saying so.
+
+### A missed call can be answered too
+
+- A missed call in the history carries a **reply button**, which opens the same picker and sends by
+  the same route. There is nothing left to decline by then — only the writing back.
+- It is shown for a missed call that was not a conference, and the record's duration moves aside
+  to make room rather than being covered.
+
+### The main screen survives being turned sideways
+
+- Rotating used to mangle it: the account tab strip disappeared, the Favourites tab with it, and
+  the call log was squeezed into a column beside an empty detail pane.
+- The cause was never a sizing bug. Upstream keeps a **separate `layout-land/` copy** of the four
+  list screens, the bottom navigation bar and the main top bar, and the fork had only ever themed
+  the portrait ones — so landscape fell straight through to stock Linphone's tablet arrangement.
+- The portrait layouts are already orientation-agnostic (the fork's own Favourites screen was
+  written that way from the start), so the landscape copies are **deleted** rather than themed a
+  second time. One layout per screen also means the next upstream sync conflicts here as a trivial
+  "deleted by us" rather than twice over, in two places that must then be kept in step by hand.
+
+## 6.3.0-alpha+2026-09-11.12-50.g75c4ce26+004
 
 Same upstream base (`75c4ce26`). An incoming call now takes the whole screen even when the phone is
 already in your hand, and the ringing can be silenced without answering or declining.

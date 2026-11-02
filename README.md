@@ -7,17 +7,19 @@
 **A SIP/VoIP phone that looks the way I want it to, and can restore itself from a single file.**
 
 A fork of [Linphone for Android](https://github.com/BelledonneCommunications/linphone-android) with
-**major additions**: an incoming call that takes the whole screen with a button to silence the
-ringing, a call history written in Japanese with imperial-era day headlines, an address
-book with foldable gojūon letter headings, a Favorites tab of draggable tiles, a black-yellow theme
-applied through the whole app, a card-folder tab navigation with an account strip you can drag into
-order, a settings page that makes colours, fonts and shapes live-editable, settings groups boxed in
-yellow that remember what you folded, a full-app Export/Import backup, and an automation contract
-that lets a sister app back this one up — and its data — without being asked twice.
+**major additions**: an incoming call that takes the whole screen, with buttons to silence the
+ringing, answer on speaker, or refuse the call and answer it by SMS instead, a dial pad that slides
+up over the call history and filters it as you type, a call history written in Japanese with
+imperial-era day headlines, an address book with foldable gojūon letter headings, a Favorites tab of
+draggable tiles, a black-yellow theme applied through the whole app, a card-folder tab navigation
+with an account strip you can drag into order, a settings page that makes colours, fonts and shapes
+live-editable, settings groups boxed in yellow that remember what you folded, a full-app
+Export/Import backup, and an automation contract that lets a sister app back this one up — and its
+data — without being asked twice.
 
 Installs **side-by-side** with stock Linphone (app id `shiroikuma.rindenwa`).
 
-**📥 Latest release: [`6.3.0-alpha+2026-09-11.12-50.g75c4ce26+004`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
+**📥 Latest release: [`6.3.0-alpha+2026-09-11.12-50.g75c4ce26+009`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
 
 </div>
 
@@ -116,13 +118,55 @@ so the setup screens carry a skip that takes you straight in.
 Stock Linphone announces a call with a notification carrying a full-screen intent, and Android
 honours that only on a locked or dark screen — so a call arriving while the phone was in your hand
 dropped a banner at the top and nothing else. This fork starts the call screen itself instead, once
-per call, and keeps upstream's notification for the locked screen and the shade.
+per call, and keeps upstream's notification for the locked screen and the shade. The one thing it
+needs is Android's "Display over other apps" permission, which the app asks for on start — without
+it a call can only raise a notification.
 
-Beside Answer and Decline there is a third button that does neither: **Silence** takes the ringtone
-and the vibration away and leaves the call standing, so the caller goes on hearing it ring and you
-can still answer when you are ready. It sits in the same place whether the screen is locked or not,
-clear of the answer slider's travel. The one thing it needs is Android's "Display over other apps"
-permission, which the app asks for on start — without it a call can only raise a notification.
+The screen it raises is the fork's own, in black and yellow, and it carries five controls where
+stock carries two. **Silence** does neither of the obvious things: it takes the ringtone and the
+vibration away and leaves the call standing, so the caller goes on hearing it ring and you can still
+answer when you are ready. **Speaker** answers with the audio already on the loudspeaker.
+**Message** refuses the call and answers it in writing. **Decline** and **Answer** sit on their own
+row below, far enough apart that the one you did not mean is not the one you hit.
+
+The lock-screen slider is gone — one panel serves a locked and an unlocked screen alike — and the
+panel measures its own height, so a longer label moves the screen with it instead of overlapping the
+caller's name.
+
+---
+
+## ✉️ Refuse a call, and answer it anyway
+
+The lines this phone answers are SIP DIDs forwarded from real SIMs sitting in a bridge phone
+somewhere else, which means a reply sent back down a DID reaches the gateway and not the caller's
+handset. So **Message** hands the text to the sister messenger (白い熊 メッセージ) instead, which
+sends it as a **real SMS from the SIM behind the line the call came in on**: this app reports which
+DID rang, and the DID → SIM table lives in 携帯, so one list is edited rather than two.
+
+**One tap does the whole thing.** The call is declined first, always, before a single byte is handed
+over — bookkeeping must never be what keeps a phone ringing. The ended-call screen then stays up
+until the hand-off has answered, so a refusal from the other side is something you see rather than
+something written to a log. Type a new line instead of picking one and it is sent first and only
+then offered for keeping, to everyone or to this caller alone. A missed call in the history carries
+the same button, where there is nothing left to decline and only the writing back remains.
+
+Both lists — the one offered for every caller, and the one offered only to one — are edited in the
+CALLS section of the UI page.
+
+---
+
+## ⌨️ The dial pad rises over the history
+
+Tapping "new call" used to navigate away to a screen of its own — its own search field, its own
+contact list, a grey numpad underneath. That is backwards, because the number you want is nearly
+always one the history already holds. Here the pad is a sheet that slides up **over** the list
+instead, and **every digit you type filters the history underneath it**, so the call you are looking
+for walks up to meet the number you are dialling.
+
+Nothing navigates and nothing is lost: the chevron puts the sheet away, Back closes it rather than
+leaving the tab, and closing it clears the digits, because a filter left behind by a panel that is no
+longer on screen is a list that lies. The keypad keeps its shape on the Mate XT's folded cover panel
+as well as unfolded, and a half-typed number survives an unfold.
 
 ---
 
