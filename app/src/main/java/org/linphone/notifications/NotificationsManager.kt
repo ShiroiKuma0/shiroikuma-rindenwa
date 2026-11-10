@@ -58,6 +58,8 @@ import org.linphone.contacts.AvatarGenerator
 import org.linphone.contacts.ContactsManager.ContactsListener
 import org.linphone.contacts.getAvatarBitmap
 import org.linphone.contacts.getPerson
+import org.linphone.shiroikuma.SkDiag
+import org.linphone.shiroikuma.SkDiagKind
 import org.linphone.shiroikuma.SkRinger
 import org.linphone.core.Account
 import org.linphone.core.Address
@@ -507,6 +509,12 @@ class NotificationsManager
             state: RegistrationState?,
             message: String
         ) {
+            // shiroikuma fork: the Registration diagnostic, off unless 白い熊 asked for it.
+            SkDiag.log(
+                context,
+                SkDiagKind.REGISTRATION,
+                "${account.params.identityAddress?.asStringUriOnly()} → $state${if (message.isBlank()) "" else " ($message)"}"
+            )
             if (state == RegistrationState.Failed) {
                 // shiroikuma fork: wait out the grace period instead of notifying straight away
                 scheduleAccountErrorNotification(account)

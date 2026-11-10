@@ -1361,4 +1361,41 @@
     <!-- shiroikuma fork: the dial panel that replaces upstream's separate "New call" screen. -->
     <string name="sk_content_description_show_dialpad" translatable="false">Open the dial panel</string>
     <string name="sk_content_description_hide_dialpad" translatable="false">Put the dial panel away</string>
+
+    <!-- shiroikuma fork: the Diagnostics section of the 臨電話 UI page. Every diagnostic is behind
+         its own switch and off by default; the files live in the app's own diag directory and are
+         never named "*.log" (EMUI's nightly clean-up deletes those). -->
+    <string name="sk_section_diag" translatable="false">Diagnostics</string>
+    <string name="sk_diag_note" translatable="false">Nothing is recorded until you turn one of these on. The files are plain text in the app’s own directory, and a notification stays up while anything is recording.</string>
+    <string name="sk_diag_registration" translatable="false">Registration</string>
+    <string name="sk_diag_registration_desc" translatable="false">Every account’s REGISTER answer, with the SIP code behind a failure. The log to turn on when calls do not arrive.</string>
+    <string name="sk_diag_calls" translatable="false">Incoming calls</string>
+    <string name="sk_diag_calls_desc" translatable="false">When a call arrived, whether the call screen could be raised, and how the call ended.</string>
+    <string name="sk_diag_service" translatable="false">Service and process</string>
+    <string name="sk_diag_service_desc" translatable="false">Process starts and the keep-alive service going up and down — why the app was dead.</string>
+    <string name="sk_group_diag_data" translatable="false">Recorded data</string>
+    <string name="sk_diag_stored" translatable="false">Stored</string>
+    <string name="sk_diag_stored_empty" translatable="false">Nothing recorded yet</string>
+    <string name="sk_diag_stored_value" translatable="false">%1$d files, %2$s, %3$s</string>
+    <string name="sk_diag_day_span" translatable="false">%1$s – %2$s</string>
+    <string name="sk_diag_keep_days" translatable="false">Keep for</string>
+    <string name="sk_diag_keep_forever" translatable="false">Everything</string>
+    <string name="sk_diag_keep_days_value" translatable="false">%1$d days</string>
+    <string name="sk_diag_export" translatable="false">Export</string>
+    <string name="sk_diag_export_desc" translatable="false">Copy every recorded file into a directory you pick, in a new stamped subdirectory.</string>
+    <string name="sk_diag_export_done" translatable="false">Exported %1$d files to %2$s</string>
+    <string name="sk_diag_export_failed" translatable="false">Export failed: %1$s</string>
+    <string name="sk_diag_share" translatable="false">Share</string>
+    <string name="sk_diag_share_desc" translatable="false">Send the recorded files somewhere else.</string>
+    <string name="sk_diag_purge" translatable="false">Purge</string>
+    <string name="sk_diag_purge_desc" translatable="false">Delete every recorded file from this phone.</string>
+    <string name="sk_diag_purge_warning" translatable="false">%1$s will be deleted forever.</string>
+    <string name="sk_diag_purge_confirm" translatable="false">Delete forever</string>
+    <string name="sk_diag_purged" translatable="false">Deleted %1$d files</string>
+    <string name="sk_diag_where" translatable="false">Where the files are</string>
+    <string name="sk_diag_notification_title" translatable="false">白い熊 臨電話 is recording diagnostics</string>
+    <string name="sk_diag_mark" translatable="false">Mark</string>
+    <string name="sk_diag_marked" translatable="false">Mark #%1$d</string>
+    <string name="sk_diag_all_off" translatable="false">Turn all off</string>
+    <string name="sk_diag_all_off_done" translatable="false">All diagnostics turned off</string>
 </resources>

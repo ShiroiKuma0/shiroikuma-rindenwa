@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A pressable settings row: the label sits inside an OUTLINED pill (never filled — 3dp frame
+     and bold for the one action its section is about, 1.25dp and normal otherwise), with a ›
+     inside the pill when the row opens another screen, and the explanation beneath it, aligned
+     with the label. The pill alone carries the touch target; the lines under it do not.
+     Settled 2026-11-07 (the black-yellow-theme skill, "every pressable row is a pill"): a
+     tappable row drawn like a heading gave no clue that it was there to be pressed.
+     **The pill is as wide as its label, never stretched across the line** (白い熊, 2026-11-09):
+     a short action like "Export" blown up to the full width reads as a banner, not a button. A
+     long label still fills most of the line on its own, which is the width it should have. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingTop="3dp"
+    android:paddingBottom="3dp">
+
+    <LinearLayout
+        android:id="@+id/sk_action_pill"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:clickable="true"
+        android:focusable="true"
+        android:paddingStart="18dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="9dp"
+        android:paddingBottom="9dp">
+
+        <TextView
+            android:id="@+id/sk_action_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/sk_action_chevron"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:includeFontPadding="false"
+            android:textSize="22sp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/sk_action_desc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="18dp"
+        android:paddingTop="3dp"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/sk_action_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="18dp"
+        android:paddingTop="2dp"
+        android:textSize="13sp" />
+</LinearLayout>
