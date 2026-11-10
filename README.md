@@ -20,7 +20,7 @@ really reach this phone, and diagnostics that record nothing until you ask them 
 
 Installs **side-by-side** with stock Linphone (app id `shiroikuma.rindenwa`).
 
-**📥 Latest release: [`6.3.0-alpha+2026-09-11.12-50.g75c4ce26+011`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
+**📥 Latest release: [`6.3.0-alpha+2026-11-09.14-07.g92318a24+002`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
 
 </div>
 
@@ -33,6 +33,13 @@ views one by one, this fork overrides all of them in a single theme overlay appl
 fragment, dialog and list row comes out black-on-yellow natively, at inflation time, with no flicker
 and nothing missed. Top bars are black with the accent carried by their text and icons; field pills
 have yellow borders; semantic colours keep their meaning, so a hang-up button is still red.
+
+The overlay reaches everything upstream resolves through an attribute, which is very nearly
+everything — but a view that names a colour outright escapes it, and each one upstream adds has to
+be repainted by hand. The newest is the All calls / Missed filter above the call history: upstream
+fills the chosen segment with the accent and writes its label in white, which here would be white
+on yellow, so the selection is marked the way an accent chip is instead — the house frame over a
+yellow wash, label in full ink, the other segment dim.
 
 ---
 

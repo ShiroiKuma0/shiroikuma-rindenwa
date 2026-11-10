@@ -2,7 +2,73 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha+2026-09-11.12-50.g75c4ce26+011 — current
+## 6.3.0-alpha+2026-11-09.14-07.g92318a24+002 — current
+
+New upstream base: `custom` rebased from `75c4ce26` onto `92318a24` (2026-11-09), which carries
+upstream's 6.2.8, 6.2.9 and 6.2.10 releases; the upstream `versionCode` moves 602007 → 602010, so
+this build is `602010002`. No fork feature changed — this release is the sync itself, what upstream
+brings with it, and the two things the merge could not settle on its own.
+
+### From upstream (6.2.8 / 6.2.9 / 6.2.10)
+
+- **The call screen no longer lands in the recent-tasks list, and answering from the notification
+  no longer drops the app into the background.** `CallActivity` gained `taskAffinity=""` and
+  `excludeFromRecents`, and the launch-from-notification path moved into `LinphoneUtils` — the one
+  upstream change in this batch that touches the fork's own full-screen raise path.
+- **The listening UDP and TCP ports moved from Random to Dont Bind** (`sip_port` / `sip_tcp_port`,
+  `-1` → `-2`): the stack stops binding a listening socket and relies on the path its own
+  registration opened. That is the setting deciding whether an incoming call reaches the phone at
+  all, so it is the thing to watch on this build.
+- **An All calls / Missed filter above the call history** (6.2.9) — repainted here, see below.
+  Upstream added a second copy of it to its landscape layout; this fork needs neither, one layout
+  set serving both orientations.
+- **Every Intent carrying a URI now grants read permission on it**
+  (`FLAG_GRANT_READ_URI_PERMISSION`), which Android 18 will require — it covers sharing a
+  recording, a received file, a contact photo.
+- A call shown on a watch or other connected device reads better when the remote end's username is
+  a phone number; the proximity sensor listener is registered only while the proximity wake lock is
+  actually held.
+- OIDC login parses the JWT to recover the username when the account did not carry one, which also
+  stops a stale `auth_info_X` lingering in the config after logging out; client-secret support had
+  arrived just before.
+- Chat: a mention is matched whatever its capitalisation; chat rooms are no longer forced to a zero
+  ephemeral lifetime (remote provisioning needs that); and a 1-1 room can be created on a Flexisip
+  backend without end-to-end encryption instead of silently falling back to a Basic one.
+- The usual batch of list and popup repairs: a selected row no longer stays highlighted after the
+  pane closes on a reordered list, a popup near the bottom edge gets its real height, menu icons
+  stay highlighted while their popup is open, the default account's own address is hidden from the
+  participant pickers, and conversation info redraws when administration rights change.
+- Tooling: Gradle 9.7.1 → 9.8.2, AGP 9.4.0 → 9.5.1, Kotlin 2.4.20 → 2.4.21,
+  `androidx.core:telecom` 1.1.0-beta01 → **1.1.0** stable, navigation 2.10.2, annotations 1.11.0,
+  coil 3.6.3, Firebase BOM 35.1.0 (inert here — there is no `google-services.json`). The Linphone
+  SDK stays on `5.6.+`.
+
+### Ported through the rebase
+
+- **The hidden separators upstream deleted as unused are kept**, because here they are not:
+  `HistoryListAdapter` and `ContactsListAdapter` hand `binding.separator` to the UI page as the row
+  divider whose thickness and colour are live controls. Both `@+id/separator` views stay in
+  `history_list_cell.xml` and `contact_list_cell.xml`, and the time line that was anchored to one
+  of them anchors to its row instead.
+- Upstream's new `<attribution>` manifest tag sits beside the fork's `<queries>` block for the two
+  automation callers; both are additions, both kept.
+- The landscape history layout upstream edited stays deleted — one layout set serves both
+  orientations here.
+
+### Repainted and repaired
+
+- **Upstream's new filter, in the house colours.** It marks the chosen segment with an accent fill
+  and a white label, written as a raw `bc_white` reference that the sixty-attribute theme overlay
+  cannot reach; on this palette that is white text on yellow — illegible, and against the rule that
+  a pressable thing is outlined and never filled. The selection now carries the thin 1.25 dp frame
+  of every other pill over the yellow wash, its label in full ink, the other segment dim.
+- **The call history has its bottom edge back.** The merge took upstream's
+  `layout_constraintBottom_toTopOf="@id/bottom_nav_bar"`, but upstream keeps that nav bar inside
+  the same `ConstraintLayout` while this fork's single-layout rework moved it out — so the
+  constraint pointed at a non-sibling, was dropped at runtime, and left a `0dp`-high list with no
+  bottom edge. Caught as the one new lint `NotSibling` error; it anchors to the parent again.
+
+## 6.3.0-alpha+2026-09-11.12-50.g75c4ce26+011
 
 Same upstream base (`75c4ce26`). The phone can now be *asked* whether it is able to take a call, and
 answers out of its own registration state rather than out of the fact that its process exists; it
