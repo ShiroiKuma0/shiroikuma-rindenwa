@@ -14,12 +14,13 @@ imperial-era day headlines, an address book with foldable gojūon letter heading
 draggable tiles, a black-yellow theme applied through the whole app, a card-folder tab navigation
 with an account strip you can drag into order, a settings page that makes colours, fonts and shapes
 live-editable, settings groups boxed in yellow that remember what you folded, a full-app
-Export/Import backup, and an automation contract that lets a sister app back this one up — and its
-data — without being asked twice.
+Export/Import backup, an automation contract that lets a sister app back this one up — and its data
+— without being asked twice, a keep-alive door a sister app can knock on to confirm that a call can
+really reach this phone, and diagnostics that record nothing until you ask them to.
 
 Installs **side-by-side** with stock Linphone (app id `shiroikuma.rindenwa`).
 
-**📥 Latest release: [`6.3.0-alpha+2026-09-11.12-50.g75c4ce26+009`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
+**📥 Latest release: [`6.3.0-alpha+2026-09-11.12-50.g75c4ce26+011`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
 
 </div>
 
@@ -73,6 +74,13 @@ Every surface is a slot you can set: colours through an RGBA slider picker with 
 your recent choices; fonts imported from your own `.ttf`/`.otf` files and **rendered in their own
 glyphs** in the picker; per-slot weight and size; and border and roundness sliders that go all the
 way to zero. Everything previews live.
+
+A row that *does* something when you tap it is drawn as an **outlined pill** — never filled, and
+never wider than the label it carries — with its explanation beneath in dim gold and a **›** only
+when a screen opens; the one action a section is about wears a 3 dp frame and a bold label, every
+other a thin 1.25 dp one. Rows that carry a switch, a swatch or a slider stay plain, because the
+control already says they can be touched. Nothing in the page is a band of colour you have to guess
+at.
 
 ---
 
@@ -241,6 +249,43 @@ and never on the receiver above.
 **It ships switched on**, because a backup that needs configuring first is no use on a clean phone.
 An authorization token is still available for a caller that should have to prove itself, but it is
 opt-in now; both switches live inside the Export/Import section, where backup lives.
+
+---
+
+## 🩺 Ask it whether it can take a call
+
+A softphone can be running and still be deaf: a process the system calls alive, with not one account
+registered, receives exactly as many calls as one that was force-stopped — and this fork has no push
+to fall back on. So the phone answers that question itself. 白い熊 自由作業盤's watchdog knocks on an
+exported, permission-free door every 15 minutes and on every unlock — the only kind of door that
+still opens after a force-stop — and gets back one word built from the **registration state of the
+accounts**, not from the existence of the process: `ALIVE`, `STARTED` (it was dead and has been
+started), `RESTORED` (an account was not registered, was kicked, and came back), `OFFLINE`, `OFF`,
+or `ERROR:` with a reason that names the account and the SIP code behind it.
+
+It repairs what can be repaired on the way: brings the keep-alive service back the one way that is
+legal from the background, tells the core the network is reachable when it disagrees with the system,
+refreshes the registrations, and waits out the settle before judging anything. What it cannot fix it
+**names** rather than works around — notifications or a channel switched off, background restriction,
+or the foreground-service app-op that Huawei's PowerGenie likes to set to ignore, which is the usual
+reason a call dies with no app code at fault. Every answer is one line in the app's own trace, so a
+call that never arrived at 03:00 can be explained the next morning.
+
+---
+
+## 🧾 Diagnostics, and only when asked
+
+Three logs — every account's REGISTER answer with the SIP code behind a failure, a line per incoming
+call and how it ended, and the process and keep-alive service going up and down — each behind its own
+switch and **every one off until you turn it on**. While anything is recording, a notification stays
+up carrying **Mark**, for marking the moment something went wrong, and **Turn all off**.
+
+What is recorded is plain text in the app's own directory, one file per kind per day, readable over
+`adb` with no permission: the page shows how many files there are, how big and which days, keeps
+them forever or for N days as you choose, exports them into a dated subdirectory of a directory you
+pick, shares them, or purges them behind a warning that says exactly what goes. Nothing is named
+`.log`, because EMUI's nightly clean-up deletes those as junk, and no file is held open, so one
+deleted under the app is simply recreated instead of every further line disappearing.
 
 ---
 
