@@ -4,14 +4,18 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
 import android.content.res.ColorStateList
+import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.RippleDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.provider.DocumentsContract
 import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
@@ -21,17 +25,18 @@ import java.time.LocalDate
 import java.time.ZoneId
 import org.linphone.R
 import org.linphone.databinding.ActivitySkUiBinding
+import org.linphone.databinding.ItemSkActionBinding
 import org.linphone.databinding.ItemSkCallPreviewBinding
 import org.linphone.databinding.ItemSkChoiceBinding
 import org.linphone.databinding.ItemSkColorBinding
 import org.linphone.databinding.ItemSkDimenBinding
+import org.linphone.databinding.ItemSkNoteBinding
 import org.linphone.databinding.ItemSkPreviewBoxBinding
 import org.linphone.databinding.ItemSkSectionBinding
 import org.linphone.databinding.ItemSkSubgroupBinding
 import org.linphone.databinding.ItemSkSwitchBinding
 import org.linphone.databinding.ItemSkTextBinding
 import org.linphone.databinding.ItemSkTokenBinding
-import org.linphone.databinding.ItemSkValueBinding
 
 /**
  * shiroikuma-rindenwa fork — the 白い熊 臨電話 UI page.
@@ -41,6 +46,11 @@ import org.linphone.databinding.ItemSkValueBinding
  * rows, and a live preview for everything — colors (RGBA slider picker with recent-color boxes),
  * external fonts rendered in their own glyphs, weight/size sliders, and 0-capable border/roundness
  * sliders.
+ *
+ * Every row that *does* something when it is tapped — opens a panel, a picker, a system settings
+ * screen — is drawn through [addActionRow] as an outlined pill no wider than its own label, so it
+ * can never be read as a heading nor as a banner; rows that carry their own control (switch,
+ * swatch, slider, a picked value) stay plain, the control being affordance enough.
  *
  * The first section is Export/Import (Kōjiki flow), with the 保存復元 automation rows inside it.
  */
@@ -83,6 +93,17 @@ class SkUiActivity : AppCompatActivity() {
             eximPanel?.onImportSource(uri)
         }
 
+    /**
+     * Diagnostics export: a directory picked every time (never remembered), offered at
+     * "/sdcard/tmp" — where every other hand-over to 白い熊 lands.
+     */
+    private val diagExportPicker =
+        registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+            if (uri != null) {
+                exportDiagnostics(uri)
+            }
+        }
+
     private val openFontDocument =
         registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
             val slot = pendingFontSlot
@@ -112,6 +133,12 @@ class SkUiActivity : AppCompatActivity() {
         setTitle(R.string.sk_ui_title)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.toolbar.setNavigationOnClickListener { finish() }
+    }
+
+    override fun onPause() {
+        // Retention runs on leaving the page and at start — never while something is recording.
+        runCatching { SkDiag.cleanUp(this) }
+        super.onPause()
     }
 
     override fun onResume() {
@@ -338,6 +365,171 @@ class SkUiActivity : AppCompatActivity() {
         addDimenRow(SkDimen.BUTTON_BORDER_WIDTH, 1)
         addDimenRow(SkDimen.BUTTON_CORNER_RADIUS, 1)
         addButtonPreview(1)
+
+        // ---- Diagnostics — every log behind its own switch, all of them off until asked for ----
+        addSection(R.string.sk_section_diag)
+        addIntroNote(R.string.sk_diag_note, 1)
+        for (kind in SkDiagKind.entries) {
+            addSwitchRow(kind.labelRes, kind.descRes, SkDiag.enabled(this, kind), 1) {
+                SkDiag.setEnabled(this, kind, it)
+            }
+        }
+        addSubgroup(R.string.sk_group_diag_data, 1)
+        addDiagStoredRow(2)
+        addDiagKeepDaysRow(2)
+        addActionRow(
+            R.string.sk_diag_export,
+            R.string.sk_diag_export_desc,
+            main = false,
+            opens = true,
+            level = 2,
+        ) { diagExportPicker.launch(diagExportStart()) }
+        addActionRow(
+            R.string.sk_diag_share,
+            R.string.sk_diag_share_desc,
+            main = false,
+            opens = true,
+            level = 2,
+        ) { shareDiagnostics() }
+        // Acts in place after a confirmation, so no chevron.
+        addActionRow(
+            R.string.sk_diag_purge,
+            R.string.sk_diag_purge_desc,
+            main = false,
+            opens = false,
+            level = 2,
+        ) { purgeDiagnostics() }
+        addDiagWhereRow(2)
+    }
+
+    // ------------------------------------------------------------------ diagnostics
+
+    /** A note belonging to a whole section rather than to one row: dim gold, nothing to press. */
+    private fun addIntroNote(textRes: Int, level: Int) {
+        val row = ItemSkNoteBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
+        row.skNoteLabel.setText(textRes)
+        row.skNoteLabel.textSize = NOTE_TEXT_SP
+        row.skNoteLabel.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
+        row.skNoteLabel.layoutParams = LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f)
+        row.skNoteValue.visibility = View.GONE
+        indentRow(row.root, level)
+        binding.skHolder.addView(row.root)
+    }
+
+    /** What is on the phone. Counting lists the directory, so it is filled in from a thread. */
+    private fun addDiagStoredRow(level: Int) {
+        val row = ItemSkNoteBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
+        row.skNoteLabel.setText(R.string.sk_diag_stored)
+        row.skNoteLabel.setTextColor(SkTheme.color(this, SkSlot.TEXT))
+        row.skNoteValue.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
+        row.skNoteValue.text = PENDING_VALUE
+        Thread({
+            val described = runCatching { SkDiag.inventory(this).describe(this) }.getOrNull()
+            if (described != null) {
+                runOnUiThread {
+                    if (!isFinishing && row.root.isAttachedToWindow) {
+                        row.skNoteValue.text = described
+                    }
+                }
+            }
+        }, "sk-diag-inventory").start()
+        indentRow(row.root, level)
+        binding.skHolder.addView(row.root)
+    }
+
+    /** How long recorded days are kept. 0 — the default — keeps everything. */
+    private fun addDiagKeepDaysRow(level: Int) {
+        val row = ItemSkDimenBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
+        row.skDimenLabel.setText(R.string.sk_diag_keep_days)
+        row.skDimenLabel.setTextColor(SkTheme.color(this, SkSlot.TEXT))
+        row.skDimenValue.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
+        tintSeekBar(row.skDimenSeekbar, SkTheme.color(this, SkSlot.ACCENT))
+        row.skDimenSeekbar.max = MAX_KEEP_DAYS
+        row.skDimenSeekbar.progress = SkDiag.keepDays(this)
+        row.skDimenValue.text = keepDaysLabel(SkDiag.keepDays(this))
+        row.skDimenSeekbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(bar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (!fromUser) return
+                SkDiag.setKeepDays(this@SkUiActivity, progress)
+                row.skDimenValue.text = keepDaysLabel(progress)
+            }
+
+            override fun onStartTrackingTouch(bar: SeekBar?) {}
+
+            override fun onStopTrackingTouch(bar: SeekBar?) {}
+        })
+        indentRow(row.root, level)
+        binding.skHolder.addView(row.root)
+    }
+
+    /** The path to type into adb — the files are readable with no permission at all. */
+    private fun addDiagWhereRow(level: Int) {
+        val row = ItemSkNoteBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
+        row.skNoteLabel.setText(R.string.sk_diag_where)
+        row.skNoteLabel.setTextColor(SkTheme.color(this, SkSlot.TEXT))
+        row.skNoteValue.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
+        row.skNoteValue.text = SkDiag.directoryPath(this)
+        indentRow(row.root, level)
+        binding.skHolder.addView(row.root)
+    }
+
+    private fun keepDaysLabel(days: Int): String =
+        if (days <= 0) {
+            getString(R.string.sk_diag_keep_forever)
+        } else {
+            getString(R.string.sk_diag_keep_days_value, days)
+        }
+
+    /** The picker opens at "/sdcard/tmp"; null simply means the system picks its own start. */
+    private fun diagExportStart(): Uri? = runCatching {
+        DocumentsContract.buildDocumentUri(EXTERNAL_STORAGE_AUTHORITY, EXPORT_START_DOCUMENT)
+    }.getOrNull()
+
+    private fun exportDiagnostics(tree: Uri) {
+        Thread({
+            val message = try {
+                SkDiag.export(this, tree)
+            } catch (e: Exception) {
+                getString(R.string.sk_diag_export_failed, e.message ?: e.toString())
+            }
+            runOnUiThread {
+                if (!isFinishing) {
+                    Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+                }
+            }
+        }, "sk-diag-export").start()
+    }
+
+    private fun shareDiagnostics() {
+        val intent = SkDiag.shareIntent(this)
+        if (intent == null) {
+            Toast.makeText(this, R.string.sk_diag_stored_empty, Toast.LENGTH_SHORT).show()
+            return
+        }
+        startActivity(Intent.createChooser(intent, getString(R.string.sk_diag_share)))
+    }
+
+    /** Deleting is forever, so the warning says exactly what goes — files, size and days. */
+    private fun purgeDiagnostics() {
+        val inventory = SkDiag.inventory(this)
+        if (inventory.empty) {
+            Toast.makeText(this, R.string.sk_diag_stored_empty, Toast.LENGTH_SHORT).show()
+            return
+        }
+        SkConfirmDialog(
+            this,
+            getString(R.string.sk_diag_purge),
+            getString(R.string.sk_diag_purge_warning, inventory.describe(this)),
+            getString(R.string.sk_diag_purge_confirm),
+        ) {
+            val deleted = SkDiag.purge(this)
+            Toast.makeText(
+                this,
+                getString(R.string.sk_diag_purged, deleted.files),
+                Toast.LENGTH_LONG,
+            ).show()
+            buildRows()
+        }
     }
 
     private fun addSection(section: SkSection) = addSection(section.labelRes)
@@ -366,21 +558,88 @@ class SkUiActivity : AppCompatActivity() {
         binding.skHolder.addView(row.root)
     }
 
-    private fun addEximportRow(level: Int) {
-        val row = ItemSkValueBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
-        row.skValueTitle.setText(R.string.sk_section_eximport)
-        row.skValueTitle.setTextColor(SkTheme.color(this, SkSlot.TEXT))
-        row.skValueDesc.setText(R.string.sk_eim_row_desc)
-        row.skValueDesc.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
-        // Queried on page open: the latest export in the settable directory. Red until it is set.
-        val (status, warn) = SkEximport.lastExportStatus(this)
-        row.skValueStatus.text = status
-        row.skValueStatus.setTextColor(
-            if (warn) EXIM_WARN_COLOR else SkTheme.color(this, SkSlot.TEXT_SECONDARY),
-        )
-        row.root.setOnClickListener { openEximport() }
+    /**
+     * A pressable row: the label inside an **outlined** pill — never filled, and never wider than
+     * the label it carries — with its explanation beneath, aligned with that label. [main] is the
+     * one action its section is about (here: the Export / Import panel) and gets the 3dp frame and
+     * bold label; every other action gets the thin 1.25dp frame. [opens] adds the › that promises
+     * another screen — a row that acts in place after a confirmation carries none.
+     *
+     * The pill alone takes the touch, so the explanation below it is text and nothing more.
+     * Returns the binding, for the callers that fill the status line under the description.
+     */
+    private fun addActionRow(
+        titleRes: Int,
+        descRes: Int,
+        main: Boolean,
+        opens: Boolean,
+        level: Int,
+        onClick: () -> Unit,
+    ): ItemSkActionBinding {
+        val row = ItemSkActionBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
+        val accent = SkTheme.color(this, SkSlot.ACCENT)
+        row.skActionTitle.setText(titleRes)
+        row.skActionTitle.setTextColor(SkTheme.color(this, SkSlot.TEXT))
+        row.skActionTitle.setTypeface(null, if (main) Typeface.BOLD else Typeface.NORMAL)
+        row.skActionChevron.text = CHEVRON
+        row.skActionChevron.setTextColor(accent)
+        row.skActionChevron.visibility = if (opens) View.VISIBLE else View.GONE
+        row.skActionDesc.setText(descRes)
+        row.skActionDesc.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
+        // Shown only by the rows that have something to report under the description.
+        row.skActionStatus.visibility = View.GONE
+        row.skActionPill.background = pillFrame(accent, main)
+        row.skActionPill.setOnClickListener { onClick() }
         indentRow(row.root, level)
         binding.skHolder.addView(row.root)
+        return row
+    }
+
+    /** The status line under an action row's description, in the secondary colour or warning red. */
+    private fun setActionStatus(row: ItemSkActionBinding, status: CharSequence, warn: Boolean) {
+        row.skActionStatus.text = status
+        row.skActionStatus.visibility = View.VISIBLE
+        row.skActionStatus.setTextColor(
+            if (warn) EXIM_WARN_COLOR else SkTheme.color(this, SkSlot.TEXT_SECONDARY),
+        )
+    }
+
+    /**
+     * The house pill: fully round, the frame in [color], the page showing through — never filled.
+     * [main] draws the thick frame kept for the main action of a block. The ripple rides on the
+     * pill itself, so only the pill answers a touch.
+     */
+    private fun pillFrame(color: Int, main: Boolean): RippleDrawable {
+        val density = resources.displayMetrics.density
+        val frame = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            setColor(0)
+            cornerRadius = PILL_RADIUS_DP * density
+            setStroke(
+                (((if (main) PILL_FRAME_MAIN_DP else PILL_FRAME_DP) * density) + 0.5f).toInt()
+                    .coerceAtLeast(1),
+                color,
+            )
+        }
+        return RippleDrawable(
+            ColorStateList.valueOf((color and 0x00FFFFFF) or PILL_RIPPLE_ALPHA),
+            frame,
+            null,
+        )
+    }
+
+    private fun addEximportRow(level: Int) {
+        // The one thing this section is for — the thick frame, and the › of a panel that opens.
+        val row = addActionRow(
+            R.string.sk_section_eximport,
+            R.string.sk_eim_row_desc,
+            main = true,
+            opens = true,
+            level = level,
+        ) { openEximport() }
+        // Queried on page open: the latest export in the settable directory. Red until it is set.
+        val (status, warn) = SkEximport.lastExportStatus(this)
+        setActionStatus(row, status, warn)
     }
 
     private fun openEximport() {
@@ -460,6 +719,9 @@ class SkUiActivity : AppCompatActivity() {
         row.skTokenValue.text = SkAutomation.abbreviate(SkAutomation.token(this))
         row.skTokenRegenerate.setText(R.string.sk_auto_token_regenerate)
         row.skTokenRegenerate.setTextColor(EXIM_WARN_COLOR)
+        // No bare-text buttons: it is a pill like every other action, and red because it destroys
+        // the token in place — a destructive action lends its colour to the frame, never a fill.
+        row.skTokenRegenerate.background = pillFrame(EXIM_WARN_COLOR, main = false)
         row.root.setOnClickListener {
             // Deliberately not toasting the value itself — the row abbreviates it for a reason.
             getSystemService(ClipboardManager::class.java).setPrimaryClip(
@@ -486,21 +748,21 @@ class SkUiActivity : AppCompatActivity() {
      * the caller names, instead of only the SAF directory picked above.
      */
     private fun addAllFilesAccessRow(level: Int) {
-        val row = ItemSkValueBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
         val granted = Environment.isExternalStorageManager()
-        row.skValueTitle.setText(R.string.sk_auto_allfiles_title)
-        row.skValueTitle.setTextColor(SkTheme.color(this, SkSlot.TEXT))
-        row.skValueDesc.setText(R.string.sk_auto_allfiles_desc)
-        row.skValueDesc.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
-        row.skValueStatus.setText(
-            if (granted) R.string.sk_auto_allfiles_granted else R.string.sk_auto_allfiles_needed,
+        val row = addActionRow(
+            R.string.sk_auto_allfiles_title,
+            R.string.sk_auto_allfiles_desc,
+            main = false,
+            opens = true,
+            level = level,
+        ) { openAllFilesAccessSettings() }
+        setActionStatus(
+            row,
+            getString(
+                if (granted) R.string.sk_auto_allfiles_granted else R.string.sk_auto_allfiles_needed,
+            ),
+            warn = !granted,
         )
-        row.skValueStatus.setTextColor(
-            if (granted) SkTheme.color(this, SkSlot.TEXT_SECONDARY) else EXIM_WARN_COLOR,
-        )
-        row.root.setOnClickListener { openAllFilesAccessSettings() }
-        indentRow(row.root, level)
-        binding.skHolder.addView(row.root)
     }
 
     private fun openAllFilesAccessSettings() {
@@ -535,21 +797,21 @@ class SkUiActivity : AppCompatActivity() {
      * is right again on the way back. Re-read on every build because the grant can be withdrawn.
      */
     private fun addCallScreenOverlayRow(level: Int) {
-        val row = ItemSkValueBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
         val granted = SkRinger.canRaiseCallScreen(this)
-        row.skValueTitle.setText(R.string.sk_call_overlay_title)
-        row.skValueTitle.setTextColor(SkTheme.color(this, SkSlot.TEXT))
-        row.skValueDesc.setText(R.string.sk_call_overlay_desc)
-        row.skValueDesc.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
-        row.skValueStatus.setText(
-            if (granted) R.string.sk_call_overlay_granted else R.string.sk_call_overlay_needed,
+        val row = addActionRow(
+            R.string.sk_call_overlay_title,
+            R.string.sk_call_overlay_desc,
+            main = false,
+            opens = true,
+            level = level,
+        ) { SkRinger.openCallScreenPermissionSettings(this) }
+        setActionStatus(
+            row,
+            getString(
+                if (granted) R.string.sk_call_overlay_granted else R.string.sk_call_overlay_needed,
+            ),
+            warn = !granted,
         )
-        row.skValueStatus.setTextColor(
-            if (granted) SkTheme.color(this, SkSlot.TEXT_SECONDARY) else EXIM_WARN_COLOR,
-        )
-        row.root.setOnClickListener { SkRinger.openCallScreenPermissionSettings(this) }
-        indentRow(row.root, level)
-        binding.skHolder.addView(row.root)
     }
 
     /**
@@ -558,20 +820,22 @@ class SkUiActivity : AppCompatActivity() {
      * picker there is for using them in a hurry, and a list is not maintained in a hurry.
      */
     private fun addDeclineMessagesRow(level: Int) {
-        val row = ItemSkValueBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
-        row.skValueTitle.setText(R.string.sk_call_decline_messages_title)
-        row.skValueTitle.setTextColor(SkTheme.color(this, SkSlot.TEXT))
-        row.skValueDesc.setText(R.string.sk_call_decline_messages_desc)
-        row.skValueDesc.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
-        row.skValueStatus.text = getString(
-            R.string.sk_call_decline_messages_status,
-            SkDeclineMessages.general(this).size,
-            SkDeclineMessages.callersWithOwnMessages(this).size,
+        val row = addActionRow(
+            R.string.sk_call_decline_messages_title,
+            R.string.sk_call_decline_messages_desc,
+            main = false,
+            opens = true,
+            level = level,
+        ) { openDeclineMessages() }
+        setActionStatus(
+            row,
+            getString(
+                R.string.sk_call_decline_messages_status,
+                SkDeclineMessages.general(this).size,
+                SkDeclineMessages.callersWithOwnMessages(this).size,
+            ),
+            warn = false,
         )
-        row.skValueStatus.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
-        row.root.setOnClickListener { openDeclineMessages() }
-        indentRow(row.root, level)
-        binding.skHolder.addView(row.root)
     }
 
     /** Pick which list to edit: the general one, or one belonging to a particular caller. */
@@ -950,6 +1214,22 @@ class SkUiActivity : AppCompatActivity() {
         private const val BASE_INDENT_DP = 54
         private const val INDENT_STEP_DP = 18
         private const val EXIM_WARN_COLOR = 0xFFFF5252.toInt()
+
+        // Diagnostics: the note's size, the slider's reach, and where its export picker opens.
+        private const val NOTE_TEXT_SP = 13f
+        private const val PENDING_VALUE = "…"
+        private const val MAX_KEEP_DAYS = 90
+        private const val WRAP_CONTENT = LinearLayout.LayoutParams.WRAP_CONTENT
+        private const val EXTERNAL_STORAGE_AUTHORITY = "com.android.externalstorage.documents"
+        private const val EXPORT_START_DOCUMENT = "primary:tmp"
+
+        // The pill: fully round, 3dp around the main action of a block, 1.25dp around every other,
+        // ripple at 30% of the frame colour. The › promises a screen behind the row.
+        private const val PILL_RADIUS_DP = 50f
+        private const val PILL_FRAME_MAIN_DP = 3f
+        private const val PILL_FRAME_DP = 1.25f
+        private const val PILL_RIPPLE_ALPHA = 0x4D000000
+        private const val CHEVRON = "\u203A"
 
         // The call-history sample: two days back, 15:36, an 11:01 call.
         private const val SAMPLE_DAYS_BACK = 2L

@@ -115,12 +115,27 @@ object SkRinger {
                 core.stopRinging()
             }
             if (raised.add(id)) {
+                // The first incoming state for this call — the one worth a line.
+                SkDiag.log(
+                    coreContext.context,
+                    SkDiagKind.CALLS,
+                    "incoming from ${call.remoteAddress.asStringUriOnly()} state=$state " +
+                        "callScreen=${if (canRaiseCallScreen(coreContext.context)) "raised" else "not allowed"}",
+                )
                 raiseCallScreen()
             }
             return
         }
 
         if (state == Call.State.End || state == Call.State.Released || state == Call.State.Error) {
+            if (state != Call.State.Released && call.callLog.dir == Call.Dir.Incoming) {
+                SkDiag.log(
+                    coreContext.context,
+                    SkDiagKind.CALLS,
+                    "incoming from ${call.remoteAddress.asStringUriOnly()} ended: $state " +
+                        "status=${call.callLog.status} duration=${call.callLog.duration}s",
+                )
+            }
             raised.remove(id)
             silenced.remove(id)
             if (core.callsNb == 0) {

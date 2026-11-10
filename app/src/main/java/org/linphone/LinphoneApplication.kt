@@ -47,6 +47,7 @@ import org.linphone.core.LogLevel
 import org.linphone.core.ManagedConfigurationReceiver
 import org.linphone.core.VFS
 import org.linphone.core.tools.Log
+import org.linphone.shiroikuma.SkDiag
 import org.linphone.shiroikuma.SkEximport
 
 @MainThread
@@ -124,6 +125,11 @@ class LinphoneApplication : Application(), SingletonImageLoader.Factory {
             IntentFilter(Intent.ACTION_APPLICATION_RESTRICTIONS_CHANGED),
             ContextCompat.RECEIVER_NOT_EXPORTED
         )
+
+        // shiroikuma fork: the diagnostics the fork records about itself — retention, the
+        // recording notification, and a line saying this process exists. All of it is a no-op
+        // until 白い熊 turns a diagnostic on in the 臨電話 UI page.
+        runCatching { SkDiag.onProcessStart(context) }
 
         DynamicColors.applyToActivitiesIfAvailable(this)
         wakeLock.release()
