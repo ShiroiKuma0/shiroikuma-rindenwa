@@ -106,6 +106,9 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent" />
 
+                <!-- Upstream's All calls / Missed filter (2026-10-13), repainted: the chosen
+                     segment carries the house frame over a wash instead of upstream's accent
+                     fill with a white label, which here would be white on yellow. -->
                 <LinearLayout
                     android:id="@+id/calls_filter"
                     android:layout_width="0dp"
@@ -135,8 +138,8 @@
                         android:maxLines="1"
                         android:ellipsize="end"
                         android:text="@string/history_list_filter_all_calls"
-                        android:textColor="@{viewModel.missedCallsFilterSelected ? @color/main2_600 : @color/bc_white, default=@color/bc_white}"
-                        android:background="@{viewModel.missedCallsFilterSelected ? null : @drawable/shape_squircle_main1_500_r10_background}"
+                        android:textColor="@{viewModel.missedCallsFilterSelected ? @color/sk_ink_dim : @color/sk_ink, default=@color/sk_ink}"
+                        android:background="@{viewModel.missedCallsFilterSelected ? null : @drawable/sk_shape_filter_selected}"
                         android:selected="@{!viewModel.missedCallsFilterSelected}" />
 
                     <androidx.appcompat.widget.AppCompatTextView
@@ -155,8 +158,8 @@
                         android:maxLines="1"
                         android:ellipsize="end"
                         android:text="@string/history_list_filter_missed_calls"
-                        android:textColor="@{viewModel.missedCallsFilterSelected ? @color/bc_white : @color/main2_600, default=@color/main2_600}"
-                        android:background="@{viewModel.missedCallsFilterSelected ? @drawable/shape_squircle_main1_500_r10_background : null}"
+                        android:textColor="@{viewModel.missedCallsFilterSelected ? @color/sk_ink : @color/sk_ink_dim, default=@color/sk_ink_dim}"
+                        android:background="@{viewModel.missedCallsFilterSelected ? @drawable/sk_shape_filter_selected : null}"
                         android:selected="@{viewModel.missedCallsFilterSelected}" />
 
                 </LinearLayout>
@@ -167,7 +170,7 @@
                     android:layout_height="0dp"
                     android:layout_marginTop="6dp"
                     app:layout_constraintTop_toBottomOf="@id/calls_filter"
-                    app:layout_constraintBottom_toTopOf="@id/bottom_nav_bar" />
+                    app:layout_constraintBottom_toBottomOf="parent" />
 
                 <ImageView
                     android:id="@+id/no_calls_image"
