@@ -10,8 +10,8 @@
     android:focusable="true"
     android:paddingStart="16dp"
     android:paddingEnd="16dp"
-    android:paddingTop="6dp"
-    android:paddingBottom="6dp">
+    android:paddingTop="2dp"
+    android:paddingBottom="2dp">
 
     <TextView
         android:id="@+id/sk_choice_label"

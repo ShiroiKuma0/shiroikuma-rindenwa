@@ -206,6 +206,24 @@
             </intent-filter>
         </receiver>
 
+        <!-- shiroikuma fork: Mark / Turn all off on the diagnostics recording notification. -->
+        <receiver
+            android:name=".shiroikuma.SkDiagReceiver"
+            android:exported="false" />
+
+        <!-- shiroikuma fork: the keep-alive door for 自由作業盤's 生存監視 (白い熊, 2026-11-07).
+             Exported, no permission and no token: it starts nothing the app's own settings do not
+             already ask for. The caller sends it ordered and with FLAG_INCLUDE_STOPPED_PACKAGES,
+             so it reaches the app after an EMUI kill — which is the whole point, since those kills
+             take the app's own restart job with them. See SkKeepAliveReceiver / SkKeepAlive. -->
+        <receiver
+            android:name=".shiroikuma.SkKeepAliveReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="${applicationId}.action.KEEP_ALIVE" />
+            </intent-filter>
+        </receiver>
+
         <!-- shiroikuma fork: the contract v2 data door. No android:permission, and this time for a
              real reason rather than v1's: a custom permission would have to be `normal` (any app
              may hold it) or `signature` (impossible — every app in this family has its own

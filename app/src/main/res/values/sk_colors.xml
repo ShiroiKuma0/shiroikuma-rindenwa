@@ -21,6 +21,9 @@
     <color name="sk_ink_faint">#80FFFF00</color>
     <color name="sk_ink_ghost">#4DFFFF00</color>
 
+    <!-- A disabled pill keeps its frame and its label, both at 38% (black-yellow-theme). -->
+    <color name="sk_yellow_38">#61FFFF00</color>
+
     <!-- Yellow washes for "tinted background" roles (pressed states, accent chips). -->
     <color name="sk_yellow_wash">#33FFFF00</color>
     <color name="sk_yellow_wash_strong">#59FFFF00</color>

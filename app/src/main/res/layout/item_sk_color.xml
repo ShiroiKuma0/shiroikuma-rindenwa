@@ -7,8 +7,8 @@
     android:focusable="true"
     android:paddingStart="16dp"
     android:paddingEnd="16dp"
-    android:paddingTop="5dp"
-    android:paddingBottom="5dp">
+    android:paddingTop="2dp"
+    android:paddingBottom="2dp">
 
     <TextView
         android:id="@+id/sk_color_label"

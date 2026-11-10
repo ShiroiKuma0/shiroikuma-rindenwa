@@ -25,6 +25,9 @@ import android.os.IBinder
 import androidx.annotation.MainThread
 import org.linphone.LinphoneApplication.Companion.coreContext
 import org.linphone.core.tools.Log
+import org.linphone.shiroikuma.SkDiag
+import org.linphone.shiroikuma.SkDiagKind
+import org.linphone.shiroikuma.SkKeepAlive
 
 @MainThread
 class CoreKeepAliveThirdPartyAccountsService : Service() {
@@ -39,6 +42,9 @@ class CoreKeepAliveThirdPartyAccountsService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.i("$TAG onStartCommand")
+        // shiroikuma fork: what the keep-alive door answers "is it up?" from — see SkKeepAlive.
+        SkKeepAlive.onServiceStarted()
+        SkDiag.log(this, SkDiagKind.SERVICE, "keep-alive service started")
         coreContext.notificationsManager.onKeepAliveServiceStarted(this)
         return super.onStartCommand(intent, flags, startId)
     }
@@ -50,6 +56,8 @@ class CoreKeepAliveThirdPartyAccountsService : Service() {
 
     override fun onDestroy() {
         Log.i("$TAG onDestroy")
+        SkKeepAlive.onServiceStopped() // shiroikuma fork
+        SkDiag.log(this, SkDiagKind.SERVICE, "keep-alive service destroyed")
         coreContext.notificationsManager.onKeepAliveServiceDestroyed()
         super.onDestroy()
     }
