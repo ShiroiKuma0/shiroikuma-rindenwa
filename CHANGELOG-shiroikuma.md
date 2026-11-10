@@ -2,7 +2,111 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha+2026-09-11.12-50.g75c4ce26+009 — current
+## 6.3.0-alpha+2026-09-11.12-50.g75c4ce26+011 — current
+
+Same upstream base (`75c4ce26`). The phone can now be *asked* whether it is able to take a call, and
+answers out of its own registration state rather than out of the fact that its process exists; it
+can be told to record what it does, behind switches that are all off until one is turned on; and
+every row in the UI page that does something when tapped is drawn as the house pill instead of as a
+heading.
+
+### A door 自由作業盤 can knock on
+
+- **Why it exists.** 自由作業盤's 生存監視 watches every sister app on the phone, every 15 minutes and
+  on every unlock. For a softphone there is only one question worth asking — *can a call reach it
+  right now* — and no app can answer that about another from the outside: a process can be up,
+  visible to `ActivityManager`, and still be deaf because not one of its accounts is registered.
+- **The door is a broadcast**, `shiroikuma.rindenwa.action.KEEP_ALIVE`, received by an **exported**
+  manifest receiver that takes **no permission and no token**. That is deliberate: a manifest
+  receiver is the only door that still opens after a force-stop, which is exactly the state worth
+  asking about, and a permission or a shared secret would turn the rescue path into one more thing
+  that can be mis-configured at 03:00. The door reveals only whether this phone can ring.
+- **The answer goes back twice over**, because the caller may be in either of two situations: the
+  ordered broadcast's result (`setResultData`) for the one that can wait, and a fresh intent to the
+  `reply_action` / `reply_package` it named, carrying its `reply_id` back with
+  `FLAG_INCLUDE_STOPPED_PACKAGES`, for the one that cannot. Both are sent **exactly once**, guarded
+  so a slow answer and a timeout can never produce two.
+- **One word, and a reason when there is one:** `OFF` (nothing to keep alive — 「keep service
+  alive」 is off, or no account has registration enabled), `ALIVE`, `STARTED` (the Core or the
+  service was dead and has been started; registration takes a few seconds and the next check
+  confirms it), `RESTORED` (an account was not Ok, was kicked, and came back), `OFFLINE` (no usable
+  network, so nothing is wrong), or `ERROR:<reason>`. **No reason ever carries a password or a
+  token**; a SIP identity may, since that is the thing being named.
+- **A reason says which account and why**, down to the SIP code —
+  `ERROR:not registered: sip:…@… — Failed (403 Forbidden)` — so the notification 生存監視 raises is
+  already the diagnosis instead of an invitation to go looking.
+
+### What the door checks, and what it repairs
+
+- The work runs off the broadcast thread (`goAsync`, one named thread) inside a **13 s budget**, so
+  the answer is always inside the 15 s the contract allows, whatever the Core is doing.
+- The account list is read **on the Core thread** (`postOnCoreThread` and a latch) because the SDK is
+  not thread-safe, after waiting up to 6 s for the Core to reach `GlobalState.On` — a check that
+  arrives two seconds after a cold start would otherwise report a phone that is merely still waking
+  up as broken.
+- **Repair, in the order that fixes things:** start the keep-alive foreground service if it is down;
+  tell the Core the network is reachable if it disagrees with the system; `refreshRegisters()`; then
+  wait out a 3 s settle before deciding anything, because `Progress` is not a failure.
+- **The service is started the one way that is legal from the background** —
+  `startForegroundService`, never upstream's `startService`, which throws when the app is not in the
+  foreground — and only after checking that its notification channel is enabled and that this app
+  holds one of the Android 12+ exemptions (「Display over other apps」 or battery-optimisation
+  exemption). A `startForegroundService` into a disabled channel is killed moments later by
+  `ForegroundServiceDidNotStartInTime`, so that case is **reported rather than attempted**.
+- **Blockers the app cannot fix are named rather than worked around**, appended to an otherwise good
+  answer as `ERROR:alive, but …`: notifications turned off, the service channel or the incoming-call
+  channel turned off, background restriction, and the `android:start_foreground` app-op set to
+  ignore — the one EMUI's PowerGenie likes to set, and the usual reason a call dies without a line
+  of app code being at fault. Battery optimisation is reported **only when it changes**, since it is
+  a standing choice rather than a fault.
+- **Measured on the phone**: `ALIVE`, then a force-stop, then `STARTED` with the process and the
+  foreground service back up (the system attributed the allowed start to
+  `SYSTEM_ALERT_WINDOW_PERMISSION`), then `ALIVE` eleven seconds later with all seven accounts `Ok`.
+  自由作業盤's first live check answered `ALIVE` through the reply broadcast in **38 ms**, with the
+  matching `reply_id` in the day's trace.
+
+### Diagnostics, off until you ask for them
+
+- **Three logs, each behind its own switch, every one off by default** — Registration (every
+  account's REGISTER answer with the SIP code behind a failure), Incoming calls (when a call
+  arrived, whether the call screen could be raised, how it ended), Service and process (process
+  starts and the keep-alive service going up and down). Turning one on records the app version, so a
+  file says what was recording it.
+- **Recorded data**, under its own subgroup: **Stored** (files, size and the span of days, counted
+  on a background thread), **Keep for N days** (0 — the default — keeps everything; clean-up runs on
+  leaving the page and at start), **Export** to a directory picked every time and offered at
+  `/sdcard/tmp`, copied into a dated `<yyyy-MM-dd_HH-mm-ss>_rindenwa-diag` subdirectory, **Share**
+  through the app's own FileProvider, **Purge** behind a warning that states how many files, how big
+  and which days go forever, and a row printing the `adb` path, which needs no permission at all.
+- **A notification stays up while anything is recording**, carrying **Mark** (a numbered line, for
+  marking the moment something went wrong) and **Turn all off**.
+- **One file per kind per day**, `rindenwa-<kind>_<yyyy-MM-dd>.txt` — **never `.log`**, which EMUI's
+  nightly clean-up deletes as junk while it charges, and **nothing is held open**, so a file removed
+  under us is recreated on the next line instead of every further line vanishing into an unlinked
+  inode. A day's file is capped so a runaway logger cannot fill the phone.
+- **The keep-alive door's own answers are the one thing recorded unconditionally** — one short line
+  per call. They are the receipt of a contract another app depends on, and a switch that was off at
+  03:00 would have recorded nothing about the call that never came.
+
+### Every action is a pill
+
+- **The house rule reaches the UI page** (and the nine button shapes behind the rest of the app): a
+  pressable thing is an **outlined** pill — never filled — the frame 3 dp and the label bold for the
+  one action a section is about, 1.25 dp and normal for the rest, a wash instead of a fill when
+  pressed, and frame and label at 38 % when disabled.
+- **A pill is as wide as its label and no wider.** Stretching a short action like Export across the
+  line makes it read as a banner rather than as a button; a long label still fills most of the line
+  on its own, which is the width it should have.
+- Each pressable row carries its explanation **beneath** the pill in dim gold, aligned with the
+  label, and a **›** only when a screen opens — a row that acts in place after a confirmation (Purge,
+  Regenerate) carries none. Rows that have a control of their own — switch, swatch, slider — stay
+  plain, the control being affordance enough.
+- Regenerate, which destroys the automation token in place, is the same pill in the warning red it
+  is written in: a destructive action lends its colour to the frame, never to a fill.
+- Every row drops to minimal padding with **no platform 48 dp floor**, so the page reads as a list
+  again instead of a column of bands.
+
+## 6.3.0-alpha+2026-09-11.12-50.g75c4ce26+009
 
 Same upstream base (`75c4ce26`). The screen a call arrives on is the fork's own now, in black and
 yellow, with five controls instead of two; refusing a call can answer it with a real SMS, sent from
