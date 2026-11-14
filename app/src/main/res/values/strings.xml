@@ -1375,6 +1375,10 @@
     <string name="sk_diag_registration_desc" translatable="false">Every account’s REGISTER answer, with the SIP code behind a failure. The log to turn on when calls do not arrive.</string>
     <string name="sk_diag_calls" translatable="false">Incoming calls</string>
     <string name="sk_diag_calls_desc" translatable="false">When a call arrived, whether the call screen could be raised, and how the call ended.</string>
+    <string name="sk_diag_outgoing" translatable="false">Outgoing calls</string>
+    <string name="sk_diag_outgoing_desc" translatable="false">Every state a call you place goes through, with the SIP code and reason, and the moment you hung up. The log to turn on when the other end keeps ringing.</string>
+    <string name="sk_diag_sip" translatable="false">SIP messages</string>
+    <string name="sk_diag_sip_desc" translatable="false">Every SIP message sent and received, whole, plus the SIP stack’s warnings and errors. Large, and it holds numbers and addresses — turn it on for a test and off again.</string>
     <string name="sk_diag_service" translatable="false">Service and process</string>
     <string name="sk_diag_service_desc" translatable="false">Process starts and the keep-alive service going up and down — why the app was dead.</string>
     <string name="sk_group_diag_data" translatable="false">Recorded data</string>

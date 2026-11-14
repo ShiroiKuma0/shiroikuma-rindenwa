@@ -52,6 +52,9 @@ import org.linphone.compatibility.Compatibility
 import org.linphone.contacts.ContactsManager
 import org.linphone.core.tools.Log
 import org.linphone.notifications.NotificationsManager
+import org.linphone.shiroikuma.SkDiag
+import org.linphone.shiroikuma.SkDiagKind
+import org.linphone.shiroikuma.SkEarlyBye
 import org.linphone.shiroikuma.SkRinger
 import org.linphone.telecom.TelecomManager
 import org.linphone.utils.ActivityMonitor
@@ -340,6 +343,19 @@ class CoreContext
             // already on (upstream's full-screen intent only does it on a locked/dark screen), and
             // a ringer 白い熊 silenced stays silent across a re-ring. See SkRinger.
             SkRinger.onCallStateChanged(core, call, currentState)
+
+            // shiroikuma fork: the outgoing-call diagnostic — one line per state, with the SIP
+            // code and reason, so a hang-up the other end never heard about can be read back.
+            if (call.dir == Call.Dir.Outgoing) {
+                val error = call.errorInfo
+                SkDiag.log(
+                    context,
+                    SkDiagKind.OUTGOING,
+                    "to ${call.remoteAddress.asStringUriOnly()} state=$currentState \"$message\" " +
+                        "reason=${call.reason} sip=${error.protocolCode} \"${error.phrase.orEmpty()}\" " +
+                        "callId=${call.callLog.callId.orEmpty()}",
+                )
+            }
 
             when (currentState) {
                 Call.State.IncomingReceived -> {
@@ -632,6 +648,27 @@ class CoreContext
         }
     }
 
+    // shiroikuma fork: the SIP diagnostic — whole SIP messages, warnings and errors go to the
+    // diag directory when its switch is on. A listener of its own, always registered: upstream's
+    // one above is only registered with Crashlytics, which this build does not have.
+    private val skDiagLoggingListener = object : LoggingServiceListenerStub() {
+        @WorkerThread
+        override fun onLogMessageWritten(
+            logService: LoggingService,
+            domain: String,
+            level: LogLevel,
+            message: String
+        ) {
+            SkDiag.onCoreLog(
+                context,
+                domain,
+                level == LogLevel.Warning || level == LogLevel.Error || level == LogLevel.Fatal,
+                message,
+            )            // A CANCEL the provider refuses is followed up with a BYE. See SkEarlyBye.
+            SkEarlyBye.onCoreLog(context, message)
+        }
+    }
+
     private val proximitySensorListener = object : SensorEventListener {
         override fun onAccuracyChanged(
             sensor: Sensor?,
@@ -658,6 +695,9 @@ class CoreContext
     override fun run() {
         Log.i("$TAG Creating Core")
         Looper.prepare()
+
+        // shiroikuma fork
+        Factory.instance().loggingService.addListener(skDiagLoggingListener)
 
         if (BuildConfig.CRASHLYTICS_ENABLED) {
             Log.i("$TAG Crashlytics is enabled, registering logging service listener")
@@ -1193,6 +1233,13 @@ class CoreContext
                 call.decline(reason)
             } else {
                 Log.i("$TAG Terminating call [${call.remoteAddress.asStringUriOnly()}]")
+                // shiroikuma fork: the hang-up as asked for, and the state it was asked in — a
+                // CANCEL or a BYE is decided by that state.
+                SkDiag.log(
+                    context,
+                    SkDiagKind.OUTGOING,
+                    "terminate asked for ${call.remoteAddress.asStringUriOnly()} dir=${call.dir} state=${call.state}",
+                )
                 call.terminate()
             }
         }
