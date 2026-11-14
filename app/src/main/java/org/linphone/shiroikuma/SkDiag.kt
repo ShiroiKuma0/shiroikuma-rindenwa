@@ -45,6 +45,18 @@ enum class SkDiagKind(
     /** Why it did not ring: a line per incoming call, how it was announced and how it ended. */
     CALLS("calls", R.string.sk_diag_calls, R.string.sk_diag_calls_desc),
 
+    /**
+     * Why the other end kept ringing: every state an outgoing call goes through, with the SIP
+     * code and reason behind it, and the moment the hang-up was asked for.
+     */
+    OUTGOING("outgoing", R.string.sk_diag_outgoing, R.string.sk_diag_outgoing_desc),
+
+    /**
+     * What was actually said on the wire: every SIP message sent and received, whole, plus every
+     * warning and error the SIP stack raises. The only record of whether a CANCEL left the phone.
+     */
+    SIP("sip", R.string.sk_diag_sip, R.string.sk_diag_sip_desc),
+
     /** Why it was dead: process starts, the keep-alive service going up and down. */
     SERVICE("service", R.string.sk_diag_service, R.string.sk_diag_service_desc),
     ;
@@ -87,6 +99,7 @@ object SkDiag {
     @AnyThread
     fun setEnabled(context: Context, kind: SkDiagKind, value: Boolean) {
         prefs(context).edit().putBoolean(kind.prefsKey, value).apply()
+        if (kind == SkDiagKind.SIP) sipOn = value
         if (value) {
             SkTrace.log(context, kind.key, "diag ${kind.key} on, ${BuildConfig.VERSION_NAME}")
         } else {
@@ -101,6 +114,26 @@ object SkDiag {
         if (!enabled(context, kind)) return
         SkTrace.log(context, kind.key, line)
     }
+
+    /**
+     * Fed every line the SIP stack logs, from `CoreContext`'s logging listener — hundreds a
+     * minute, so the switch is read from a cached flag rather than from the preferences each time.
+     * Kept: anything carrying a whole SIP message, and every warning and error. The stack's own
+     * chatter (wake locks, keep-alives, network checks) is left out.
+     */
+    @AnyThread
+    fun onCoreLog(context: Context, domain: String, warningOrWorse: Boolean, message: String) {
+        val on = sipOn ?: enabled(context, SkDiagKind.SIP).also { sipOn = it }
+        if (!on) return
+        if (message.contains("SIP/2.0")) {
+            SkTrace.log(context, SkDiagKind.SIP.key, message)
+        } else if (warningOrWorse) {
+            SkTrace.log(context, SkDiagKind.SIP.key, "[$domain] ! $message")
+        }
+    }
+
+    @Volatile
+    private var sipOn: Boolean? = null
 
     // ------------------------------------------------------------------ retention
 
