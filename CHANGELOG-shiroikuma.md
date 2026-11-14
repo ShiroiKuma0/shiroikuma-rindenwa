@@ -2,7 +2,44 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha+2026-11-09.14-07.g92318a24+002 — current
+## 6.3.0-alpha+2026-11-09.14-07.g92318a24+004 — current
+
+Same upstream base as `+002` (`92318a24`); `versionCode` `602010004`. Build `+003` was the
+diagnostics alone and was never released — this release carries it and the fix it led to.
+
+### Calls
+
+- **A call hung up while it rings now stops ringing at the other end, even when the provider
+  refuses the CANCEL.** Hanging up an unanswered outgoing call sends a SIP `CANCEL`. Odorik's
+  front proxy answers a well-formed one — same branch, Call-ID, From tag and Request-URI as the
+  INVITE, on the same TCP connection — with `481 Transaction Does Not Exist`; the app showed the
+  call as ended while the called phone went on ringing until somebody refused it there. The
+  `183`/`180` that makes the phone ring also opens an early dialog with the server behind the
+  proxy, and RFC 3261 §15 lets the caller end one with a `BYE`. So when a CANCEL comes back
+  `481`, the app now sends that BYE (`SkEarlyBye`): the called phone stops at once, and the app's
+  own call ends with a clean `487 Request Terminated` instead of hanging until a `486`.
+  - The Linphone SDK has no call for this, so the fork does both halves. The early dialog — tags,
+    route set, remote target — is read from the SIP stack's own log of each provisional answer and
+    dropped once the INVITE gets its final one. The BYE goes out on a connection of its own (TCP
+    or TLS) to the proxy the refusal came from, and answers a `401`/`407` challenge once with the
+    account's credentials (MD5 or SHA-256 digest).
+  - It fires only after a refused CANCEL. A provider that honours CANCEL never triggers it.
+
+### Diagnostics
+
+- **Outgoing calls** — a new switch. One line per state of every call placed, with the SIP code,
+  the reason and the Call-ID, plus the moment the hang-up was asked for and the state the call was
+  in then, and every step of the BYE fallback above with the provider's answer.
+- **SIP messages** — a new switch. Every SIP message sent and received, whole, plus the SIP
+  stack's warnings and errors — the only record of what was actually said on the wire, since the
+  SDK's own log sits in internal storage and only leaves the app by upload. It holds numbers and
+  addresses and every REGISTER refresh, so it is one to turn on for a test and off again.
+- Both are off by default, like the rest, and write to the same diag directory
+  (`rindenwa-outgoing_<day>.txt`, `rindenwa-sip_<day>.txt`). The SIP diagnostic listens through a
+  logging listener of its own: upstream's is only registered when Crashlytics is, which this build
+  does not have.
+
+## 6.3.0-alpha+2026-11-09.14-07.g92318a24+002
 
 New upstream base: `custom` rebased from `75c4ce26` onto `92318a24` (2026-11-09), which carries
 upstream's 6.2.8, 6.2.9 and 6.2.10 releases; the upstream `versionCode` moves 602007 → 602010, so
