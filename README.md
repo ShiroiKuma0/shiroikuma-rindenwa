@@ -20,7 +20,7 @@ really reach this phone, and diagnostics that record nothing until you ask them 
 
 Installs **side-by-side** with stock Linphone (app id `shiroikuma.rindenwa`).
 
-**📥 Latest release: [`6.3.0-alpha+2026-11-09.14-07.g92318a24+002`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
+**📥 Latest release: [`6.3.0-alpha+2026-11-09.14-07.g92318a24+004`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
 
 </div>
 
@@ -282,9 +282,9 @@ call that never arrived at 03:00 can be explained the next morning.
 
 ## 🧾 Diagnostics, and only when asked
 
-Three logs — every account's REGISTER answer with the SIP code behind a failure, a line per incoming
-call and how it ended, and the process and keep-alive service going up and down — each behind its own
-switch and **every one off until you turn it on**. While anything is recording, a notification stays
+Five logs — every account's REGISTER answer with the SIP code behind a failure, a line per incoming
+call and how it ended, every state of an outgoing call with the SIP code behind it, every SIP message
+whole, and the process and keep-alive service going up and down — each behind its own switch and **every one off until you turn it on**. While anything is recording, a notification stays
 up carrying **Mark**, for marking the moment something went wrong, and **Turn all off**.
 
 What is recorded is plain text in the app's own directory, one file per kind per day, readable over
@@ -293,6 +293,16 @@ them forever or for N days as you choose, exports them into a dated subdirectory
 pick, shares them, or purges them behind a warning that says exactly what goes. Nothing is named
 `.log`, because EMUI's nightly clean-up deletes those as junk, and no file is held open, so one
 deleted under the app is simply recreated instead of every further line disappearing.
+
+---
+
+## 📴 A hang-up the other end actually hears
+
+Hanging up a call that is still ringing sends a SIP `CANCEL`, and some providers refuse a perfectly
+good one with `481 Transaction Does Not Exist` — the app shows the call as over while the called
+phone rings on until somebody refuses it there. When that happens this fork ends the call a second
+way: the ringing already opened an early dialog, and the app closes it with a `BYE` of its own. The
+other phone stops at once. A provider that honours CANCEL never sees any of it.
 
 ---
 
