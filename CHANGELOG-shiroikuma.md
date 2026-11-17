@@ -2,7 +2,62 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha+2026-11-09.14-07.g92318a24+025 — current
+## 6.3.0-alpha+2026-11-09.14-07.g92318a24+029 — current
+
+Same upstream base as `+025` (`92318a24`); `versionCode` `602010029`. Builds `+026` to `+028` were
+the steps on the way and were not released.
+
+### Odorik callback
+
+- **A callback can be ordered from the call history.** A long hold on a row's phone icon opens a
+  two-pill menu — “Callback” first, “Call” second — when the row's account is an Odorik line
+  (domain `odorik.cz`), or else when the selected account is one. On any other row the hold does
+  nothing; a tap still calls directly.
+- **The order** is one request, `POST https://www.odorik.cz/api/v1/callback`, with the line number
+  and its SIP password, `caller=*<line>` and the recipient as `00<country>…` (`SkOdorikCallback`).
+  A bare nine-digit number takes the account's international prefix, or 420. The line is reached
+  as `*<line>`: a bare line number is accepted by the API and then never rings. A short message
+  says “Callback ordered — 臨N will ring.”, or why Odorik refused.
+- **The first leg is recognised when it comes in.** For 90 seconds after an order, an incoming call
+  on that line from `*<line>` is that order's first leg. Its record is pointed at the person
+  called before anything draws it, so the call screen and the notification read
+  “Callback → name”, with that person's picture.
+- **The history files it under the person called**, as a call placed here: its own arrow (up,
+  round and back down) in the direction slot and the word “Callback” after the time. The SIP stack
+  does not store the changed record, so the app keeps each callback's call id and number itself and
+  points the record again whenever it is read back.
+- **Each Odorik account has an “Odorik callback” block in its settings:** “Callback rings” (empty
+  for the line itself; a number there rings that phone first instead, and nothing arrives here),
+  “Line password” with an eye that shows and hides it, and “Answer the callback automatically”
+  (off).
+- **The line's password is kept for callback.** The SIP stack holds only a hash of it once the
+  account has registered, and Odorik's API needs the password itself — so it is captured when an
+  Odorik account is added through the third-party SIP login or its password is changed, and is
+  typed once for an account that already exists.
+- **The call door (`content://shiroikuma.rindenwa.calls`) gains `callback`,** with the same
+  extras as `dial`, answering `result` and a `message` to show; it blocks for the length of the
+  request. Each account in `accounts` now carries a `callback` flag.
+- Each order and each recognised first leg is written to the “Outgoing calls” diagnostic, never
+  with the password.
+
+### Export and import
+
+- The callback settings of each Odorik line — which phone rings first, the line's password, the
+  auto-answer switch — travel in the **Accounts** category, as `odorik_callback.json`. **The export
+  therefore holds those passwords in plain text**; until now it held only their hashes.
+- Which calls were callbacks, and to whom, travels with the call history
+  (`odorik_callback_calls.json`).
+
+### Call history
+
+- **Each row now reads phone, message bubble, ⋮** — the phone icon first. A row with no number to
+  write to keeps the bubble's place empty, so the phone icons stay in one column.
+- **The message bubble is the sister dialer's** (`ic_message_outline`, copied verbatim), on the
+  row and in the row's menu.
+- `SkMenus.popup` builds a menu of action pills in code, for menus that are not one of upstream's
+  data-bound layouts.
+
+## 6.3.0-alpha+2026-11-09.14-07.g92318a24+025
 
 Same upstream base as `+004` (`92318a24`); `versionCode` `602010025`. Builds `+005` to `+024` were
 the steps on the way and were not released.
