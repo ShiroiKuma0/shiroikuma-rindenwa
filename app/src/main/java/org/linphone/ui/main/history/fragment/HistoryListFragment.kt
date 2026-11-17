@@ -50,6 +50,8 @@ import org.linphone.core.tools.Log
 import org.linphone.databinding.HistoryListFragmentBinding
 import org.linphone.shiroikuma.SkRenrakusaki
 import org.linphone.shiroikuma.SkSisterApps
+import org.linphone.shiroikuma.SkMenus
+import org.linphone.shiroikuma.SkOdorikCallback
 import org.linphone.shiroikuma.SkDeclineMessageDialog
 import org.linphone.shiroikuma.SkDeclineMessages
 import org.linphone.shiroikuma.SkDialpadViewModel
@@ -390,6 +392,34 @@ class HistoryListFragment : AbstractMainFragment() {
             }
         }
 
+        // shiroikuma fork: a long hold on the phone icon of a row that can go through an Odorik
+        // line asks which way to call — the provider's callback first, the ordinary call second.
+        // On any other row there is nothing to choose, and the hold does nothing.
+        adapter.callLogCallLongClickedEvent.observe(viewLifecycleOwner) {
+            it.consume { (model, icon) ->
+                if (model.wasConference) return@consume
+                coreContext.postOnCoreThread { core ->
+                    val account = SkOdorikCallback.accountFor(core, model.skIdentity) ?: return@postOnCoreThread
+                    val identity = account.params.identityAddress?.asStringUriOnly()
+                    val number = model.address.username.orEmpty()
+                    coreContext.postOnMainThread {
+                        if (!isAdded || !icon.isAttachedToWindow) return@postOnMainThread
+                        SkMenus.popup(
+                            icon,
+                            listOf(
+                                SkMenus.Item(getString(R.string.sk_callback_menu_callback), R.drawable.phone_call, SkMenus.CALL) {
+                                    orderCallback(identity, number)
+                                },
+                                SkMenus.Item(getString(R.string.sk_callback_menu_call), R.drawable.phone, SkMenus.CALL) {
+                                    adapter.callLogCallBackClickedEvent.value = Event(model)
+                                }
+                            )
+                        )
+                    }
+                }
+            }
+        }
+
         adapter.callFriendClickedEvent.observe(viewLifecycleOwner) {
             it.consume { friend ->
                 coreContext.postOnCoreThread {
@@ -548,6 +578,19 @@ class HistoryListFragment : AbstractMainFragment() {
         if (binding.historyList.adapter === adapter) {
             adapter.notifyDataSetChanged()
             binding.historyList.invalidateItemDecorations()
+        }
+    }
+
+    /** shiroikuma fork: order the provider's callback to [number], and say how the order went. */
+    private fun orderCallback(identity: String?, number: String) {
+        val activity = requireActivity() as GenericActivity
+        SkOdorikCallback.order(requireContext(), identity, number) { outcome ->
+            if (activity.isFinishing || activity.isDestroyed) return@order
+            if (outcome.ok) {
+                activity.showGreenToast(outcome.message, R.drawable.phone_call)
+            } else {
+                activity.showRedToast(outcome.message, R.drawable.warning_circle)
+            }
         }
     }
 
