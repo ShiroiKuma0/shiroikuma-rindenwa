@@ -339,6 +339,10 @@ class CoreContext
                 "$TAG Call [${call.remoteAddress.asStringUriOnly()}] state changed [$currentState]"
             )
 
+            // shiroikuma fork: the first leg of a callback ordered here is pointed at the person
+            // it is to, before the ringer, the notification or the call screen has read it.
+            org.linphone.shiroikuma.SkOdorikCallback.onCallStateChanged(context, call, currentState)
+
             // shiroikuma fork: an incoming call raises the full call screen even with the screen
             // already on (upstream's full-screen intent only does it on a locked/dark screen), and
             // a ringer 白い熊 silenced stays silent across a re-ring. See SkRinger.

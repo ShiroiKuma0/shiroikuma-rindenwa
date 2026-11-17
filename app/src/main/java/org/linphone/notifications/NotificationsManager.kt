@@ -1534,7 +1534,15 @@ class NotificationsManager
             val contact = friend
                 ?: coreContext.contactsManager.findContactByAddress(remoteAddress)
             // shiroikuma fork: bounded avatar load, see getCallerPerson
-            getCallerPerson(contact, LinphoneUtils.getDisplayName(remoteAddress))
+            val person = getCallerPerson(contact, LinphoneUtils.getDisplayName(remoteAddress))
+            // shiroikuma fork: “Callback → name” on the first leg of a callback ordered here
+            if (org.linphone.shiroikuma.SkOdorikCallback.isCallback(call)) {
+                person.toBuilder()
+                    .setName(org.linphone.shiroikuma.SkOdorikCallback.label(call, person.name?.toString().orEmpty()))
+                    .build()
+            } else {
+                person
+            }
         }
 
         val isVideo = LinphoneUtils.isVideoEnabled(call)

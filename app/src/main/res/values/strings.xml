@@ -1370,6 +1370,23 @@
     <string name="sk_call_door_denwa" translatable="false">白い熊 電話 may place calls</string>
     <string name="sk_call_door_denwa_desc" translatable="false">The SIM dialer may hand a number over to be called through an account here.</string>
     <string name="sk_rin_number_title" translatable="false">臨 number</string>
+    <string name="sk_callback_menu_callback" translatable="false">Callback</string>
+    <string name="sk_callback_menu_call" translatable="false">Call</string>
+    <string name="sk_callback_label" translatable="false">Callback → %s</string>
+    <string name="sk_callback_ordered" translatable="false">Callback ordered — %s will ring.</string>
+    <string name="sk_callback_error_account" translatable="false">Callback needs an Odorik account.</string>
+    <string name="sk_callback_error_number" translatable="false">That is not a phone number.</string>
+    <string name="sk_callback_error_password" translatable="false">Enter the line\'s password under “Odorik callback” in the account\'s settings.</string>
+    <string name="sk_callback_error_auth" translatable="false">Odorik refused the line\'s password. Check it under “Odorik callback” in the account\'s settings.</string>
+    <string name="sk_callback_error_network" translatable="false">Odorik could not be reached.</string>
+    <string name="sk_callback_error_other" translatable="false">Odorik refused the callback: %s</string>
+    <string name="sk_callback_settings_title" translatable="false">Odorik callback</string>
+    <string name="sk_callback_settings_caller" translatable="false">Callback rings</string>
+    <string name="sk_callback_settings_caller_hint" translatable="false">This line</string>
+    <string name="sk_callback_settings_caller_desc" translatable="false">The phone a callback rings first. Leave it empty for this line; a number entered here rings that phone instead, and nothing arrives in this app.</string>
+    <string name="sk_callback_settings_password" translatable="false">Line password</string>
+    <string name="sk_callback_settings_password_hint" translatable="false">Only if a callback asks for it</string>
+    <string name="sk_callback_settings_answer" translatable="false">Answer the callback automatically</string>
     <string name="sk_rin_number_none" translatable="false">None</string>
     <string name="sk_rin_number_explanation" translatable="false">Calls through this account are marked with this badge, and the address book dials through it by this number. A dimmed badge belongs to another account.</string>
     <string name="sk_rin_number_clear" translatable="false">No number</string>

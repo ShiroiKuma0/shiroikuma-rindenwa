@@ -232,6 +232,14 @@ class ThirdPartySipAccountLoginViewModel
             )
             core.addAuthInfo(newlyCreatedAuthInfo)
 
+            // shiroikuma fork: the SIP stack keeps only a hash of this once it has registered,
+            // and Odorik's callback needs the password itself — so it is kept here, now.
+            org.linphone.shiroikuma.SkOdorikCallback.capturePassword(
+                coreContext.context,
+                identityAddress.asStringUriOnly(),
+                password.value.orEmpty().trim()
+            )
+
             val accountParams = core.createAccountParams()
 
             if (displayName.value.orEmpty().isNotEmpty()) {

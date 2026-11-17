@@ -79,7 +79,7 @@
             android:textColor="?attr/color_main2_600"
             android:visibility="@{model.numberWithLabel.empty ? View.INVISIBLE : View.VISIBLE}"
             app:layout_constraintStart_toStartOf="@id/call_log_display_name"
-            app:layout_constraintEnd_toStartOf="@id/message"
+            app:layout_constraintEnd_toStartOf="@id/call"
             app:layout_constraintTop_toBottomOf="@id/call_log_display_name"
             app:layout_constraintBottom_toTopOf="@id/date_time"/>
 
@@ -176,6 +176,24 @@
             app:layout_constraintTop_toTopOf="@id/date_time"
             app:layout_constraintBottom_toBottomOf="@id/date_time"/>
 
+        <!-- shiroikuma fork: this call was a callback ordered here (SkOdorikCallback). Said in
+             a word, beside the arrow that already has its own shape: a 12 dp glyph here went
+             unseen (白い熊, 2026-11-17). -->
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/default_text_style_700"
+            android:id="@+id/sk_callback"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:singleLine="true"
+            android:text="@string/sk_callback_menu_callback"
+            android:textSize="13sp"
+            android:textColor="@color/sk_yellow"
+            android:visibility="@{model.skIsCallback ? View.VISIBLE : View.GONE, default=gone}"
+            app:layout_constraintStart_toEndOf="@id/sk_failure"
+            app:layout_constraintTop_toTopOf="@id/date_time"
+            app:layout_constraintBottom_toBottomOf="@id/date_time" />
+
         <ImageView
             android:id="@+id/sk_recorded"
             android:layout_width="12dp"
@@ -185,7 +203,7 @@
             android:contentDescription="@string/sk_content_description_recorded"
             android:visibility="@{model.skRecorded ? View.VISIBLE : View.GONE, default=gone}"
             app:tint="@color/sk_recorded"
-            app:layout_constraintStart_toEndOf="@id/sk_failure"
+            app:layout_constraintStart_toEndOf="@id/sk_callback"
             app:layout_constraintTop_toTopOf="@id/date_time"
             app:layout_constraintBottom_toBottomOf="@id/date_time" />
 
@@ -207,8 +225,11 @@
             app:layout_constraintBottom_toBottomOf="@id/date_time"/>
 
         <!-- shiroikuma fork: the three things a row offers at its right end, in the order the
-             sister dialer has them — write to this number (opens the messenger), call it back
-             through the account this row's call used, and the row's own menu.
+             sister dialer has them — call it back through the account this row's call used (a
+             long hold asks: callback or call), write to this number (opens the messenger), and
+             the row's own menu. The handset comes first (白い熊, 2026-11-17). A row with no
+             number to write to keeps the bubble's place empty, so the handsets stay in one
+             column.
 
              They sit on the second line only, each as tall as that line with nothing around it
              (白い熊, 2026-11-17, after seeing the row folded): spanning the first two lines they
@@ -218,34 +239,34 @@
              is what makes the three gaps look equal. The bubble is the outlined one, in the
              accent; the sister dialer's style may recolour it and the handset. -->
         <ImageView
-            android:onClick="@{onMessageClickListener}"
-            android:id="@+id/message"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:padding="0dp"
-            android:layout_marginEnd="28dp"
-            android:src="@drawable/chat_teardrop_text"
-            android:background="@drawable/circle_transparent_button_background"
-            android:contentDescription="@string/sk_content_description_message"
-            android:visibility="@{model.skPhoneNumber.empty || model.wasConference ? View.GONE : View.VISIBLE}"
-            app:tint="@color/sk_yellow"
-            app:layout_constraintEnd_toStartOf="@id/call"
-            app:layout_constraintDimensionRatio="W,1:1"
-            app:layout_constraintTop_toTopOf="@id/number_label"
-            app:layout_constraintBottom_toBottomOf="@id/number_label" />
-
-        <ImageView
             android:onClick="@{onCallClickListener}"
             android:id="@+id/call"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:padding="0dp"
-            android:layout_marginEnd="20dp"
+            android:layout_marginEnd="28dp"
             android:src="@drawable/phone"
             android:background="@drawable/circle_transparent_button_background"
             android:contentDescription="@string/content_description_call_start"
             android:visibility="@{model.wasConference ? View.GONE : View.VISIBLE}"
             app:tint="@color/sk_role_call"
+            app:layout_constraintEnd_toStartOf="@id/message"
+            app:layout_constraintDimensionRatio="W,1:1"
+            app:layout_constraintTop_toTopOf="@id/number_label"
+            app:layout_constraintBottom_toBottomOf="@id/number_label" />
+
+        <ImageView
+            android:onClick="@{onMessageClickListener}"
+            android:id="@+id/message"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:padding="0dp"
+            android:layout_marginEnd="20dp"
+            android:src="@drawable/sk_message_outline"
+            android:background="@drawable/circle_transparent_button_background"
+            android:contentDescription="@string/sk_content_description_message"
+            android:visibility="@{model.skPhoneNumber.empty || model.wasConference ? View.INVISIBLE : View.VISIBLE}"
+            app:tint="@color/sk_yellow"
             app:layout_constraintEnd_toStartOf="@id/row_menu"
             app:layout_constraintDimensionRatio="W,1:1"
             app:layout_constraintTop_toTopOf="@id/number_label"
