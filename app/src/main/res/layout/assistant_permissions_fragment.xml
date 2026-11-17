@@ -129,7 +129,7 @@
                 android:padding="12dp"
                 android:src="@drawable/address_book"
                 android:contentDescription="@null"
-                android:visibility="@{viewModel.readContactsPermissionGranted ? View.GONE : View.VISIBLE}"
+                android:visibility="gone"
                 app:tint="?attr/color_main2_500"
                 app:layout_constraintTop_toBottomOf="@id/post_notifications_icon"
                 app:layout_constraintStart_toStartOf="parent"/>
@@ -145,7 +145,7 @@
                 android:text="@string/assistant_permissions_read_contacts_title"
                 android:maxLines="2"
                 android:ellipsize="end"
-                android:visibility="@{viewModel.readContactsPermissionGranted ? View.GONE : View.VISIBLE}"
+                android:visibility="gone"
                 app:layout_constraintTop_toTopOf="@id/read_contacts_icon"
                 app:layout_constraintStart_toEndOf="@id/read_contacts_icon"
                 app:layout_constraintBottom_toBottomOf="@id/read_contacts_icon"

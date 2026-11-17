@@ -15,18 +15,6 @@
         android:layout_height="match_parent"
         android:background="@color/sk_surface">
 
-        <com.google.android.material.progressindicator.CircularProgressIndicator
-            android:id="@+id/in_progress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
-            android:indeterminate="true"
-            app:indicatorColor="@color/sk_yellow"
-            app:indicatorSize="28dp"
-            app:layout_constraintStart_toStartOf="@id/avatar"
-            app:layout_constraintEnd_toEndOf="@id/avatar"
-            app:layout_constraintTop_toBottomOf="@id/call_direction_label"
-            app:layout_constraintBottom_toTopOf="@id/avatar" />
 
         <include
             android:id="@+id/avatar"
@@ -65,6 +53,20 @@
             android:visibility="@{viewModel.hideSipAddresses || viewModel.conferenceModel.isCurrentCallInConference ? View.GONE : View.VISIBLE}"
             app:layout_constraintTop_toBottomOf="@id/name"
             app:layout_constraintBottom_toTopOf="@id/bottom_bar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- shiroikuma fork: what the call is doing, in words — in place of upstream's rotating circle. -->
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/default_text_style"
+            android:id="@+id/sk_call_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@{viewModel.skCallStatus, default=@string/sk_call_status_dialing}"
+            android:textColor="@color/sk_yellow"
+            android:textSize="16sp"
+            app:layout_constraintTop_toBottomOf="@id/address"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 

@@ -17,6 +17,21 @@
             name="deleteClickListener"
             type="View.OnClickListener" />
         <variable
+            name="callClickListener"
+            type="View.OnClickListener" />
+        <variable
+            name="messageClickListener"
+            type="View.OnClickListener" />
+        <variable
+            name="replyClickListener"
+            type="View.OnClickListener" />
+        <variable
+            name="showMessage"
+            type="Boolean" />
+        <variable
+            name="showReply"
+            type="Boolean" />
+        <variable
             name="contactExists"
             type="Boolean" />
         <variable
@@ -27,7 +42,64 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/color_separator">
+        android:background="@drawable/sk_menu_frame"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/sk_call"
+            android:onClick="@{callClickListener}"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/sk_menu_call_back"
+            style="@style/context_menu_action_label_style"
+            android:drawableStart="@drawable/phone"
+            skMenuRole="@{`call`}"
+            app:layout_constraintBottom_toTopOf="@id/sk_message"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/sk_message"
+            android:onClick="@{messageClickListener}"
+            android:visibility="@{showMessage ? View.VISIBLE : View.GONE}"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/sk_menu_message"
+            style="@style/context_menu_action_label_style"
+            android:drawableStart="@drawable/chat_teardrop_text"
+            skMenuRole="@{`message`}"
+            app:layout_constraintBottom_toTopOf="@id/sk_reply"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/sk_reply"
+            android:onClick="@{replyClickListener}"
+            android:visibility="@{showReply ? View.VISIBLE : View.GONE}"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/sk_menu_written_reply"
+            style="@style/context_menu_action_label_style"
+            android:drawableStart="@drawable/chat_teardrop_text"
+            skMenuRole="@{`message`}"
+            app:layout_constraintBottom_toTopOf="@id/sk_divider_1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <!-- shiroikuma fork: the line between two groups of the menu. -->
+        <View
+            android:id="@+id/sk_divider_1"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginStart="22dp"
+            android:layout_marginEnd="22dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:background="@color/sk_menu_divider"
+            app:layout_constraintBottom_toTopOf="@id/add_to_contact"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/add_to_contact"
@@ -40,6 +112,8 @@
             android:background="@drawable/menu_item_background"
             android:layout_marginBottom="1dp"
             android:drawableStart="@drawable/user_plus"
+            skMenuRole="@{`contact`}"
+            skMenuOpens="@{true}"
             app:layout_constraintBottom_toTopOf="@id/go_to_contact"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
@@ -55,6 +129,8 @@
             android:background="@drawable/menu_item_background"
             android:layout_marginBottom="1dp"
             android:drawableStart="@drawable/user_circle"
+            skMenuRole="@{`contact`}"
+            skMenuOpens="@{true}"
             app:layout_constraintBottom_toTopOf="@id/share"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
@@ -69,9 +145,24 @@
             android:background="@drawable/menu_item_background"
             android:layout_marginBottom="1dp"
             android:drawableStart="@drawable/copy"
-            app:layout_constraintBottom_toTopOf="@id/delete"
+            skMenuRole="@{`share`}"
+            app:layout_constraintBottom_toTopOf="@id/sk_divider_2"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- shiroikuma fork: the line between two groups of the menu. -->
+        <View
+            android:id="@+id/sk_divider_2"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginStart="22dp"
+            android:layout_marginEnd="22dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:background="@color/sk_menu_divider"
+            app:layout_constraintBottom_toTopOf="@id/delete"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/delete"
@@ -83,6 +174,7 @@
             android:background="@drawable/menu_item_background"
             android:layout_marginBottom="1dp"
             android:drawableStart="@drawable/trash_simple"
+            skMenuRole="@{`delete`}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>

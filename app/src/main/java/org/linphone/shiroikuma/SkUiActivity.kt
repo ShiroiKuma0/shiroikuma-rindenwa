@@ -1,5 +1,10 @@
 package org.linphone.shiroikuma
 
+import android.view.ViewGroup
+import org.linphone.utils.ImageUtils
+import android.widget.ImageView
+import android.graphics.Bitmap
+import org.linphone.LinphoneApplication.Companion.coreContext
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
@@ -104,6 +109,16 @@ class SkUiActivity : AppCompatActivity() {
             }
         }
 
+    private val openAllTabPicture =
+        registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            if (uri == null) return@registerForActivityResult
+            if (SkAllAccounts.importPicture(this, uri)) {
+                refreshPage()
+            } else {
+                Toast.makeText(this, R.string.sk_all_tab_picture_invalid, Toast.LENGTH_LONG).show()
+            }
+        }
+
     private val openFontDocument =
         registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
             val slot = pendingFontSlot
@@ -175,6 +190,25 @@ class SkUiActivity : AppCompatActivity() {
         if (SkAutomation.requireToken(this)) {
             addAutomationTokenRow(1)
         }
+
+        // ---- 臨0, 臨1, 臨2 …: the number each SIP account is known by (SkAccountNumbers) ----
+        addSubgroup(R.string.sk_group_rin_numbers, 1)
+        addRinNumberRows(1)
+
+        // ---- The call door: which sister apps may dial through this one (SkCallsProvider) ----
+        addSubgroup(R.string.sk_group_call_door, 1)
+        addSwitchRow(
+            R.string.sk_call_door_renrakusaki,
+            R.string.sk_call_door_renrakusaki_desc,
+            SkSisterApps.RENRAKUSAKI in SkCallDoor.allowed(this),
+            1,
+        ) { SkCallDoor.setAllowed(this, SkSisterApps.RENRAKUSAKI, it) }
+        addSwitchRow(
+            R.string.sk_call_door_denwa,
+            R.string.sk_call_door_denwa_desc,
+            SkSisterApps.DENWA in SkCallDoor.allowed(this),
+            1,
+        ) { SkCallDoor.setAllowed(this, SkSisterApps.DENWA, it) }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             addAllFilesAccessRow(1)
         }
@@ -189,6 +223,29 @@ class SkUiActivity : AppCompatActivity() {
         addColorRow(SkSlot.TOOLBAR_BACKGROUND, 1)
         addTextSlot(SkSlot.TOOLBAR_TITLE, 1)
         addColorRow(SkSlot.TOOLBAR_ICON, 1)
+
+        // The 全 tab of the account strip: its character's font, or a picture in its place.
+        addSubgroup(R.string.sk_group_all_tab, 1)
+        addTextSlot(SkSlot.ALL_TAB, 2)
+        addActionRow(
+            R.string.sk_all_tab_picture,
+            R.string.sk_all_tab_picture_desc,
+            main = false,
+            opens = true,
+            level = 2,
+        ) { openAllTabPicture.launch(arrayOf("image/*")) }
+        if (SkAllAccounts.hasPicture(this)) {
+            addActionRow(
+                R.string.sk_all_tab_picture_remove,
+                R.string.sk_all_tab_picture_remove_desc,
+                main = false,
+                opens = false,
+                level = 2,
+            ) {
+                SkAllAccounts.removePicture(this)
+                refreshPage()
+            }
+        }
 
         addSection(SkSection.MAIN_SCREEN)
         addSubgroup(R.string.sk_group_list_rows, 1)
@@ -363,6 +420,18 @@ class SkUiActivity : AppCompatActivity() {
         addTextSlot(SkSlot.BUTTON_TEXT, 1)
         addColorRow(SkSlot.BUTTON_BORDER, 1)
         addDimenRow(SkDimen.BUTTON_BORDER_WIDTH, 1)
+
+        addColorRow(SkSlot.SWITCH_OFF, 1)
+
+        // The icon of a menu row is coloured by what the row does (SkMenus).
+        addSubgroup(R.string.sk_group_menu_icons, 1)
+        addColorRow(SkSlot.MENU_CALL, 2)
+        addColorRow(SkSlot.MENU_MESSAGE, 2)
+        addColorRow(SkSlot.MENU_CONTACT, 2)
+        addColorRow(SkSlot.MENU_SHARE, 2)
+        addColorRow(SkSlot.MENU_VIEW, 2)
+        addColorRow(SkSlot.MENU_BLOCK, 2)
+        addColorRow(SkSlot.MENU_DELETE, 2)
         addDimenRow(SkDimen.BUTTON_CORNER_RADIUS, 1)
         addButtonPreview(1)
 
@@ -668,8 +737,7 @@ class SkUiActivity : AppCompatActivity() {
         row.skSwitchTitle.setTextColor(SkTheme.color(this, SkSlot.TEXT))
         row.skSwitchDesc.setText(R.string.sk_auto_desc)
         row.skSwitchDesc.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
-        row.skSwitchToggle.thumbTintList = ColorStateList.valueOf(accent)
-        row.skSwitchToggle.trackTintList = ColorStateList.valueOf(accent)
+        SkStyler.styleSwitch(row.skSwitchToggle)
         row.skSwitchToggle.isChecked = SkAutomation.enabled(this)
         row.skSwitchToggle.setOnCheckedChangeListener { _, checked ->
             SkAutomation.setEnabled(this, checked)
@@ -695,8 +763,7 @@ class SkUiActivity : AppCompatActivity() {
         row.skSwitchTitle.setTextColor(SkTheme.color(this, SkSlot.TEXT))
         row.skSwitchDesc.setText(R.string.sk_auto_require_token_desc)
         row.skSwitchDesc.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
-        row.skSwitchToggle.thumbTintList = ColorStateList.valueOf(accent)
-        row.skSwitchToggle.trackTintList = ColorStateList.valueOf(accent)
+        SkStyler.styleSwitch(row.skSwitchToggle)
         row.skSwitchToggle.isChecked = SkAutomation.requireToken(this)
         row.skSwitchToggle.setOnCheckedChangeListener { _, checked ->
             SkAutomation.setRequireToken(this, checked)
@@ -948,8 +1015,7 @@ class SkUiActivity : AppCompatActivity() {
         row.skSwitchTitle.setTextColor(SkTheme.color(this, SkSlot.TEXT))
         row.skSwitchDesc.setText(descRes)
         row.skSwitchDesc.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
-        row.skSwitchToggle.thumbTintList = ColorStateList.valueOf(accent)
-        row.skSwitchToggle.trackTintList = ColorStateList.valueOf(accent)
+        SkStyler.styleSwitch(row.skSwitchToggle)
         row.skSwitchToggle.isChecked = checked
         row.skSwitchToggle.setOnCheckedChangeListener { _, value ->
             onChange(value)
@@ -1185,6 +1251,161 @@ class SkUiActivity : AppCompatActivity() {
      * Absolute indentation on the kxkb ladder: heading 36dp → subgroup 54dp → L1 rows 72dp →
      * L2 rows 90dp (18dp steps from a 54dp base), so which level a row belongs to is instant.
      */
+
+    /**
+     * One row per SIP account: its name, and at the right the badge it carries — drawn as the
+     * badge itself, in its colours. Tapping the row opens the picker. Under a numbered account
+     * come the two colours of its badge, each with its swatch, so two lines can be told apart at
+     * a glance in the call history.
+     *
+     * The accounts are the Core's, so they are read on its thread and the rows are filled in when
+     * it answers; the box they go into is placed now, which is what keeps them under their heading.
+     */
+    private fun addRinNumberRows(level: Int) {
+        val box = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        binding.skHolder.addView(box)
+
+        coreContext.postOnCoreThread { core ->
+            // In the order of the tab strip (白い熊's own, SkAccountOrder), not the Core's: a row
+            // here has to be recognisably the tab on the main screen. Two accounts whose names
+            // quote the same phone number were mistaken for each other on 2026-11-17, and the
+            // numbers went to the wrong pair.
+            val ordered = SkAccountOrder.sorted(this, core.accountList.toList()) {
+                it.params.identityAddress?.asStringUriOnly().orEmpty()
+            }
+            val pictures = HashMap<String, Bitmap>()
+            val accounts = ordered.map { account ->
+                val identity = account.params.identityAddress
+                val uri = identity?.asStringUriOnly().orEmpty()
+                try {
+                    account.params.pictureUri?.takeIf { it.isNotEmpty() }
+                        ?.let { ImageUtils.getBitmap(this, it, true) }
+                        ?.let { pictures[uri] = it }
+                } catch (e: Exception) {
+                    // No picture, then: the row keeps the space and shows the name.
+                }
+                uri to (identity?.displayName?.takeIf { it.isNotEmpty() } ?: identity?.username ?: uri)
+            }.filter { it.first.isNotEmpty() }
+
+            coreContext.postOnMainThread {
+                if (isFinishing || isDestroyed) return@postOnMainThread
+                rinPictures = pictures
+                fillRinNumberRows(box, accounts, level)
+            }
+        }
+    }
+
+    /** The accounts' own pictures, as their tabs show them, by identity. */
+    private var rinPictures: Map<String, Bitmap> = emptyMap()
+
+    private fun fillRinNumberRows(box: LinearLayout, accounts: List<Pair<String, String>>, level: Int) {
+        box.removeAllViews()
+        val density = resources.displayMetrics.density
+        val refill = { fillRinNumberRows(box, accounts, level) }
+
+        for ((identity, name) in accounts) {
+            val number = SkAccountNumbers.numberOf(this, identity)
+            val row = ItemSkChoiceBinding.inflate(LayoutInflater.from(this), box, false)
+            row.skChoiceLabel.text = name
+            row.skChoiceLabel.setTextColor(SkTheme.color(this, SkSlot.TEXT))
+            row.skChoiceLabel.setTypeface(null, Typeface.BOLD)
+            // The account's picture before its name; an account without one gets the house 人
+            // mark its tab shows, so a row looks like its tab either way.
+            val pictureSize = (40 * density).toInt()
+            (row.root as ViewGroup).addView(
+                ImageView(this).apply {
+                    val picture = rinPictures[identity]
+                    if (picture != null) {
+                        setImageBitmap(picture)
+                    } else {
+                        setImageResource(R.drawable.ic_unknown_contact)
+                    }
+                    layoutParams = LinearLayout.LayoutParams(pictureSize, pictureSize).apply {
+                        marginEnd = (12 * density).toInt()
+                    }
+                },
+                0,
+            )
+            row.root.setPadding(
+                row.root.paddingLeft,
+                (5 * density).toInt(),
+                row.root.paddingRight,
+                (5 * density).toInt(),
+            )
+
+            if (number == null) {
+                row.skChoiceValue.text = getString(R.string.sk_rin_number_none)
+                row.skChoiceValue.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
+            } else {
+                val (ground, text) = SkAccountNumbers.colors(this, number)
+                row.skChoiceValue.text = "${SkAccountNumbers.MARK}$number"
+                row.skChoiceValue.textSize = 18f
+                row.skChoiceValue.setTypeface(null, Typeface.BOLD)
+                row.skChoiceValue.setTextColor(text)
+                row.skChoiceValue.includeFontPadding = false
+                row.skChoiceValue.setPadding(
+                    (12 * density).toInt(),
+                    (5 * density).toInt(),
+                    (12 * density).toInt(),
+                    (5 * density).toInt(),
+                )
+                row.skChoiceValue.background = GradientDrawable().apply {
+                    cornerRadius = 8 * density
+                    setColor(ground)
+                }
+            }
+
+            row.root.setOnClickListener {
+                val takenBy = accounts.mapNotNull { (other, otherName) ->
+                    if (other == identity) return@mapNotNull null
+                    SkAccountNumbers.numberOf(this, other)?.let { it to otherName }
+                }.toMap()
+                SkRinNumberDialog(this, name, number, takenBy) { picked ->
+                    if (!SkAccountNumbers.set(this, identity, picked)) {
+                        Toast.makeText(this, R.string.sk_rin_number_taken, Toast.LENGTH_LONG).show()
+                    }
+                    refill()
+                }
+            }
+            indentRow(row.root, level)
+            box.addView(row.root)
+
+            if (number != null) {
+                val badge = "${SkAccountNumbers.MARK}$number"
+                val (ground, text) = SkAccountNumbers.colors(this, number)
+                addRinColorRow(box, getString(R.string.sk_rin_badge_ground, badge), ground, level + 1) { color ->
+                    SkAccountNumbers.setGround(this, number, color)
+                    refill()
+                }
+                addRinColorRow(box, getString(R.string.sk_rin_badge_text, badge), text, level + 1) { color ->
+                    SkAccountNumbers.setText(this, number, color)
+                    refill()
+                }
+            }
+        }
+    }
+
+    /** A colour row for one side of a badge; "Default" in the picker hands back null. */
+    private fun addRinColorRow(
+        box: LinearLayout,
+        label: String,
+        color: Int,
+        level: Int,
+        onPick: (Int?) -> Unit,
+    ) {
+        val row = ItemSkColorBinding.inflate(LayoutInflater.from(this), box, false)
+        row.skColorLabel.text = label
+        row.skColorLabel.setTextColor(SkTheme.color(this, SkSlot.TEXT))
+        row.skColorPreview.background = swatch(color)
+        row.root.setOnClickListener {
+            SkColorPickerDialog(this, color, showDefault = true) { wasPositive, picked ->
+                onPick(if (wasPositive) picked else null)
+            }
+        }
+        indentRow(row.root, level)
+        box.addView(row.root)
+    }
+
     private fun indentRow(view: View, level: Int) {
         val base = (BASE_INDENT_DP * resources.displayMetrics.density).toInt()
         view.setPaddingRelative(

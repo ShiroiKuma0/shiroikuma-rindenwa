@@ -12,6 +12,7 @@
     <androidx.appcompat.widget.AppCompatTextView
         style="@style/settings_title_style"
         android:id="@+id/name"
+        skPill="@{`opens`}"
         android:onClick="@{() -> model.clicked()}"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

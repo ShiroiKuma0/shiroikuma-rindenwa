@@ -18,7 +18,10 @@
             name="onCallClickListener"
             type="View.OnClickListener" />
         <variable
-            name="onReplyClickListener"
+            name="onMessageClickListener"
+            type="View.OnClickListener" />
+        <variable
+            name="onMenuClickListener"
             type="View.OnClickListener" />
     </data>
 
@@ -58,7 +61,7 @@
             android:textColor="?attr/color_main2_800"
             app:layout_constraintVertical_chainStyle="packed"
             app:layout_constraintStart_toEndOf="@id/avatar"
-            app:layout_constraintEnd_toStartOf="@id/call"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@id/number_label"/>
 
@@ -74,19 +77,39 @@
             android:text="@{model.numberWithLabel, default=`+420-601-524-009 · Home`}"
             android:textSize="14sp"
             android:textColor="?attr/color_main2_600"
-            android:visibility="@{model.numberWithLabel.empty ? View.GONE : View.VISIBLE}"
+            android:visibility="@{model.numberWithLabel.empty ? View.INVISIBLE : View.VISIBLE}"
             app:layout_constraintStart_toStartOf="@id/call_log_display_name"
-            app:layout_constraintEnd_toEndOf="@id/call_log_display_name"
+            app:layout_constraintEnd_toStartOf="@id/message"
             app:layout_constraintTop_toBottomOf="@id/call_log_display_name"
             app:layout_constraintBottom_toTopOf="@id/date_time"/>
 
+        <!-- shiroikuma fork: 臨N — which SIP account the call went through. The same place the
+             sister dialer puts its red 1 / blue 2 SIM mark. -->
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/default_text_style_700"
+            android:id="@+id/sk_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:text="@{model.skBadge, default=`臨1`}"
+            android:textSize="11sp"
+            android:textColor="@color/sk_badge_rin_text"
+            android:background="@drawable/sk_badge_rin"
+            app:layout_constraintStart_toStartOf="@id/call_log_display_name"
+            app:layout_constraintTop_toTopOf="@id/date_time"
+            app:layout_constraintBottom_toBottomOf="@id/date_time" />
+
         <ImageView
             android:id="@+id/call_status"
-            android:layout_width="12dp"
-            android:layout_height="12dp"
-            android:src="@{model.iconResId, default=@drawable/outgoing_call}"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:padding="4dp"
+            android:src="@{model.skArrowRes, default=@drawable/sk_call_made}"
             android:contentDescription="@null"
-            app:layout_constraintStart_toStartOf="@id/call_log_display_name"
+            android:layout_marginStart="4dp"
+            app:layout_constraintDimensionRatio="W,1:1"
+            app:layout_constraintStart_toEndOf="@id/sk_badge"
             app:layout_constraintTop_toTopOf="@id/date_time"
             app:layout_constraintBottom_toBottomOf="@id/date_time" />
 
@@ -95,7 +118,7 @@
             android:id="@+id/date_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
+            android:layout_marginStart="4dp"
             android:gravity="center"
             android:text="@{model.dateTime, default=`午後八時四十七分`}"
             android:textSize="12sp"
@@ -123,7 +146,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             style="@style/default_text_style_300"
             android:id="@+id/duration"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="6dp"
             android:gravity="start|center_vertical"
@@ -133,50 +156,126 @@
             android:textSize="12sp"
             android:visibility="@{model.duration.empty ? View.GONE : View.VISIBLE}"
             app:layout_constraintStart_toEndOf="@id/duration_separator"
-            app:layout_constraintEnd_toStartOf="@id/reply"
             app:layout_constraintTop_toTopOf="@id/date_time"
             app:layout_constraintBottom_toBottomOf="@id/date_time"/>
 
-        <!-- shiroikuma fork: write back to a call that was missed. The same picker the
-             incoming-call screen uses, minus the declining: there is nothing left to decline. -->
+        <!-- shiroikuma fork: why a call that was placed never connected — busy, declined, not
+             answered. It stands where the duration would, since such a call has none. -->
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/default_text_style_300"
+            android:id="@+id/sk_failure"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:singleLine="true"
+            android:text="@{model.skFailure, default=`話し中`}"
+            android:textSize="12sp"
+            android:textColor="@color/sk_ink_dim"
+            android:visibility="@{model.skFailure.empty ? View.GONE : View.VISIBLE}"
+            app:layout_constraintStart_toEndOf="@id/duration"
+            app:layout_constraintTop_toTopOf="@id/date_time"
+            app:layout_constraintBottom_toBottomOf="@id/date_time"/>
+
         <ImageView
-            android:onClick="@{onReplyClickListener}"
-            android:id="@+id/reply"
-            android:layout_width="@dimen/large_icon_size"
-            android:layout_height="@dimen/large_icon_size"
-            android:padding="5dp"
-            android:layout_marginEnd="2dp"
+            android:id="@+id/sk_recorded"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:layout_marginStart="6dp"
+            android:src="@drawable/record_fill"
+            android:contentDescription="@string/sk_content_description_recorded"
+            android:visibility="@{model.skRecorded ? View.VISIBLE : View.GONE, default=gone}"
+            app:tint="@color/sk_recorded"
+            app:layout_constraintStart_toEndOf="@id/sk_failure"
+            app:layout_constraintTop_toTopOf="@id/date_time"
+            app:layout_constraintBottom_toBottomOf="@id/date_time" />
+
+        <!-- shiroikuma fork: the country the number belongs to, at the right end of the last
+             line as in the sister dialer. -->
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/default_text_style_300"
+            android:id="@+id/sk_country"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:singleLine="true"
+            android:text="@{model.skCountry, default=`チェコ`}"
+            android:textSize="12sp"
+            android:textColor="@color/sk_ink_dim"
+            android:visibility="@{model.skCountry.empty ? View.GONE : View.VISIBLE}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/date_time"
+            app:layout_constraintBottom_toBottomOf="@id/date_time"/>
+
+        <!-- shiroikuma fork: the three things a row offers at its right end, in the order the
+             sister dialer has them — write to this number (opens the messenger), call it back
+             through the account this row's call used, and the row's own menu.
+
+             They sit on the second line only, each as tall as that line with nothing around it
+             (白い熊, 2026-11-17, after seeing the row folded): spanning the first two lines they
+             cut the name down to a few letters on the narrow screen. So the name runs the full
+             width, the number ends where the bubble begins, and the third line runs under them
+             to the edge. The ⋮ box is half as wide as it is tall and cropped to its dots, which
+             is what makes the three gaps look equal. The bubble is the outlined one, in the
+             accent; the sister dialer's style may recolour it and the handset. -->
+        <ImageView
+            android:onClick="@{onMessageClickListener}"
+            android:id="@+id/message"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:padding="0dp"
+            android:layout_marginEnd="28dp"
             android:src="@drawable/chat_teardrop_text"
             android:background="@drawable/circle_transparent_button_background"
-            android:contentDescription="@string/sk_content_description_reply_to_missed_call"
-            android:visibility="@{model.skIsMissed &amp;&amp; !model.wasConference ? View.VISIBLE : View.GONE}"
-            app:tint="?attr/color_main2_500"
+            android:contentDescription="@string/sk_content_description_message"
+            android:visibility="@{model.skPhoneNumber.empty || model.wasConference ? View.GONE : View.VISIBLE}"
+            app:tint="@color/sk_yellow"
             app:layout_constraintEnd_toStartOf="@id/call"
-            app:layout_constraintTop_toTopOf="@id/call"
-            app:layout_constraintBottom_toBottomOf="@id/call" />
+            app:layout_constraintDimensionRatio="W,1:1"
+            app:layout_constraintTop_toTopOf="@id/number_label"
+            app:layout_constraintBottom_toBottomOf="@id/number_label" />
 
         <ImageView
             android:onClick="@{onCallClickListener}"
             android:id="@+id/call"
-            android:layout_width="@dimen/large_icon_size"
-            android:layout_height="@dimen/large_icon_size"
-            android:padding="5dp"
-            android:layout_marginEnd="6dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:padding="0dp"
+            android:layout_marginEnd="20dp"
             android:src="@drawable/phone"
             android:background="@drawable/circle_transparent_button_background"
             android:contentDescription="@string/content_description_call_start"
             android:visibility="@{model.wasConference ? View.GONE : View.VISIBLE}"
+            app:tint="@color/sk_role_call"
+            app:layout_constraintEnd_toStartOf="@id/row_menu"
+            app:layout_constraintDimensionRatio="W,1:1"
+            app:layout_constraintTop_toTopOf="@id/number_label"
+            app:layout_constraintBottom_toBottomOf="@id/number_label" />
+
+        <ImageView
+            android:onClick="@{onMenuClickListener}"
+            android:id="@+id/row_menu"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:padding="0dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/dots_three_vertical"
+            android:background="@drawable/circle_transparent_button_background"
+            android:contentDescription="@string/sk_content_description_row_menu"
             app:tint="?attr/color_main2_500"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/call_log_display_name"
-            app:layout_constraintBottom_toBottomOf="@id/date_time" />
+            app:layout_constraintDimensionRatio="W,1:2"
+            app:layout_constraintTop_toTopOf="@id/number_label"
+            app:layout_constraintBottom_toBottomOf="@id/number_label" />
 
+        <!-- shiroikuma fork: the thin, pale line between two calls of one day (白い熊,
+             2026-11-17). It stops short of both edges — the row's own padding — so it reads as
+             lighter than the day's line, which runs the full width; and the last call of a day
+             has none, the day's line being right there. Thickness and colour are the sister
+             dialer's (thickness.divider, color.divider), so both histories carry the same line. -->
         <View
             android:id="@+id/separator"
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:layout_marginStart="-16dp"
-            android:layout_marginEnd="-16dp"
             android:background="?attr/color_separator"
             android:visibility="gone"
             android:importantForAccessibility="no"

@@ -19,13 +19,10 @@
  */
 package org.linphone.ui.main.contacts.fragment
 
-import android.Manifest
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.ContactsContract
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -34,7 +31,6 @@ import android.view.animation.AnimationUtils
 import android.widget.PopupWindow
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.UiThread
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
@@ -43,6 +39,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import org.linphone.shiroikuma.SkMenus
 import org.linphone.LinphoneApplication.Companion.coreContext
 import java.io.File
 import org.linphone.R
@@ -257,14 +254,7 @@ class ContactsListFragment : AbstractMainFragment() {
             R.id.contactsListFragment
         )
 
-        if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.READ_CONTACTS
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            Log.w("$TAG READ_CONTACTS permission wasn't granted yet, asking for it now")
-            requestPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
-        }
+        // shiroikuma fork: no READ_CONTACTS any more — contacts come from the address book app.
     }
 
     override fun onPause() {
@@ -427,7 +417,7 @@ class ContactsListFragment : AbstractMainFragment() {
 
         // Elevation is for showing a shadow around the popup
         popupWindow.elevation = 20f
-        popupWindow.showAsDropDown(view, 0, 0, Gravity.BOTTOM)
+        SkMenus.showBelow(popupWindow, view)
     }
 
     private fun showDeleteConfirmationDialog(contactModel: ContactAvatarModel) {

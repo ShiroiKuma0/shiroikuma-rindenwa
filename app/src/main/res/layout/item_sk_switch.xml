@@ -23,6 +23,7 @@
             android:id="@+id/sk_switch_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textStyle="bold"
             android:textSize="16sp" />
 
         <TextView

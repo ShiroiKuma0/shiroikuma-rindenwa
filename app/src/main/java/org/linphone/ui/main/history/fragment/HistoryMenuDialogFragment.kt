@@ -39,7 +39,13 @@ class HistoryMenuDialogFragment(
     private val onAddToContact: (() -> Unit)? = null,
     private val onGoToContact: (() -> Unit)? = null,
     private val onCopyNumberOrAddressToClipboard: (() -> Unit)? = null,
-    private val onDeleteCallLog: (() -> Unit)? = null
+    private val onDeleteCallLog: (() -> Unit)? = null,
+    // shiroikuma fork: the row's own actions, also offered from its menu
+    private val showMessage: Boolean = false,
+    private val showReply: Boolean = false,
+    private val onCall: (() -> Unit)? = null,
+    private val onMessage: (() -> Unit)? = null,
+    private val onReply: (() -> Unit)? = null
 ) : BottomSheetDialogFragment() {
     companion object {
         const val TAG = "HistoryMenuDialogFragment"
@@ -71,6 +77,22 @@ class HistoryMenuDialogFragment(
         val view = HistoryListLongPressMenuBinding.inflate(layoutInflater)
         view.contactExists = contactExists
         view.disableAddContact = corePreferences.disableAddContact
+
+        // shiroikuma fork
+        view.showMessage = showMessage
+        view.showReply = showReply
+        view.setCallClickListener {
+            onCall?.invoke()
+            dismiss()
+        }
+        view.setMessageClickListener {
+            onMessage?.invoke()
+            dismiss()
+        }
+        view.setReplyClickListener {
+            onReply?.invoke()
+            dismiss()
+        }
 
         view.setCopyNumberClickListener {
             onCopyNumberOrAddressToClipboard?.invoke()

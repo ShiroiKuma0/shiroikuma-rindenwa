@@ -10,4 +10,11 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:orientation">horizontal</item>
     </style>
+
+    <!-- shiroikuma fork: the dialpad button of the call history — the sister dialer's rounded
+         square, not upstream's circle. -->
+    <style name="sk_fab_square">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">14dp</item>
+    </style>
 </resources>

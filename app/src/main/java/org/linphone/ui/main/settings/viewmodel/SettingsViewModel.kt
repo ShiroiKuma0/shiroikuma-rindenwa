@@ -316,7 +316,9 @@ class SettingsViewModel
             showAdvancedSettings.postValue(!corePreferences.hideAdvancedSettings)
             showDeveloperSettings.postValue(corePreferences.showDeveloperSettings)
         }
-        showContactsSettings.value = true
+        // shiroikuma fork: CardDAV, LDAP and the other contact stores are not used — the
+        // contacts are the address book app's (see SkRenrakusaki).
+        showContactsSettings.value = false
 
         // shiroikuma fork: every group opens unfolded — upstream folds all of them shut, so
         // reaching any one setting costs a tap first and hides what else is in the page — and a

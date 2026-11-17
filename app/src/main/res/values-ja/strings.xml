@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  shiroikuma-rindenwa fork — Japanese texts.
+
+  Upstream has no Japanese translation, so this file holds only what the fork has translated
+  itself; every other string falls back to English.
+-->
+<resources>
+    <string name="sk_call_status_dialing">発信中…</string>
+    <string name="sk_call_status_ringing">呼び出し中…</string>
+    <string name="sk_call_status_incoming">着信中…</string>
+    <string name="sk_call_status_connecting">接続中…</string>
+    <string name="sk_call_status_ended">通話終了</string>
+    <string name="sk_call_status_busy">話し中</string>
+    <string name="sk_call_status_declined">応答拒否</string>
+    <string name="sk_call_status_no_answer">応答なし</string>
+    <string name="sk_call_status_failed">発信失敗</string>
+</resources>

@@ -1,5 +1,8 @@
 package org.linphone.shiroikuma
 
+import android.view.View
+import org.linphone.databinding.SkAccountAllTabBinding
+import androidx.lifecycle.Observer
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
@@ -63,8 +66,58 @@ class SkAccountTabsView
             strip.minimumWidth = w
         }
 
+        // ---- the 全 tab: child 0 of the strip, before every account (see SkAllAccounts) ----
+
+        private var allTab: SkAccountAllTabBinding? = null
+
+        private val allSelectedObserver = Observer<Boolean> { applyActive(animate = true) }
+        private val allLookObserver = Observer<Int> { styleAllTab() }
+
+        override fun onAttachedToWindow() {
+            super.onAttachedToWindow()
+            SkAllAccounts.isSelected(context)
+            SkAllAccounts.selected.observeForever(allSelectedObserver)
+            SkAllAccounts.lookVersion.observeForever(allLookObserver)
+        }
+
+        override fun onDetachedFromWindow() {
+            SkAllAccounts.selected.removeObserver(allSelectedObserver)
+            SkAllAccounts.lookVersion.removeObserver(allLookObserver)
+            super.onDetachedFromWindow()
+        }
+
+        private fun addAllTab(inflater: LayoutInflater) {
+            val tab = SkAccountAllTabBinding.inflate(inflater, strip, false)
+            tab.skAllPicture.clipToOutline = true
+            strip.addView(tab.root)
+            // The strip makes every child draggable as it is added; this one stays where it is.
+            tab.root.setOnLongClickListener(null)
+            tab.root.setOnTouchListener(null)
+            tab.root.isLongClickable = false
+            tab.root.setOnClickListener { SkAllAccounts.setSelected(context, true) }
+            allTab = tab
+            styleAllTab()
+        }
+
+        /** The character in its font slot, or the chosen picture in its place. */
+        private fun styleAllTab() {
+            val tab = allTab ?: return
+            val picture = SkAllAccounts.picture(context)
+            if (picture != null) {
+                tab.skAllPicture.setImageBitmap(picture)
+                tab.skAllPicture.visibility = View.VISIBLE
+                tab.skAllGlyph.visibility = View.GONE
+            } else {
+                tab.skAllPicture.visibility = View.GONE
+                tab.skAllGlyph.visibility = View.VISIBLE
+                tab.skAllGlyph.text = SkAllAccounts.GLYPH
+                tab.skAllGlyph.setTextColor(SkTheme.color(context, SkSlot.ALL_TAB))
+                SkFonts.applyFont(tab.skAllGlyph, SkSlot.ALL_TAB)
+            }
+        }
+
         fun setAccounts(accounts: List<AccountModel>) {
-            if (accounts.map { it.identity } == models.map { it.identity }) {
+            if (allTab != null && accounts.map { it.identity } == models.map { it.identity }) {
                 // Same accounts, new model instances after a refresh: rebind rather than rebuild.
                 models = accounts
                 for ((index, binding) in bindings.withIndex()) {
@@ -79,12 +132,17 @@ class SkAccountTabsView
             strip.removeAllViews()
 
             val inflater = LayoutInflater.from(context)
+            addAllTab(inflater)
             for (model in accounts) {
                 val binding = SkAccountTabBinding.inflate(inflater, strip, false)
                 binding.model = model
                 binding.active = model.identity == activeIdentity
                 (context as? LifecycleOwner)?.let { binding.lifecycleOwner = it }
-                binding.root.setOnClickListener { model.setAsDefault() }
+                binding.root.setOnClickListener {
+                    // An account's tab shows that account's calls only — leave 全 first.
+                    SkAllAccounts.setSelected(context, false)
+                    model.setAsDefault()
+                }
                 strip.addView(binding.root)
                 bindings.add(binding)
             }
@@ -98,12 +156,15 @@ class SkAccountTabsView
         }
 
         private fun applyActive(animate: Boolean) {
-            val index = models.indexOfFirst { it.identity == activeIdentity }
+            val all = SkAllAccounts.isSelected(context)
+            val index = if (all) -1 else models.indexOfFirst { it.identity == activeIdentity }
             for ((position, binding) in bindings.withIndex()) {
                 binding.active = position == index
             }
-            strip.setSelectedTab(index, animate)
-            post { scrollTabIntoView(index) }
+            // Child 0 is the 全 tab, so an account's tab is one further along than its model.
+            val child = if (all) 0 else if (index < 0) -1 else index + 1
+            strip.setSelectedTab(child, animate)
+            post { scrollTabIntoView(child) }
         }
 
         private fun scrollTabIntoView(index: Int) {
@@ -118,16 +179,20 @@ class SkAccountTabsView
         }
 
         /** Called by the drag helper once a tab has been dropped somewhere else. */
-        private fun commitOrder(from: Int, to: Int) {
+        private fun commitOrder(childFrom: Int, childTo: Int) {
+            // Positions arrive as children of the strip; child 0 is the 全 tab, which neither
+            // moves nor gives up its place.
+            val from = childFrom - 1
+            val to = (childTo - 1).coerceAtLeast(0)
             if (from !in models.indices || to !in models.indices) return
 
             val reordered = models.toMutableList()
             reordered.add(to, reordered.removeAt(from))
             models = reordered
 
-            val view = strip.getChildAt(from)
-            strip.removeViewAt(from)
-            strip.addView(view, to)
+            val view = strip.getChildAt(from + 1)
+            strip.removeViewAt(from + 1)
+            strip.addView(view, to + 1)
             bindings.add(to, bindings.removeAt(from))
 
             SkAccountOrder.save(context, models.map { it.identity })

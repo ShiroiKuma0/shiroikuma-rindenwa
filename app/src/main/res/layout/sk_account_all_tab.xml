@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  shiroikuma-rindenwa fork — the 全 tab, first in the account strip: every account's calls in one
+  list (see SkAllAccounts). Its picture is the character 全 in its own font slot, or a picture
+  白い熊 chose in its place; both are the size of an account's picture, so the tab is a tab like
+  the others.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/sk_all_glyph"
+        android:layout_width="@dimen/sk_account_tab_avatar_size"
+        android:layout_height="@dimen/sk_account_tab_avatar_size"
+        android:gravity="center"
+        android:includeFontPadding="false"
+        android:maxLines="1"
+        android:text="全"
+        android:textColor="@color/sk_yellow"
+        android:textSize="56sp" />
+
+    <ImageView
+        android:id="@+id/sk_all_picture"
+        android:layout_width="@dimen/sk_account_tab_avatar_size"
+        android:layout_height="@dimen/sk_account_tab_avatar_size"
+        android:scaleType="centerCrop"
+        android:background="@drawable/shape_circle_contact_avatar_background"
+        android:contentDescription="@string/sk_all_tab_description"
+        android:visibility="gone" />
+
+</FrameLayout>

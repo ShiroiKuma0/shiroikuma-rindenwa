@@ -210,6 +210,44 @@
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toBottomOf="@id/mwi_uri_title"
+                            app:layout_constraintBottom_toTopOf="@id/sk_rin_number"/>
+
+                        <!-- shiroikuma fork: the 臨 number of this account (SkAccountNumbers) — what
+                             its calls are marked with in the history, and what the address book's
+                             badges and swipes dial through. Tap the value to choose. -->
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/settings_title_style"
+                            android:id="@+id/sk_rin_number_title"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginEnd="10dp"
+                            android:text="@string/sk_rin_number_title"
+                            android:maxLines="1"
+                            app:layout_constraintTop_toTopOf="@id/sk_rin_number"
+                            app:layout_constraintBottom_toBottomOf="@id/sk_rin_number"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintEnd_toStartOf="@id/sk_rin_number"/>
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/default_text_style_700"
+                            android:id="@+id/sk_rin_number"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="20dp"
+                            android:layout_marginEnd="16dp"
+                            android:minWidth="64dp"
+                            android:paddingTop="6dp"
+                            android:paddingBottom="6dp"
+                            android:paddingStart="14dp"
+                            android:paddingEnd="14dp"
+                            android:gravity="center"
+                            android:text="臨"
+                            android:textSize="16sp"
+                            android:textColor="@color/sk_yellow"
+                            android:background="@drawable/sk_search_pill"
+                            app:layout_constraintTop_toBottomOf="@id/mwi_uri"
+                            app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintBottom_toTopOf="@id/apply_international_switch"/>
 
                         <androidx.appcompat.widget.AppCompatTextView
@@ -236,7 +274,7 @@
                             android:layout_marginTop="20dp"
                             android:layout_marginEnd="16dp"
                             android:checked="@={viewModel.applyPrefix}"
-                            app:layout_constraintTop_toBottomOf="@id/mwi_uri"
+                            app:layout_constraintTop_toBottomOf="@id/sk_rin_number"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintBottom_toTopOf="@id/replace_plus_by_00_switch"/>
 
