@@ -18,7 +18,9 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/color_separator">
+        android:background="@drawable/sk_menu_frame"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/pause"
@@ -31,6 +33,7 @@
             android:background="@drawable/menu_item_background"
             android:layout_marginBottom="1dp"
             android:drawableStart="@drawable/phone_pause"
+            skMenuRole="@{`call`}"
             app:layout_constraintBottom_toTopOf="@id/hang_up"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
@@ -46,6 +49,7 @@
             android:background="@drawable/menu_item_background"
             android:layout_marginBottom="1dp"
             android:drawableStart="@drawable/phone_pause"
+            skMenuRole="@{`call`}"
             app:layout_constraintBottom_toTopOf="@id/hang_up"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
@@ -60,6 +64,7 @@
             android:background="@drawable/menu_item_background"
             android:layout_marginBottom="1dp"
             android:drawableStart="@drawable/phone_disconnect"
+            skMenuRole="@{`delete`}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>

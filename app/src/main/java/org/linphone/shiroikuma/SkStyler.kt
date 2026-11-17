@@ -1,5 +1,9 @@
 package org.linphone.shiroikuma
 
+import org.linphone.R
+import com.google.android.material.materialswitch.MaterialSwitch
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.appcompat.widget.SwitchCompat
 import android.app.Activity
 import android.content.res.ColorStateList
 import android.graphics.Typeface
@@ -75,6 +79,7 @@ object SkStyler {
                             ColorStateList.valueOf(SkTheme.color(context, SkSlot.FAB_ICON))
                     }
                 }
+                is SwitchCompat -> styleSwitch(view)
                 is Button -> {
                     if (SkTheme.hasOverride(context, SkSlot.BUTTON_TEXT)) {
                         view.setTextColor(SkTheme.color(context, SkSlot.BUTTON_TEXT))
@@ -238,6 +243,30 @@ object SkStyler {
             SkTheme.color(context, SkSlot.CALL_DAY_UNDERLINE),
             SkTheme.dimenPx(context, SkDimen.CALL_DAY_UNDERLINE_WIDTH),
         )
+
+        // The sister dialer's day headline, where it serves one (SkDenwaStyle): the two call
+        // histories are meant to read as one list.
+        if (SkDenwaStyle.active) {
+            applyRule(
+                divider,
+                SkDenwaStyle.color("color.day_divider") ?: SkTheme.color(context, SkSlot.CALL_DAY_DIVIDER),
+                SkDenwaStyle.dpPx(context, "thickness.day_divider")
+                    ?: SkTheme.dimenPx(context, SkDimen.CALL_DAY_DIVIDER_WIDTH),
+            )
+            text?.let {
+                SkDenwaStyle.color("color.day_date")?.let { color -> it.setTextColor(color) }
+                SkDenwaStyle.typeface("day_date", bold = true)?.let { face -> it.typeface = face }
+                SkDenwaStyle.dayHeaderSizePx(context)?.let { px ->
+                    it.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, px)
+                }
+            }
+            applyRule(
+                underline,
+                SkDenwaStyle.color("color.date_underline") ?: SkTheme.color(context, SkSlot.CALL_DAY_UNDERLINE),
+                SkDenwaStyle.dpPx(context, "thickness.date_underline")
+                    ?: SkTheme.dimenPx(context, SkDimen.CALL_DAY_UNDERLINE_WIDTH),
+            )
+        }
     }
 
     /**
@@ -421,6 +450,31 @@ object SkStyler {
         }
         icon?.imageTintList =
             ColorStateList.valueOf(SkTheme.color(context, SkSlot.AVATAR_TEXT))
+    }
+
+    /**
+     * shiroikuma fork: the theme's switch — an outlined pill with a solid dot, right when on and
+     * left when off, the accent when on and the darker [SkSlot.SWITCH_OFF] yellow when off.
+     * Nothing is ever filled.
+     */
+    fun styleSwitch(switch: SwitchCompat) {
+        val context = switch.context
+        val colors = ColorStateList(
+            arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
+            intArrayOf(
+                SkTheme.color(context, SkSlot.ACCENT),
+                SkTheme.color(context, SkSlot.SWITCH_OFF),
+            ),
+        )
+        switch.thumbDrawable = AppCompatResources.getDrawable(context, R.drawable.sk_switch_thumb)
+        switch.trackDrawable = AppCompatResources.getDrawable(context, R.drawable.sk_switch_track)
+        switch.switchMinWidth = (52 * context.resources.displayMetrics.density).toInt()
+        switch.thumbTintList = colors
+        switch.trackTintList = colors
+        if (switch is MaterialSwitch) {
+            switch.thumbIconDrawable = null
+            switch.trackDecorationDrawable = null
+        }
     }
 
     /** The pill shape used by our own dialogs and by any button we own. */

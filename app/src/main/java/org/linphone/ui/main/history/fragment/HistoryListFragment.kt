@@ -19,6 +19,8 @@
  */
 package org.linphone.ui.main.history.fragment
 
+import org.linphone.shiroikuma.SkAccountNumbers
+import org.linphone.shiroikuma.SkAllAccounts
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -39,12 +41,15 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.linphone.shiroikuma.SkDenwaStyle
 import org.linphone.LinphoneApplication.Companion.coreContext
 import org.linphone.R
 import org.linphone.contacts.getListOfSipAddressesAndPhoneNumbers
 import org.linphone.core.Address
 import org.linphone.core.tools.Log
 import org.linphone.databinding.HistoryListFragmentBinding
+import org.linphone.shiroikuma.SkRenrakusaki
+import org.linphone.shiroikuma.SkSisterApps
 import org.linphone.shiroikuma.SkDeclineMessageDialog
 import org.linphone.shiroikuma.SkDeclineMessages
 import org.linphone.shiroikuma.SkDialpadViewModel
@@ -251,54 +256,50 @@ class HistoryListFragment : AbstractMainFragment() {
                         adapter.resetActivated()
                     },
                     { // onAddToContact
-                        val addressToAdd = model.displayedAddress
-                        Log.i(
-                            "$TAG Navigating to new contact with pre-filled value [$addressToAdd]"
-                        )
-
-                        sharedViewModel.sipAddressToAddToNewContact = addressToAdd
-                        sharedViewModel.displayNameToSetToNewContact = model.avatarModel.contactName.orEmpty()
-                        sharedViewModel.navigateToContactsEvent.value = Event(true)
-                        sharedViewModel.showNewContactEvent.value = Event(true)
+                        // shiroikuma fork: contacts are made in the address book app
+                        openInAddressBook(model)
                     },
                     { // onGoToContact
-                        val friendRefKey = model.friendRefKey
-                        if (!friendRefKey.isNullOrEmpty()) {
-                            Log.i("$TAG Navigating to contact with ref key [$friendRefKey]")
-
-                            sharedViewModel.navigateToContactsEvent.value = Event(true)
-                            sharedViewModel.showContactEvent.value = Event(friendRefKey)
-                        } else {
-                            Log.w(
-                                "$TAG Can't navigate to existing friend, ref key is null or empty"
-                            )
-                        }
+                        openInAddressBook(model)
                     },
                     { // onCopyNumberOrAddressToClipboard
                         copyNumberOrAddressToClipboard(model.address)
                     },
                     { // onDeleteCallLog
                         showDeleteConfirmationDialog(model)
-                    }
+                    },
+                    // shiroikuma fork: what the row's own icons do, and the written reply to a
+                    // missed call, which has no icon of its own any more.
+                    showMessage = model.skPhoneNumber.isNotEmpty(),
+                    showReply = model.skIsMissed && !model.wasConference,
+                    onCall = { adapter.callLogCallBackClickedEvent.value = Event(model) },
+                    onMessage = { adapter.callLogMessageClickedEvent.value = Event(model) },
+                    onReply = { adapter.callLogReplyClickedEvent.value = Event(model) }
                 )
                 modalBottomSheet.show(parentFragmentManager, HistoryMenuDialogFragment.TAG)
                 bottomSheetDialog = modalBottomSheet
             }
         }
 
+        // shiroikuma fork: tapping a record narrows this list to that person's calls (see
+        // HistoryListViewModel.SkContactFilter); it used to open upstream's detail page.
         adapter.callLogClickedEvent.observe(viewLifecycleOwner) {
             it.consume { model ->
-                val uri = model.id.orEmpty()
-                Log.i("$TAG Show details for call log with ID [$uri]")
-                listViewModel.currentlyDisplayedItemId = uri
-
-                if (uri.isNotEmpty()) {
-                    val navController = binding.historyNavContainer.findNavController()
-                    val action =
-                        HistoryFragmentDirections.actionGlobalHistoryFragment(uri)
-                    navController.navigate(action)
+                adapter.resetSelection()
+                if (listViewModel.skContactFilter.value == null) {
+                    listViewModel.skShowCallsWith(model)
                 }
             }
+        }
+
+        val contactFilterBack = object : OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() {
+                listViewModel.skClearContactFilter()
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, contactFilterBack)
+        listViewModel.skContactFilter.observe(viewLifecycleOwner) { filter ->
+            contactFilterBack.isEnabled = filter != null
         }
 
         // shiroikuma fork: write back to a missed call from the list. Same picker as the
@@ -332,6 +333,42 @@ class HistoryListFragment : AbstractMainFragment() {
             }
         }
 
+        // shiroikuma fork: 全 chosen or left — the list is another list now.
+        SkAllAccounts.selected.observe(viewLifecycleOwner) {
+            listViewModel.scrollToTopOnNextUpdate = true
+            listViewModel.applyFilter()
+        }
+
+        // shiroikuma fork: a 臨 number or a badge colour was set — the badges are other badges.
+        SkAccountNumbers.version.observe(viewLifecycleOwner) {
+            adapter.notifyDataSetChanged()
+        }
+
+        // shiroikuma fork: the sister dialer's theme changed — repaint the rows.
+        SkDenwaStyle.version.observe(viewLifecycleOwner) {
+            adapter.notifyDataSetChanged()
+            binding.historyList.invalidateItemDecorations()
+        }
+
+        // shiroikuma fork: the row's envelope, its ⋮ and its picture.
+        adapter.callLogMessageClickedEvent.observe(viewLifecycleOwner) {
+            it.consume { model ->
+                SkSisterApps.openMessages(requireContext(), model.skPhoneNumber)
+            }
+        }
+
+        adapter.callLogMenuClickedEvent.observe(viewLifecycleOwner) {
+            it.consume { model ->
+                adapter.callLogLongClickedEvent.value = Event(model)
+            }
+        }
+
+        adapter.callLogAvatarClickedEvent.observe(viewLifecycleOwner) {
+            it.consume { model ->
+                openInAddressBook(model)
+            }
+        }
+
         adapter.callLogCallBackClickedEvent.observe(viewLifecycleOwner) {
             it.consume { model ->
                 coreContext.postOnCoreThread { core ->
@@ -345,7 +382,9 @@ class HistoryListFragment : AbstractMainFragment() {
                         )
                     } else {
                         Log.i("$TAG Starting call to [${model.address.asStringUriOnly()}]")
-                        coreContext.startAudioCall(model.address)
+                        // shiroikuma fork: back through the account this row's call used. When
+                        // that account is gone, startCall falls back to the selected one.
+                        coreContext.startAudioCall(model.address, localAddress = model.skLocalAddress)
                     }
                 }
             }
@@ -600,5 +639,19 @@ class HistoryListFragment : AbstractMainFragment() {
         }
 
         dialog.show()
+    }
+
+    /**
+     * shiroikuma fork: the contact behind a record, in the address book app — its page when the
+     * record matched a contact there, its editor with the number filled in when it did not. A
+     * record whose other party is a SIP name and not a number has nothing to hand over.
+     */
+    private fun openInAddressBook(model: CallLogModel) {
+        val contactId = SkRenrakusaki.contactIdOf(model.avatarModel.friend)
+        if (contactId != null) {
+            SkSisterApps.viewContact(requireContext(), contactId)
+        } else if (model.skPhoneNumber.isNotEmpty()) {
+            SkSisterApps.newContact(requireContext(), model.skPhoneNumber)
+        }
     }
 }

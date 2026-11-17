@@ -109,6 +109,8 @@ enum class SkSlot(
     TOOLBAR_BACKGROUND("sk_toolbar_background", SkSection.TOP_BAR, R.string.sk_slot_toolbar_background),
     TOOLBAR_TITLE("sk_toolbar_title", SkSection.TOP_BAR, R.string.sk_slot_toolbar_title, hasFont = true),
     TOOLBAR_ICON("sk_toolbar_icon", SkSection.TOP_BAR, R.string.sk_slot_toolbar_icon),
+    /** The character 全 on the all-accounts tab of the account strip. */
+    ALL_TAB("sk_all_tab", SkSection.TOP_BAR, R.string.sk_slot_all_tab, hasFont = true, defaultSizeSp = 56, defaultWeight = 700),
 
     LIST_NAME("sk_list_name", SkSection.MAIN_SCREEN, R.string.sk_slot_list_name, hasFont = true, defaultSizeSp = SK_SIZE_CONTACT),
     /** The number + address-book label line of a call-history record. */
@@ -169,6 +171,18 @@ enum class SkSlot(
     BUTTON_BACKGROUND("sk_button_background", SkSection.CONTROLS, R.string.sk_slot_button_background),
     BUTTON_TEXT("sk_button_text", SkSection.CONTROLS, R.string.sk_slot_button_text, hasFont = true),
     BUTTON_BORDER("sk_button_border", SkSection.CONTROLS, R.string.sk_slot_button_border),
+
+    /** A switch that is off: a darker, opaque yellow — its own role, never a faded accent. */
+    SWITCH_OFF("sk_switch_off", SkSection.CONTROLS, R.string.sk_slot_switch_off),
+
+    /** The icon of a menu row, coloured by what the row does — see SkMenus. */
+    MENU_CALL("sk_menu_call", SkSection.CONTROLS, R.string.sk_slot_menu_call),
+    MENU_MESSAGE("sk_menu_message", SkSection.CONTROLS, R.string.sk_slot_menu_message),
+    MENU_CONTACT("sk_menu_contact", SkSection.CONTROLS, R.string.sk_slot_menu_contact),
+    MENU_SHARE("sk_menu_share", SkSection.CONTROLS, R.string.sk_slot_menu_share),
+    MENU_VIEW("sk_menu_view", SkSection.CONTROLS, R.string.sk_slot_menu_view),
+    MENU_BLOCK("sk_menu_block", SkSection.CONTROLS, R.string.sk_slot_menu_block),
+    MENU_DELETE("sk_menu_delete", SkSection.CONTROLS, R.string.sk_slot_menu_delete),
     ;
 
     companion object {
@@ -275,6 +289,7 @@ object SkTheme {
         SkSlot.TOOLBAR_BACKGROUND -> color(context, SkSlot.BACKGROUND)
         SkSlot.TOOLBAR_TITLE -> color(context, SkSlot.TEXT)
         SkSlot.TOOLBAR_ICON -> color(context, SkSlot.ACCENT)
+        SkSlot.ALL_TAB -> color(context, SkSlot.ACCENT)
 
         SkSlot.LIST_NAME -> color(context, SkSlot.TEXT)
         SkSlot.LIST_NUMBER -> color(context, SkSlot.TEXT_SECONDARY)
@@ -319,6 +334,17 @@ object SkTheme {
         SkSlot.BUTTON_BACKGROUND -> color(context, SkSlot.BACKGROUND)
         SkSlot.BUTTON_TEXT -> color(context, SkSlot.ACCENT)
         SkSlot.BUTTON_BORDER -> color(context, SkSlot.ACCENT)
+
+        SkSlot.SWITCH_OFF -> 0xFF8C8C00.toInt()
+
+        // The sister dialer serves these roles too (SkDenwaStyle); the same defaults as there.
+        SkSlot.MENU_CALL -> SkDenwaStyle.color("color.role.call") ?: 0xFF00FF00.toInt()
+        SkSlot.MENU_MESSAGE -> SkDenwaStyle.color("color.role.message") ?: 0xFF4D94FF.toInt()
+        SkSlot.MENU_CONTACT -> SkDenwaStyle.color("color.role.contact") ?: 0xFF00FFFF.toInt()
+        SkSlot.MENU_SHARE -> SkDenwaStyle.color("color.role.share") ?: 0xFFFF8000.toInt()
+        SkSlot.MENU_VIEW -> SkDenwaStyle.color("color.role.view") ?: color(context, SkSlot.ACCENT)
+        SkSlot.MENU_BLOCK -> SkDenwaStyle.color("color.role.block") ?: 0xFFFF00FF.toInt()
+        SkSlot.MENU_DELETE -> SkDenwaStyle.color("color.role.delete") ?: 0xFFFF0000.toInt()
     }
 
     // --- dimens ---

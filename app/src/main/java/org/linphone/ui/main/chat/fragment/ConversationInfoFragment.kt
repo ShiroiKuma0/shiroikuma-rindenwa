@@ -20,7 +20,6 @@
 package org.linphone.ui.main.chat.fragment
 
 import android.os.Bundle
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,6 +30,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import org.linphone.shiroikuma.SkMenus
 import org.linphone.LinphoneApplication.Companion.corePreferences
 import org.linphone.R
 import org.linphone.core.tools.Log
@@ -440,7 +440,7 @@ class ConversationInfoFragment : SlidingPaneChildFragment() {
 
         // Elevation is for showing a shadow around the popup
         popupWindow.elevation = 20f
-        popupWindow.showAsDropDown(view, 0, 0, Gravity.BOTTOM)
+        SkMenus.showBelow(popupWindow, view)
     }
 
     private fun showParticipantAdminPopupView(view: View, participantModel: ParticipantModel) {
@@ -543,7 +543,7 @@ class ConversationInfoFragment : SlidingPaneChildFragment() {
 
         // Elevation is for showing a shadow around the popup
         popupWindow.elevation = 20f
-        popupWindow.showAsDropDown(view, 0, 0, Gravity.BOTTOM)
+        SkMenus.showBelow(popupWindow, view)
     }
 
     private fun showDeleteHistoryConfirmationDialog() {

@@ -561,3 +561,113 @@ class SkDeclineMessagesEditor(
         dialog = chrome.show(box)
     }
 }
+
+/**
+ * shiroikuma fork — choosing an account's 臨 number.
+ *
+ * The ten numbers are shown as what they will be: the badges themselves, each in the colours of
+ * its number, in two rows of five. The one this account carries is ringed; one another account
+ * carries is dimmed, with that account's name under it, and cannot be taken. It replaced a bare
+ * list of eleven lines of text, which 白い熊 rightly called terrible (2026-11-17).
+ */
+class SkRinNumberDialog(
+    activity: Activity,
+    title: String,
+    current: Int?,
+    takenBy: Map<Int, String>,
+    onPick: (number: Int?) -> Unit,
+) {
+    init {
+        val chrome = SkDialogChrome(activity)
+        val box = chrome.box()
+        box.addView(chrome.title(title))
+        box.addView(
+            chrome.body(activity.getString(R.string.sk_rin_number_explanation)).apply {
+                setTextColor(SkTheme.color(activity, SkSlot.TEXT_SECONDARY))
+                textSize = 13f
+            },
+        )
+
+        lateinit var dialog: AlertDialog
+        for (rowStart in listOf(0, 5)) {
+            val row = LinearLayout(activity).apply {
+                orientation = LinearLayout.HORIZONTAL
+                setPadding(0, chrome.dp(if (rowStart == 0) 16 else 6), 0, 0)
+            }
+            for (number in rowStart until rowStart + 5) {
+                val owner = takenBy[number]
+                val selected = number == current
+                val (ground, text) = SkAccountNumbers.colors(activity, number)
+
+                val chip = TextView(activity).apply {
+                    this.text = "${SkAccountNumbers.MARK}$number"
+                    textSize = 20f
+                    setTypeface(typeface, Typeface.BOLD)
+                    setTextColor(text)
+                    gravity = Gravity.CENTER
+                    includeFontPadding = false
+                    background = GradientDrawable().apply {
+                        cornerRadius = 8 * chrome.density
+                        setColor(ground)
+                    }
+                    layoutParams = LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        chrome.dp(44),
+                    )
+                }
+                // The ring round the chosen one: the main-action frame, 3 dp, standing clear of
+                // the chip so the chip's own colours stay readable.
+                val ring = LinearLayout(activity).apply {
+                    orientation = LinearLayout.VERTICAL
+                    setPadding(chrome.dp(5), chrome.dp(5), chrome.dp(5), chrome.dp(5))
+                    background = GradientDrawable().apply {
+                        cornerRadius = 13 * chrome.density
+                        setColor(Color.TRANSPARENT)
+                        setStroke(chrome.dp(3), if (selected) chrome.accent else Color.TRANSPARENT)
+                    }
+                    addView(chip)
+                }
+                val caption = TextView(activity).apply {
+                    this.text = owner.orEmpty()
+                    textSize = 10f
+                    maxLines = 1
+                    ellipsize = android.text.TextUtils.TruncateAt.END
+                    gravity = Gravity.CENTER
+                    setTextColor(SkTheme.color(activity, SkSlot.TEXT_SECONDARY))
+                }
+                val cell = LinearLayout(activity).apply {
+                    orientation = LinearLayout.VERTICAL
+                    layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+                    setPadding(chrome.dp(2), 0, chrome.dp(2), 0)
+                    addView(ring)
+                    addView(caption)
+                    if (owner != null && !selected) {
+                        ring.alpha = 0.38f
+                    } else {
+                        isClickable = true
+                        isFocusable = true
+                        setOnClickListener {
+                            dialog.dismiss()
+                            onPick(number)
+                        }
+                    }
+                }
+                row.addView(cell)
+            }
+            box.addView(row)
+        }
+
+        val bar = chrome.bar()
+        if (current != null) {
+            bar.addView(
+                chrome.pill(activity.getString(R.string.sk_rin_number_clear)) {
+                    dialog.dismiss()
+                    onPick(null)
+                },
+            )
+        }
+        bar.addView(chrome.pill(activity.getString(R.string.sk_cancel)) { dialog.dismiss() })
+        box.addView(bar)
+        dialog = chrome.show(box)
+    }
+}

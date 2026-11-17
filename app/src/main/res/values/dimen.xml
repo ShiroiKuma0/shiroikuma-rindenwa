@@ -6,7 +6,9 @@
     <dimen name="screen_bottom_margin">10dp</dimen>
 
     <dimen name="landscape_nav_bar_width">80dp</dimen>
-    <dimen name="sliding_pane_left_fragment_width">350dp</dimen>
+    <!-- shiroikuma fork: -1px is match_parent. The list takes the whole width, so the sliding
+         pane never splits the screen and a detail always slides over the full width. -->
+    <dimen name="sliding_pane_left_fragment_width">-1px</dimen>
     <dimen name="sliding_pane_right_fragment_width">300dp</dimen>
 
     <dimen name="small_icon_size">14dp</dimen>

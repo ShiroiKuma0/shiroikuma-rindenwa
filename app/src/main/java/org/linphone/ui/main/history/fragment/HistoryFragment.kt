@@ -20,7 +20,6 @@
 package org.linphone.ui.main.history.fragment
 
 import android.os.Bundle
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -33,6 +32,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import org.linphone.shiroikuma.SkMenus
+import org.linphone.shiroikuma.SkRenrakusaki
+import org.linphone.shiroikuma.SkSisterApps
 import org.linphone.LinphoneApplication.Companion.corePreferences
 import org.linphone.R
 import org.linphone.core.Address
@@ -239,25 +241,20 @@ class HistoryFragment : SlidingPaneChildFragment() {
         popupView.isConferenceCallLog = viewModel.isConferenceCallLog.value == true
         popupView.disableAddContact = corePreferences.disableAddContact
 
-        popupView.setAddToContactsListener {
-            val addressToAdd = viewModel.callLogModel.value?.displayedAddress.orEmpty()
-            Log.i("$TAG Navigating to new contact with pre-filled value [$addressToAdd]")
-            sharedViewModel.sipAddressToAddToNewContact = addressToAdd
-            sharedViewModel.displayNameToSetToNewContact = viewModel.callLogModel.value?.avatarModel?.contactName.orEmpty()
-            sharedViewModel.navigateToContactsEvent.value = Event(true)
-            sharedViewModel.showNewContactEvent.value = Event(true)
-            popupWindow.dismiss()
-        }
-
-        popupView.setGoToContactListener {
-            val friendRefKey = viewModel.callLogModel.value?.friendRefKey
-            if (!friendRefKey.isNullOrEmpty()) {
-                Log.i("$TAG Navigating to contact with ref key [$friendRefKey]")
-                sharedViewModel.navigateToContactsEvent.value = Event(true)
-                sharedViewModel.showContactEvent.value = Event(friendRefKey)
+        // shiroikuma fork: contacts are the address book app's — its page for a known caller,
+        // its editor with the number filled in for an unknown one.
+        val openInAddressBook = {
+            val model = viewModel.callLogModel.value
+            val contactId = SkRenrakusaki.contactIdOf(model?.avatarModel?.friend)
+            if (contactId != null) {
+                SkSisterApps.viewContact(requireContext(), contactId)
+            } else if (!model?.skPhoneNumber.isNullOrEmpty()) {
+                SkSisterApps.newContact(requireContext(), model!!.skPhoneNumber)
             }
             popupWindow.dismiss()
         }
+        popupView.setAddToContactsListener { openInAddressBook() }
+        popupView.setGoToContactListener { openInAddressBook() }
 
         popupView.setDeleteAllHistoryClickListener {
             showDeleteConfirmationDialog()
@@ -271,7 +268,7 @@ class HistoryFragment : SlidingPaneChildFragment() {
 
         // Elevation is for showing a shadow around the popup
         popupWindow.elevation = 20f
-        popupWindow.showAsDropDown(binding.callDetailsMenu, 0, 0, Gravity.BOTTOM)
+        SkMenus.showBelow(popupWindow, binding.callDetailsMenu)
     }
 
     private fun showDeleteConfirmationDialog() {

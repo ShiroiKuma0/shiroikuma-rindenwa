@@ -19,6 +19,7 @@
  */
 package org.linphone.ui.main.settings.fragment
 
+import org.linphone.LinphoneApplication.Companion.coreContext
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -28,6 +29,8 @@ import androidx.core.view.doOnPreDraw
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import org.linphone.shiroikuma.SkRinNumberDialog
+import org.linphone.shiroikuma.SkAccountNumbers
 import org.linphone.R
 import org.linphone.core.tools.Log
 import org.linphone.databinding.AccountSettingsFragmentBinding
@@ -84,6 +87,44 @@ class AccountSettingsFragment : GenericMainFragment() {
 
         binding.setBackClickListener {
             goBack()
+        }
+
+        // shiroikuma fork: the account's 臨 number. A choice and not a typed field, so a number
+        // another account already carries cannot be entered by mistake — it is refused.
+        fun showRinNumber() {
+            binding.skRinNumber.text = SkAccountNumbers.numberOf(requireContext(), identity)
+                ?.let { "${SkAccountNumbers.MARK}$it" } ?: getString(R.string.sk_rin_number_none)
+        }
+        showRinNumber()
+        binding.skRinNumber.setOnClickListener {
+            val current = SkAccountNumbers.numberOf(requireContext(), identity)
+            coreContext.postOnCoreThread { core ->
+                val takenBy = core.accountList.mapNotNull { account ->
+                    val address = account.params.identityAddress
+                    val uri = address?.asStringUriOnly().orEmpty()
+                    if (uri.isEmpty() || uri == identity) return@mapNotNull null
+                    SkAccountNumbers.numberOf(requireContext(), uri)?.let {
+                        it to (address?.displayName?.takeIf { n -> n.isNotEmpty() } ?: address?.username.orEmpty())
+                    }
+                }.toMap()
+                coreContext.postOnMainThread {
+                    if (!isAdded) return@postOnMainThread
+                    SkRinNumberDialog(
+                        requireActivity(),
+                        getString(R.string.sk_rin_number_title),
+                        current,
+                        takenBy
+                    ) { picked ->
+                        if (!SkAccountNumbers.set(requireContext(), identity, picked)) {
+                            (requireActivity() as GenericActivity).showRedToast(
+                                getString(R.string.sk_rin_number_taken),
+                                R.drawable.warning_circle
+                            )
+                        }
+                        showRinNumber()
+                    }
+                }
+            }
         }
 
         binding.setUpdatePasswordClickListener {

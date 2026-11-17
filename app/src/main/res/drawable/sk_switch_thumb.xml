@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma fork: the solid dot of a switch — 46 % of the track's height (13 of 28 dp), held
+     7.5 dp inside a 28 dp box so it keeps the same gap from the outline at either end.
+     A layer-list and not an <inset>: an inset reports its insets as padding, which a switch
+     subtracts from the thumb's width — the switch then shrank to two overlapping circles. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:left="7.5dp" android:top="7.5dp" android:right="7.5dp" android:bottom="7.5dp">
+        <shape android:shape="oval">
+            <size android:width="13dp" android:height="13dp" />
+            <solid android:color="@color/sk_switch_color" />
+        </shape>
+    </item>
+</layer-list>

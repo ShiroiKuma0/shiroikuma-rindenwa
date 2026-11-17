@@ -25,7 +25,6 @@ import android.app.Dialog
 import android.app.role.RoleManager
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
 import android.net.Uri
@@ -59,12 +58,15 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.linphone.shiroikuma.SkDenwaStyle
 import org.linphone.LinphoneApplication.Companion.coreContext
 import org.linphone.LinphoneApplication.Companion.corePreferences
 import org.linphone.R
 import org.linphone.compatibility.Compatibility
 import org.linphone.core.tools.Log
 import org.linphone.databinding.MainActivityBinding
+import org.linphone.shiroikuma.SkRenrakusaki
+import org.linphone.shiroikuma.SkSisterApps
 import org.linphone.shiroikuma.SkRinger
 import org.linphone.ui.GenericActivity
 import org.linphone.shiroikuma.SkStartup
@@ -285,9 +287,8 @@ class MainActivity : GenericActivity() {
 
         viewModel.startLoadingContactsEvent.observe(this) {
             it.consume {
-                if (checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-                    loadContacts()
-                }
+                // shiroikuma fork: contacts come from the address book app, which needs no permission
+                loadContacts()
             }
         }
 
@@ -523,6 +524,11 @@ class MainActivity : GenericActivity() {
         viewModel.updateMissingPermissionAlert()
         viewModel.updateAccountsAndNetworkReachability()
 
+        // shiroikuma fork: the address book may have been edited while we were away
+        SkRenrakusaki.reload()
+        // … and so may the sister dialer's theme, which the call history follows
+        SkDenwaStyle.reload(this)
+
         // shiroikuma fork: without "Display over other apps" an incoming call can only drop a
         // notification when the screen is already on, so ask for it rather than fail quietly.
         SkRinger.ensureCallScreenPermission(this)
@@ -648,6 +654,21 @@ class MainActivity : GenericActivity() {
         Log.i(
             "$TAG Handling intent action [${intent.action}], type [${intent.type}], data [${intent.data}] and has ${if (hasExtra) "extras" else "no extra"}"
         )
+
+        // shiroikuma fork: the 臨電話 tab of the sister apps — land on the call history list,
+        // whatever was left open here (a settings page, one contact's history).
+        if (intent.getBooleanExtra(SkSisterApps.EXTRA_OPEN_HISTORY, false)) {
+            intent.removeExtra(SkSisterApps.EXTRA_OPEN_HISTORY)
+            try {
+                val navController = findNavController()
+                if (navController.currentDestination?.id != R.id.historyListFragment) {
+                    navController.popBackStack(R.id.historyListFragment, false)
+                }
+                sharedViewModel.closeSlidingPaneEvent.value = Event(true)
+            } catch (e: Exception) {
+                Log.e("$TAG Can't get back to the call history: $e")
+            }
+        }
 
         val action = intent.action ?: return
         when (action) {

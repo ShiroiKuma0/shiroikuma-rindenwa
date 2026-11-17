@@ -315,7 +315,9 @@ class CorePreferences
 
     @get:AnyThread @set:WorkerThread
     var disableAddContact: Boolean
-        get() = config.getBool("ui", "disable_add_contact", false)
+        // shiroikuma fork: always on. A contact made here would live in a store of this app's
+        // own, which no longer exists — contacts are made in the address book app (SkRenrakusaki).
+        get() = true
         set(value) {
             config.setBool("ui", "disable_add_contact", value)
         }

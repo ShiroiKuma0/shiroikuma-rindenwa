@@ -10,8 +10,8 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
-    <!-- To be able to display contacts list & match calling/called numbers -->
-    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <!-- shiroikuma fork: READ_CONTACTS is gone. Contacts come from the sister address book
+         through its own provider (see SkRenrakusaki), and the system contact store is not read. -->
 
     <!-- Starting Android 13 we need to ask notification permission -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
@@ -81,6 +81,12 @@
              behind the DID the call arrived on. Package visibility is required to reach it at
              SDK 30+. See SkDeclineMessages. -->
         <package android:name="shiroikuma.messeji" />
+        <!-- shiroikuma fork: the address book that holds the contacts (SkRenrakusaki), and the
+             SIM phone app whose tab and call-log style this app shares. -->
+        <package android:name="shiroikuma.renrakusaki" />
+        <package android:name="shiroikuma.renrakusaki.debug" />
+        <package android:name="shiroikuma.denwa" />
+        <package android:name="shiroikuma.denwa.debug" />
     </queries>
 
     <application
@@ -231,6 +237,17 @@
              checks the caller three ways: exact package name, uid cross-check, pinned signing
              certificate. `import` exists ONLY here — the receiver above is exported with no
              permission, so an import there would let any app on the phone wipe this one. -->
+        <!-- shiroikuma fork: the call door — the sister apps list this app's SIP accounts and
+             place a call through one. Exported with no permission for the same reason as the data
+             door below (every app in the family has its own keystore); SkCallsProvider admits only
+             the packages allowed on the UI page, confirmed against the calling uid. Separate from
+             the data door on purpose: an app let in to dial must not be let in to export. -->
+        <provider
+            android:name=".shiroikuma.SkCallsProvider"
+            android:authorities="${applicationId}.calls"
+            android:exported="true"
+            tools:ignore="ExportedContentProvider" />
+
         <provider
             android:name=".shiroikuma.automation.AutomationProvider"
             android:authorities="${applicationId}.automation"

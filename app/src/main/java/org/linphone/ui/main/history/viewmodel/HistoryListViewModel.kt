@@ -19,6 +19,8 @@
  */
 package org.linphone.ui.main.history.viewmodel
 
+import org.linphone.shiroikuma.SkRenrakusaki
+import org.linphone.shiroikuma.SkAllAccounts
 import androidx.annotation.UiThread
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.MutableLiveData
@@ -219,19 +221,21 @@ class HistoryListViewModel
 
         val list = arrayListOf<CallLogModelWrapper>()
 
-        val account = LinphoneUtils.getDefaultAccount()
-        // Fetch all call logs if only one account to workaround no history issue
-        // TODO FIXME: remove workaround later
-        val logs = if (coreContext.core.accountList.size > 1) {
-            account?.callLogs ?: coreContext.core.callLogs
-        } else {
+        // shiroikuma fork: an account's tab shows that account's calls; the 全 tab shows every
+        // account's in one list, each marked 臨N with the account it went through — as the
+        // sister dialer lists both SIMs together (see SkAllAccounts).
+        val logs = if (SkAllAccounts.isSelected(coreContext.context)) {
             coreContext.core.callLogs
+        } else {
+            LinphoneUtils.getDefaultAccount()?.callLogs ?: coreContext.core.callLogs
         }
 
+        val contactFilter = skContactFilter.value
         for (callLog in logs) {
             if (missedOnly && !LinphoneUtils.isCallLogMissed(callLog)) continue
 
             val model = CallLogModel(callLog)
+            if (!skMatchesContact(model, contactFilter)) continue
             if (isCallLogMatchingFilter(model, filter)) {
                 list.add(CallLogModelWrapper(model))
             }
@@ -245,6 +249,56 @@ class HistoryListViewModel
             tempCallLogsList.clear()
             tempCallLogsList.addAll(list)
         }
+    }
+
+    // ---- shiroikuma fork: "Calls with <name>" — the list narrowed to one contact ----
+
+    /**
+     * Whose calls the list is narrowed to, or null for everyone's.
+     *
+     * Tapping a record does not open upstream's detail page any more (a card with the caller's
+     * picture, two round buttons and a bare list of times): it narrows this same list to that
+     * person's calls, in the same rows, under a banner that names them and a ✕ that goes back —
+     * as the sister dialer does (白い熊, 2026-11-17).
+     *
+     * A contact of the address book is matched by its identity there, so every number it holds
+     * counts; an unknown caller by the last nine digits of the number, or by the SIP address.
+     */
+    class SkContactFilter(val name: String, val refKey: String?, val digits: String, val uri: String)
+
+    val skContactFilter = MutableLiveData<SkContactFilter?>()
+
+    @UiThread
+    fun skShowCallsWith(model: CallLogModel) {
+        val name = model.avatarModel.contactName?.takeIf { it.isNotEmpty() }
+            ?: model.skPhoneNumber.ifEmpty { model.displayedAddress }
+        skContactFilter.value = SkContactFilter(
+            name,
+            model.friendRefKey?.takeIf { it.startsWith(SkRenrakusaki.REF_KEY_PREFIX) },
+            skDigits(model.address.username),
+            model.sipUri
+        )
+        scrollToTopOnNextUpdate = true
+        applyFilter()
+    }
+
+    @UiThread
+    fun skClearContactFilter() {
+        if (skContactFilter.value == null) return
+        skContactFilter.value = null
+        scrollToTopOnNextUpdate = true
+        applyFilter()
+    }
+
+    private fun skDigits(user: String?): String =
+        user.orEmpty().filter { it.isDigit() }.takeLast(9)
+
+    @WorkerThread
+    private fun skMatchesContact(model: CallLogModel, filter: SkContactFilter?): Boolean {
+        filter ?: return true
+        if (filter.refKey != null) return model.friendRefKey == filter.refKey
+        if (filter.digits.length >= 7) return skDigits(model.address.username) == filter.digits
+        return model.sipUri == filter.uri
     }
 
     @WorkerThread

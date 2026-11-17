@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="sliding_pane_left_fragment_width">450dp</dimen>
+    <!-- shiroikuma fork: -1px is match_parent. The list takes the whole width, so the sliding
+         pane never splits the screen and a detail always slides over the full width. -->
+    <dimen name="sliding_pane_left_fragment_width">-1px</dimen>
 
     <dimen name="call_main_actions_menu_height">110dp</dimen>
     <dimen name="call_all_actions_menu_height">235dp</dimen> <!-- sum of above two -->

@@ -21,33 +21,26 @@
             name="extraActionEnabled"
             type="Boolean" />
         <variable
+            name="moreClickListener"
+            type="View.OnClickListener" />
+        <variable
             name="viewModel"
             type="org.linphone.ui.main.viewmodel.AbstractMainViewModel" />
     </data>
 
     <!--
-      shiroikuma fork: what is left of the title bar is the controls row — drawer menu on the left,
-      search and the screen's own action on the right, all outside the account tabs. The tabs
-      themselves live above the sliding pane (see the list fragments) so their line can run the
-      full width of the screen, and the tab name that used to be the title ("Contacts" / "Calls" /
-      …) moved to the folder tabs in the bottom bar.
+      shiroikuma fork: the controls row under the account tabs, in the shape the sister dialer and
+      address book give theirs — the drawer menu at the left, then one outlined pill holding the
+      search field and ⋮. The search field is always there: upstream's magnifying glass that
+      swapped the whole row for a field is gone, and so is the back arrow that swapped it back.
+      A screen's own action, where it has one, sits inside the pill before the ⋮. There was a 設定
+      here as in the sister dialer; 白い熊 had it removed (2026-11-17) — the settings are in the
+      drawer menu.
     -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/sk_main_top_bar_height"
         android:background="@color/sk_bar_background">
-
-        <androidx.constraintlayout.widget.Group
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:constraint_referenced_ids="drawer_menu, search_toggle"
-            android:visibility="@{viewModel.searchBarVisible ? View.GONE : View.VISIBLE}" />
-
-        <androidx.constraintlayout.widget.Group
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:constraint_referenced_ids="cancel_search, search, clear_field"
-            android:visibility="@{viewModel.searchBarVisible ? View.VISIBLE : View.GONE, default=gone}" />
 
         <ImageView
             style="@style/icon_main_top_bar_button_style"
@@ -61,89 +54,97 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 
-        <ImageView
-            style="@style/icon_main_top_bar_button_style"
-            android:id="@+id/search_toggle"
-            android:onClick="@{() -> viewModel.openSearchBar()}"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/sk_main_top_bar_icon_size"
-            android:src="@drawable/magnifying_glass"
-            android:contentDescription="@string/content_description_open_filter"
-            app:layout_constraintEnd_toStartOf="@id/extra_action"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
-
-        <ImageView
-            style="@style/icon_main_top_bar_button_style"
-            android:id="@+id/extra_action"
-            android:onClick="@{extraActionClickListener}"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/sk_main_top_bar_icon_size"
-            android:src="@{extraActionIcon, default=@drawable/dots_three_vertical}"
-            android:contentDescription="@{extraActionContentDescription}"
-            android:enabled="@{extraActionEnabled}"
-            android:visibility="@{!viewModel.searchBarVisible &amp;&amp; showExtraAction ? View.VISIBLE : View.GONE, default=gone}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
-
-        <ImageView
-            style="@style/icon_main_top_bar_button_style"
-            android:id="@+id/cancel_search"
-            android:onClick="@{() -> viewModel.closeSearchBar()}"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/sk_main_top_bar_icon_size"
-            android:src="@drawable/caret_left"
-            android:contentDescription="@string/content_description_cancel_filter"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/search"
-            app:layout_constraintBottom_toBottomOf="@id/search" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="?attr/textInputFilledStyle"
-            android:id="@+id/search"
+        <LinearLayout
+            android:id="@+id/search_pill"
             android:layout_width="0dp"
-            android:layout_height="@dimen/sk_main_top_bar_icon_size"
+            android:layout_height="0dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginEnd="12dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="4dp"
+            android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:textColorHint="@color/sk_ink_faint"
-            app:hintEnabled="false"
-            app:hintAnimationEnabled="false"
-            app:hintTextColor="@color/sk_ink_faint"
-            app:boxStrokeWidth="1.5dp"
-            app:boxStrokeWidthFocused="3dp"
-            app:boxStrokeColor="@color/sk_field_border"
-            app:layout_constraintEnd_toStartOf="@id/clear_field"
-            app:layout_constraintStart_toEndOf="@id/cancel_search"
+            android:background="@drawable/sk_search_pill"
+            app:layout_constraintStart_toEndOf="@id/drawer_menu"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/magnifying_glass"
+                android:contentDescription="@null"
+                app:tint="@color/sk_yellow" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/search"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:textCursorDrawable="@null"
-                android:textColor="?attr/color_main1_500"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:gravity="center_vertical"
                 android:textColorHint="@color/sk_ink_faint"
-                android:textSize="16sp"
-                android:inputType="text"
-                android:paddingVertical="1dp"
-                android:imeOptions="actionSearch"
-                android:text="@={viewModel.searchFilter}"
-                android:hint="@string/search"
-                android:background="@android:color/transparent" />
+                app:hintEnabled="false"
+                app:hintAnimationEnabled="false"
+                app:boxBackgroundMode="none">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="0dp"
+                    android:gravity="center_vertical"
+                    android:textCursorDrawable="@null"
+                    android:textColor="@color/sk_yellow"
+                    android:textColorHint="@color/sk_ink_faint"
+                    android:textSize="16sp"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:imeOptions="actionSearch"
+                    android:text="@={viewModel.searchFilter}"
+                    android:hint="@string/search"
+                    android:background="@android:color/transparent" />
 
-        <ImageView
-            style="@style/icon_main_top_bar_button_style"
-            android:id="@+id/clear_field"
-            android:onClick="@{() -> viewModel.clearFilter()}"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/sk_main_top_bar_icon_size"
-            android:src="@drawable/x"
-            android:contentDescription="@string/content_description_clear_filter"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/search"
-            app:layout_constraintBottom_toBottomOf="@id/search" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ImageView
+                android:id="@+id/clear_field"
+                android:onClick="@{() -> viewModel.clearFilter()}"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:padding="9dp"
+                android:src="@drawable/x"
+                android:background="@drawable/circle_transparent_button_background"
+                android:contentDescription="@string/content_description_clear_filter"
+                android:visibility="@{viewModel.searchFilter.length() > 0 ? View.VISIBLE : View.GONE, default=gone}"
+                app:tint="@color/sk_yellow" />
+
+            <ImageView
+                android:id="@+id/extra_action"
+                android:onClick="@{extraActionClickListener}"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:padding="8dp"
+                android:src="@{extraActionIcon, default=@drawable/dots_three_vertical}"
+                android:background="@drawable/circle_transparent_button_background"
+                android:contentDescription="@{extraActionContentDescription}"
+                android:enabled="@{extraActionEnabled}"
+                android:visibility="@{showExtraAction ? View.VISIBLE : View.GONE, default=gone}"
+                app:tint="@color/sk_yellow" />
+
+            <ImageView
+                android:id="@+id/sk_more"
+                android:onClick="@{moreClickListener}"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:padding="7dp"
+                android:src="@drawable/dots_three_vertical"
+                android:background="@drawable/circle_transparent_button_background"
+                android:contentDescription="@string/sk_content_description_more"
+                app:tint="@color/sk_yellow" />
+
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -81,6 +81,17 @@
                 android:textSize="14sp"
                 android:visibility="@{viewModel.hideSipAddresses ? View.GONE : View.VISIBLE}" />
 
+            <!-- shiroikuma fork: what the call is doing, in words — in place of upstream's rotating circle. -->
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/default_text_style"
+                android:id="@+id/sk_call_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@{viewModel.skCallStatus, default=@string/sk_call_status_dialing}"
+                android:textColor="@color/sk_yellow"
+                android:textSize="16sp" />
+
         </LinearLayout>
 
         <include

@@ -46,4 +46,17 @@
     <color name="sk_warning_dim">#FF4A3B00</color>
     <color name="sk_offline">#FF9E9E9E</color>
     <color name="sk_disabled">#FF3A3A3A</color>
+
+    <!-- shiroikuma fork: the 臨N badge's text (on the yellow ground of sk_badge_rin), and the
+         mark of a recorded call. -->
+    <color name="sk_badge_rin_text">#FF0000FF</color>
+    <color name="sk_recorded">#FFFF3030</color>
+
+    <!-- shiroikuma fork: the divider between two groups of a menu — 70 % of the way from the
+         background to the accent, opaque. -->
+    <color name="sk_menu_divider">#FFB3B300</color>
+
+    <!-- shiroikuma fork: the row's own message and call icons, in their menu role colours. -->
+    <color name="sk_role_message">#FF4D94FF</color>
+    <color name="sk_role_call">#FF00FF00</color>
 </resources>
