@@ -77,6 +77,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     style="@style/section_header_style"
                     android:id="@+id/sk_ui_settings"
+                    skPill="@{`main`}"
                     android:onClick="@{skUiSettingsClickListener}"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -365,6 +366,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     style="@style/section_header_style"
                     android:id="@+id/advanced_settings"
+                    skPill="@{`opens`}"
                     android:onClick="@{advancedSettingsClickListener}"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -386,6 +388,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     style="@style/section_header_style"
                     android:id="@+id/developer_settings"
+                    skPill="@{`opens`}"
                     android:onClick="@{developerSettingsClickListener}"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"

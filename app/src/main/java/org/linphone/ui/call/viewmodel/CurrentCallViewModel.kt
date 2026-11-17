@@ -56,6 +56,7 @@ import org.linphone.core.MediaDirection
 import org.linphone.core.MediaEncryption
 import org.linphone.core.SecurityLevel
 import org.linphone.core.tools.Log
+import org.linphone.shiroikuma.SkCallStatus
 import org.linphone.shiroikuma.SkDeclineMessages
 import org.linphone.shiroikuma.SkRinger
 import org.linphone.ui.GenericViewModel
@@ -102,6 +103,9 @@ class CurrentCallViewModel
     val isOutgoingRinging = MutableLiveData<Boolean>()
 
     val isOutgoingEarlyMedia = MutableLiveData<Boolean>()
+
+    // shiroikuma fork: what the call is doing, in words (see SkCallStatus).
+    val skCallStatus = MutableLiveData<String>()
 
     val isRecordingEnabled = MutableLiveData<Boolean>()
 
@@ -500,6 +504,7 @@ class CurrentCallViewModel
             isRingingSilenced.postValue(SkRinger.isSilenced(call))
 
             if (::currentCall.isInitialized) {
+                if (call == currentCall) skCallStatus.postValue(SkCallStatus.textFor(call))
                 if (call != currentCall) {
                     if (call == core.currentCall && state != Call.State.Pausing) {
                         Log.w(
@@ -1234,6 +1239,7 @@ class CurrentCallViewModel
         currentCall = call
         // shiroikuma fork
         isRingingSilenced.postValue(SkRinger.isSilenced(call))
+        skCallStatus.postValue(SkCallStatus.textFor(call))
         skCallerKey.postValue(SkDeclineMessages.callerKey(call.remoteAddress))
         skCallerDid.postValue(SkDeclineMessages.didOf(call.callLog.localAddress))
         callStatsModel.update(call, call.audioStats)

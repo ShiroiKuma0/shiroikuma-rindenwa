@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma fork: the dialpad button of the call history, traced and not filled (白い熊,
+     2026-11-17, the same in the sister dialer): a rounded square with a 3 dp yellow outline, the
+     page's own black inside it so the list does not show through, and a yellow ripple. -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#4DFFFF00">
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="16dp" />
+            <solid android:color="@color/sk_surface" />
+            <stroke android:width="3dp" android:color="@color/sk_yellow" />
+        </shape>
+    </item>
+</ripple>

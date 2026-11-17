@@ -22,6 +22,13 @@ package org.linphone.ui.main.history.model
 import androidx.annotation.IntegerRes
 import androidx.annotation.UiThread
 import androidx.annotation.WorkerThread
+import org.linphone.R
+import org.linphone.utils.AppUtils
+import org.linphone.core.Address
+import org.linphone.core.Reason
+import org.linphone.shiroikuma.SkRecordings
+import org.linphone.shiroikuma.SkCountry
+import org.linphone.shiroikuma.SkAccountNumbers
 import org.linphone.LinphoneApplication.Companion.coreContext
 import org.linphone.LinphoneApplication.Companion.corePreferences
 import org.linphone.core.Call
@@ -128,6 +135,58 @@ class CallLogModel
     val skCallLog: CallLog
         get() = callLog
 
+    /** shiroikuma fork: the identity of the SIP account this call went through. */
+    val skIdentity: String
+
+    /**
+     * shiroikuma fork: 臨N for that account. Read whenever the row is drawn: the number is set
+     * on the UI page while this list already exists, and a badge frozen when the list was built
+     * went on saying a bare 臨 after the numbers had been given (白い熊, 2026-11-17).
+     */
+    val skBadge: String
+        get() = SkAccountNumbers.badgeOf(coreContext.context, skIdentity)
+
+    val skBadgeNumber: Int?
+        get() = SkAccountNumbers.numberOf(coreContext.context, skIdentity)
+
+    /**
+     * shiroikuma fork: the account's own address, for calling back through the same account the
+     * call used and not through whichever happens to be selected now.
+     */
+    val skLocalAddress: Address? = callLog.localAddress
+
+    /**
+     * shiroikuma fork: why a call that was placed never connected, or empty. Nothing is said about
+     * a call that was hung up here before it was answered — that was a decision, not a failure —
+     * nor about a missed incoming one, whose red arrow already says it.
+     */
+    val skFailure: String
+
+    /**
+     * shiroikuma fork: the row's arrow, in the sister dialer's three shapes so both call
+     * histories read alike — up-right for every call placed here, down-left for one taken, the
+     * bent arrow for one missed. Whether a placed call was answered is told by its colour.
+     */
+    val skArrowRes: Int
+        get() = when (direction) {
+            SkCallLog.Direction.OUTGOING -> R.drawable.sk_call_made
+            SkCallLog.Direction.INCOMING -> R.drawable.sk_call_received
+            SkCallLog.Direction.MISSED -> R.drawable.sk_call_missed
+        }
+
+    /** shiroikuma fork: a call placed here that the other end never took. */
+    val skUnanswered: Boolean
+        get() = direction == SkCallLog.Direction.OUTGOING && !connected
+
+    /** shiroikuma fork: a recording of this call is on the phone. */
+    val skRecorded: Boolean
+
+    /** shiroikuma fork: the country the number belongs to, or empty. */
+    val skCountry: String
+
+    /** shiroikuma fork: the other party as a phone number, or empty when it is a SIP name. */
+    val skPhoneNumber: String
+
     init {
         // shiroikuma fork: red is reserved for the call that rang here and went unanswered — that
         // is what a call log is scanned for. An outgoing call keeps its own colour whatever became
@@ -170,6 +229,38 @@ class CallLogModel
         }
 
         numberWithLabel = computeNumberWithLabel()
+
+        // shiroikuma fork
+        val local = callLog.localAddress
+        // By the whole address first; then by the user name alone, for a record whose local side
+        // was written with another host or port than the account's identity has.
+        val account = LinphoneUtils.getAccountForAddress(local)
+            ?: coreContext.core.accountList.find {
+                !local.username.isNullOrEmpty() && it.params.identityAddress?.username == local.username
+            }
+        skIdentity = account?.params?.identityAddress?.asStringUriOnly() ?: local.asStringUriOnly()
+
+        val user = address.username.orEmpty()
+        skPhoneNumber = if (!wasConference && Regex("^\\+?[0-9]{3,}$").matches(user)) user else ""
+        skCountry = SkCountry.nameOf(skPhoneNumber)
+
+        skFailure = if (callLog.dir != Call.Dir.Outgoing || connected) {
+            ""
+        } else {
+            when (callLog.errorInfo?.reason) {
+                Reason.Busy -> AppUtils.getString(R.string.sk_call_status_busy)
+                Reason.Declined -> AppUtils.getString(R.string.sk_call_status_declined)
+                Reason.NotAnswered, Reason.TemporarilyUnavailable ->
+                    AppUtils.getString(R.string.sk_call_status_no_answer)
+                else -> if (callLog.status == Call.Status.Declined) {
+                    AppUtils.getString(R.string.sk_call_status_declined)
+                } else {
+                    ""
+                }
+            }
+        }
+
+        skRecorded = connected && SkRecordings.has(sipUri, timestamp, callDuration)
 
         iconResId = LinphoneUtils.getCallIconResId(callLog.status, callLog.dir)
     }

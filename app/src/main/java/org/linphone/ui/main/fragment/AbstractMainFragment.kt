@@ -19,6 +19,10 @@
  */
 package org.linphone.ui.main.fragment
 
+import org.linphone.shiroikuma.SkMenus
+import org.linphone.databinding.SkTopMoreMenuBinding
+import android.view.LayoutInflater
+import android.widget.PopupWindow
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Outline
@@ -238,6 +242,39 @@ abstract class AbstractMainFragment : GenericMainFragment() {
         topBar.drawerMenu.setOnLongClickListener {
             startActivity(Intent(requireContext(), SkUiActivity::class.java))
             true
+        }
+
+        // shiroikuma fork: the ⋮ at the right end of the search pill — the short menu of what is
+        // not in the row itself. (The app's settings are in the drawer menu.)
+        // Long-pressing it jumps straight to the 白い熊 臨電話 UI page, as long-pressing the
+        // hamburger at the other end of the row does.
+        topBar.skMore.setOnLongClickListener {
+            startActivity(Intent(requireContext(), SkUiActivity::class.java))
+            true
+        }
+        topBar.setMoreClickListener { anchor ->
+            val menu = SkTopMoreMenuBinding.inflate(LayoutInflater.from(requireContext()))
+            val popup = PopupWindow(
+                menu.root,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                true
+            )
+            val navigate = { action: Int ->
+                popup.dismiss()
+                try {
+                    (requireActivity() as MainActivity).findNavController().navigate(action)
+                } catch (e: Exception) {
+                    Log.e("$TAG Can't navigate from the top row's menu: $e")
+                }
+            }
+            menu.setUiPageClickListener {
+                popup.dismiss()
+                startActivity(Intent(requireContext(), SkUiActivity::class.java))
+            }
+            menu.setRecordingsClickListener { navigate(R.id.action_global_recordingsListFragment) }
+            menu.setHelpClickListener { navigate(R.id.action_global_helpFragment) }
+            SkMenus.showBelow(popup, anchor)
         }
     }
 

@@ -67,6 +67,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             style="@style/settings_title_style"
             android:id="@+id/calibrate_echo_canceller"
+            skPill="@{`action`}"
             android:onClick="@{() -> viewModel.calibrateEchoCanceller()}"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -186,6 +187,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/change_ringtone"
+            skPill="@{`opens`}"
             style="@style/settings_title_style"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -238,6 +240,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             style="@style/settings_title_style"
             android:id="@+id/advanced_call_settings"
+            skPill="@{`opens`}"
             android:onClick="@{advancedCallSettingsClickListener}"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

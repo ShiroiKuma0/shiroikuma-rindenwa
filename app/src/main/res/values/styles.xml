@@ -229,8 +229,15 @@
         <item name="android:ellipsize">end</item>
     </style>
     <style name="material_switch_style">
-        <item name="thumbTint">?attr/color_main2_000</item>
-        <item name="trackTint">@color/switch_track_color</item>
+        <!-- shiroikuma fork: the outlined switch of the black-yellow theme, in place of upstream's
+             filled track with a white thumb. -->
+        <item name="android:thumb">@drawable/sk_switch_thumb</item>
+        <item name="switchMinWidth">52dp</item>
+        <item name="track">@drawable/sk_switch_track</item>
+        <item name="thumbTint">@color/sk_switch_color</item>
+        <item name="trackTint">@color/sk_switch_color</item>
+        <item name="thumbIcon">@null</item>
+        <item name="trackDecoration">@null</item>
         <item name="trackDecorationTint">@color/transparent_color</item>
         <item name="android:fontFamily">@font/noto_sans</item>
         <item name="android:textColor">?attr/color_text</item>

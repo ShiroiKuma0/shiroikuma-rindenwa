@@ -1140,6 +1140,14 @@
     <string name="sk_slot_toolbar_background" translatable="false">Top bar background</string>
     <string name="sk_slot_toolbar_title" translatable="false">Top bar title</string>
     <string name="sk_slot_toolbar_icon" translatable="false">Top bar icons</string>
+    <string name="sk_slot_all_tab" translatable="false">The 全 tab’s character</string>
+    <string name="sk_group_all_tab" translatable="false">The 全 tab (all accounts)</string>
+    <string name="sk_all_tab_description" translatable="false">Calls of all accounts</string>
+    <string name="sk_all_tab_picture" translatable="false">Use a picture</string>
+    <string name="sk_all_tab_picture_desc" translatable="false">Choose a PNG or another image to stand on the 全 tab in place of the character.</string>
+    <string name="sk_all_tab_picture_remove" translatable="false">Remove the picture</string>
+    <string name="sk_all_tab_picture_remove_desc" translatable="false">Go back to the character 全, drawn in the font set above.</string>
+    <string name="sk_all_tab_picture_invalid" translatable="false">That file is not a picture</string>
     <string name="sk_slot_list_name" translatable="false">Row name</string>
     <string name="sk_slot_list_number" translatable="false">Call number</string>
     <string name="sk_slot_list_detail" translatable="false">Row detail</string>
@@ -1177,6 +1185,20 @@
     <string name="sk_slot_button_background" translatable="false">Button background</string>
     <string name="sk_slot_button_text" translatable="false">Button text</string>
     <string name="sk_slot_button_border" translatable="false">Button border</string>
+    <string name="sk_slot_switch_off" translatable="false">Switch that is off</string>
+    <string name="sk_group_menu_icons" translatable="false">Menu icons</string>
+    <string name="sk_slot_menu_call" translatable="false">Call, connect</string>
+    <string name="sk_slot_menu_message" translatable="false">Message, write</string>
+    <string name="sk_slot_menu_contact" translatable="false">Contact, person</string>
+    <string name="sk_slot_menu_share" translatable="false">Copy, share, export</string>
+    <string name="sk_slot_menu_view" translatable="false">View, open, settings</string>
+    <string name="sk_slot_menu_block" translatable="false">Block, mute, leave</string>
+    <string name="sk_slot_menu_delete" translatable="false">Delete, remove</string>
+    <string name="sk_group_rin_numbers" translatable="false">臨 numbers of the accounts</string>
+    <string name="sk_menu_call_back" translatable="false">Call back</string>
+    <string name="sk_menu_message" translatable="false">Write a message</string>
+    <string name="sk_menu_written_reply" translatable="false">Reply with a stored line</string>
+    <string name="sk_menu_ui_page" translatable="false">白い熊 臨電話 UI</string>
 
     <!-- Dimensions (all sliders, all reaching 0) -->
     <string name="sk_dimen_list_border_width" translatable="false">Row border</string>
@@ -1225,7 +1247,7 @@
     <string name="sk_call_show_duration_desc" translatable="false">How long the call ran, written after its time. Only ever shown for a call that connected.</string>
     <string name="sk_call_duration_format" translatable="false">Duration format</string>
     <string name="sk_call_duration_digital" translatable="false">Digital — 11:01</string>
-    <string name="sk_call_duration_separator" translatable="false">•</string>
+    <string name="sk_call_duration_separator" translatable="false">·</string>
     <string name="sk_call_show_direction" translatable="false">Show direction arrow</string>
     <string name="sk_call_show_direction_desc" translatable="false">The in / out / missed arrow in front of the time.</string>
 
@@ -1331,6 +1353,48 @@
     <string name="sk_content_description_answer_on_speaker" translatable="false">Answer with the loudspeaker already on</string>
     <string name="sk_call_decline_with_message" translatable="false">Message</string>
     <string name="sk_content_description_decline_with_message" translatable="false">Decline the call and write back</string>
+
+    <!-- shiroikuma fork: the outgoing-call panel (sk_call_outgoing_actions.xml). -->
+    <string name="sk_call_mute" translatable="false">Mute</string>
+    <string name="sk_call_muted" translatable="false">Muted</string>
+    <string name="sk_call_output_speaker" translatable="false">Speaker</string>
+    <string name="sk_call_output_bluetooth" translatable="false">Bluetooth</string>
+    <string name="sk_call_output_headset" translatable="false">Headset</string>
+    <string name="sk_call_keypad" translatable="false">Keypad</string>
+
+    <!-- shiroikuma fork: the shared bottom bar and top row. The two phone tabs are named exactly
+         so in every language (白い熊, 2026-11-17). -->
+    <string name="sk_group_call_door" translatable="false">Calls from other apps</string>
+    <string name="sk_call_door_renrakusaki" translatable="false">白い熊 連絡先 may place calls</string>
+    <string name="sk_call_door_renrakusaki_desc" translatable="false">The address book reads the list of accounts here and dials through them — its 臨 badges and its swipes.</string>
+    <string name="sk_call_door_denwa" translatable="false">白い熊 電話 may place calls</string>
+    <string name="sk_call_door_denwa_desc" translatable="false">The SIM dialer may hand a number over to be called through an account here.</string>
+    <string name="sk_rin_number_title" translatable="false">臨 number</string>
+    <string name="sk_rin_number_none" translatable="false">None</string>
+    <string name="sk_rin_number_explanation" translatable="false">Calls through this account are marked with this badge, and the address book dials through it by this number. A dimmed badge belongs to another account.</string>
+    <string name="sk_rin_number_clear" translatable="false">No number</string>
+    <string name="sk_rin_badge_ground" translatable="false">%1$s badge</string>
+    <string name="sk_rin_badge_text" translatable="false">%1$s badge text</string>
+    <string name="sk_rin_number_taken" translatable="false">Another account already has that number</string>
+    <string name="sk_calls_with" translatable="false">Calls with %1$s</string>
+    <string name="sk_calls_with_clear" translatable="false">Show everyone\'s calls again</string>
+    <string name="sk_tab_denwa" translatable="false">電話</string>
+    <string name="sk_tab_rindenwa" translatable="false">臨電話</string>
+    <string name="sk_content_description_more" translatable="false">More</string>
+    <string name="sk_content_description_row_menu" translatable="false">More about this call</string>
+    <string name="sk_content_description_message" translatable="false">Write a message</string>
+    <string name="sk_content_description_recorded" translatable="false">This call was recorded</string>
+
+    <!-- shiroikuma fork: the call screens' status line (SkCallStatus). Translated in values-ja. -->
+    <string name="sk_call_status_dialing">Dialing…</string>
+    <string name="sk_call_status_ringing">Ringing…</string>
+    <string name="sk_call_status_incoming">Incoming call…</string>
+    <string name="sk_call_status_connecting">Connecting…</string>
+    <string name="sk_call_status_ended">Call ended</string>
+    <string name="sk_call_status_busy">Busy</string>
+    <string name="sk_call_status_declined">Declined</string>
+    <string name="sk_call_status_no_answer">No answer</string>
+    <string name="sk_call_status_failed">Call failed</string>
     <string name="sk_call_decline_title" translatable="false">Decline with a message</string>
     <string name="sk_call_decline_for_contact" translatable="false">For %1$s</string>
     <string name="sk_call_decline_general" translatable="false">For everyone</string>

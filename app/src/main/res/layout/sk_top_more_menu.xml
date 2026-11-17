@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma fork: the ⋮ of the main top row. Rows follow the menu rule (see SkMenus): each an
+     outlined pill across the menu, its icon coloured by what it does, a › when it opens a page. -->
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="android.view.View" />
+        <variable
+            name="uiPageClickListener"
+            type="View.OnClickListener" />
+        <variable
+            name="recordingsClickListener"
+            type="View.OnClickListener" />
+        <variable
+            name="helpClickListener"
+            type="View.OnClickListener" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="260dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
+        android:background="@drawable/shape_round_popup_menu_background">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/popup_menu_item"
+            android:onClick="@{uiPageClickListener}"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sk_menu_ui_page"
+            android:drawableStart="@drawable/gear"
+            skMenuRole="@{`view`}"
+            skMenuOpens="@{true}" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/popup_menu_item"
+            android:onClick="@{recordingsClickListener}"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/recordings_title"
+            android:drawableStart="@drawable/record_fill"
+            skMenuRole="@{`view`}"
+            skMenuOpens="@{true}" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/popup_menu_item"
+            android:onClick="@{helpClickListener}"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/help_title"
+            android:drawableStart="@drawable/question"
+            skMenuRole="@{`view`}"
+            skMenuOpens="@{true}" />
+
+    </LinearLayout>
+
+</layout>

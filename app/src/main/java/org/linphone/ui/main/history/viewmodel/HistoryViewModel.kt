@@ -19,6 +19,7 @@
  */
 package org.linphone.ui.main.history.viewmodel
 
+import org.linphone.shiroikuma.SkAllAccounts
 import androidx.annotation.UiThread
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.MutableLiveData
@@ -288,18 +289,20 @@ class HistoryViewModel
     @WorkerThread
     private fun computeCallLogs() {
         val history = arrayListOf<CallLogHistoryModel>()
-        val account = LinphoneUtils.getDefaultAccount()
-        account ?: return
-
-        val list = account.getCallLogsForAddress(address)
+        // shiroikuma fork: this person's calls as the list shows them — through the selected
+        // account under its own tab, through every account under 全 (the loop below does that).
+        val list = if (SkAllAccounts.isSelected(coreContext.context)) {
+            emptyList<CallLog>()
+        } else {
+            LinphoneUtils.getDefaultAccount()?.getCallLogsForAddress(address)?.toList().orEmpty()
+        }
         for (log in list) {
-            val historyModel = CallLogHistoryModel(log)
-            history.add(historyModel)
+            history.add(CallLogHistoryModel(log))
         }
 
         // Required when "unique account displays all call logs from Core" workaround
         // TODO FIXME: remove workaround later
-        if (list.isEmpty()) {
+        if (SkAllAccounts.isSelected(coreContext.context)) {
             for (log in coreContext.core.callLogs) {
                 if (log.remoteAddress.weakEqual(address)) {
                     val historyModel = CallLogHistoryModel(log)

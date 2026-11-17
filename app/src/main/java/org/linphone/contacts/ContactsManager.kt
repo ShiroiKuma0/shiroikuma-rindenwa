@@ -22,7 +22,6 @@ package org.linphone.contacts
 import android.content.ContentUris
 import android.graphics.Bitmap
 import android.net.Uri
-import android.os.Bundle
 import android.provider.ContactsContract
 import androidx.annotation.MainThread
 import androidx.annotation.UiThread
@@ -30,7 +29,6 @@ import androidx.annotation.WorkerThread
 import androidx.core.app.Person
 import androidx.core.graphics.drawable.IconCompat
 import androidx.core.text.isDigitsOnly
-import androidx.loader.app.LoaderManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -53,6 +51,7 @@ import org.linphone.core.MagicSearch
 import org.linphone.core.MagicSearchListenerStub
 import org.linphone.core.SecurityLevel
 import org.linphone.core.tools.Log
+import org.linphone.shiroikuma.SkRenrakusaki
 import org.linphone.shiroikuma.SkFavourites
 import org.linphone.ui.main.MainActivity
 import org.linphone.ui.main.contacts.model.ContactAvatarModel
@@ -292,11 +291,9 @@ class ContactsManager
 
     @MainThread
     fun loadContacts(activity: MainActivity) {
-        Log.i("$TAG Starting contacts loader")
-        val manager = LoaderManager.getInstance(activity)
-        val args = Bundle()
-        args.putBoolean("defaultDirectory", loadContactsOnlyFromDefaultDirectory)
-        manager.restartLoader(0, args, ContactLoader())
+        // shiroikuma fork: the system contact store is no longer read — see SkRenrakusaki.
+        Log.i("$TAG Reloading contacts from the address book app")
+        SkRenrakusaki.reload()
     }
 
     @WorkerThread
@@ -624,6 +621,9 @@ class ContactsManager
                 list.synchronizeFriendsFromServer()
             }
         }
+
+        // shiroikuma fork: purge the stores this app used to keep, then read the address book.
+        SkRenrakusaki.onCoreStarted(core)
     }
 
     @WorkerThread

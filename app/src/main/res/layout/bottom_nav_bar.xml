@@ -6,6 +6,7 @@
     <data>
         <import type="android.view.View" />
         <import type="org.linphone.ui.NotoSansFont" />
+        <import type="org.linphone.shiroikuma.SkSisterApps" />
         <variable
             name="viewModel"
             type="org.linphone.ui.main.viewmodel.AbstractMainViewModel" />
@@ -20,16 +21,19 @@
 
         <!--
           shiroikuma fork: the card-folder tabs. Spans the whole bar and is declared first so it
-          draws behind the labels — each navigation entry sits inside its own tab. The selected one
-          is a bold, opaque outline open at the top; the others hang behind it, shallower, thinner
-          and more transparent. It replaces the tab name that used to be the top bar's title, so
-          switching tabs stays seamless.
+          draws behind the labels — each navigation entry sits inside its own tab.
+
+          The bar is the one the three sister apps share, in one order everywhere (白い熊,
+          2026-11-17): Favorites, Contacts, 電話, 臨電話. Only 臨電話 — the SIP call history — is a
+          screen of this app; the first two open the address book on that tab and 電話 opens the
+          SIM dialer's history (see SkSisterApps). A tab whose app is not installed is not shown.
+          Upstream's Conversations and Meetings follow when they are switched on.
         -->
         <org.linphone.shiroikuma.SkFolderTabsView
             android:id="@+id/folder_tabs"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            skSelectedTab="@{viewModel.contactsSelected ? 0 : viewModel.favouritesSelected ? 1 : viewModel.callsSelected ? 2 : viewModel.conversationsSelected ? 3 : viewModel.meetingsSelected ? 4 : -1}"
+            skSelectedTab="@{viewModel.callsSelected ? 3 : viewModel.conversationsSelected ? 4 : viewModel.meetingsSelected ? 5 : -1}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -37,28 +41,8 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             style="@style/bottom_nav_bar_label_style"
-            android:id="@+id/contacts"
-            android:onClick="@{() -> viewModel.navigateToContacts()}"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:drawableTop="@drawable/address_book"
-            android:background="@drawable/squircle_transparent_button_background"
-            android:drawablePadding="4dp"
-            android:drawableTint="@{viewModel.contactsSelected ? @color/main1_500 : @color/main2_600, default=@color/main2_600}"
-            android:text="@string/bottom_navigation_contacts_label"
-            textFont="@{viewModel.contactsSelected ? NotoSansFont.NotoSansBold : NotoSansFont.NotoSansRegular}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/favourites"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <!-- shiroikuma fork: the Favorites tab, between Contacts and Calls. -->
-        <androidx.appcompat.widget.AppCompatTextView
-            style="@style/bottom_nav_bar_label_style"
             android:id="@+id/favourites"
-            android:onClick="@{() -> viewModel.navigateToFavourites()}"
+            android:onClick="@{(v) -> SkSisterApps.openFavorites(v.getContext())}"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingTop="10dp"
@@ -66,9 +50,50 @@
             android:drawableTop="@drawable/sk_star"
             android:background="@drawable/squircle_transparent_button_background"
             android:drawablePadding="4dp"
-            android:drawableTint="@{viewModel.favouritesSelected ? @color/main1_500 : @color/main2_600, default=@color/main2_600}"
+            android:drawableTint="@color/main2_600"
             android:text="@string/bottom_navigation_favourites_label"
-            textFont="@{viewModel.favouritesSelected ? NotoSansFont.NotoSansBold : NotoSansFont.NotoSansRegular}"
+            android:visibility="@{SkSisterApps.tabVisibility(context, SkSisterApps.RENRAKUSAKI)}"
+            textFont="@{NotoSansFont.NotoSansRegular}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/contacts"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/bottom_nav_bar_label_style"
+            android:id="@+id/contacts"
+            android:onClick="@{(v) -> SkSisterApps.openContacts(v.getContext())}"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:drawableTop="@drawable/address_book"
+            android:background="@drawable/squircle_transparent_button_background"
+            android:drawablePadding="4dp"
+            android:drawableTint="@color/main2_600"
+            android:text="@string/bottom_navigation_contacts_label"
+            android:visibility="@{SkSisterApps.tabVisibility(context, SkSisterApps.RENRAKUSAKI)}"
+            textFont="@{NotoSansFont.NotoSansRegular}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/denwa"
+            app:layout_constraintStart_toEndOf="@id/favourites"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/bottom_nav_bar_label_style"
+            android:id="@+id/denwa"
+            android:onClick="@{(v) -> SkSisterApps.openDenwa(v.getContext())}"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:drawableTop="@drawable/clock"
+            android:background="@drawable/squircle_transparent_button_background"
+            android:drawablePadding="4dp"
+            android:drawableTint="@color/main2_600"
+            android:text="@string/sk_tab_denwa"
+            android:visibility="@{SkSisterApps.tabVisibility(context, SkSisterApps.DENWA)}"
+            textFont="@{NotoSansFont.NotoSansRegular}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/calls"
             app:layout_constraintStart_toEndOf="@id/contacts"
@@ -86,11 +111,11 @@
             android:background="@drawable/squircle_transparent_button_background"
             android:drawablePadding="4dp"
             android:drawableTint="@{viewModel.callsSelected ? @color/main1_500 : @color/main2_600, default=@color/main2_600}"
-            android:text="@string/bottom_navigation_calls_label"
+            android:text="@string/sk_tab_rindenwa"
             textFont="@{viewModel.callsSelected ? NotoSansFont.NotoSansBold : NotoSansFont.NotoSansRegular}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/conversations"
-            app:layout_constraintStart_toEndOf="@id/favourites"
+            app:layout_constraintStart_toEndOf="@id/denwa"
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.appcompat.widget.AppCompatTextView

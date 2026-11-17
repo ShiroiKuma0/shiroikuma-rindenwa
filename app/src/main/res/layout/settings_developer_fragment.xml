@@ -315,6 +315,7 @@
                     <androidx.appcompat.widget.AppCompatTextView
                         style="@style/tertiary_button_label_style"
                         android:id="@+id/clear_friends_db_label"
+                        skPill="@{`danger`}"
                         android:onClick="@{() -> viewModel.clearNativeFriendsDatabase()}"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -350,6 +351,7 @@
                     <androidx.appcompat.widget.AppCompatTextView
                         style="@style/tertiary_button_label_style"
                         android:id="@+id/clear_orphan_auth_info"
+                        skPill="@{`danger`}"
                         android:onClick="@{() -> viewModel.clearOrphanAuthInfo()}"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"

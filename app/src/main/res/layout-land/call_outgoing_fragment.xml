@@ -20,7 +20,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/gray_900">
+            android:background="@color/sk_surface">
 
             <ImageView
                 android:id="@+id/call_direction_icon"
@@ -30,6 +30,7 @@
                 android:adjustViewBounds="true"
                 android:src="@drawable/outgoing_call"
                 android:contentDescription="@null"
+                app:tint="@color/sk_yellow"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@id/call_direction_label"
                 app:layout_constraintBottom_toBottomOf="@id/call_direction_label"/>
@@ -75,7 +76,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="15dp"
                     android:text="@{viewModel.displayedName, default=`John Doe`}"
-                    android:textColor="@color/bc_white"
+                    android:textColor="@color/sk_yellow"
                     android:textSize="22sp" />
 
                 <androidx.appcompat.widget.AppCompatTextView
@@ -84,9 +85,20 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@{viewModel.displayedAddress, default=`sip:johndoe@sip.linphone.org`}"
-                    android:textColor="@color/bc_white"
+                    android:textColor="@color/sk_ink_dim"
                     android:textSize="14sp"
                     android:visibility="@{viewModel.hideSipAddresses ? View.GONE : View.VISIBLE}" />
+
+                <!-- shiroikuma fork: what the call is doing, in words — in place of upstream's rotating circle. -->
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/default_text_style"
+                    android:id="@+id/sk_call_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@{viewModel.skCallStatus, default=@string/sk_call_status_dialing}"
+                    android:textColor="@color/sk_yellow"
+                    android:textSize="16sp" />
 
             </LinearLayout>
 
@@ -105,17 +117,6 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 
-            <com.google.android.material.progressindicator.CircularProgressIndicator
-                android:id="@+id/in_progress"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:indeterminate="true"
-                app:indicatorColor="@color/bc_white"
-                app:indicatorSize="28dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/avatar"
-                app:layout_constraintTop_toTopOf="@id/name_address"
-                app:layout_constraintBottom_toBottomOf="@id/name_address" />
 
             <!--suppress AndroidUnknownAttribute -->
             <org.linphone.ui.call.view.RoundCornersTextureView
@@ -135,28 +136,12 @@
             <include
                 bind:viewModel="@{viewModel}"
                 android:id="@+id/bottom_bar"
-                layout="@layout/call_outgoing_actions"
+                layout="@layout/sk_call_outgoing_actions"
                 android:layout_width="0dp"
-                android:layout_height="@dimen/call_main_actions_menu_height"
+                android:layout_height="wrap_content"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"/>
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/new_contact"
-                android:onClick="@{() -> viewModel.showNumpad()}"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end|bottom"
-                android:layout_margin="16dp"
-                android:src="@drawable/numpad"
-                android:contentDescription="@string/content_description_show_numpad"
-                android:visibility="@{viewModel.isOutgoingEarlyMedia ? View.VISIBLE : View.GONE, default=gone}"
-                app:tint="@color/in_call_button_tint_color"
-                app:backgroundTint="@color/in_call_button_background_tint_color"
-                app:shapeAppearanceOverlay="@style/rounded"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toTopOf="@id/bottom_bar" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

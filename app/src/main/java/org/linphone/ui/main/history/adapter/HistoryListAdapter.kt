@@ -19,6 +19,8 @@
  */
 package org.linphone.ui.main.history.adapter
 
+import android.content.res.ColorStateList
+import org.linphone.shiroikuma.SkAccountNumbers
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -29,6 +31,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import org.linphone.shiroikuma.SkDenwaStyle
 import org.linphone.LinphoneApplication.Companion.coreContext
 import org.linphone.R
 import org.linphone.core.Address
@@ -70,6 +73,21 @@ class HistoryListAdapter :
     }
 
     val callLogCallBackClickedEvent: MutableLiveData<Event<CallLogModel>> by lazy {
+        MutableLiveData()
+    }
+
+    /** shiroikuma fork: the envelope — open the messenger on this number. */
+    val callLogMessageClickedEvent: MutableLiveData<Event<CallLogModel>> by lazy {
+        MutableLiveData()
+    }
+
+    /** shiroikuma fork: the row's ⋮. */
+    val callLogMenuClickedEvent: MutableLiveData<Event<CallLogModel>> by lazy {
+        MutableLiveData()
+    }
+
+    /** shiroikuma fork: the picture — open the contact in the address book. */
+    val callLogAvatarClickedEvent: MutableLiveData<Event<CallLogModel>> by lazy {
         MutableLiveData()
     }
 
@@ -195,8 +213,14 @@ class HistoryListAdapter :
                     }
 
                     // shiroikuma fork
-                    setOnReplyClickListener {
-                        callLogReplyClickedEvent.value = Event(model!!)
+                    setOnMessageClickListener {
+                        callLogMessageClickedEvent.value = Event(model!!)
+                    }
+                    setOnMenuClickListener {
+                        callLogMenuClickedEvent.value = Event(model!!)
+                    }
+                    avatar.root.setOnClickListener {
+                        model?.let { callLogAvatarClickedEvent.value = Event(it) }
                     }
                 }
                 viewHolder
@@ -247,7 +271,9 @@ class HistoryListAdapter :
                 // on every bind.
                 SkStyler.styleCallHistoryRow(
                     row = binding.root,
-                    avatar = binding.avatar.avatar,
+                    // The picture is sized from the row's own height (SkDenwaStyle.fitPicture),
+                    // not from the fixed size on the UI page.
+                    avatar = null,
                     name = binding.callLogDisplayName,
                     number = binding.numberLabel,
                     time = binding.dateTime,
@@ -257,8 +283,22 @@ class HistoryListAdapter :
                     direction = callLogModel.direction,
                     rowDivider = binding.separator
                 )
-
                 executePendingBindings()
+
+                // shiroikuma fork: and over that, the sister dialer's own look, when it serves
+                // one — the two call histories are meant to read as one list. After the binding
+                // has written the texts, because part of it is a colour inside line 2's text.
+                SkDenwaStyle.applyToRow(binding, callLogModel.direction, callLogModel.skUnanswered)
+                SkDenwaStyle.fitPicture(binding)
+                // No line under the last call of a day: the day's own line follows it.
+                val next = bindingAdapterPosition + 1
+                val nextDay = if (next in 1 until itemCount) getItem(next).callLogModel?.dayKey else null
+                if (nextDay != callLogModel.dayKey) separator.visibility = View.GONE
+                // The badge in the colours of its number (SkAccountNumbers), which no theme
+                // overrides — two accounts are told apart by them at a glance.
+                val (ground, text) = SkAccountNumbers.colors(root.context, callLogModel.skBadgeNumber)
+                skBadge.backgroundTintList = ColorStateList.valueOf(ground)
+                skBadge.setTextColor(text)
             }
         }
     }

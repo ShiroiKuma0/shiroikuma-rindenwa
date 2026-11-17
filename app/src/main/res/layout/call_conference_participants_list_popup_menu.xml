@@ -25,6 +25,8 @@
             android:layout_height="wrap_content"
             android:text="@string/conference_share_link_title"
             android:drawableStart="@drawable/share_network"
+            skMenuRole="@{`share`}"
+            skMenuOpens="@{true}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"

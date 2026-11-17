@@ -36,7 +36,9 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/color_separator">
+        android:background="@drawable/sk_menu_frame"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:onClick="@{markAsReadClickListener}"
@@ -49,24 +51,50 @@
             android:text="@string/conversation_action_mark_as_read"
             android:background="@drawable/menu_item_background"
             android:drawableStart="@drawable/envelope_simple_open"
+            skMenuRole="@{`message`}"
             app:layout_constraintBottom_toTopOf="@id/mute"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <!-- shiroikuma fork: a toggle row — plain, no pill, with the theme's outlined switch at
+             the right — where upstream had a line whose wording flipped between Mute and Unmute. -->
+        <LinearLayout
             android:onClick="@{toggleMuteClickListener}"
-            style="@style/context_menu_action_label_style"
             android:id="@+id/mute"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@{isMuted ? @string/conversation_action_unmute : @string/conversation_action_mute, default=@string/conversation_action_mute}"
-            android:background="@drawable/menu_item_background"
-            android:layout_marginBottom="1dp"
-            android:drawableStart="@{isMuted ? @drawable/bell : @drawable/bell_slash, default=@drawable/bell_slash}"
+            android:layout_height="36dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="22dp"
+            android:paddingEnd="8dp"
             android:visibility="@{isReadOnly ? View.GONE : View.VISIBLE}"
             app:layout_constraintBottom_toTopOf="@id/call"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/conversation_action_mute"
+                android:drawableStart="@drawable/bell_slash"
+                skMenuToggleRole="@{`block`}" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="0dp"
+                android:scaleX="0.85"
+                android:scaleY="0.85"
+                android:clickable="false"
+                android:focusable="false"
+                android:checked="@{isMuted}"
+                skSwitch="@{true}" />
+
+        </LinearLayout>
 
         <androidx.appcompat.widget.AppCompatTextView
             android:onClick="@{callClickListener}"
@@ -78,6 +106,7 @@
             android:background="@drawable/menu_item_background"
             android:layout_marginBottom="1dp"
             android:drawableStart="@drawable/phone"
+            skMenuRole="@{`call`}"
             android:visibility="@{isGroup || isReadOnly ? View.GONE : View.VISIBLE}"
             app:layout_constraintBottom_toTopOf="@id/delete_chat_room"
             app:layout_constraintStart_toStartOf="parent"
@@ -93,6 +122,7 @@
             android:background="@drawable/menu_item_background"
             android:layout_marginBottom="1dp"
             android:drawableStart="@drawable/trash_simple"
+            skMenuRole="@{`delete`}"
             app:layout_constraintBottom_toTopOf="@id/leave_group"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
@@ -108,6 +138,7 @@
             android:background="@drawable/menu_item_background"
             android:layout_marginBottom="1dp"
             android:drawableStart="@drawable/sign_out"
+            skMenuRole="@{`block`}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>

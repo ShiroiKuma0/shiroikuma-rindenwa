@@ -76,19 +76,28 @@ object SkCallLog {
         SkTheme.prefs(context).edit().putBoolean(KEY_RELATIVE_DAYS, value).apply()
     }
 
-    fun dateFormat(context: Context): DateFormatOption =
-        DateFormatOption.entries.getOrElse(
+    // The three formats below follow the sister dialer where it states its own (SkDenwaStyle),
+    // so the two call histories write a time the same way; this app's setting is the fallback.
+    fun dateFormat(context: Context): DateFormatOption {
+        val own = DateFormatOption.entries.getOrElse(
             SkTheme.prefs(context).getInt(KEY_DATE_FORMAT, 0),
         ) { DateFormatOption.IMPERIAL }
+        return when (SkDenwaStyle.flag("imperial_date")) {
+            true -> DateFormatOption.IMPERIAL
+            false -> if (own == DateFormatOption.IMPERIAL) DateFormatOption.COMMON_ERA else own
+            null -> own
+        }
+    }
 
     fun setDateFormat(context: Context, option: DateFormatOption) {
         SkTheme.prefs(context).edit().putInt(KEY_DATE_FORMAT, option.ordinal).apply()
     }
 
     fun timeFormat(context: Context): TimeFormatOption =
-        TimeFormatOption.entries.getOrElse(
-            SkTheme.prefs(context).getInt(KEY_TIME_FORMAT, 0),
-        ) { TimeFormatOption.JAPANESE }
+        SkDenwaStyle.ordinal("time_format")?.let { TimeFormatOption.entries.getOrNull(it) }
+            ?: TimeFormatOption.entries.getOrElse(
+                SkTheme.prefs(context).getInt(KEY_TIME_FORMAT, 0),
+            ) { TimeFormatOption.JAPANESE }
 
     fun setTimeFormat(context: Context, option: TimeFormatOption) {
         SkTheme.prefs(context).edit().putInt(KEY_TIME_FORMAT, option.ordinal).apply()
@@ -102,9 +111,10 @@ object SkCallLog {
     }
 
     fun durationFormat(context: Context): DurationFormatOption =
-        DurationFormatOption.entries.getOrElse(
-            SkTheme.prefs(context).getInt(KEY_DURATION_FORMAT, 0),
-        ) { DurationFormatOption.JAPANESE }
+        SkDenwaStyle.ordinal("duration_format")?.let { DurationFormatOption.entries.getOrNull(it) }
+            ?: DurationFormatOption.entries.getOrElse(
+                SkTheme.prefs(context).getInt(KEY_DURATION_FORMAT, 0),
+            ) { DurationFormatOption.JAPANESE }
 
     fun setDurationFormat(context: Context, option: DurationFormatOption) {
         SkTheme.prefs(context).edit().putInt(KEY_DURATION_FORMAT, option.ordinal).apply()
