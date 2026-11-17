@@ -20,7 +20,7 @@ really reach this phone, and diagnostics that record nothing until you ask them 
 
 Installs **side-by-side** with stock Linphone (app id `shiroikuma.rindenwa`).
 
-**📥 Latest release: [`6.3.0-alpha+2026-11-09.14-07.g92318a24+025`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
+**📥 Latest release: [`6.3.0-alpha+2026-11-09.14-07.g92318a24+029`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
 
 </div>
 
@@ -265,6 +265,21 @@ Every menu row that does something is an outlined pill across a framed menu, wit
 person, orange copies or sends out, magenta silences, red deletes. Rows that open something carry
 a ›. Switches are outlined pills with a dot, never filled; the pressable rows of the settings pages
 are pills as wide as their label, so nothing that can be tapped looks like a heading.
+
+---
+
+## 🔁 Let the provider place the call
+
+On an Odorik line, a long hold on a row's phone icon asks which way to call: **Callback** first,
+the ordinary **Call** second. A callback is one order to Odorik's API with the line itself as the
+first leg — its exchange rings this app, and once that is answered it rings the other person and
+joins the two. They see the line's caller ID, exactly as on a call dialled the usual way.
+
+The incoming first leg is recognised and shown as what it is: **Callback → name** on the call
+screen and in the notification, and in the history it is filed under the person called, with its
+own arrow and the word *Callback*. Each Odorik account has a callback block in its settings — which
+phone rings first, the line's password, and whether the first leg answers itself. The address book
+can order one through the call door.
 
 ---
 
