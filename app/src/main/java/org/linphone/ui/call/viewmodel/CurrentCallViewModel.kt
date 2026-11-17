@@ -327,7 +327,9 @@ class CurrentCallViewModel
             }
             if (addressMatch != null) {
                 Log.i("$TAG Updating current call contact model")
-                displayedName.postValue(friend.name)
+                displayedName.postValue(
+                    org.linphone.shiroikuma.SkOdorikCallback.label(currentCall, friend.name)
+                )
                 val model = ContactAvatarModel(friend, address)
                 contact.postValue(model)
             }
@@ -1382,7 +1384,8 @@ class CurrentCallViewModel
         }
 
         contact.postValue(model)
-        displayedName.postValue(model.friend.name)
+        // shiroikuma fork: “Callback → name” on the first leg of a callback ordered here
+        displayedName.postValue(org.linphone.shiroikuma.SkOdorikCallback.label(call, model.friend.name))
 
         val recording = call.params.isRecording
         isRecording.postValue(recording)

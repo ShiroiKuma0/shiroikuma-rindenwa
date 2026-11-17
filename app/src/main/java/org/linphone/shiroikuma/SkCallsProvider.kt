@@ -27,10 +27,15 @@ import org.linphone.utils.LinphoneUtils
  *
  * - **`accounts`** → `{ "result": "OK", "accounts": "<JSON array>" }`, each element
  *   `{"number": int (-1 when unset), "badge_color": ARGB int, "badge_text_color": ARGB int,
- *   "identity": "sip:user@domain", "name": "…", "registered": bool, "default": bool}`.
+ *   "identity": "sip:user@domain", "name": "…", "registered": bool, "default": bool,
+ *   "callback": bool}` — `callback` says the account's provider can set up a callback.
  * - **`dial`**, extras `{ "to": "<number or sip: URI>", "account": "<臨 number, or identity>" }`
  *   (`account` absent = the selected account) → `{ "result": "OK" }` or
  *   `{ "result": "ERROR:<why>" }`. The call is placed and this app's own call screen comes up.
+ * - **`callback`**, same extras as `dial` → `{ "result": "OK" | "ERROR:<why>", "message": "<a
+ *   line to show>" }`. Orders the provider's callback ([SkOdorikCallback]) through an account
+ *   whose `callback` flag in `accounts` is true; this app then rings with the first leg. It
+ *   **blocks for the length of an HTTPS request** (up to ~20 s), so never call it on a main thread.
  *
  * ## Why a provider, and why its own
  *
@@ -62,6 +67,7 @@ class SkCallsProvider : ContentProvider() {
             when (method) {
                 METHOD_ACCOUNTS -> accounts(ctx)
                 METHOD_DIAL -> dial(ctx, extras)
+                METHOD_CALLBACK -> callback(ctx, extras)
                 else -> fail("ERROR:unknown method: $method")
             }
         } catch (e: Exception) {
@@ -94,6 +100,7 @@ class SkCallsProvider : ContentProvider() {
                             )
                             .put("registered", account.state == RegistrationState.Ok)
                             .put("default", account == default)
+                            .put("callback", SkOdorikCallback.isOdorik(account))
                     )
                 }
                 json = array.toString()
@@ -153,6 +160,18 @@ class SkCallsProvider : ContentProvider() {
         return Bundle().apply { putString(KEY_RESULT, result) }
     }
 
+    private fun callback(ctx: Context, extras: Bundle?): Bundle {
+        val to = extras?.getString(KEY_TO)?.trim().orEmpty()
+        if (to.isEmpty()) return fail("ERROR:no number")
+        val wanted = extras?.getString(KEY_ACCOUNT)?.trim().orEmpty()
+        val outcome = SkOdorikCallback.orderBlocking(ctx, wanted, to)
+        Log.i(TAG, "callback from $callingPackage: ${outcome.code}")
+        return Bundle().apply {
+            putString(KEY_RESULT, outcome.code)
+            putString(KEY_MESSAGE, outcome.message)
+        }
+    }
+
     private fun fail(why: String) = Bundle().apply { putString(KEY_RESULT, why) }
 
     override fun query(u: Uri, p: Array<String>?, s: String?, a: Array<String>?, o: String?): Cursor? = null
@@ -171,6 +190,8 @@ class SkCallsProvider : ContentProvider() {
 
         const val METHOD_ACCOUNTS = "accounts"
         const val METHOD_DIAL = "dial"
+        const val METHOD_CALLBACK = "callback"
+        const val KEY_MESSAGE = "message"
         const val KEY_RESULT = "result"
         const val KEY_ACCOUNTS = "accounts"
         const val KEY_TO = "to"

@@ -125,6 +125,60 @@ object SkMenus {
         popup.showAsDropDown(anchor, 0, -minOf(missing, room), Gravity.BOTTOM)
     }
 
+    /** One row of a menu built in code ([popup]). */
+    class Item(
+        val label: String,
+        val iconRes: Int,
+        val role: String,
+        val opens: Boolean = false,
+        val action: () -> Unit
+    )
+
+    /**
+     * A menu of action pills at [anchor], for the few menus that are not one of upstream's
+     * data-bound layouts. Framed and styled like those.
+     */
+    fun popup(anchor: View, items: List<Item>): PopupWindow {
+        val context = anchor.context
+        val column = android.widget.LinearLayout(context).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            setBackgroundResource(R.drawable.sk_menu_frame)
+            setPadding(0, dp(context, 8f), 0, dp(context, 8f))
+        }
+        val popup = PopupWindow(
+            column,
+            dp(context, 240f),
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            true
+        )
+        popup.elevation = dp(context, 8f).toFloat()
+        for (item in items) {
+            val row = TextView(context, null, 0, R.style.context_menu_action_label_style)
+            row.text = item.label
+            row.maxLines = 1
+            row.setCompoundDrawablesRelative(
+                AppCompatResources.getDrawable(context, item.iconRes),
+                null,
+                null,
+                null
+            )
+            column.addView(
+                row,
+                android.widget.LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+            )
+            style(row, item.role, item.opens)
+            row.setOnClickListener {
+                popup.dismiss()
+                item.action()
+            }
+        }
+        showBelow(popup, anchor)
+        return popup
+    }
+
     fun style(view: TextView, role: String?, opens: Boolean) {
         val context = view.context
         val accent = SkTheme.color(context, SkSlot.ACCENT)

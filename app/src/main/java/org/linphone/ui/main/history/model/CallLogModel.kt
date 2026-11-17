@@ -63,6 +63,11 @@ class CallLogModel
         )
     }
 
+    // shiroikuma fork: a callback's record names the line that rang, not the person called, once
+    // it has been through the database — so it is pointed back before anything below reads it.
+    // Declared first on purpose: properties are initialised in the order they are written.
+    private val skRestored = org.linphone.shiroikuma.SkOdorikCallback.restore(coreContext.context, callLog)
+
     val id = callLog.callId ?: callLog.refKey
 
     val timestamp = callLog.startDate
@@ -169,7 +174,8 @@ class CallLogModel
      */
     val skArrowRes: Int
         get() = when (direction) {
-            SkCallLog.Direction.OUTGOING -> R.drawable.sk_call_made
+            SkCallLog.Direction.OUTGOING ->
+                if (skIsCallback) R.drawable.sk_call_callback else R.drawable.sk_call_made
             SkCallLog.Direction.INCOMING -> R.drawable.sk_call_received
             SkCallLog.Direction.MISSED -> R.drawable.sk_call_missed
         }
@@ -177,6 +183,9 @@ class CallLogModel
     /** shiroikuma fork: a call placed here that the other end never took. */
     val skUnanswered: Boolean
         get() = direction == SkCallLog.Direction.OUTGOING && !connected
+
+    /** shiroikuma fork: this call was an Odorik callback ordered here (SkOdorikCallback). */
+    val skIsCallback: Boolean
 
     /** shiroikuma fork: a recording of this call is on the phone. */
     val skRecorded: Boolean
@@ -191,7 +200,10 @@ class CallLogModel
         // shiroikuma fork: red is reserved for the call that rang here and went unanswered — that
         // is what a call log is scanned for. An outgoing call keeps its own colour whatever became
         // of it; the arrow's shape already says whether it connected.
+        skIsCallback = org.linphone.shiroikuma.SkOdorikCallback.isCallback(coreContext.context, callLog.callId)
         direction = when {
+            // A callback rang here first, but it is a call that was placed here.
+            skIsCallback -> SkCallLog.Direction.OUTGOING
             callLog.dir == Call.Dir.Outgoing -> SkCallLog.Direction.OUTGOING
             !connected -> SkCallLog.Direction.MISSED
             else -> SkCallLog.Direction.INCOMING

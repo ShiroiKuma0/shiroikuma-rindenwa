@@ -65,6 +65,8 @@ object SkEximport {
 
     private const val ACCOUNTS_ENTRY = "accounts.rc"
     private const val SIP_SETTINGS_ENTRY = "sip_settings.rc"
+    private const val CALLBACK_ACCOUNTS_ENTRY = "odorik_callback.json"
+    private const val CALLBACK_CALLS_ENTRY = "odorik_callback_calls.json"
     private const val DB_DIR_ENTRY = "db/"
     private const val FONTS_DIR_ENTRY = "fonts/"
 
@@ -383,9 +385,27 @@ object SkEximport {
                 val label = context.getString(Cat.ACCOUNTS.labelRes)
                 listener.onProgress(done, total, label)
                 writeEntry(zip, ACCOUNTS_ENTRY, accountSections.values.joinToString("").toByteArray())
+                // What the accounts hold outside the SDK's config: the callback settings of each
+                // Odorik line, its password among them — the config has only that one's hash.
+                writeEntry(
+                    zip,
+                    CALLBACK_ACCOUNTS_ENTRY,
+                    exportPrefs(SkOdorikCallback.backupPrefs(context), SkOdorikCallback::isAccountKey)
+                        .first.toByteArray()
+                )
                 done += accountCount
                 listener.onProgress(done, total, label)
                 parts += "$label: " + context.getString(R.string.sk_eim_accounts_count, accountCount)
+            }
+
+            if (Cat.HISTORY in cats || Cat.HISTORY_CALLS in cats) {
+                // Which of the calls in that history were callbacks ordered here.
+                writeEntry(
+                    zip,
+                    CALLBACK_CALLS_ENTRY,
+                    exportPrefs(SkOdorikCallback.backupPrefs(context), SkOdorikCallback::isHistoryKey)
+                        .first.toByteArray()
+                )
             }
 
             if (dbs.isNotEmpty()) {
@@ -564,10 +584,27 @@ object SkEximport {
                 listener.onProgress(done, total, label)
                 val incoming = parseSections(bytes.decodeToString())
                 stage(pending, ACCOUNTS_ENTRY, bytes)
+                files[CALLBACK_ACCOUNTS_ENTRY]?.let {
+                    importPrefs(
+                        SkOdorikCallback.backupPrefs(context),
+                        it.decodeToString(),
+                        SkOdorikCallback::isAccountKey
+                    )
+                }
                 done++
                 listener.onProgress(done, total, label)
                 parts += "$label: " +
                     context.getString(R.string.sk_eim_accounts_count, countAccounts(incoming))
+            }
+        }
+
+        if (Cat.HISTORY in cats || Cat.HISTORY_CALLS in cats) {
+            files[CALLBACK_CALLS_ENTRY]?.let {
+                importPrefs(
+                    SkOdorikCallback.backupPrefs(context),
+                    it.decodeToString(),
+                    SkOdorikCallback::isHistoryKey
+                )
             }
         }
 

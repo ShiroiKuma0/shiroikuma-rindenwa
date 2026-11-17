@@ -21,6 +21,7 @@ package org.linphone.ui.main.settings.fragment
 
 import org.linphone.LinphoneApplication.Companion.coreContext
 import android.os.Bundle
+import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,6 +32,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import org.linphone.shiroikuma.SkRinNumberDialog
 import org.linphone.shiroikuma.SkAccountNumbers
+import org.linphone.shiroikuma.SkOdorikCallback
+import androidx.core.widget.doAfterTextChanged
 import org.linphone.R
 import org.linphone.core.tools.Log
 import org.linphone.databinding.AccountSettingsFragmentBinding
@@ -127,6 +130,43 @@ class AccountSettingsFragment : GenericMainFragment() {
             }
         }
 
+        // shiroikuma fork: Odorik's callback — which phone it rings first, the line's password
+        // for when the SIP stack kept only its hash, and whether the first leg answers itself.
+        if (SkOdorikCallback.isOdorik(identity)) {
+            val context = requireContext().applicationContext
+            binding.skCallbackBox.visibility = View.VISIBLE
+            binding.skCallbackCaller.setText(SkOdorikCallback.callerOf(context, identity))
+            binding.skCallbackCaller.doAfterTextChanged {
+                SkOdorikCallback.setCaller(context, identity, it?.toString().orEmpty())
+            }
+            binding.skCallbackPassword.setText(SkOdorikCallback.passwordOf(context, identity))
+            binding.skCallbackPassword.doAfterTextChanged {
+                SkOdorikCallback.setPassword(context, identity, it?.toString().orEmpty())
+            }
+            // Hidden until asked for: the eye shows it, and hides it again.
+            var passwordShown = false
+            binding.skCallbackPasswordEye.setOnClickListener {
+                passwordShown = !passwordShown
+                val field = binding.skCallbackPassword
+                val cursor = field.selectionEnd
+                val face = field.typeface
+                field.inputType = InputType.TYPE_CLASS_TEXT or if (passwordShown) {
+                    InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                } else {
+                    InputType.TYPE_TEXT_VARIATION_PASSWORD
+                }
+                field.typeface = face
+                field.setSelection(cursor.coerceIn(0, field.text?.length ?: 0))
+                binding.skCallbackPasswordEye.setImageResource(
+                    if (passwordShown) R.drawable.eye_slash else R.drawable.eye
+                )
+            }
+            binding.skCallbackAnswer.isChecked = SkOdorikCallback.autoAnswer(context, identity)
+            binding.skCallbackAnswer.setOnCheckedChangeListener { _, on ->
+                SkOdorikCallback.setAutoAnswer(context, identity, on)
+            }
+        }
+
         binding.setUpdatePasswordClickListener {
             showUpdatePasswordDialog()
         }
@@ -175,6 +215,10 @@ class AccountSettingsFragment : GenericMainFragment() {
         model.confirmEvent.observe(viewLifecycleOwner) {
             it.consume { password ->
                 viewModel.updateAccountPassword(password)
+                // shiroikuma fork: the callback's copy follows (the field's watcher stores it)
+                if (SkOdorikCallback.isOdorik(args.accountIdentity)) {
+                    binding.skCallbackPassword.setText(password)
+                }
                 dialog.dismiss()
             }
         }

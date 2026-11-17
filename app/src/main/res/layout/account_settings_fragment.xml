@@ -248,7 +248,116 @@
                             android:background="@drawable/sk_search_pill"
                             app:layout_constraintTop_toBottomOf="@id/mwi_uri"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintBottom_toTopOf="@id/apply_international_switch"/>
+                            app:layout_constraintBottom_toTopOf="@id/sk_callback_box"/>
+
+                        <!-- shiroikuma fork: Odorik's callback (SkOdorikCallback) — shown on an
+                             Odorik account only. -->
+                        <LinearLayout
+                            android:id="@+id/sk_callback_box"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="20dp"
+                            android:orientation="vertical"
+                            android:visibility="gone"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/sk_rin_number"
+                            app:layout_constraintBottom_toTopOf="@id/apply_international_switch">
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/default_text_style_700"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="16dp"
+                                android:text="@string/sk_callback_settings_title"
+                                android:textSize="16sp"
+                                android:textColor="@color/sk_yellow"/>
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/settings_title_style"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="16dp"
+                                android:layout_marginTop="10dp"
+                                android:labelFor="@id/sk_callback_caller"
+                                android:text="@string/sk_callback_settings_caller"/>
+
+                            <androidx.appcompat.widget.AppCompatEditText
+                                style="@style/default_text_style"
+                                android:id="@+id/sk_callback_caller"
+                                android:layout_width="match_parent"
+                                android:layout_height="50dp"
+                                android:layout_marginStart="16dp"
+                                android:layout_marginEnd="16dp"
+                                android:layout_marginTop="4dp"
+                                android:background="@drawable/edit_text_background"
+                                android:paddingStart="20dp"
+                                android:paddingEnd="20dp"
+                                android:inputType="phone"
+                                android:hint="@string/sk_callback_settings_caller_hint"/>
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/default_text_style_300"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="16dp"
+                                android:layout_marginEnd="16dp"
+                                android:layout_marginTop="4dp"
+                                android:text="@string/sk_callback_settings_caller_desc"
+                                android:textSize="13sp"
+                                android:textColor="@color/sk_ink_dim"/>
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/settings_title_style"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="16dp"
+                                android:layout_marginTop="10dp"
+                                android:labelFor="@id/sk_callback_password"
+                                android:text="@string/sk_callback_settings_password"/>
+
+                            <FrameLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="50dp"
+                                android:layout_marginStart="16dp"
+                                android:layout_marginEnd="16dp"
+                                android:layout_marginTop="4dp">
+
+                                <androidx.appcompat.widget.AppCompatEditText
+                                    style="@style/default_text_style"
+                                    android:id="@+id/sk_callback_password"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:background="@drawable/edit_text_background"
+                                    android:paddingStart="20dp"
+                                    android:paddingEnd="56dp"
+                                    android:inputType="textPassword"
+                                    android:hint="@string/sk_callback_settings_password_hint"/>
+
+                                <ImageView
+                                    android:id="@+id/sk_callback_password_eye"
+                                    android:layout_width="48dp"
+                                    android:layout_height="match_parent"
+                                    android:layout_gravity="end"
+                                    android:padding="12dp"
+                                    android:contentDescription="@string/content_description_toggle_password_visibility"
+                                    android:src="@drawable/eye"
+                                    app:tint="@color/sk_yellow"/>
+
+                            </FrameLayout>
+
+                            <com.google.android.material.materialswitch.MaterialSwitch
+                                style="@style/material_switch_style"
+                                android:id="@+id/sk_callback_answer"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="16dp"
+                                android:layout_marginEnd="16dp"
+                                android:layout_marginTop="10dp"
+                                android:text="@string/sk_callback_settings_answer"
+                                android:textColor="@color/sk_yellow"/>
+
+                        </LinearLayout>
 
                         <androidx.appcompat.widget.AppCompatTextView
                             style="@style/settings_title_style"
@@ -274,7 +383,7 @@
                             android:layout_marginTop="20dp"
                             android:layout_marginEnd="16dp"
                             android:checked="@={viewModel.applyPrefix}"
-                            app:layout_constraintTop_toBottomOf="@id/sk_rin_number"
+                            app:layout_constraintTop_toBottomOf="@id/sk_callback_box"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintBottom_toTopOf="@id/replace_plus_by_00_switch"/>
 

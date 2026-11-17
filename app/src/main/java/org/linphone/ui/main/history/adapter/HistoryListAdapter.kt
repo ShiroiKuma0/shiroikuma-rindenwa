@@ -67,6 +67,11 @@ class HistoryListAdapter :
         MutableLiveData()
     }
 
+    /** shiroikuma fork: a long hold on a row's phone icon — callback or call, asked at the icon. */
+    val callLogCallLongClickedEvent: MutableLiveData<Event<Pair<CallLogModel, android.view.View>>> by lazy {
+        MutableLiveData()
+    }
+
     /** shiroikuma fork: the Message button on a missed call. */
     val callLogReplyClickedEvent: MutableLiveData<Event<CallLogModel>> by lazy {
         MutableLiveData()
@@ -213,6 +218,10 @@ class HistoryListAdapter :
                     }
 
                     // shiroikuma fork
+                    call.setOnLongClickListener { icon ->
+                        model?.let { callLogCallLongClickedEvent.value = Event(Pair(it, icon)) }
+                        true
+                    }
                     setOnMessageClickListener {
                         callLogMessageClickedEvent.value = Event(model!!)
                     }
