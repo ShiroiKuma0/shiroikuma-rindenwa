@@ -20,7 +20,7 @@ really reach this phone, and diagnostics that record nothing until you ask them 
 
 Installs **side-by-side** with stock Linphone (app id `shiroikuma.rindenwa`).
 
-**📥 Latest release: [`6.3.0-alpha+2026-11-09.14-07.g92318a24+004`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
+**📥 Latest release: [`6.3.0-alpha+2026-11-09.14-07.g92318a24+025`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
 
 </div>
 
@@ -52,8 +52,8 @@ side because that tab *is* the panel you are looking at. Every other tab is the 
 and half transparent, filed behind that line. Switching interpolates, so the line dives around the
 tab you are moving to while the one you left closes up.
 
-At the bottom that folder is the navigation: Contacts, Favorites, Calls, Conversations, each inside
-its own tab. Which screen you are on is told by the folder, so the screen no longer has to name
+At the bottom that folder is the navigation, and it is the same bar in three apps: Favorites,
+Contacts, 電話, 臨電話, each inside its own tab (see “One phone in three apps” below). Which screen you are on is told by the folder, so the screen no longer has to name
 itself in the title bar.
 
 ---
@@ -213,26 +213,66 @@ live sample of a headline and a record while you turn the knobs.
 
 ---
 
-## 🔤 An address book that folds by kana
+## 🧩 One phone in three apps
 
-Contacts are grouped under one-letter headings and each one folds shut with a tap. The letters are
-Japanese-aware: gojūon rows (あ か さ た な は ま や ら わ, with voiced, semi-voiced and small kana
-folded into their base row and ん in the わ row), then A–Z with diacritics stripped, then ＃.
-Crucially the grouping runs on the contact's **reading** (フリガナ) where the address book stores
-one — bucketing a kanji name by its kanji puts every Japanese contact under ＃, which is exactly
-what it did before.
+臨電話 is the SIP half of a set of three: [白い熊 電話](https://github.com/ShiroiKuma0/shiroikuma-denwa)
+for the SIM cards and [白い熊 連絡先](https://github.com/ShiroiKuma0/shiroikuma-renrakusaki) for the
+people. All three show **one bottom bar — Favorites, Contacts, 電話, 臨電話** — and each owns the
+tabs that are its own. A tab that belongs to another app opens that app on that tab, without an
+animation, so it reads as a tab change and not as a launch.
 
-Which letters stand open is remembered across restarts, separately for each tab. Rows carry the
-photo spanning both lines with the number written under the name, closed off by a full-width rule.
+The contacts are the address book's and nobody else's. This app keeps **no contact store at all**:
+names and pictures are read from the address book's private provider when the SIP core starts and
+whenever it says something changed, and nothing is written down here. The copy of the system
+contacts and the contacts made in Linphone's own editor are gone, and so is the `READ_CONTACTS`
+permission. Tap a picture in the history and the contact opens in the address book; an unknown
+number opens its editor with the number filled in.
+
+The call history is drawn like the SIM dialer's — same row, same arrows, same colours — because it
+**reads the dialer's theme** through a small provider: change a colour, a font or a time format
+there and it changes here.
 
 ---
 
-## ⭐ Favorites, as a wall of faces
+## 臨 A number for every line
 
-Favourites used to be a strip pinned above the contacts list, eating its top and showing a handful.
-They are their own tab now — a grid of large round photos with the name centred beneath. **Long-press
-a tile and drag it anywhere on the grid**; the arrangement is yours and it is remembered, because
-the SIP core knows only that a contact is starred, not where you want it.
+Each SIP account carries a number of its own — 臨0, 臨1, 臨2 … — and a badge in colours of its own.
+A call is marked with it in the history; the address book shows the same badge beside the SIM
+badges on every phone number, and can be told to dial a contact, or a swipe, through 臨2.
+
+For that the app has a **call door**: the sister apps list the accounts and place a call through
+one of them, by number. Only the apps switched on for it on the UI page are let in.
+
+The account strip begins with a **全** tab. An account's tab shows that account's calls and nothing
+else; 全 shows every account's in one list. Its picture is the character itself, in a font of your
+choosing, or a picture you put in its place.
+
+---
+
+## 🔍 Tap a call, see everyone's calls with them
+
+Tapping a record does not open a detail page. The same list narrows to that person's calls, in the
+same rows, under a banner — “Calls with …” — with a ✕ that widens it again. At the right of every
+row sit a message bubble that opens the messenger, a handset that calls back **through the account
+that row's call used**, and the row's own menu.
+
+---
+
+## 💊 Menus you can read by colour
+
+Every menu row that does something is an outlined pill across a framed menu, with its icon inside
+— and the icon is coloured by what the row does: green places a call, blue writes, cyan is a
+person, orange copies or sends out, magenta silences, red deletes. Rows that open something carry
+a ›. Switches are outlined pills with a dot, never filled; the pressable rows of the settings pages
+are pills as wide as their label, so nothing that can be tapped looks like a heading.
+
+---
+
+## 🗣 A call screen that says what is happening
+
+The rotating circle is gone. Under the number the call screen says it in words — 発信中…, 呼び出し中…,
+着信中…, 接続中… — and when the call is over, why: 話し中, 応答拒否, 応答なし. The same reason is
+written on the call's row in the history.
 
 ---
 

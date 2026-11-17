@@ -2,7 +2,103 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha+2026-11-09.14-07.g92318a24+004 — current
+## 6.3.0-alpha+2026-11-09.14-07.g92318a24+025 — current
+
+Same upstream base as `+004` (`92318a24`); `versionCode` `602010025`. Builds `+005` to `+024` were
+the steps on the way and were not released.
+
+This release makes 臨電話 the third of a set with 白い熊 電話 (the SIM dialer) and 白い熊 連絡先 (the
+address book): one bottom bar, one contact store, one look.
+
+### Contacts
+
+- **The contacts are the address book's.** Names and pictures are read from 連絡先's
+  private-contacts provider (`content://shiroikuma.renrakusaki.contactsprovider/contacts`) into a
+  friend list that is never stored (`SkRenrakusaki`). It is loaded when the SIP core starts — so an
+  incoming call on a cold start still finds its caller — again when the main screen returns to the
+  front, and half a second after 連絡先 signals a change. Favourites come from a second query.
+- **Both stores this app kept are purged, once.** The copy of the system contact store
+  (`Native address-book`) and the contacts made in the app's own editor (`Linphone address-book`)
+  are deleted on the first start of this version.
+- **The system contact store is no longer read**, and the `READ_CONTACTS` permission is gone from
+  the manifest and from the first-run permissions page.
+- The app's own contact list, contact page and editor, “add to contacts”, and the CardDAV and LDAP
+  settings are no longer reachable. Tapping a picture in the history opens the contact in 連絡先;
+  an unknown number opens 連絡先's editor with the number filled in.
+
+### Main screens
+
+- **Every screen takes the full width.** The split view is gone on all orientations and fold
+  states; a detail slides over the list. Upstream's tablet-landscape side rail went with it.
+- **The bottom bar is shared by the three apps: Favorites, Contacts, 電話, 臨電話.** The first two
+  open 連絡先 on that tab, 電話 opens the dialer's history, 臨電話 is this app's SIP history. A tab
+  whose app is not installed is not shown. The other two apps open this one on its history with
+  the `shiroikuma_open_history` extra.
+- **The top row** is the drawer menu and one outlined search pill, always open, with a ⋮ menu
+  (臨電話 UI, Recordings, Help). Long-pressing either end of the row opens the UI page.
+- **The account strip begins with a 全 tab.** An account's tab shows that account's calls; 全 shows
+  every account's. Choosing 全 changes only the list — calls still go out through the account last
+  chosen. Its character has a font slot of its own on the UI page, or a picture in its place.
+- The “All calls / Missed” switch and the delete-all bin are removed. The dialpad button is a
+  traced rounded square, not a filled disc.
+
+### Call history
+
+- **The row is the dialer's row.** Line 1 the name; line 2 the number and its address-book label;
+  line 3 the 臨N badge, the dialer's own direction arrows, the time, the duration or the reason the
+  call failed (話し中 / 応答拒否 / 応答なし), a mark when the call was recorded, and the country
+  of the number at the right. The picture is a square 90 % as tall as the row.
+- **Message, call and ⋮ on the second line.** The bubble opens the messenger on that number; the
+  handset calls back through the account that row's call used; ⋮ is the row's menu — call back,
+  write a message, reply to a missed call with a stored line, the contact, copy, delete.
+- **It follows the dialer's theme.** Colours, per-line fonts (imported font files included), text
+  sizes, the rules between records and under the day headline, and the time, duration and date
+  formats are read from `content://shiroikuma.denwa.calllogstyle/style` (`SkDenwaStyle`); this
+  app's own settings are the fallback when the dialer is not installed or says nothing.
+- **Tapping a record narrows the list to that contact's calls**, under a “Calls with …” banner
+  with a ✕, in place of upstream's detail page. Back widens it again.
+- A thin line between two calls of a day is drawn inset from both edges, and not under the last
+  call of a day; its thickness and colour are the dialer's.
+
+### 臨 numbers and the call door
+
+- **Each SIP account carries a number, 臨0–臨9**, unique, set on the UI page (accounts listed in
+  the tab strip's order, with their pictures) or in the account's settings, from a picker that
+  shows the ten badges themselves. Each number has its own badge ground and text colour.
+- **The call door** (`SkCallsProvider`, `content://shiroikuma.rindenwa.calls`): `accounts` lists
+  the accounts with number, badge colours, identity, name, registered and default; `dial` places a
+  call to `to` through `account` (a 臨 number or an identity; absent = the selected account). Only
+  the apps allowed under “Calls from other apps” on the UI page are let in — 連絡先 and 電話 by
+  default — and the caller's package is checked against its uid. It is separate from the data door
+  on purpose: an app let in to dial is not let in to export.
+
+### Call screens
+
+- **A status line replaces the rotating circle** on the outgoing, incoming and ended screens, in
+  both orientations: Dialing… / Ringing… / Incoming call… / Connecting… and, when it is over, Call
+  ended, Busy, Declined, No answer, or Call failed with the SIP reason.
+- **Japanese texts for it** (発信中…, 呼び出し中…, 着信中…, 接続中…, 通話終了, 話し中, 応答拒否,
+  応答なし, 発信失敗) — the app's first `values-ja`, and `ja` in the per-app language list.
+- **The outgoing-call panel** takes the incoming panel's geometry: Mute, the audio output and the
+  keypad as outlined circles in a row, the red Hang up alone beneath. The audio output is live
+  during early media as well as ringing, so the loudspeaker can be switched on with a provider
+  that answers `183` on every call.
+
+### Black-yellow rules
+
+- **Menus:** every action row of every popup and bottom-sheet menu is an outlined pill across the
+  menu, its icon coloured by what the row does (call green, message blue, contact cyan, copy and
+  share orange, view the accent, block magenta, delete red — seven settable colours), a › when it
+  opens something, red throughout when destructive. Menus have a 2 dp yellow frame, and a popup
+  opened low on the screen shifts up instead of scrolling. A toggle is a plain row with a switch.
+- **Switches** are outlined pills with a solid dot — accent when on, a darker settable yellow when
+  off — on the UI page and on Linphone's own settings pages alike.
+- **Settings and help pages:** the twenty-five rows that open a page or run an action are pills as
+  wide as their label, with a › where they open something and in red where they destroy something.
+- The account profile no longer shows a devices spinner for an account that is not on Linphone's
+  own domain.
+
+## 6.3.0-alpha+2026-11-09.14-07.g92318a24+004
 
 Same upstream base as `+002` (`92318a24`); `versionCode` `602010004`. Build `+003` was the
 diagnostics alone and was never released — this release carries it and the fix it led to.
