@@ -3,12 +3,19 @@ package org.linphone.shiroikuma
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import androidx.annotation.AnyThread
 import androidx.annotation.UiThread
 import androidx.annotation.WorkerThread
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArraySet
 import org.linphone.LinphoneApplication.Companion.coreContext
 import org.linphone.R
 import org.linphone.core.Call
@@ -50,6 +57,34 @@ import org.linphone.utils.LinphoneUtils
  * when a call moves on to `IncomingEarlyMedia`, so a silenced call is re-silenced on every incoming
  * state it reaches until it ends. Silencing is deliberately one-way; there is nothing to un-mute.
  *
+ * **Silencing without looking.** Besides the Silence button on the call screen and on the
+ * notification, two gestures do the same thing for as long as a call rings unsilenced:
+ *
+ * - **Any volume button.** The key press itself is taken ([onVolumeKey], from
+ *   `CallActivity.onKeyDown`) and swallowed, so the press that silences does not also move a
+ *   volume. Once the ringer is silent the buttons are plain volume buttons again. This works with
+ *   the call screen in front, which is where every incoming call puts 白い熊. With another app in
+ *   front the key never reaches us, and there is no honest stand-in for it: the system's
+ *   volume-changed broadcast was tried for that (+030 to +032), and in those builds every call
+ *   went silent a split second into its ring — most likely because a volume moves when the ringer
+ *   starts, which a broadcast cannot tell from a finger. Do not bring it back untested.
+ *   **And on 白い熊's phone the key does not reach us that way at all.** Two things stand in
+ *   front of it. 自由作業盤's 物理鍵 grabber takes the volume keys below the framework; and when it
+ *   hands a tap back, Android's own telecom layer takes it: our calls are registered with Telecom
+ *   (self-managed), so a volume key during a ring is "silence the ringer" to the system, which
+ *   swallows it, stops a ringer it does not have, and tells the connection — inside androidx's
+ *   core-telecom, which passes nothing on (`dumpsys telecom` showed `SILENCE` at the very second
+ *   of the press, 2026-11-19, and the call rang on). So the grabber, which holds the key anyway,
+ *   asks us directly: [silenceFromOutside], through the call door. [announceRinging] is how it
+ *   knows a call rings here.
+ * - **Turning the phone face down.** Read off the accelerometer: the screen has to have been seen
+ *   facing some other way first, and then lie face down for two readings in a row. So a phone that
+ *   was already lying on its screen when the call came in rings as usual — only the act of turning
+ *   it over silences.
+ *
+ * Both are armed by the first incoming state of a call and dropped the moment nothing rings
+ * unsilenced any more, so the sensor never outlives the ringing.
+ *
  * Logging goes through the SDK's own [Log] rather than the fork's usual `android.util.Log`, so that
  * why-didn't-the-screen-come-up reads in the same stream as the call states it is about.
  */
@@ -61,6 +96,158 @@ object SkRinger {
 
     /** Calls 白い熊 has silenced. */
     private val silenced = ConcurrentHashMap.newKeySet<String>()
+
+    /** Told, on the core thread, about every call the moment its ringer is silenced. */
+    private val silencedListeners = CopyOnWriteArraySet<(Call) -> Unit>()
+
+    @AnyThread
+    fun addSilencedListener(listener: (Call) -> Unit) {
+        silencedListeners.add(listener)
+    }
+
+    @AnyThread
+    fun removeSilencedListener(listener: (Call) -> Unit) {
+        silencedListeners.remove(listener)
+    }
+
+    /** True while a call rings unsilenced, i.e. while the gestures below have something to do. */
+    @Volatile
+    private var watching = false
+
+    const val ACTION_RINGING = "shiroikuma.rindenwa.RINGING"
+    const val EXTRA_RINGING = "ringing"
+    private const val JIYUSAGYOBAN = "shiroikuma.jiyusagyoban"
+
+    /** Gravity along the screen's normal, in m/s²: about +9.8 face up, about −9.8 face down. */
+    private const val FACE_DOWN_Z = -8f
+    private const val NOT_FACE_DOWN_Z = -3f
+    private const val FACE_DOWN_READINGS = 2
+
+    private val faceDownListener = object : SensorEventListener {
+        /** Set once the screen has been seen facing anywhere but down. */
+        var armed = false
+        var faceDownReadings = 0
+
+        override fun onSensorChanged(event: SensorEvent) {
+            val z = event.values[2]
+            if (z > NOT_FACE_DOWN_Z) {
+                armed = true
+                faceDownReadings = 0
+            } else if (z < FACE_DOWN_Z) {
+                if (armed && ++faceDownReadings >= FACE_DOWN_READINGS) {
+                    silenceByGesture("the phone was turned face down")
+                }
+            } else {
+                faceDownReadings = 0
+            }
+        }
+
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) { }
+    }
+
+    /**
+     * A volume button went down in the call screen. Returns true when the press was taken to
+     * silence the ringer — the caller then swallows it — and false when nothing rings unsilenced,
+     * in which case the button keeps its ordinary meaning.
+     */
+    @UiThread
+    fun onVolumeKey(): Boolean {
+        if (!watching) {
+            return false
+        }
+        silenceByGesture("a volume button was pressed")
+        return true
+    }
+
+    /**
+     * A sister app asks for the ringer to be silenced — the `silence_ringer` method of the call
+     * door ([SkCallsProvider]). False when nothing rings unsilenced.
+     */
+    @AnyThread
+    fun silenceFromOutside(who: String): Boolean {
+        if (!watching) {
+            return false
+        }
+        silenceByGesture("$who asked for it")
+        return true
+    }
+
+    /** Silence every call that is still ringing, and say in the log and the diagnostics why. */
+    @AnyThread
+    private fun silenceByGesture(why: String) {
+        if (!watching) {
+            return
+        }
+        coreContext.postOnCoreThread { core ->
+            for (call in core.calls) {
+                if (LinphoneUtils.isCallIncoming(call.state) && silence(core, call)) {
+                    Log.i("$TAG Ringer silenced because $why")
+                    SkDiag.log(
+                        coreContext.context,
+                        SkDiagKind.CALLS,
+                        "incoming from ${call.remoteAddress.asStringUriOnly()} silenced: $why",
+                    )
+                    coreContext.notificationsManager.refreshCallNotification(call)
+                }
+            }
+        }
+    }
+
+    /**
+     * Tell 自由作業盤 that a call rings here unsilenced, or no longer does.
+     *
+     * Its 物理鍵 key grabber takes the volume keys below the framework and, with the screen on,
+     * keeps a single tap for itself — so the tap never reaches the call screen and [onVolumeKey]
+     * never runs (白い熊, 2026-11-19: "they have no effect"). It hands the tap back while the
+     * *phone* rings, which it learns from the system's phone-state broadcast; a SIP call raises
+     * none. This is that signal for our calls: an explicit broadcast, [ACTION_RINGING] with the
+     * boolean extra [EXTRA_RINGING], sent to that one package. Nobody listening is not an error.
+     */
+    private fun announceRinging(context: Context, ringing: Boolean) {
+        try {
+            context.sendBroadcast(
+                Intent(ACTION_RINGING).setPackage(JIYUSAGYOBAN).putExtra(EXTRA_RINGING, ringing)
+            )
+        } catch (e: Exception) {
+            Log.w("$TAG Couldn't announce ringing [$ringing]: $e")
+        }
+    }
+
+    /** Arm or drop the two gestures to match whether anything still rings unsilenced. */
+    @WorkerThread
+    private fun updateWatch(core: Core) {
+        val ringing = core.calls.any {
+            LinphoneUtils.isCallIncoming(it.state) && !silenced.contains(key(it))
+        }
+        if (ringing == watching) {
+            return
+        }
+
+        val context = coreContext.context
+        announceRinging(context, ringing)
+        val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as? SensorManager
+        if (ringing) {
+            Log.i("$TAG A call is ringing, watching for a volume button and for the phone being turned face down")
+            faceDownListener.armed = false
+            faceDownListener.faceDownReadings = 0
+            val accelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+            if (accelerometer != null) {
+                sensorManager.registerListener(
+                    faceDownListener,
+                    accelerometer,
+                    SensorManager.SENSOR_DELAY_NORMAL,
+                    Handler(Looper.getMainLooper()),
+                )
+            } else {
+                Log.w("$TAG No accelerometer, turning the phone face down won't silence the ringer")
+            }
+            watching = true
+        } else {
+            watching = false
+            Log.i("$TAG Nothing rings unsilenced any more, no longer watching for the silencing gestures")
+            sensorManager?.unregisterListener(faceDownListener)
+        }
+    }
 
     /**
      * A call's identity for the two sets above: its SIP Call-ID, falling back to the remote address
@@ -97,6 +284,8 @@ object SkRinger {
 
         Log.i("$TAG Silencing the ringer for call [${call.remoteAddress.asStringUriOnly()}]")
         core.stopRinging()
+        updateWatch(core)
+        silencedListeners.forEach { it(call) }
         return true
     }
 
@@ -124,6 +313,7 @@ object SkRinger {
                 )
                 raiseCallScreen()
             }
+            updateWatch(core)
             return
         }
 
@@ -144,6 +334,9 @@ object SkRinger {
                 silenced.clear()
             }
         }
+
+        // Answered, ended or failed: whatever it was, it may have been the last thing ringing.
+        updateWatch(core)
     }
 
     /**

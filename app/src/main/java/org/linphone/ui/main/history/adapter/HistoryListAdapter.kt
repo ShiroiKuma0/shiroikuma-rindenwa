@@ -20,7 +20,6 @@
 package org.linphone.ui.main.history.adapter
 
 import android.content.res.ColorStateList
-import org.linphone.shiroikuma.SkAccountNumbers
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -92,6 +91,10 @@ class HistoryListAdapter :
     }
 
     /** shiroikuma fork: the picture — open the contact in the address book. */
+    val callLogBadgeClickedEvent: MutableLiveData<Event<CallLogModel>> by lazy {
+        MutableLiveData<Event<CallLogModel>>()
+    }
+
     val callLogAvatarClickedEvent: MutableLiveData<Event<CallLogModel>> by lazy {
         MutableLiveData()
     }
@@ -231,6 +234,10 @@ class HistoryListAdapter :
                     avatar.root.setOnClickListener {
                         model?.let { callLogAvatarClickedEvent.value = Event(it) }
                     }
+                    // shiroikuma fork: the badge opens what the call was made through.
+                    skBadge.setOnClickListener {
+                        model?.let { callLogBadgeClickedEvent.value = Event(it) }
+                    }
                 }
                 viewHolder
             }
@@ -305,7 +312,8 @@ class HistoryListAdapter :
                 if (nextDay != callLogModel.dayKey) separator.visibility = View.GONE
                 // The badge in the colours of its number (SkAccountNumbers), which no theme
                 // overrides — two accounts are told apart by them at a glance.
-                val (ground, text) = SkAccountNumbers.colors(root.context, callLogModel.skBadgeNumber)
+                // Those of the day the call was made, where its stamp kept them.
+                val (ground, text) = callLogModel.skBadgeColors(root.context)
                 skBadge.backgroundTintList = ColorStateList.valueOf(ground)
                 skBadge.setTextColor(text)
             }

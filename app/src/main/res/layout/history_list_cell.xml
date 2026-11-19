@@ -56,7 +56,7 @@
             android:layout_marginStart="10dp"
             android:singleLine="true"
             android:ellipsize="end"
-            android:text="@{model.avatarModel.name, default=`John Doe`}"
+            android:text="@{model.skNameOverride.empty ? model.avatarModel.name : model.skNameOverride, default=`John Doe`}"
             android:textSize="14sp"
             android:textColor="?attr/color_main2_800"
             app:layout_constraintVertical_chainStyle="packed"

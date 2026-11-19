@@ -230,6 +230,9 @@ class HistoryListViewModel
             LinphoneUtils.getDefaultAccount()?.callLogs ?: coreContext.core.callLogs
         }
 
+        // shiroikuma fork: once, freeze the badge of every call there is (SkCallStamps).
+        org.linphone.shiroikuma.SkCallStamps.stampWholeLog(coreContext.context, coreContext.core)
+
         val contactFilter = skContactFilter.value
         for (callLog in logs) {
             if (missedOnly && !LinphoneUtils.isCallLogMissed(callLog)) continue

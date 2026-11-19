@@ -67,6 +67,7 @@ object SkEximport {
     private const val SIP_SETTINGS_ENTRY = "sip_settings.rc"
     private const val CALLBACK_ACCOUNTS_ENTRY = "odorik_callback.json"
     private const val CALLBACK_CALLS_ENTRY = "odorik_callback_calls.json"
+    private const val CALL_STAMPS_ENTRY = "call_stamps.json"
     private const val DB_DIR_ENTRY = "db/"
     private const val FONTS_DIR_ENTRY = "fonts/"
 
@@ -406,6 +407,13 @@ object SkEximport {
                     exportPrefs(SkOdorikCallback.backupPrefs(context), SkOdorikCallback::isHistoryKey)
                         .first.toByteArray()
                 )
+                // And what each of them was made through, frozen when it was made.
+                writeEntry(
+                    zip,
+                    CALL_STAMPS_ENTRY,
+                    exportPrefs(SkCallStamps.backupPrefs(context), SkCallStamps::isStampKey)
+                        .first.toByteArray()
+                )
             }
 
             if (dbs.isNotEmpty()) {
@@ -605,6 +613,10 @@ object SkEximport {
                     it.decodeToString(),
                     SkOdorikCallback::isHistoryKey
                 )
+            }
+            files[CALL_STAMPS_ENTRY]?.let {
+                importPrefs(SkCallStamps.backupPrefs(context), it.decodeToString(), SkCallStamps::isStampKey)
+                SkCallStamps.reload()
             }
         }
 
