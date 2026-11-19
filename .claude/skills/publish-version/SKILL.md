@@ -107,4 +107,5 @@ If `$APK` is empty, stop and tell 白い熊 there is no built APK to publish (ru
 - This skill **does not build** — it ships whatever is newest in `~/tmp/`. For a fresh build, that's
   the `build-apk` skill's job.
 - `master` stays tracking upstream; releases are always cut from `custom`. After an
-  `upstream-new-version` rebase, the first release on the new base is `+1`.
+  `upstream-new-version` rebase, the first release on the new base is `+1` only if upstream's
+  `versionCode` moved; otherwise the counter simply runs on.

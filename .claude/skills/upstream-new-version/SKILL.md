@@ -1,6 +1,6 @@
 ---
 name: upstream-new-version
-description: Sync the shiroikuma-rindenwa fork onto a newer upstream Linphone (BelledonneCommunications/linphone-android) and rebuild. Checks upstream for new commits; ALWAYS presents a proceed-gated tabular summary of the new upstream features BEFORE any rebase; then fast-forwards master, rebases custom, resets BUILD_NUMBER, and builds the new +1. Use when 白い熊 runs /upstream-new-version, says a new Linphone version is out, or asks to update/sync/bump to upstream, rebase custom onto upstream, or rebase-and-rebuild the fork.
+description: Sync the shiroikuma-rindenwa fork onto a newer upstream Linphone (BelledonneCommunications/linphone-android) and rebuild. Checks upstream for new commits; ALWAYS presents a proceed-gated tabular summary of the new upstream features BEFORE any rebase; then fast-forwards master, rebases custom, resets BUILD_NUMBER only when upstream's versionCode moved, and builds the next +N. Use when 白い熊 runs /upstream-new-version, says a new Linphone version is out, or asks to update/sync/bump to upstream, rebase custom onto upstream, or rebase-and-rebuild the fork.
 ---
 
 # Sync shiroikuma-rindenwa onto a newer upstream Linphone
@@ -28,8 +28,11 @@ our patches and is rebased onto each new upstream tip.
 - Upstream's `versionCode` / `versionName` literals in `app/build.gradle.kts` are **left exactly as
   upstream writes them**. The fork block just below `defaultConfig` reads them back and derives ours,
   so an upstream bump flows through with **no hand-editing and no conflict on those two lines**.
-- `BUILD_NUMBER` (in `gradle.properties`) is our increment: bumped by every `buildApk`,
-  **reset to `1`** on each new upstream version.
+- `BUILD_NUMBER` (in `gradle.properties`) is our increment: bumped by every `buildApk`, and
+  **reset to `1` only when upstream's own `versionCode` moved** in this sync. When it did not —
+  the usual case, upstream sits on one code for months — **the counter runs on**: a reset would
+  produce a lower `versionCode` than the installed build's (`602010001` under `602010035`) and
+  Android refuses to install a downgrade. (Found on the `92318a24 → 2199af83` sync, 2026-11-19.)
 - Fork `versionName = "<upstream>.<upstream base date>.g<upstream base sha>+<BUILD_NUMBER, padded to 3>"`;
   `versionCode = <upstream versionCode> * 1000 + BUILD_NUMBER` (the sha never enters the code).
 - The `.<date>.g<sha>` pin is `git merge-base HEAD master` (first 8 chars, plus that commit's own
@@ -150,7 +153,7 @@ Conflict-prone files, and the shape each must end up in:
      `~/.gradle/gradle.properties`, with `keystore.properties` only as an optional fallback, and
      configuration must never fail when nothing is configured.
   7. The `buildApk` task at the end of the file.
-- **`gradle.properties`** — keep `BUILD_NUMBER` (and reset it, Step 5). Keep upstream's other flags.
+- **`gradle.properties`** — keep `BUILD_NUMBER` (reset or left running per Step 5). Keep upstream's other flags.
 - **`.gitignore`** — keep `/keystore.properties` and `.claude/settings.local.json` un-ignored/ignored
   as we set them; `CLAUDE.md` and `.claude/skills/` stay **committed**.
 - **`app/src/main/res/values/strings.xml`** — the `<!ENTITY appName "白い熊 臨電話">` in the DOCTYPE,
@@ -159,9 +162,17 @@ Conflict-prone files, and the shape each must end up in:
   `mipmap-*/linphone_launcher_icon_foreground.png` and any in-app logo drawable must stay our
   black-yellow traced icon. A binary conflict here means upstream redrew theirs — keep **ours**.
 
-## Step 5 — reset the build tail
+## Step 5 — the build tail: reset it, or leave it running
 
-In `gradle.properties`, set **`BUILD_NUMBER=1`** — the new upstream line starts its `+N` at 1.
+Compare upstream's `versionCode` before and after the sync (Step 1 printed both):
+
+- **It moved** (e.g. `602003 → 602010`): set **`BUILD_NUMBER=1`** in `gradle.properties` — the new
+  upstream version starts its `+N` at 1, and `<new code> * 1000 + 1` is above every older build.
+- **It did not move:** **leave `BUILD_NUMBER` alone.** The next build takes the next number
+  (`+036` after `+035`). Resetting here would ship an APK whose `versionCode` is below the
+  installed one, which will not install as an update.
+
+Either way the `<date>.g<sha>` pin in the name follows the new upstream base by itself.
 
 ## Step 6 — verify the customization layer survived, then build
 
@@ -175,18 +186,18 @@ In `gradle.properties`, set **`BUILD_NUMBER=1`** — the new upstream line start
 | APK naming | `shiroikuma-rindenwa_…_arm64-v8a.apk` | `app/build.gradle.kts` → `outputFileName` |
 | Signing | `RINDENWA_RELEASE_*` → `~/.android-keystores/shiroikuma-rindenwa.jks` | `~/.gradle/gradle.properties`, read by `app/build.gradle.kts` |
 | **No stray credentials file** | `keystore.properties` **absent** from the repo root (see Step 3) | repo root |
-| Build tail | `BUILD_NUMBER=1` | `gradle.properties` |
+| Build tail | `BUILD_NUMBER=1` if upstream's `versionCode` moved, else unchanged (Step 5) | `gradle.properties` |
 | De-branding | no "Linphone"/`linphone.org`/upstream GitHub links in user-visible strings, Help or About | `values/strings.xml`, About/Help screens |
 | Committed agent files | `CLAUDE.md`, `.claude/skills/` tracked | `.gitignore` |
 
-Sanity-check that the script still evaluates, then build the new `+1` via the **build-apk** skill:
+Sanity-check that the script still evaluates, then build the next `+N` via the **build-apk** skill:
 
 ```bash
 export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ANDROID_HOME=/home/shiroikuma/android-sdk
 grep -q '^RINDENWA_RELEASE_STORE_PASSWORD=.' ~/.gradle/gradle.properties \
   || echo '!!! signing config missing from ~/.gradle/gradle.properties — see Step 3'
 ./gradlew :app:tasks --console=plain | head      # config sanity
-./gradlew buildApk --console=plain < /dev/null   # the new <newVersion>+1
+./gradlew buildApk --console=plain < /dev/null   # the next +N on the new base
 ```
 
 The build log must contain `Signing config release is using keystore [...]`; if it says the
@@ -212,8 +223,8 @@ git push --force-with-lease origin custom     # rebased history
 ## One-line summary of the flow
 
 `fetch upstream` → new version? (else stop) → **tabular feature summary + WAIT for go-ahead** →
-ff `master` → rebase `custom` (reconcile per Step 4) → `BUILD_NUMBER=1` → verify the layer →
-**build the new `+1` via build-apk** → 白い熊 tests → on "Push": push `master`, force-with-lease `custom`.
+ff `master` → rebase `custom` (reconcile per Step 4) → `BUILD_NUMBER=1` only if upstream's `versionCode` moved → verify the layer →
+**build the next `+N` via build-apk** → 白い熊 tests → on "Push": push `master`, force-with-lease `custom`.
 
 ## Hard rules
 
