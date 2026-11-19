@@ -277,6 +277,14 @@ class CurrentCallViewModel
     // incoming screen's Silence button and relabels it. One-way — see SkRinger.
     val isRingingSilenced = MutableLiveData<Boolean>()
 
+    // shiroikuma fork: the ringer can also be silenced from outside this screen — a volume button,
+    // the phone turned face down, the notification's button — and the Silence button follows.
+    private val skSilencedListener: (Call) -> Unit = { call ->
+        if (::currentCall.isInitialized && call == currentCall) {
+            isRingingSilenced.postValue(true)
+        }
+    }
+
     // shiroikuma fork: the caller's bare SIP address, which is the key the decline messages kept
     // for one particular caller are filed under. Not displayedAddress: that one is for reading,
     // and can be hidden, shortened or replaced by a contact's name.
@@ -587,6 +595,7 @@ class CurrentCallViewModel
         fullScreenMode.value = false
         // shiroikuma fork: the incoming screen's binding unboxes this one, so never leave it null
         isRingingSilenced.value = false
+        SkRinger.addSilencedListener(skSilencedListener)
         operationInProgress.value = false
         proximitySensorEnabled.value = false
         videoUpdateInProgress.value = false
@@ -646,6 +655,8 @@ class CurrentCallViewModel
     @UiThread
     override fun onCleared() {
         super.onCleared()
+
+        SkRinger.removeSilencedListener(skSilencedListener)
 
         coreContext.postOnCoreThread { core ->
             core.removeListener(coreListener)
@@ -1355,7 +1366,8 @@ class CurrentCallViewModel
 
         val address = call.callLog.remoteAddress
         val uri = if (corePreferences.onlyDisplaySipUriUsername) {
-            address.username ?: ""
+            // shiroikuma fork: a number in the house reading; anything else comes back untouched.
+            org.linphone.shiroikuma.SkNumbers.format(address.username ?: "")
         } else {
             LinphoneUtils.getAddressAsCleanStringUriOnly(address)
         }
@@ -1371,7 +1383,12 @@ class CurrentCallViewModel
                 ContactAvatarModel(friend, address)
             } else {
                 val fakeFriend = coreContext.core.createFriend()
-                fakeFriend.name = LinphoneUtils.getDisplayName(address)
+                // shiroikuma fork: a caller nobody knows is called by his number in the house
+                // reading, not by the provider's "601123456>456" (SkNumbers).
+                fakeFriend.name = org.linphone.shiroikuma.SkNumbers.unknownCallerName(
+                    LinphoneUtils.getDisplayName(address),
+                    address.username
+                )
                 fakeFriend.address = address
                 val localAccount = coreContext.core.accountList.find {
                     it.params.identityAddress?.weakEqual(address) == true

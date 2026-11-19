@@ -282,7 +282,7 @@ object SkDenwaStyle {
         tint(row.call, "color.action_call")
         // The arrow, and with it the time: 電話 colours both alike for a call that was missed,
         // for one placed and answered, and — its own key since 1.11.1+109 — for one placed and
-        // not answered. Only an incoming call's time keeps the plain date colour.
+        // not answered. An incoming call that was taken has its arrow's colour for the arrow only.
         val both = when {
             direction == SkCallLog.Direction.MISSED -> "color.missed"
             direction == SkCallLog.Direction.OUTGOING && unanswered && color("color.unanswered") != null ->
@@ -295,6 +295,13 @@ object SkDenwaStyle {
             color(both)?.let { row.dateTime.setTextColor(it) }
         } else if (direction == SkCallLog.Direction.INCOMING) {
             tint(row.callStatus, "color.incoming")
+            // A call that was taken has no colour of its own to give its time, and 電話's plain
+            // date colour can be anything — white, on 2026-11-19. The time then reads as the
+            // duration standing right after it does, so the line is one colour (白い熊: yellow).
+            // Read off the duration's own view, not looked up again: whichever of the two
+            // themes painted it, that is the colour the line has (+032 looked 電話's key up and
+            // the time stayed white).
+            row.dateTime.setTextColor(row.duration.currentTextColor)
         }
     }
 }

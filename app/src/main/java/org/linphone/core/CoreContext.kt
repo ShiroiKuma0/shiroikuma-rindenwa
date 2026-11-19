@@ -348,6 +348,10 @@ class CoreContext
             // a ringer 白い熊 silenced stays silent across a re-ring. See SkRinger.
             SkRinger.onCallStateChanged(core, call, currentState)
 
+            // shiroikuma fork: what the call was made through, kept for its row in the history —
+            // the badge as it looks now, the codec, the network, how it ended. See SkCallStamps.
+            org.linphone.shiroikuma.SkCallStamps.onCallStateChanged(core, call, currentState)
+
             // shiroikuma fork: the outgoing-call diagnostic — one line per state, with the SIP
             // code and reason, so a hang-up the other end never heard about can be read back.
             if (call.dir == Call.Dir.Outgoing) {
@@ -1224,6 +1228,8 @@ class CoreContext
 
     @WorkerThread
     fun terminateCall(call: Call) {
+        // shiroikuma fork: the SDK does not say afterwards which side ended a call.
+        org.linphone.shiroikuma.SkCallStamps.onTerminateAsked(call)
         val conference = call.conference
         if (conference != null) {
             Log.i("$TAG Terminating conference [${call.remoteAddress.asStringUriOnly()}]")

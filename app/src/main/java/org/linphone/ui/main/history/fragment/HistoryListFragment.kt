@@ -365,6 +365,13 @@ class HistoryListFragment : AbstractMainFragment() {
             }
         }
 
+        // shiroikuma fork: a tap on a row's 臨N badge — what that call was made through.
+        adapter.callLogBadgeClickedEvent.observe(viewLifecycleOwner) {
+            it.consume { model ->
+                org.linphone.shiroikuma.SkCallStampDialog(requireActivity(), model).show()
+            }
+        }
+
         adapter.callLogAvatarClickedEvent.observe(viewLifecycleOwner) {
             it.consume { model ->
                 openInAddressBook(model)

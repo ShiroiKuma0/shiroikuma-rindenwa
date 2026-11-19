@@ -118,6 +118,73 @@ stock Linphone. Watch for the sister-fork trap: leading-dot class names in *runt
 (`android:name=".Foo"`, `app:layoutManager=".Bar"`) resolve via the applicationId, not the namespace,
 so they would `ClassNotFound` here — fully-qualify them to `org.linphone.…` if lint flags them.
 
+## Call stamps — a call keeps what it was made through
+
+The SDK's call log keeps who, when, how long and whether a call connected; the 臨N badge used to be
+worked out on every read from today's settings, so renumbering or repainting an account rewrote the
+calls already made. Since 2026-11-19 (+031) each call has a **stamp** (`shiroikuma/SkCallStamps.kt`:
+the `SkCallStamp` model, the store and the recorder) and a row whose stamp carries a badge is drawn
+from it alone. Asked for by 白い熊 through the Denwa chat, after 電話's SIM stamps.
+
+- **Key: the SIP Call-ID**, which the SDK's own log carries and which therefore survives an export
+  and import of the history database; a record without one is keyed `<startDate>|<remote URI>`.
+- **Store:** the preferences file `sk_call_stamps`, one JSON string per call (keys starting with `_`
+  are bookkeeping, never exported). It travels with the call history in the export/import as
+  `call_stamps.json` (`SkEximport`, categories `history` / `history.calls`).
+- **What it holds** (`SkCallStamp.toJson()`; an absent key means “not known” — **renaming or
+  re-meaning a key breaks old exports**): `src`, the badge `n` / `color` / `text`, `id` (the account's
+  identity), `srv`, `tr`, `end`, `sip`, `phrase`, `ring`, `codec`, `rate`, `enc`, `net`, `net_name`,
+  `vpn`, `route`, `q`, `ua`.
+- **Where it comes from:** `SkCallStamps.onCallStateChanged`, driven from `CoreContext`'s call-state
+  listener (source `call`): account, badge and network at the first state, codec / encryption /
+  audio route whenever the media runs, the ending at `End` / `Error`. “Who hung up” is known only
+  because `CoreContext.terminateCall` reports every local hang-up (`onTerminateAsked`) — the SDK does
+  not say. A call nobody watched is stamped from its log record with the badge of that moment
+  (source `log`; once for the whole log on the first history read). A `call` stamp is never replaced
+  by a weaker one. **A stamp without a badge number (the account had none) keeps following today's
+  badge**, as 電話 does for a stamp without a digit.
+- **The dialog** (`shiroikuma/SkCallStampDialog.kt`) opens from a tap on a row's badge, in 電話's
+  look: the badge large, the account's user part and domain, a rule, then one line per known fact.
+  A fact that is not known is left out, never shown empty.
+- **Never put a real phone number in a comment, a string or an example** — this repository is
+  public. Use made-up ones (`+420-601-123-456`).
+
+## Silencing a ringing call — and why the volume button comes round through 自由作業盤
+
+`shiroikuma/SkRinger.kt` silences ringtone and vibration without touching the call: the Silence
+button, the notification's button, **turning the phone face down** (accelerometer; the screen must
+first be seen facing another way, so a phone already lying on its screen rings), and **a volume
+button**.
+
+The volume button cannot be caught in the app on 白い熊's phone, for two reasons found on
+2026-11-19 — do not “simplify” this back to `onKeyDown` alone:
+
+1. 自由作業盤's 物理鍵 key grabber takes the volume keys below the framework.
+2. Even when a tap is handed back, **Android's telecom layer swallows it**: our calls are registered
+   with Telecom (self-managed, androidx core-telecom), so a volume key during a ring means “silence
+   the ringer” to the system, which stops a ringer it does not have. core-telecom does not pass
+   `Connection.onSilence` on. `dumpsys telecom` shows `SILENCE` at the second of the press.
+
+So the two apps talk directly:
+
+- While a call rings unsilenced, 臨電話 sends an explicit broadcast to `shiroikuma.jiyusagyoban`:
+  action `shiroikuma.rindenwa.RINGING`, boolean extra `ringing` (`SkRinger.announceRinging`).
+- 自由作業盤 (0.2.96+…+025 on) then answers a short volume tap by calling the call door:
+  `ContentResolver.call(content://shiroikuma.rindenwa.calls, "silence_ringer")` → `OK`,
+  `OK:nothing ringing` or `ERROR:not allowed`. That one method admits the dial allowlist **and** the
+  data door's certificate-pinned callers (`AutomationCallers`), so 自由作業盤 needs no switch.
+- `CallActivity.onKeyDown` still takes the key for a phone where nothing stands in front of it.
+
+**Never bring back the `VOLUME_CHANGED_ACTION` broadcast as a stand-in for the key** (+030 to +032):
+a volume moves when the ringer starts, and every call went silent a split second into its ring.
+
+## Numbers are written one way
+
+`shiroikuma/SkNumbers.kt` is the one place a phone number is formatted: `+420-601-123-456`,
+`+1-808-555-0123`; a bare nine-digit number is read as Czech. A caller in no address book is named
+by that number — Odorik's display name `<number>><tail of the line it rang>` is not a name
+(`SkNumbers.unknownCallerName`), in the history and on the call screen alike.
+
 ## Repo layout (upstream Linphone)
 
 - `app/src/main/java/org/linphone/` — Kotlin sources: `core/` (the LinphoneCore service, call/chat
