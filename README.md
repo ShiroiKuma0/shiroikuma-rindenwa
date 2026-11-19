@@ -20,7 +20,7 @@ really reach this phone, and diagnostics that record nothing until you ask them 
 
 Installs **side-by-side** with stock Linphone (app id `shiroikuma.rindenwa`).
 
-**📥 Latest release: [`6.3.0-alpha+2026-11-09.14-07.g92318a24+029`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
+**📥 Latest release: [`6.3.0-alpha+2026-11-09.14-07.g92318a24+035`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
 
 </div>
 
@@ -280,6 +280,32 @@ screen and in the notification, and in the history it is filed under the person 
 own arrow and the word *Callback*. Each Odorik account has a callback block in its settings — which
 phone rings first, the line's password, and whether the first leg answers itself. The address book
 can order one through the call door.
+
+---
+
+## 🏷 Tap the badge, see what the call went through
+
+Every call keeps a **stamp**, frozen while it happens: the 臨N badge with the colours it had that
+day, the account and its server, how long it rang, how it ended and with which SIP answer, the
+codec, whether the media was encrypted, the network the phone was on, where the sound went, the
+stack's own quality rating and what the other end was running. A tap on a row's badge opens it all
+in one dialog, in the sister dialer's look — the badge drawn large, one line per fact, and nothing
+shown that is not known.
+
+Because the row is drawn from its stamp, giving 臨1 to another account or repainting it no longer
+rewrites the calls already made. The stamps travel with the call history in the export.
+
+---
+
+## 🔕 Silence the ring without looking
+
+Turn the phone **face down**, or press **a volume button**, and the ringtone and the vibration
+stop — the call stays up, the caller goes on hearing it ring, and it can still be answered. A phone
+that was already lying on its screen rings as usual; only turning it over silences.
+
+The volume button takes a detour worth knowing about: Android's telecom layer swallows a volume
+key during a ring, and on this phone 自由作業盤's key grabber holds the keys anyway. So this app
+tells 自由作業盤 when it rings, and 自由作業盤 asks it to go quiet through the call door.
 
 ---
 

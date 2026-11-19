@@ -2,7 +2,80 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha+2026-11-09.14-07.g92318a24+029 — current
+## 6.3.0-alpha+2026-11-09.14-07.g92318a24+035 — current
+
+Same upstream base as `+029` (`92318a24`); `versionCode` `602010035`. Builds `+030` to `+034` were
+the steps on the way and were not released.
+
+### Silencing a ringing call
+
+- **Turning the phone face down silences the ring.** Read off the accelerometer while a call rings
+  unsilenced: the screen has to be seen facing another way first and then lie face down for two
+  readings in a row, so a phone already lying on its screen rings as usual. Ringtone and vibration
+  stop; the call itself is untouched and can still be answered.
+- **A volume button silences the ring.** The call screen takes volume up, down and mute while a
+  call rings unsilenced and swallows the press; once the ringer is silent they are volume buttons
+  again.
+- **On a phone where the key cannot reach the app, it comes round through 自由作業盤.** Android's
+  telecom layer takes a volume key during a self-managed ring as “silence the ringer”, swallows it
+  and tells only the connection inside androidx core-telecom, which passes nothing on; and
+  自由作業盤's key grabber holds the volume keys below the framework. So:
+  - while a call rings unsilenced the app sends an explicit broadcast to `shiroikuma.jiyusagyoban`,
+    action `shiroikuma.rindenwa.RINGING` with the boolean extra `ringing`, and again as `false`
+    when nothing rings unsilenced any more;
+  - **the call door (`content://shiroikuma.rindenwa.calls`) gains `silence_ringer`** — no extras,
+    answering `OK`, `OK:nothing ringing` or `ERROR:not allowed`. It admits the apps let in to dial
+    and, for this one method, the data door's certificate-pinned callers, so 自由作業盤
+    (0.2.96+…+025 on) needs no switch.
+- The Silence button on the call screen follows a ring silenced any other way, and the Calls
+  diagnostic records what silenced it.
+- A stand-in tried in `+030` to `+032`, the system's volume-changed broadcast, silenced every call
+  a split second into its ring and was removed.
+
+### Call stamps and the badge dialog
+
+- **Each call keeps a stamp, frozen when it is made** (`SkCallStamps`): the 臨N badge with its
+  ground and text colour, the account's identity, its server and transport, how long it rang, how
+  it ended (you hung up, they hung up, you gave up, busy, declined, no answer, failed, not taken,
+  you declined, taken on another device) with the SIP answer of a call that never came about, the
+  audio codec and its clock rate, media encryption (none, SRTP, ZRTP, DTLS-SRTP), the network
+  (Wi-Fi, mobile data, Ethernet; its name where the system gives one; VPN), the audio route, the
+  SDK's quality rating and the other end's user agent.
+- **A row's badge is drawn from its stamp.** Renumbering an account or repainting its badge no
+  longer changes calls already made. A stamp taken while the account had no number keeps following
+  today's badge.
+- **Calls from before are stamped once**, on the first read of the history, with the badge of that
+  moment and the account their record names.
+- **A tap on a row's 臨N badge opens the call's dialog**, in the sister dialer's look: the badge
+  drawn large, the account's user part (bold monospace, shrinking rather than wrapping) and its
+  domain, a rule, then one line per known fact with an icon coloured by what the line is about —
+  Call, Placed as (Odorik callback), Rang, Talked, Ended, Server, Codec, Encryption, Network,
+  Audio, Quality, Recording, Other end — and the pills “Copy address” and “Close”. A fact that is
+  not known is left out.
+- Deleting a call from the history deletes its stamp.
+
+### Export and import
+
+- The stamps travel with the call history (`call_stamps.json`, categories `history` and
+  `history.calls`); an import merges them.
+
+### Call history and call screen
+
+- **Every number is written one way** (`SkNumbers`): `+420-601-123-456`, `+1-808-555-0123`. A bare
+  nine-digit number is read as Czech, and a `00` prefix as `+`; anything else is left as it came.
+- **A caller in no address book is named by that number** on the first line, in the history and on
+  the call screen. Odorik's display name — the number, `>`, and the tail of the line it rang — is
+  no longer shown; a real name sent by the other end is kept.
+- The call screen's number line is written the same way.
+- The time of an incoming call that was answered takes the colour of the duration beside it,
+  instead of the sister dialer's plain date colour.
+
+### Fixes
+
+- Builds again against linphone-sdk `5.6.0-alpha.234`, whose `onInvitationsSent` hands over a
+  non-null list of failed invitations.
+
+## 6.3.0-alpha+2026-11-09.14-07.g92318a24+029
 
 Same upstream base as `+025` (`92318a24`); `versionCode` `602010029`. Builds `+026` to `+028` were
 the steps on the way and were not released.
