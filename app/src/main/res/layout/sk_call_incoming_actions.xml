@@ -169,7 +169,7 @@
                 android:scaleType="fitCenter"
                 android:src="@drawable/phone_disconnect"
                 android:contentDescription="@string/content_description_hang_up_call"
-                app:tint="@color/bc_white" />
+                app:tint="@color/sk_danger" />
 
             <ImageView
                 android:id="@+id/answer_call"
@@ -184,7 +184,7 @@
                 android:scaleType="fitCenter"
                 android:src="@{viewModel.isVideoEnabled ? @drawable/video_camera : @drawable/phone, default=@drawable/phone}"
                 android:contentDescription="@{viewModel.isVideoEnabled ? @string/content_description_answer_video_call : @string/content_description_answer_audio_call}"
-                app:tint="@color/sk_black" />
+                app:tint="@color/sk_yellow" />
 
         </LinearLayout>
 

@@ -277,7 +277,7 @@
             android:scaleType="fitCenter"
             android:src="@drawable/phone"
             android:contentDescription="@string/content_description_call_start"
-            app:tint="@color/sk_black" />
+            app:tint="@color/sk_yellow" />
 
     </LinearLayout>
 

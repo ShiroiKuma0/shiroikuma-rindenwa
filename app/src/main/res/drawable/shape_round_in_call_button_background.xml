@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma fork: outlined, never filled (black-yellow-theme skill). An in-call control at rest; a control that is ON keeps its fill, which marks a selection, not an action. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
     <size android:width="55dp" android:height="55dp" />
-    <solid android:color="@color/gray_500"/>
+    <solid android:color="@android:color/transparent" />
+    <stroke android:width="1.25dp" android:color="@color/sk_yellow" />
 </shape>

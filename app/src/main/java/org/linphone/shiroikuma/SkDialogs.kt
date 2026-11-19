@@ -57,10 +57,15 @@ private class SkDialogChrome(val activity: Activity) {
         setPadding(0, dp(10), 0, 0)
     }
 
-    fun pill(label: String, onClick: () -> Unit): TextView =
+    /**
+     * The theme's pill, never filled. The [main] action of a dialog is told from the others by
+     * weight alone: a 3 dp frame and a bold label against 1.25 dp and normal.
+     */
+    fun pill(label: String, main: Boolean = false, onClick: () -> Unit): TextView =
         AppCompatTextView(activity).apply {
             text = label
             textSize = 14f
+            if (main) setTypeface(typeface, Typeface.BOLD)
             setTextColor(accent)
             gravity = Gravity.CENTER
             isClickable = true
@@ -70,7 +75,7 @@ private class SkDialogChrome(val activity: Activity) {
                 GradientDrawable().apply {
                     setColor(this@SkDialogChrome.background)
                     cornerRadius = 50 * density
-                    setStroke((1.5f * density).toInt(), accent)
+                    setStroke(((if (main) 3f else 1.25f) * density).toInt().coerceAtLeast(2), accent)
                 },
                 null,
             )
@@ -163,7 +168,7 @@ class SkConfirmDialog(
         lateinit var dialog: AlertDialog
         bar.addView(chrome.pill(activity.getString(R.string.sk_cancel)) { dialog.dismiss() })
         bar.addView(
-            chrome.pill(confirmLabel ?: activity.getString(R.string.sk_ok)) {
+            chrome.pill(confirmLabel ?: activity.getString(R.string.sk_ok), main = true) {
                 dialog.dismiss()
                 onConfirm()
             },
@@ -295,7 +300,7 @@ class SkDeclineMessageDialog(
         val bar = chrome.bar()
         bar.addView(chrome.pill(activity.getString(R.string.sk_cancel)) { dialog.dismiss() })
         bar.addView(
-            chrome.pill(activity.getString(R.string.sk_call_decline_send)) {
+            chrome.pill(activity.getString(R.string.sk_call_decline_send), main = true) {
                 val typed = field.text.toString().trim()
                 if (typed.isEmpty()) return@pill
                 dialog.dismiss()
@@ -409,7 +414,7 @@ class SkReplyFailedDialog(
         var answered = false
         val bar = chrome.bar()
         bar.addView(
-            chrome.pill(activity.getString(R.string.sk_ok)) {
+            chrome.pill(activity.getString(R.string.sk_ok), main = true) {
                 answered = true
                 dialog.dismiss()
                 onDone()
@@ -484,7 +489,7 @@ class SkDeclineMessagesEditor(
         }
         )
         bar.addView(
-            chrome.pill(activity.getString(R.string.sk_ok)) {
+            chrome.pill(activity.getString(R.string.sk_ok), main = true) {
                 dialog.dismiss()
                 onClosed()
             },
@@ -546,7 +551,7 @@ class SkDeclineMessagesEditor(
             },
         )
         bar.addView(
-            chrome.pill(activity.getString(R.string.sk_ok)) {
+            chrome.pill(activity.getString(R.string.sk_ok), main = true) {
                 val text = field.text.toString().trim()
                 if (text.isNotEmpty()) {
                     val list = load().toMutableList()

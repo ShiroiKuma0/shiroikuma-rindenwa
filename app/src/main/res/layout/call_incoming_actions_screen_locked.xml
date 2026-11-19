@@ -54,7 +54,7 @@
             android:paddingBottom="15dp"
             android:src="@{viewModel.isVideoEnabled ? @drawable/video_camera : @drawable/phone, default=@drawable/phone}"
             android:contentDescription="@{viewModel.isVideoEnabled ? @string/content_description_answer_video_call : @string/content_description_answer_audio_call}"
-            app:tint="@color/bc_white"
+            app:tint="?attr/color_success_500"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
