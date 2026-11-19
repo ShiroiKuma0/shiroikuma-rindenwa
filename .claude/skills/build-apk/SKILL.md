@@ -115,8 +115,8 @@ $ANDROID_HOME/build-tools/*/apksigner verify --print-certs ~/tmp/shiroikuma-rind
 
 - Upstream's `versionCode` / `versionName` literals in `app/build.gradle.kts` are left exactly as
   upstream writes them; the fork block just below `defaultConfig` reads them back and derives ours.
-- `BUILD_NUMBER` in `gradle.properties` is **our** increment, bumped on every `buildApk`, reset to
-  `1` on each new upstream version (see the `upstream-new-version` skill).
+- `BUILD_NUMBER` in `gradle.properties` is **our** increment, bumped on every `buildApk`, and reset to
+  `1` only when upstream's own `versionCode` moves (see the `upstream-new-version` skill).
 - Fork `versionName = "<upstream>.<upstream base date>.g<upstream base sha>+<BUILD_NUMBER, padded to 3>"`;
   `versionCode = <upstream versionCode> * 1000 + BUILD_NUMBER` (the sha never enters the code).
   The pin is `git merge-base HEAD master`, first 8 chars — see the global **`git-versioning`** skill.

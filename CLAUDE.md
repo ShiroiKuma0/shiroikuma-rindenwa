@@ -22,8 +22,8 @@ installable side-by-side with stock Linphone.
   reachable, else scp to skhw) — **no transfer prompt**, never pause to ask how to transfer.
 - **`upstream-new-version`** — check upstream for new commits; **⛔ before any rebase, present a
   proceed-gated descriptive table of the new upstream version's features and wait for 白い熊's
-  explicit go-ahead**; then fast-forward `master`, rebase `custom`, reset `BUILD_NUMBER`, build the
-  new `+1`.
+  explicit go-ahead**; then fast-forward `master`, rebase `custom`, reset `BUILD_NUMBER` only if upstream's
+  `versionCode` moved, build the next `+N`.
 - **`publish-version`** — publish the latest tested APK as a GitHub release: tag `<version>` (no `v`
   prefix), attach the APK, refresh README + `CHANGELOG-shiroikuma.md`, keep the default branch on
   `custom`. Pin `gh` with `-R ShiroiKuma0/shiroikuma-rindenwa` (the `upstream` remote otherwise wins).
@@ -41,8 +41,8 @@ installable side-by-side with stock Linphone.
 - **Versioning:** upstream's `versionCode`/`versionName` literals in `app/build.gradle.kts` are left
   **byte-identical to upstream** and read back by the fork block just below `defaultConfig`, so an
   upstream bump flows through with no hand-editing and no conflict on those lines.
-  `BUILD_NUMBER` (`gradle.properties`) is our increment — bumped every build, reset to 1 on each new
-  upstream version. Fork
+  `BUILD_NUMBER` (`gradle.properties`) is our increment — bumped every build, and reset to 1
+  **only when upstream's own `versionCode` moves** (see the note on the counter below). Fork
   `versionName = "<upstream>+<upstream base date>.<HH-MM>.g<upstream base sha>+<BUILD_NUMBER padded to 3>"`,
   `versionCode = <upstream versionCode> * 1000 + BUILD_NUMBER` (602003 → `602003001`).
   **The multiplier is 1000, not the sister forks' 10000** — Linphone's upstream code is already
@@ -63,6 +63,13 @@ installable side-by-side with stock Linphone.
   `+10` reads as earlier than `+3`). `versionCode` keeps the plain integer. **This caps
   `BUILD_NUMBER` at 999** — beyond that the ×1000 tail would collide with the next upstream
   version's range.
+- **The counter runs on across a sync that leaves upstream's `versionCode` alone.** Upstream sits
+  on one `versionCode` for months while `custom` is rebased onto commit after commit. Resetting
+  `BUILD_NUMBER` on such a sync would give the new build a **lower** `versionCode` than the one
+  installed (`602010001` under an installed `602010035`), and Android refuses to install a
+  downgrade. So: upstream `versionCode` unchanged → keep counting (`+035` → `+036`, 2026-11-19, the
+  `92318a24 → 2199af83` sync); upstream `versionCode` raised → reset to 1, since the ×1000 head has
+  moved up and every new code is above every old one. The pin in the name changes either way.
 - **APK filename:** `shiroikuma-rindenwa_<versionName>_arm64-v8a.apk`, single-ABI arm64-v8a build
   (upstream ships armeabi-v7a as well; we drop it).
 - **Signing:** credentials live **outside the repo**, in `~/.gradle/gradle.properties`:
