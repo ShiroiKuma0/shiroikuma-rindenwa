@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma fork: outlined, never filled (black-yellow-theme skill). The hang-up: its red is lent to the frame and the icon. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
     <corners android:radius="71dp" />
-    <solid android:color="?attr/color_danger_500"/>
+    <solid android:color="@android:color/transparent" />
+    <stroke android:width="3dp" android:color="?attr/color_danger_500" />
 </shape>

@@ -83,7 +83,7 @@ class SkColorPickerDialog(
             )
         }
         bar.addView(
-            pill(activity.getString(R.string.sk_ok)) {
+            pill(activity.getString(R.string.sk_ok), main = true) {
                 val picked = currentColor()
                 SkTheme.addRecentColor(activity, picked)
                 dialog.dismiss()
@@ -188,10 +188,12 @@ class SkColorPickerDialog(
         setStroke((1.5f * density).toInt(), accent)
     }
 
-    private fun pill(label: String, onClick: () -> Unit): TextView =
+    /** Never filled; the [main] one is 3 dp and bold, the others 1.25 dp. */
+    private fun pill(label: String, main: Boolean = false, onClick: () -> Unit): TextView =
         AppCompatTextView(activity).apply {
             text = label
             textSize = 14f
+            if (main) setTypeface(typeface, android.graphics.Typeface.BOLD)
             setTextColor(accent)
             gravity = Gravity.CENTER
             isClickable = true
@@ -201,7 +203,7 @@ class SkColorPickerDialog(
                 GradientDrawable().apply {
                     setColor(this@SkColorPickerDialog.background)
                     cornerRadius = 50 * density
-                    setStroke((1.5f * density).toInt(), accent)
+                    setStroke(((if (main) 3f else 1.25f) * density).toInt().coerceAtLeast(2), accent)
                 },
                 null,
             )

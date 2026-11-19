@@ -190,7 +190,7 @@ class SkEximportPanel(
             },
         )
         bar.addView(pillButton(activity.getString(R.string.sk_eim_import)) { onImportClicked() })
-        bar.addView(pillButton(activity.getString(R.string.sk_eim_export)) { onExportClicked() })
+        bar.addView(pillButton(activity.getString(R.string.sk_eim_export), main = true) { onExportClicked() })
         holder.addView(bar)
 
         return ScrollView(activity).apply { addView(holder) }
@@ -236,10 +236,13 @@ class SkEximportPanel(
      * Arcanechat pill as a plain TextView (no Button — Material tints button backgrounds away):
      * black fill, round accent border, accent text, accent ripple.
      */
-    private fun pillButton(label: String, onClick: () -> Unit): TextView =
+
+    /** Never filled; the [main] one is 3 dp and bold, the others 1.25 dp. */
+    private fun pillButton(label: String, main: Boolean = false, onClick: () -> Unit): TextView =
         AppCompatTextView(activity).apply {
             text = label
             textSize = 14f
+            if (main) setTypeface(typeface, android.graphics.Typeface.BOLD)
             setTextColor(accent)
             gravity = Gravity.CENTER
             isClickable = true
@@ -247,7 +250,7 @@ class SkEximportPanel(
             val shape = GradientDrawable().apply {
                 setColor(this@SkEximportPanel.background)
                 cornerRadius = 50 * density
-                setStroke((1.5f * density).toInt(), accent)
+                setStroke(((if (main) 3f else 1.25f) * density).toInt().coerceAtLeast(2), accent)
             }
             background = RippleDrawable(
                 ColorStateList.valueOf((accent and 0x00FFFFFF) or 0x33000000),

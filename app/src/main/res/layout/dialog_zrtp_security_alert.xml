@@ -119,7 +119,7 @@
                 android:background="@drawable/squircle_red_button_background"
                 android:text="@string/call_action_hang_up"
                 android:textSize="13sp"
-                android:textColor="@color/bc_white"
+                android:textColor="?attr/color_danger_500"
                 android:maxLines="1"
                 android:ellipsize="end"
                 app:layout_constrainedWidth="true"

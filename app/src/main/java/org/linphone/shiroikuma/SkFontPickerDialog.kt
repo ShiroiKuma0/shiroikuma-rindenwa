@@ -81,7 +81,7 @@ class SkFontPickerDialog(
                     this.background = GradientDrawable().apply {
                         setColor(background)
                         cornerRadius = 50 * density
-                        setStroke((1.5f * density).toInt(), accent)
+                        setStroke((1.25f * density).toInt().coerceAtLeast(2), accent)
                     }
                     setPadding(
                         (18 * density).toInt(), (8 * density).toInt(),

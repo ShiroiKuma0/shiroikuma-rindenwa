@@ -164,7 +164,7 @@
             android:scaleType="fitCenter"
             android:src="@drawable/phone_disconnect"
             android:contentDescription="@string/content_description_hang_up_call"
-            app:tint="@color/bc_white" />
+            app:tint="@color/sk_danger" />
 
     </LinearLayout>
 
