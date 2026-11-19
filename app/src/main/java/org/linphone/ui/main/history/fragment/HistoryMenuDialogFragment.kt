@@ -45,7 +45,11 @@ class HistoryMenuDialogFragment(
     private val showReply: Boolean = false,
     private val onCall: (() -> Unit)? = null,
     private val onMessage: (() -> Unit)? = null,
-    private val onReply: (() -> Unit)? = null
+    private val onReply: (() -> Unit)? = null,
+    // shiroikuma fork: the blocked numbers — the row reads "Unblock" for one already in them
+    private val showBlock: Boolean = false,
+    private val isBlocked: Boolean = false,
+    private val onBlock: (() -> Unit)? = null
 ) : BottomSheetDialogFragment() {
     companion object {
         const val TAG = "HistoryMenuDialogFragment"
@@ -91,6 +95,13 @@ class HistoryMenuDialogFragment(
         }
         view.setReplyClickListener {
             onReply?.invoke()
+            dismiss()
+        }
+
+        view.showBlock = showBlock
+        view.isBlocked = isBlocked
+        view.setBlockClickListener {
+            onBlock?.invoke()
             dismiss()
         }
 

@@ -318,6 +318,7 @@ class SkCallStampDialog(private val activity: Activity, private val model: CallL
             SkCallStamp.END_MISSED -> R.string.sk_stamp_end_missed
             SkCallStamp.END_DECLINED_HERE -> R.string.sk_stamp_end_declined_here
             SkCallStamp.END_ELSEWHERE -> R.string.sk_stamp_end_elsewhere
+            SkCallStamp.END_BLOCKED -> R.string.sk_stamp_end_blocked
             // A call nobody watched: the failure reason its row already shows, if it has one.
             else -> return model.skFailure.takeIf { it.isNotEmpty() }
         }.let(::getString)

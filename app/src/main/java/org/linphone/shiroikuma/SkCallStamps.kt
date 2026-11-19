@@ -120,6 +120,9 @@ data class SkCallStamp(
         const val END_DECLINED_HERE = "declined_here"
         const val END_ELSEWHERE = "elsewhere"
 
+        /** Turned away unannounced because the caller is in the blocked numbers ([SkBlocked]). */
+        const val END_BLOCKED = "blocked"
+
         const val ENC_NONE = "none"
         const val ENC_SRTP = "srtp"
         const val ENC_ZRTP = "zrtp"
@@ -316,6 +319,7 @@ object SkCallStamps {
         val startedAt = SystemClock.elapsedRealtime()
         var connected = false
         var hungUpHere = false
+        var blocked = false
         var written = false
     }
 
@@ -330,6 +334,14 @@ object SkCallStamps {
     @WorkerThread
     fun onTerminateAsked(call: Call) {
         live[call]?.hungUpHere = true
+    }
+
+    /** [call] is from a blocked caller and is about to be declined unannounced ([SkBlocked]). */
+    @WorkerThread
+    fun onBlocked(call: Call) {
+        val record = live.getOrPut(call) { Live(firstSight(coreContext.context, call)) }
+        record.hungUpHere = true
+        record.blocked = true
     }
 
     @WorkerThread
@@ -470,6 +482,7 @@ object SkCallStamps {
                 reason == Reason.NotAnswered || reason == Reason.TemporarilyUnavailable -> SkCallStamp.END_NO_ANSWER
                 else -> SkCallStamp.END_FAILED
             }
+            record.blocked -> SkCallStamp.END_BLOCKED
             record.hungUpHere -> SkCallStamp.END_DECLINED_HERE
             else -> SkCallStamp.END_MISSED
         }

@@ -294,6 +294,16 @@ class CurrentCallViewModel
     val skCallerDid = MutableLiveData<String>()
 
     /**
+     * shiroikuma fork: whether this caller can be put in the blocked numbers — false for one who
+     * withholds the number, and the Block button is then not shown. See `SkBlocked`.
+     */
+    val skCanBlock = MutableLiveData<Boolean>()
+
+    /** What the register would know this caller by, and the number or address as it arrived. */
+    private var skBlockKey: String = ""
+    private var skBlockRaw: String = ""
+
+    /**
      * shiroikuma fork: raised the moment a decline-with-message starts and dropped once the reply
      * has been handed to the sister messenger and the keep question answered. `EndedCallFragment`
      * waits for it instead of finishing on its own timer, which is what lets the call be hung up
@@ -741,6 +751,32 @@ class CurrentCallViewModel
      * ended-call screen up for the whole sequence, which is the only reason there is still a
      * screen to put the keep question on.
      */
+
+    /**
+     * shiroikuma fork: the red pill of the Block question — the caller goes into the blocked
+     * numbers and the call, if it is still ringing, is declined. The caller may have given up
+     * while the question stood; they are blocked all the same, which is what was asked for.
+     */
+    @UiThread
+    fun skBlockCaller() {
+        val key = skBlockKey
+        if (key.isEmpty()) return
+        org.linphone.shiroikuma.SkBlocked.add(
+            coreContext.context,
+            key,
+            skBlockRaw,
+            displayedName.value.orEmpty(),
+        )
+        coreContext.postOnCoreThread {
+            if (::currentCall.isInitialized && LinphoneUtils.isCallIncoming(currentCall.state)) {
+                Log.i("$TAG Declining [${currentCall.remoteAddress.asStringUriOnly()}], now blocked")
+                org.linphone.shiroikuma.SkCallStamps.onBlocked(currentCall)
+                terminatedByUser = true
+                coreContext.terminateCall(currentCall)
+            }
+        }
+    }
+
     @UiThread
     fun declineWithMessage(message: String, typed: Boolean) {
         skReplyInProgress.value = true
@@ -1255,6 +1291,9 @@ class CurrentCallViewModel
         skCallStatus.postValue(SkCallStatus.textFor(call))
         skCallerKey.postValue(SkDeclineMessages.callerKey(call.remoteAddress))
         skCallerDid.postValue(SkDeclineMessages.didOf(call.callLog.localAddress))
+        skBlockKey = org.linphone.shiroikuma.SkBlocked.keyOf(call.remoteAddress).orEmpty()
+        skBlockRaw = call.remoteAddress.username.orEmpty()
+        skCanBlock.postValue(skBlockKey.isNotEmpty() && call.dir == Call.Dir.Incoming)
         callStatsModel.update(call, call.audioStats)
         callMediaEncryptionModel.update(call)
         call.addListener(callListener)

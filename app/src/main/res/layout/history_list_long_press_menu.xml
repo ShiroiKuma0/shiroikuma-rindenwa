@@ -26,6 +26,15 @@
             name="replyClickListener"
             type="View.OnClickListener" />
         <variable
+            name="blockClickListener"
+            type="View.OnClickListener" />
+        <variable
+            name="showBlock"
+            type="Boolean" />
+        <variable
+            name="isBlocked"
+            type="Boolean" />
+        <variable
             name="showMessage"
             type="Boolean" />
         <variable
@@ -160,6 +169,21 @@
             android:layout_marginTop="4dp"
             android:layout_marginBottom="4dp"
             android:background="@color/sk_menu_divider"
+            app:layout_constraintBottom_toTopOf="@id/sk_block"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <!-- shiroikuma fork: into the blocked numbers, or out of them again (SkBlocked). -->
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/sk_block"
+            android:onClick="@{blockClickListener}"
+            android:visibility="@{showBlock ? View.VISIBLE : View.GONE}"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{isBlocked ? @string/sk_menu_unblock_number : @string/sk_menu_block_number, default=@string/sk_menu_block_number}"
+            style="@style/context_menu_action_label_style"
+            android:drawableStart="@drawable/sk_prohibit"
+            skMenuRole="@{`block`}"
             app:layout_constraintBottom_toTopOf="@id/delete"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>

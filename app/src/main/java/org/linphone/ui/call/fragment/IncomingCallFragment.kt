@@ -28,6 +28,7 @@ import androidx.lifecycle.ViewModelProvider
 import org.linphone.LinphoneApplication.Companion.coreContext
 import org.linphone.core.tools.Log
 import org.linphone.databinding.CallIncomingFragmentBinding
+import org.linphone.shiroikuma.SkBlockConfirmDialog
 import org.linphone.shiroikuma.SkDeclineMessageDialog
 import org.linphone.ui.call.viewmodel.CurrentCallViewModel
 
@@ -40,6 +41,9 @@ class IncomingCallFragment : GenericCallFragment() {
     private lateinit var binding: CallIncomingFragmentBinding
 
     private lateinit var callViewModel: CurrentCallViewModel
+
+    /** shiroikuma fork: the Block question, while it stands — taken down with the screen. */
+    private var blockDialog: SkBlockConfirmDialog? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -84,6 +88,27 @@ class IncomingCallFragment : GenericCallFragment() {
                 callViewModel.declineWithMessage(message, typed)
             }.show()
         }
+
+        // shiroikuma fork: Block in one touch. The touch itself silences the ring — whatever is
+        // answered next, the phone is quiet while it is being answered — and then asks; only the
+        // red pill blocks the caller and declines the call.
+        binding.bottomBar.blockCaller.setOnClickListener {
+            callViewModel.silenceRinging()
+            blockDialog?.dismiss()
+            blockDialog = SkBlockConfirmDialog(
+                requireActivity(),
+                callViewModel.displayedName.value.orEmpty(),
+            ) {
+                Log.i("$TAG Blocking the caller and declining the call")
+                callViewModel.skBlockCaller()
+            }
+        }
+    }
+
+    override fun onDestroyView() {
+        blockDialog?.dismiss()
+        blockDialog = null
+        super.onDestroyView()
     }
 
     override fun onResume() {
