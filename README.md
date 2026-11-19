@@ -20,7 +20,7 @@ really reach this phone, and diagnostics that record nothing until you ask them 
 
 Installs **side-by-side** with stock Linphone (app id `shiroikuma.rindenwa`).
 
-**📥 Latest release: [`6.3.0-alpha+2026-11-09.14-39.g2199af83+038`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
+**📥 Latest release: [`6.3.0-alpha+2026-11-09.14-39.g2199af83+040`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
 
 </div>
 
@@ -306,6 +306,18 @@ that was already lying on its screen rings as usual; only turning it over silenc
 The volume button takes a detour worth knowing about: Android's telecom layer swallows a volume
 key during a ring, and on this phone 自由作業盤's key grabber holds the keys anyway. So this app
 tells 自由作業盤 when it rings, and 自由作業盤 asks it to go quiet through the call door.
+
+---
+
+## 🚫 Block a caller in one touch
+
+**Block** sits on the incoming-call screen beside Silence, Speaker and Message. The touch silences
+the ring at once and then asks; the red pill puts the caller in the blocked numbers and declines
+the call. The history's long-press menu blocks and unblocks too, and “Blocked numbers” in the top
+row's menu is the register itself — unblock a caller, or add one by hand. A blocked caller is
+turned away on every account before the screen, the ringer or a notification stirs; the call stays
+in the history, marked as blocked. The register is the app's own, written as a number is written
+everywhere else, and it travels in the backup.
 
 ---
 

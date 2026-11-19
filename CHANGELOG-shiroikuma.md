@@ -2,7 +2,36 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha+2026-11-09.14-39.g2199af83+038 — current
+## 6.3.0-alpha+2026-11-09.14-39.g2199af83+040 — current
+
+Same upstream base as `+038` (`2199af83`); `versionCode` `602010040`. Build `+039` was a step on
+the way and was not released.
+
+### Blocked numbers
+
+- **Block on the incoming-call screen.** A fourth control beside Silence, Speaker and Message: a
+  red ring with a struck-through circle. The touch silences the ring at once and asks “Block this
+  caller?” with a red Block pill and a plain Cancel pill; Block puts the caller in the register and
+  declines the call. A caller who gives up while the question stands is blocked all the same. The
+  button is not shown for a caller who withholds the number.
+- **The top row of that screen holds four controls:** its columns are 84 dp instead of 112 dp, the
+  same 336 dp across.
+- **Block and unblock from the history.** The long-press menu has “Block number”, which asks with
+  the same red pill, or “Unblock number” for a caller already blocked.
+- **The register.** “Blocked numbers” in the top row's menu and in the Calls section of the 臨電話
+  UI page lists the blocked callers newest first, each with the name it had and when it was
+  blocked. A tap unblocks one; “+ Add” takes a number or `user@domain` typed by hand.
+- **A register of our own.** Android's blocked-numbers list is open to the default dialer only, so
+  the list lives in the app. A number is one entry however it is spelled (`+420…`, `00420…`, a bare
+  nine-digit Czech number); a caller who is not a number is blocked by `user@domain`. A block
+  holds for every account.
+- **A blocked caller is turned away unannounced:** no call screen, no ringer, no notification, no
+  Telecom registration — the call is declined as soon as it arrives. It stays in the history, and
+  its stamp dialog says “Blocked”.
+- **Export and import** carry the register as `blocked_numbers.json` under a new category,
+  “Blocked numbers” (id `blocked`); import merges and never clears.
+
+## 6.3.0-alpha+2026-11-09.14-39.g2199af83+038
 
 Rebased onto upstream `2199af83` (one commit past `92318a24`); `versionCode` `602010038`. Upstream's
 version did not move, so the build counter runs on from `+035` instead of restarting — a restart
