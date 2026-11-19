@@ -59,6 +59,7 @@ import org.linphone.core.tools.Log
 import org.linphone.databinding.CallActivityBinding
 import org.linphone.shiroikuma.SkKeepMessageDialog
 import org.linphone.shiroikuma.SkReplyFailedDialog
+import org.linphone.shiroikuma.SkRinger
 import org.linphone.telecom.RedirectionHandler
 import org.linphone.ui.GenericActivity
 import org.linphone.ui.call.conference.fragment.ActiveConferenceCallFragmentDirections
@@ -441,6 +442,21 @@ class CallActivity : GenericActivity() {
 
         bottomSheetDialog?.dismiss()
         bottomSheetDialog = null
+    }
+
+    /**
+     * shiroikuma fork: while a call rings, any volume button silences the ringer instead of moving
+     * a volume. Once it is silent — or once nothing rings — the buttons are volume buttons again.
+     */
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        when (keyCode) {
+            KeyEvent.KEYCODE_VOLUME_UP, KeyEvent.KEYCODE_VOLUME_DOWN, KeyEvent.KEYCODE_VOLUME_MUTE -> {
+                if (SkRinger.onVolumeKey()) {
+                    return true
+                }
+            }
+        }
+        return super.onKeyDown(keyCode, event)
     }
 
     override fun onDestroy() {

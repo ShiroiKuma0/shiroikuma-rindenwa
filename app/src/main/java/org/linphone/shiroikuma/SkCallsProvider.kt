@@ -36,6 +36,11 @@ import org.linphone.utils.LinphoneUtils
  *   line to show>" }`. Orders the provider's callback ([SkOdorikCallback]) through an account
  *   whose `callback` flag in `accounts` is true; this app then rings with the first leg. It
  *   **blocks for the length of an HTTPS request** (up to ~20 s), so never call it on a main thread.
+ * - **`silence_ringer`**, no extras → `{ "result": "OK" }` when a ringing call was silenced,
+ *   `{ "result": "OK:nothing ringing" }` when none rang unsilenced. Ringtone and vibration stop;
+ *   the call itself is untouched ([SkRinger]). Open to the apps let in to dial **and** to the
+ *   callers of the data door (自由作業盤): see [SkRinger] for why the volume button has to come
+ *   round this way.
  *
  * ## Why a provider, and why its own
  *
@@ -59,6 +64,19 @@ class SkCallsProvider : ContentProvider() {
     override fun call(method: String, arg: String?, extras: Bundle?): Bundle {
         val ctx = context ?: return fail("ERROR:not ready")
         val caller = callingPackage
+        if (method == METHOD_SILENCE_RINGER) {
+            // Taking a ring away is not placing a call: besides the apps let in to dial, any app
+            // the data door identifies by its signing certificate may ask — 自由作業盤, whose key
+            // grabber is the one holding the volume button.
+            val allowed = SkCallDoor.isAllowed(ctx, caller, Binder.getCallingUid()) ||
+                org.linphone.shiroikuma.automation.AutomationCallers.verify(ctx, caller) is
+                org.linphone.shiroikuma.automation.AutomationCallers.Verdict.Allowed
+            if (!allowed) {
+                Log.i(TAG, "$method refused for $caller")
+                return fail("ERROR:not allowed")
+            }
+            return fail(if (SkRinger.silenceFromOutside(caller.orEmpty())) "OK" else "OK:nothing ringing")
+        }
         if (!SkCallDoor.isAllowed(ctx, caller, Binder.getCallingUid())) {
             Log.i(TAG, "$method refused for $caller")
             return fail("ERROR:not allowed")
@@ -191,6 +209,7 @@ class SkCallsProvider : ContentProvider() {
         const val METHOD_ACCOUNTS = "accounts"
         const val METHOD_DIAL = "dial"
         const val METHOD_CALLBACK = "callback"
+        const val METHOD_SILENCE_RINGER = "silence_ringer"
         const val KEY_MESSAGE = "message"
         const val KEY_RESULT = "result"
         const val KEY_ACCOUNTS = "accounts"

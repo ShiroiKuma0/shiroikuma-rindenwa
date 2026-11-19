@@ -155,7 +155,7 @@ class ScheduleMeetingViewModel
         @WorkerThread
         override fun onInvitationsSent(
             conferenceScheduler: ConferenceScheduler,
-            failedInvitations: Array<out Address>?
+            failedInvitations: Array<out Address>
         ) {
             when (val failedCount = failedInvitations?.size) {
                 0 -> {

@@ -51,16 +51,6 @@ class CallLogModel
          * enough that two different numbers of one contact never collide.
          */
         private const val SIGNIFICANT_DIGITS = 9
-
-        /**
-         * shiroikuma fork: country code → how its national number is grouped, most specific
-         * first. A candidate only applies when the digits after the code match the grouping's
-         * total length exactly, which is what keeps "1" from swallowing unrelated numbers.
-         */
-        private val NUMBER_GROUPINGS = listOf(
-            "420" to listOf(3, 3, 3), // Czechia:       +420-601-524-009
-            "1" to listOf(3, 3, 4) // North America: +1-808-500-5515
-        )
     }
 
     // shiroikuma fork: a callback's record names the line that rang, not the person called, once
@@ -121,6 +111,14 @@ class CallLogModel
      */
     val numberWithLabel: String
 
+    /**
+     * shiroikuma fork: the first line for a caller who is in no address book, or empty when the
+     * contact's own name stands there. Such a caller's "name" is the provider's — Odorik writes
+     * the number followed by `>` and the tail of the line it rang — so the number is written
+     * there instead, in the house reading.
+     */
+    val skNameOverride: String
+
     val friendRefKey: String?
 
     var friendExists: Boolean = false
@@ -149,7 +147,32 @@ class CallLogModel
      * went on saying a bare 臨 after the numbers had been given (白い熊, 2026-11-17).
      */
     val skBadge: String
-        get() = SkAccountNumbers.badgeOf(coreContext.context, skIdentity)
+        get() = skStamp?.takeIf { it.hasBadge }?.let { "${SkAccountNumbers.MARK}${it.number}" }
+            ?: SkAccountNumbers.badgeOf(coreContext.context, skIdentity)
+
+    /**
+     * shiroikuma fork: what this call was made through, frozen when it was made (SkCallStamps).
+     * Where the stamp carries a badge the row is drawn from it and from nothing else, so giving
+     * 臨1 to another account or repainting it leaves the calls already made as they were. Read on
+     * every bind, like the badge: the stamp of a call that has only just ended is still being
+     * completed while its row is already listed.
+     */
+    val skStampKey: String = org.linphone.shiroikuma.SkCallStamps.keyOf(callLog)
+
+    val skStamp: org.linphone.shiroikuma.SkCallStamp?
+        get() = org.linphone.shiroikuma.SkCallStamps.get(coreContext.context, skStampKey)
+
+    /** shiroikuma fork: ground and text colour of this call's badge — the stamp's, else today's. */
+    fun skBadgeColors(context: android.content.Context): Pair<Int, Int> =
+        skStamp?.takeIf { it.hasBadge }?.let { Pair(it.ground, it.text) }
+            ?: SkAccountNumbers.colors(context, skBadgeNumber)
+
+    /** shiroikuma fork: for the badge's dialog. */
+    val skConnected: Boolean
+        get() = connected
+
+    val skDurationSeconds: Int
+        get() = callDuration
 
     val skBadgeNumber: Int?
         get() = SkAccountNumbers.numberOf(coreContext.context, skIdentity)
@@ -241,6 +264,11 @@ class CallLogModel
         }
 
         numberWithLabel = computeNumberWithLabel()
+        skNameOverride = if (wasConference || friendExists) {
+            ""
+        } else {
+            org.linphone.shiroikuma.SkNumbers.unknownCallerName(avatarModel.friend.name, address.username)
+        }
 
         // shiroikuma fork
         val local = callLog.localAddress
@@ -273,6 +301,9 @@ class CallLogModel
         }
 
         skRecorded = connected && SkRecordings.has(sipUri, timestamp, callDuration)
+
+        // A call nobody watched gets its stamp here, from the badge of this moment.
+        org.linphone.shiroikuma.SkCallStamps.ensure(coreContext.context, callLog)
 
         iconResId = LinphoneUtils.getCallIconResId(callLog.status, callLog.dir)
     }
@@ -313,34 +344,8 @@ class CallLogModel
         return if (label.isEmpty()) number else "$number · $label"
     }
 
-    /**
-     * shiroikuma fork: group a number into the house reading — Czech as `+420-601-524-009`,
-     * North American as `+1-808-500-5515`. Anything whose country code we do not group (an
-     * internal extension, a SIP username, a country not in [NUMBER_GROUPINGS]) is left exactly
-     * as it arrived rather than guessed at.
-     */
-    private fun formatNumber(raw: String): String {
-        val digits = raw.filter(Char::isDigit)
-        if (digits.isEmpty()) return raw
-
-        for ((countryCode, groups) in NUMBER_GROUPINGS) {
-            if (!digits.startsWith(countryCode)) continue
-
-            val national = digits.removePrefix(countryCode)
-            if (national.length != groups.sum()) continue
-
-            val parts = ArrayList<String>(groups.size + 1)
-            parts.add("+$countryCode")
-            var offset = 0
-            for (group in groups) {
-                parts.add(national.substring(offset, offset + group))
-                offset += group
-            }
-            return parts.joinToString("-")
-        }
-
-        return raw
-    }
+    /** shiroikuma fork: the house reading of a number — see SkNumbers. */
+    private fun formatNumber(raw: String): String = org.linphone.shiroikuma.SkNumbers.format(raw)
 
     /**
      * shiroikuma fork: address-book numbers and the number a call arrives on rarely match
@@ -361,6 +366,7 @@ class CallLogModel
     fun delete() {
         coreContext.postOnCoreThread { core ->
             core.removeCallLog(callLog)
+            org.linphone.shiroikuma.SkCallStamps.remove(coreContext.context, skStampKey)
         }
     }
 }

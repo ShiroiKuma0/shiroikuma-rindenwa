@@ -1337,6 +1337,49 @@
     <string name="sk_state_progress_unit" translatable="false">項目</string>
     <string name="sk_assistant_skip" translatable="false">Skip — restore from a backup instead</string>
     <string name="sk_call_silence_ringer" translatable="false">Silence</string>
+    <string name="sk_stamp_account_unknown" translatable="false">Account unknown</string>
+    <string name="sk_stamp_call" translatable="false">Call</string>
+    <string name="sk_stamp_outgoing" translatable="false">Outgoing</string>
+    <string name="sk_stamp_incoming" translatable="false">Incoming</string>
+    <string name="sk_stamp_missed" translatable="false">Missed</string>
+    <string name="sk_stamp_placed_as" translatable="false">Placed as</string>
+    <string name="sk_stamp_callback" translatable="false">Odorik callback</string>
+    <string name="sk_stamp_rang" translatable="false">Rang</string>
+    <string name="sk_stamp_rang_answered" translatable="false">%1$s before the answer</string>
+    <string name="sk_stamp_rang_unanswered" translatable="false">%1$s, no answer</string>
+    <string name="sk_stamp_talked" translatable="false">Talked</string>
+    <string name="sk_stamp_ended" translatable="false">Ended</string>
+    <string name="sk_stamp_end_local" translatable="false">You hung up</string>
+    <string name="sk_stamp_end_remote" translatable="false">They hung up</string>
+    <string name="sk_stamp_end_cancelled" translatable="false">You gave up</string>
+    <string name="sk_stamp_end_declined" translatable="false">They declined</string>
+    <string name="sk_stamp_end_missed" translatable="false">Not taken</string>
+    <string name="sk_stamp_end_declined_here" translatable="false">You declined</string>
+    <string name="sk_stamp_end_elsewhere" translatable="false">Taken on another device</string>
+    <string name="sk_stamp_server" translatable="false">Server</string>
+    <string name="sk_stamp_codec" translatable="false">Codec</string>
+    <string name="sk_stamp_codec_rate" translatable="false">%1$s kHz</string>
+    <string name="sk_stamp_encryption" translatable="false">Encryption</string>
+    <string name="sk_stamp_encryption_none" translatable="false">None</string>
+    <string name="sk_stamp_network" translatable="false">Network</string>
+    <string name="sk_stamp_network_wifi" translatable="false">Wi-Fi</string>
+    <string name="sk_stamp_network_mobile" translatable="false">Mobile data</string>
+    <string name="sk_stamp_network_ethernet" translatable="false">Ethernet</string>
+    <string name="sk_stamp_network_other" translatable="false">Other</string>
+    <string name="sk_stamp_audio" translatable="false">Audio</string>
+    <string name="sk_stamp_route_earpiece" translatable="false">Earpiece</string>
+    <string name="sk_stamp_route_speaker" translatable="false">Speaker</string>
+    <string name="sk_stamp_route_bluetooth" translatable="false">Bluetooth</string>
+    <string name="sk_stamp_route_headset" translatable="false">Headset</string>
+    <string name="sk_stamp_route_hearing_aid" translatable="false">Hearing aid</string>
+    <string name="sk_stamp_route_other" translatable="false">Other device</string>
+    <string name="sk_stamp_quality" translatable="false">Quality</string>
+    <string name="sk_stamp_quality_value" translatable="false">%1$s of 5</string>
+    <string name="sk_stamp_recording" translatable="false">Recording</string>
+    <string name="sk_stamp_recorded" translatable="false">On this phone</string>
+    <string name="sk_stamp_agent" translatable="false">Other end</string>
+    <string name="sk_stamp_copy" translatable="false">Copy address</string>
+    <string name="sk_stamp_close" translatable="false">Close</string>
     <string name="sk_call_silence_ringer_done" translatable="false">Silenced</string>
     <string name="sk_content_description_silence_ringer" translatable="false">Silence the ringer without answering or declining</string>
     <string name="sk_call_overlay_title" translatable="false">Display over other apps</string>

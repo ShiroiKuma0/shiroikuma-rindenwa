@@ -78,7 +78,7 @@ open class CancelMeetingViewModel
 
         override fun onInvitationsSent(
             conferenceScheduler: ConferenceScheduler,
-            failedInvitations: Array<out Address>?
+            failedInvitations: Array<out Address>
         ) {
             if (failedInvitations?.isNotEmpty() == true) {
                 // TODO FIXME: show error to user
