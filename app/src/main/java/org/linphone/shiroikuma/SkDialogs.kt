@@ -59,23 +59,24 @@ private class SkDialogChrome(val activity: Activity) {
 
     /**
      * The theme's pill, never filled. The [main] action of a dialog is told from the others by
-     * weight alone: a 3 dp frame and a bold label against 1.25 dp and normal.
+     * weight alone: a 3 dp frame and a bold label against 1.25 dp and normal. [ink] is the accent
+     * unless the pill is one that takes something away, which lends it red.
      */
-    fun pill(label: String, main: Boolean = false, onClick: () -> Unit): TextView =
+    fun pill(label: String, main: Boolean = false, ink: Int = accent, onClick: () -> Unit): TextView =
         AppCompatTextView(activity).apply {
             text = label
             textSize = 14f
             if (main) setTypeface(typeface, Typeface.BOLD)
-            setTextColor(accent)
+            setTextColor(ink)
             gravity = Gravity.CENTER
             isClickable = true
             isFocusable = true
             background = RippleDrawable(
-                ColorStateList.valueOf((accent and 0x00FFFFFF) or 0x33000000),
+                ColorStateList.valueOf((ink and 0x00FFFFFF) or 0x33000000),
                 GradientDrawable().apply {
                     setColor(this@SkDialogChrome.background)
                     cornerRadius = 50 * density
-                    setStroke(((if (main) 3f else 1.25f) * density).toInt().coerceAtLeast(2), accent)
+                    setStroke(((if (main) 3f else 1.25f) * density).toInt().coerceAtLeast(2), ink)
                 },
                 null,
             )
@@ -674,5 +675,180 @@ class SkRinNumberDialog(
         bar.addView(chrome.pill(activity.getString(R.string.sk_cancel)) { dialog.dismiss() })
         box.addView(bar)
         dialog = chrome.show(box)
+    }
+}
+
+/**
+ * shiroikuma fork — “Block this caller?”, on the incoming-call screen and in the history alike.
+ *
+ * Two pills: Cancel in the theme's own look, and Block in red — outlined like every pill, the red
+ * lent to its frame and its label. Nothing is blocked until the red one is touched.
+ *
+ * It can be taken down from outside ([dismiss]): the call screen it stands on goes away when the
+ * caller gives up, and a dialog left behind on a finished activity leaks its window.
+ */
+class SkBlockConfirmDialog(
+    activity: Activity,
+    who: String,
+    onBlock: () -> Unit,
+) {
+    private val dialog: AlertDialog
+
+    init {
+        val chrome = SkDialogChrome(activity)
+        val box = chrome.box()
+        box.addView(chrome.title(activity.getString(R.string.sk_block_confirm_title)))
+        box.addView(chrome.body(activity.getString(R.string.sk_block_confirm_message, who)))
+        val bar = chrome.bar()
+        lateinit var shown: AlertDialog
+        bar.addView(chrome.pill(activity.getString(R.string.sk_cancel)) { shown.dismiss() })
+        bar.addView(
+            chrome.pill(
+                activity.getString(R.string.sk_block),
+                main = true,
+                ink = SkTheme.color(activity, SkSlot.MENU_DELETE),
+            ) {
+                shown.dismiss()
+                onBlock()
+            },
+        )
+        box.addView(bar)
+        shown = chrome.show(box)
+        dialog = shown
+    }
+
+    fun dismiss() {
+        if (dialog.isShowing) dialog.dismiss()
+    }
+}
+
+/**
+ * shiroikuma fork — the blocked numbers, as a list that can be tended: the register behind
+ * [SkBlocked], opened from the 臨電話 UI page.
+ *
+ * Newest first. A tap on a line offers to unblock it; “+ Add” takes a number or a SIP address
+ * typed by hand, for a caller who has not rung yet.
+ */
+class SkBlockedNumbersDialog(
+    private val activity: Activity,
+    private val onClosed: () -> Unit = { },
+) {
+    fun show() {
+        val chrome = SkDialogChrome(activity)
+        val box = chrome.box()
+        box.addView(chrome.title(activity.getString(R.string.sk_blocked_numbers_title)))
+
+        lateinit var dialog: AlertDialog
+        val entries = SkBlocked.entries(activity)
+        if (entries.isEmpty()) {
+            box.addView(chrome.body(activity.getString(R.string.sk_blocked_numbers_empty)))
+        }
+        for (entry in entries) {
+            val label = if (entry.name.isNotEmpty() && entry.name != entry.shown) {
+                "${entry.shown}\n${entry.name}"
+            } else {
+                entry.shown
+            }
+            box.addView(
+                chrome.line(
+                    label,
+                    onClick = {
+                        dialog.dismiss()
+                        openActions(entry)
+                    },
+                ),
+            )
+        }
+
+        val bar = chrome.bar()
+        bar.addView(
+            chrome.pill(activity.getString(R.string.sk_call_decline_add)) {
+                dialog.dismiss()
+                add()
+            },
+        )
+        bar.addView(
+            chrome.pill(activity.getString(R.string.sk_ok), main = true) {
+                dialog.dismiss()
+                onClosed()
+            },
+        )
+        box.addView(bar)
+        dialog = chrome.show(box)
+        dialog.setOnCancelListener { onClosed() }
+    }
+
+    private fun openActions(entry: SkBlocked.Entry) {
+        val chrome = SkDialogChrome(activity)
+        val box = chrome.box()
+        box.addView(chrome.title(entry.shown))
+        val facts = listOfNotNull(
+            entry.name.takeIf { it.isNotEmpty() && it != entry.shown },
+            entry.at.takeIf { it > 0 }?.let {
+                activity.getString(
+                    R.string.sk_blocked_numbers_since,
+                    java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.ROOT).format(java.util.Date(it)),
+                )
+            },
+        )
+        if (facts.isNotEmpty()) box.addView(chrome.body(facts.joinToString("\n")))
+
+        lateinit var dialog: AlertDialog
+        val bar = chrome.bar()
+        bar.addView(
+            chrome.pill(activity.getString(R.string.sk_cancel)) {
+                dialog.dismiss()
+                show()
+            },
+        )
+        bar.addView(
+            chrome.pill(activity.getString(R.string.sk_unblock), main = true) {
+                SkBlocked.remove(activity, entry.key)
+                dialog.dismiss()
+                show()
+            },
+        )
+        box.addView(bar)
+        dialog = chrome.show(box)
+        dialog.setOnCancelListener { show() }
+    }
+
+    private fun add() {
+        val chrome = SkDialogChrome(activity)
+        val box = chrome.box()
+        box.addView(chrome.title(activity.getString(R.string.sk_blocked_numbers_add_title)))
+        val field = chrome.field(activity.getString(R.string.sk_blocked_numbers_add_hint))
+        field.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI
+        box.addView(field)
+
+        lateinit var dialog: AlertDialog
+        val bar = chrome.bar()
+        bar.addView(
+            chrome.pill(activity.getString(R.string.sk_cancel)) {
+                dialog.dismiss()
+                show()
+            },
+        )
+        bar.addView(
+            chrome.pill(
+                activity.getString(R.string.sk_block),
+                main = true,
+                ink = SkTheme.color(activity, SkSlot.MENU_DELETE),
+            ) {
+                val typed = field.text.toString().trim()
+                val key = SkBlocked.keyOf(typed)
+                if (key == null) {
+                    // Neither a number nor user@domain: say so on the spot and keep the field.
+                    field.error = activity.getString(R.string.sk_blocked_numbers_add_invalid)
+                } else {
+                    SkBlocked.add(activity, key, typed)
+                    dialog.dismiss()
+                    show()
+                }
+            },
+        )
+        box.addView(bar)
+        dialog = chrome.show(box)
+        dialog.setOnCancelListener { show() }
     }
 }

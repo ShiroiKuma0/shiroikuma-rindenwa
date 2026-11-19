@@ -15,7 +15,11 @@
       refuses the call but says something back. They are black circles with a yellow ring.
     · the bottom row is the decision — red Decline, yellow Answer, filled, nothing else near them.
 
-  Each top column is a fixed 112 dp (336 dp across), against the bottom pair's 72 + 56 + 72 = 200
+  A fourth control joined the top row on 2026-11-19: Block, which silences the ring at the touch
+  and then asks — nothing is blocked and nothing declined until its red pill is confirmed. It wears
+  the red ring of "no" and is not shown for a caller who withholds the number.
+
+  Each top column is a fixed 84 dp (336 dp across), against the bottom pair's 72 + 56 + 72 = 200
   dp; both rows are centred, so the thumb never has to hunt for the row it wants.
 -->
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -43,7 +47,7 @@
             android:baselineAligned="false">
 
             <LinearLayout
-                android:layout_width="@dimen/sk_call_action_column_width"
+                android:layout_width="@dimen/sk_call_incoming_column_width"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center_horizontal">
@@ -80,7 +84,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="@dimen/sk_call_action_column_width"
+                android:layout_width="@dimen/sk_call_incoming_column_width"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center_horizontal">
@@ -115,7 +119,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="@dimen/sk_call_action_column_width"
+                android:layout_width="@dimen/sk_call_incoming_column_width"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center_horizontal">
@@ -143,6 +147,41 @@
                     android:maxLines="1"
                     android:ellipsize="end"
                     android:text="@string/sk_call_decline_with_message"
+                    android:textColor="@color/sk_yellow"
+                    android:textSize="@dimen/sk_call_action_label_size" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="@dimen/sk_call_incoming_column_width"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:visibility="@{viewModel.skCanBlock ? View.VISIBLE : View.GONE}">
+
+                <ImageView
+                    android:id="@+id/block_caller"
+                    android:layout_width="@dimen/sk_call_round_button_size"
+                    android:layout_height="@dimen/sk_call_round_button_size"
+                    android:background="@drawable/sk_round_danger_button"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="@dimen/sk_call_round_button_padding"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/sk_prohibit"
+                    android:contentDescription="@string/sk_content_description_block_caller"
+                    app:tint="@color/sk_danger" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/default_text_style_700"
+                    android:id="@+id/block_caller_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:text="@string/sk_block"
                     android:textColor="@color/sk_yellow"
                     android:textSize="@dimen/sk_call_action_label_size" />
 

@@ -310,6 +310,7 @@ class SkUiActivity : AppCompatActivity() {
         // so it belongs at the top of the section rather than buried under the colours.
         addCallScreenOverlayRow(1)
         addDeclineMessagesRow(1)
+        addBlockedNumbersRow(1)
         addColorRow(SkSlot.CALL_BACKGROUND, 1)
         addTextSlot(SkSlot.CALL_NAME, 1)
         addTextSlot(SkSlot.CALL_STATUS, 1)
@@ -901,6 +902,25 @@ class SkUiActivity : AppCompatActivity() {
                 SkDeclineMessages.general(this).size,
                 SkDeclineMessages.callersWithOwnMessages(this).size,
             ),
+            warn = false,
+        )
+    }
+
+    /**
+     * The blocked numbers — the register a caller is put in from the incoming-call screen or the
+     * history, and the one place they are taken out of it again in bulk. See [SkBlocked].
+     */
+    private fun addBlockedNumbersRow(level: Int) {
+        val row = addActionRow(
+            R.string.sk_blocked_numbers_title,
+            R.string.sk_blocked_numbers_desc,
+            main = false,
+            opens = true,
+            level = level,
+        ) { SkBlockedNumbersDialog(this) { buildRows() }.show() }
+        setActionStatus(
+            row,
+            getString(R.string.sk_blocked_numbers_status, SkBlocked.count(this)),
             warn = false,
         )
     }

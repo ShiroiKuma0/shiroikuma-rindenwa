@@ -52,7 +52,10 @@ import org.linphone.shiroikuma.SkRenrakusaki
 import org.linphone.shiroikuma.SkSisterApps
 import org.linphone.shiroikuma.SkMenus
 import org.linphone.shiroikuma.SkOdorikCallback
+import org.linphone.shiroikuma.SkBlockConfirmDialog
+import org.linphone.shiroikuma.SkBlocked
 import org.linphone.shiroikuma.SkDeclineMessageDialog
+import org.linphone.shiroikuma.SkNumbers
 import org.linphone.shiroikuma.SkDeclineMessages
 import org.linphone.shiroikuma.SkDialpadViewModel
 import org.linphone.shiroikuma.SkKeepMessageDialog
@@ -252,6 +255,9 @@ class HistoryListFragment : AbstractMainFragment() {
 
         adapter.callLogLongClickedEvent.observe(viewLifecycleOwner) {
             it.consume { model ->
+                // shiroikuma fork: what the blocked numbers would know this caller by, if anything
+                val blockKey = SkBlocked.keyOf(model.address)
+                val blocked = SkBlocked.isBlocked(requireContext(), blockKey)
                 val modalBottomSheet = HistoryMenuDialogFragment(
                     model.friendExists,
                     { // onDismiss
@@ -276,7 +282,10 @@ class HistoryListFragment : AbstractMainFragment() {
                     showReply = model.skIsMissed && !model.wasConference,
                     onCall = { adapter.callLogCallBackClickedEvent.value = Event(model) },
                     onMessage = { adapter.callLogMessageClickedEvent.value = Event(model) },
-                    onReply = { adapter.callLogReplyClickedEvent.value = Event(model) }
+                    onReply = { adapter.callLogReplyClickedEvent.value = Event(model) },
+                    showBlock = blockKey != null && !model.wasConference,
+                    isBlocked = blocked,
+                    onBlock = { blockKey?.let { skBlockOrUnblock(model, it, blocked) } }
                 )
                 modalBottomSheet.show(parentFragmentManager, HistoryMenuDialogFragment.TAG)
                 bottomSheetDialog = modalBottomSheet
@@ -647,6 +656,25 @@ class HistoryListFragment : AbstractMainFragment() {
         }
 
         dialog.show()
+    }
+
+    /**
+     * shiroikuma fork: the history menu's Block / Unblock row. Blocking asks first, with the same
+     * red pill as the call screen; unblocking is the harmless direction and just happens.
+     */
+    private fun skBlockOrUnblock(model: CallLogModel, key: String, blocked: Boolean) {
+        val activity = requireActivity() as GenericActivity
+        val number = model.address.username.orEmpty()
+        val who = model.avatarModel.contactName.orEmpty().ifEmpty { SkNumbers.format(number) }
+        if (blocked) {
+            SkBlocked.remove(activity, key)
+            activity.showGreenToast(getString(R.string.sk_unblock_done, who), R.drawable.sk_prohibit)
+            return
+        }
+        SkBlockConfirmDialog(activity, who) {
+            SkBlocked.add(activity, key, number, model.avatarModel.contactName.orEmpty())
+            activity.showGreenToast(getString(R.string.sk_block_done, who), R.drawable.sk_prohibit)
+        }
     }
 
     private fun showDeleteConfirmationDialog(callLogModel: CallLogModel) {

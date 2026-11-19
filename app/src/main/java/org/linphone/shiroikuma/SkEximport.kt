@@ -68,6 +68,7 @@ object SkEximport {
     private const val CALLBACK_ACCOUNTS_ENTRY = "odorik_callback.json"
     private const val CALLBACK_CALLS_ENTRY = "odorik_callback_calls.json"
     private const val CALL_STAMPS_ENTRY = "call_stamps.json"
+    private const val BLOCKED_ENTRY = "blocked_numbers.json"
     private const val DB_DIR_ENTRY = "db/"
     private const val FONTS_DIR_ENTRY = "fonts/"
 
@@ -122,6 +123,7 @@ object SkEximport {
         HISTORY("history", R.string.sk_eim_cat_history),
         HISTORY_CALLS("history.calls", R.string.sk_eim_cat_history_calls, parent = "history"),
         HISTORY_CHAT("history.chat", R.string.sk_eim_cat_history_chat, parent = "history"),
+        BLOCKED("blocked", R.string.sk_eim_cat_blocked),
         SIP_SETTINGS("sip_settings", R.string.sk_eim_cat_sip_settings),
         APPEARANCE("appearance", R.string.sk_eim_cat_appearance),
         APPEARANCE_FONTS("appearance.fonts", R.string.sk_eim_cat_appearance_fonts, parent = "appearance"),
@@ -367,7 +369,9 @@ object SkEximport {
             if (Cat.APPEARANCE in cats) countPrefs(defaultPrefs(context)) { it.startsWith("sk_") } else 0
         val settingsKeys =
             if (Cat.APP_SETTINGS in cats) countPrefs(defaultPrefs(context)) { !it.startsWith("sk_") } else 0
-        val total = accountCount + dbs.size + settingCount + appearanceKeys + fontFiles.size + settingsKeys
+        val blockedCount = if (Cat.BLOCKED in cats) SkBlocked.count(context) else 0
+        val total = accountCount + dbs.size + settingCount + appearanceKeys + fontFiles.size +
+            settingsKeys + blockedCount
         var done = 0
 
         val parts = mutableListOf<String>()
@@ -426,6 +430,19 @@ object SkEximport {
                 }
                 listener.onProgress(done, total, label)
                 parts += "$label: " + context.getString(R.string.sk_eim_files_count, dbs.size)
+            }
+
+            if (Cat.BLOCKED in cats) {
+                // Written even when nobody is blocked: an empty register is a state worth
+                // recording, and the entry is what an import recognises the category by.
+                checkCancelled()
+                val label = context.getString(Cat.BLOCKED.labelRes)
+                listener.onProgress(done, total, label)
+                val json = exportPrefs(SkBlocked.backupPrefs(context), SkBlocked::isEntryKey)
+                writeEntry(zip, BLOCKED_ENTRY, json.first.toByteArray())
+                done += blockedCount
+                listener.onProgress(done, total, label)
+                parts += "$label: " + context.getString(R.string.sk_eim_blocked_count, json.second)
             }
 
             if (Cat.SIP_SETTINGS in cats) {
@@ -526,6 +543,7 @@ object SkEximport {
         val present = mutableSetOf<Cat>()
         if (files.containsKey(ACCOUNTS_ENTRY)) present += Cat.ACCOUNTS
         if (files.keys.any { it.startsWith(DB_DIR_ENTRY) }) present += Cat.HISTORY
+        if (files.containsKey(BLOCKED_ENTRY)) present += Cat.BLOCKED
         if (files.containsKey(SIP_SETTINGS_ENTRY)) present += Cat.SIP_SETTINGS
         if (files.containsKey("appearance.json")) present += Cat.APPEARANCE
         if (files.keys.any { it.startsWith(FONTS_DIR_ENTRY) }) present += Cat.APPEARANCE_FONTS
@@ -576,7 +594,8 @@ object SkEximport {
             0
         }
         val total = (if (Cat.ACCOUNTS in cats) 1 else 0) + dbEntries.size +
-            (if (Cat.SIP_SETTINGS in cats) 1 else 0) + appearanceKeys + fontEntries.size + settingsKeys
+            (if (Cat.SIP_SETTINGS in cats) 1 else 0) + appearanceKeys + fontEntries.size + settingsKeys +
+            (if (Cat.BLOCKED in cats && files.containsKey(BLOCKED_ENTRY)) 1 else 0)
         var done = 0
 
         val parts = mutableListOf<String>()
@@ -633,6 +652,25 @@ object SkEximport {
             }
             listener.onProgress(done, total, label)
             parts += "$label: " + context.getString(R.string.sk_eim_files_count, dbEntries.size)
+        }
+
+        if (Cat.BLOCKED in cats) {
+            // Merged into the register, like every other preference import: a number blocked
+            // here since the export was taken stays blocked.
+            files[BLOCKED_ENTRY]?.let { bytes ->
+                checkCancelled()
+                val label = context.getString(Cat.BLOCKED.labelRes)
+                listener.onProgress(done, total, label)
+                val applied = importPrefs(
+                    SkBlocked.backupPrefs(context),
+                    bytes.decodeToString(),
+                    SkBlocked::isEntryKey
+                )
+                SkBlocked.reload()
+                done++
+                listener.onProgress(done, total, label)
+                parts += "$label: " + context.getString(R.string.sk_eim_blocked_count, applied)
+            }
         }
 
         if (Cat.SIP_SETTINGS in cats) {

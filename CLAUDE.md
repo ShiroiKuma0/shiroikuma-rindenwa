@@ -185,6 +185,31 @@ So the two apps talk directly:
 **Never bring back the `VOLUME_CHANGED_ACTION` broadcast as a stand-in for the key** (+030 to +032):
 a volume moves when the ringer starts, and every call went silent a split second into its ring.
 
+## Blocked numbers — our own register, and a door before the ringer
+
+`shiroikuma/SkBlocked.kt`, asked for by 白い熊 on 2026-11-19 after 電話's block. 電話 uses Android's
+`BlockedNumberContract`, which only the default dialer may touch; 臨電話 is not that, so the register
+is ours.
+
+- **Store:** the preferences file `sk_blocked_numbers`, one JSON string per caller (`raw`, `name`,
+  `at`). The key is `tel:<international digits>` for a number — every spelling of one number is one
+  entry, via `SkNumbers.international` — or `sip:<user>@<domain>` for a caller who is not a number.
+  A withheld number has no key and cannot be blocked. **Renaming or re-meaning a key breaks old
+  exports**: the file travels as `blocked_numbers.json`, export category `blocked` (merged on
+  import, never cleared).
+- **Three ways in, one way out in bulk:** the Block button on the incoming-call panel (the touch
+  silences the ring, then asks; red pill Block, plain pill Cancel — a caller who gives up while the
+  question stands is blocked all the same), “Block number” / “Unblock number” in the history's
+  long-press menu, and the “Blocked numbers” row in the Calls section of the 臨電話 UI page
+  (`SkBlockedNumbersDialog`: unblock, or add by hand).
+- **The door:** `SkBlocked.rejectIfBlocked` runs first in `CoreContext`'s call-state listener. A
+  blocked call is marked (`isRejecting`), and the mark is what keeps it unannounced — `SkRinger` is
+  skipped, and `NotificationsManager` and `TelecomManager` each carry a one-line guard. The decline
+  is **posted**, not made inside the callback: declining there would hand the listeners behind ours
+  an `End` before the `IncomingReceived` it belongs to. It is judged **before** `SkOdorikCallback`
+  repoints a callback's first leg, so a callback *to* a blocked number still rings.
+- The call stays in the history; its stamp ends `blocked` (“Blocked” in the stamp dialog).
+
 ## Numbers are written one way
 
 `shiroikuma/SkNumbers.kt` is the one place a phone number is formatted: `+420-601-123-456`,

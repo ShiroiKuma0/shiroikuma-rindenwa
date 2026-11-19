@@ -65,6 +65,8 @@ class TelecomManager
             message: String
         ) {
             if (state == Call.State.IncomingReceived || state == Call.State.OutgoingProgress) {
+                // shiroikuma fork: a blocked caller is being declined, and Telecom never hears of it.
+                if (org.linphone.shiroikuma.SkBlocked.isRejecting(call)) return
                 onCallCreated(call)
             }
         }

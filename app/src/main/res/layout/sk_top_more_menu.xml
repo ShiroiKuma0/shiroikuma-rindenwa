@@ -13,6 +13,9 @@
             name="recordingsClickListener"
             type="View.OnClickListener" />
         <variable
+            name="blockedClickListener"
+            type="View.OnClickListener" />
+        <variable
             name="helpClickListener"
             type="View.OnClickListener" />
     </data>
@@ -43,6 +46,17 @@
             android:text="@string/recordings_title"
             android:drawableStart="@drawable/record_fill"
             skMenuRole="@{`view`}"
+            skMenuOpens="@{true}" />
+
+        <!-- The blocked numbers: the register itself, as on the 臨電話 UI page (SkBlocked). -->
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/popup_menu_item"
+            android:onClick="@{blockedClickListener}"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sk_blocked_numbers_title"
+            android:drawableStart="@drawable/sk_prohibit"
+            skMenuRole="@{`block`}"
             skMenuOpens="@{true}" />
 
         <androidx.appcompat.widget.AppCompatTextView

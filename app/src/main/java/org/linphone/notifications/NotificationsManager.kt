@@ -253,6 +253,8 @@ class NotificationsManager
             Log.i("$TAG Call state changed: [$currentState]")
             when (currentState) {
                 Call.State.IncomingReceived, Call.State.IncomingEarlyMedia -> {
+                    // shiroikuma fork: a blocked caller is being declined, and is not announced.
+                    if (org.linphone.shiroikuma.SkBlocked.isRejecting(call)) return
                     Log.i(
                         "$TAG Showing incoming call notification for [${call.remoteAddress.asStringUriOnly()}]"
                     )

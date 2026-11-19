@@ -339,14 +339,22 @@ class CoreContext
                 "$TAG Call [${call.remoteAddress.asStringUriOnly()}] state changed [$currentState]"
             )
 
-            // shiroikuma fork: the first leg of a callback ordered here is pointed at the person
-            // it is to, before the ringer, the notification or the call screen has read it.
-            org.linphone.shiroikuma.SkOdorikCallback.onCallStateChanged(context, call, currentState)
+            // shiroikuma fork: a blocked caller is turned away before anything announces the call
+            // — no screen, no ringer, no notification. Read before the callback below repoints
+            // the call, so it is the caller as they arrived that is judged. See SkBlocked.
+            val skBlocked = org.linphone.shiroikuma.SkBlocked.rejectIfBlocked(core, call, currentState)
 
-            // shiroikuma fork: an incoming call raises the full call screen even with the screen
-            // already on (upstream's full-screen intent only does it on a locked/dark screen), and
-            // a ringer 白い熊 silenced stays silent across a re-ring. See SkRinger.
-            SkRinger.onCallStateChanged(core, call, currentState)
+            if (!skBlocked) {
+                // shiroikuma fork: the first leg of a callback ordered here is pointed at the
+                // person it is to, before the ringer, the notification or the call screen has
+                // read it.
+                org.linphone.shiroikuma.SkOdorikCallback.onCallStateChanged(context, call, currentState)
+
+                // shiroikuma fork: an incoming call raises the full call screen even with the
+                // screen already on (upstream's full-screen intent only does it on a locked/dark
+                // screen), and a ringer 白い熊 silenced stays silent across a re-ring. See SkRinger.
+                SkRinger.onCallStateChanged(core, call, currentState)
+            }
 
             // shiroikuma fork: what the call was made through, kept for its row in the history —
             // the badge as it looks now, the codec, the network, how it ended. See SkCallStamps.
@@ -367,7 +375,7 @@ class CoreContext
 
             when (currentState) {
                 Call.State.IncomingReceived -> {
-                    if (corePreferences.autoAnswerEnabled) {
+                    if (corePreferences.autoAnswerEnabled && !skBlocked) {
                         val autoAnswerDelay = corePreferences.autoAnswerDelay
                         if (autoAnswerDelay == 0) {
                             Log.w("$TAG Auto answering call immediately")

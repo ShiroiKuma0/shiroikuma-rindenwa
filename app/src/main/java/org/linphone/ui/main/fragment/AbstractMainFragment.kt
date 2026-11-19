@@ -273,6 +273,10 @@ abstract class AbstractMainFragment : GenericMainFragment() {
                 startActivity(Intent(requireContext(), SkUiActivity::class.java))
             }
             menu.setRecordingsClickListener { navigate(R.id.action_global_recordingsListFragment) }
+            menu.setBlockedClickListener {
+                popup.dismiss()
+                org.linphone.shiroikuma.SkBlockedNumbersDialog(requireActivity()).show()
+            }
             menu.setHelpClickListener { navigate(R.id.action_global_helpFragment) }
             SkMenus.showBelow(popup, anchor)
         }

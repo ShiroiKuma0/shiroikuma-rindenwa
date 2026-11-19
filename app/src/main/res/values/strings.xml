@@ -1356,6 +1356,30 @@
     <string name="sk_stamp_end_missed" translatable="false">Not taken</string>
     <string name="sk_stamp_end_declined_here" translatable="false">You declined</string>
     <string name="sk_stamp_end_elsewhere" translatable="false">Taken on another device</string>
+    <string name="sk_stamp_end_blocked" translatable="false">Blocked</string>
+
+    <!-- shiroikuma fork: blocked numbers — the button on the incoming-call panel, the row in the
+         history menu, the register on the 臨電話 UI page (SkBlocked). -->
+    <string name="sk_block" translatable="false">Block</string>
+    <string name="sk_unblock" translatable="false">Unblock</string>
+    <string name="sk_content_description_block_caller" translatable="false">Block this caller and decline the call</string>
+    <string name="sk_block_confirm_title" translatable="false">Block this caller?</string>
+    <string name="sk_block_confirm_message" translatable="false">%1$s will no longer ring here. Their calls are declined at once and kept in the history, marked as blocked.</string>
+    <string name="sk_menu_block_number" translatable="false">Block number</string>
+    <string name="sk_menu_unblock_number" translatable="false">Unblock number</string>
+    <string name="sk_block_done" translatable="false">%1$s is blocked</string>
+    <string name="sk_unblock_done" translatable="false">%1$s is no longer blocked</string>
+    <string name="sk_block_not_possible" translatable="false">A caller who withholds the number cannot be blocked</string>
+    <string name="sk_blocked_numbers_title" translatable="false">Blocked numbers</string>
+    <string name="sk_blocked_numbers_desc" translatable="false">Callers who do not ring here: their calls are declined at once. Tap one to unblock it, or add a number by hand.</string>
+    <string name="sk_blocked_numbers_status" translatable="false">%1$d blocked</string>
+    <string name="sk_blocked_numbers_empty" translatable="false">Nobody is blocked.</string>
+    <string name="sk_blocked_numbers_since" translatable="false">Blocked %1$s</string>
+    <string name="sk_blocked_numbers_add_title" translatable="false">Block a number</string>
+    <string name="sk_blocked_numbers_add_hint" translatable="false">+420-601-123-456 or user@domain</string>
+    <string name="sk_blocked_numbers_add_invalid" translatable="false">Not a number or a SIP address</string>
+    <string name="sk_eim_cat_blocked" translatable="false">Blocked numbers</string>
+    <string name="sk_eim_blocked_count" translatable="false">%1$d numbers</string>
     <string name="sk_stamp_server" translatable="false">Server</string>
     <string name="sk_stamp_codec" translatable="false">Codec</string>
     <string name="sk_stamp_codec_rate" translatable="false">%1$s kHz</string>

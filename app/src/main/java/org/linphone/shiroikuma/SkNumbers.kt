@@ -62,6 +62,26 @@ object SkNumbers {
     }
 
     /**
+     * [raw]'s digits with their country code and no `+` — what two spellings of one number have in
+     * common — or null when it is not a phone number at all (a SIP user name, a short code of one
+     * or two digits). A bare national number is read as Czech, as in [format].
+     */
+    fun international(raw: String): String? {
+        val trimmed = raw.trim()
+        if (!NUMBER.matches(trimmed)) return null
+        val digits = trimmed.filter(Char::isDigit)
+        return when {
+            digits.length < 3 -> null
+            trimmed.startsWith("+") -> digits
+            trimmed.startsWith("00") -> digits.removePrefix("00")
+            digits.length == NATIONAL_DIGITS -> HOME_PREFIX + digits
+            else -> digits
+        }
+    }
+
+    private val NUMBER = Regex("^\\+?[0-9 ()-]+$")
+
+    /**
      * What to call a caller who is in no address book. A display name that is only the number over
      * again — bare, or with Odorik's `>456` tail — is replaced by the number in the house reading;
      * a real name the other end sent is kept.

@@ -29,6 +29,9 @@
     <dimen name="sk_call_round_button_size">72dp</dimen>
     <dimen name="sk_call_round_button_padding">20dp</dimen>
     <dimen name="sk_call_action_column_width">112dp</dimen>
+    <!-- The incoming panel's top row holds four controls, not three: 4 × 84 dp is the 336 dp the
+         outgoing panel's three columns take. -->
+    <dimen name="sk_call_incoming_column_width">84dp</dimen>
     <dimen name="sk_call_answer_decline_gap">56dp</dimen>
     <dimen name="sk_call_actions_row_gap">24dp</dimen>
     <dimen name="sk_call_actions_vertical_padding">20dp</dimen>
