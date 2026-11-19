@@ -2,7 +2,48 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha+2026-11-09.14-07.g92318a24+035 — current
+## 6.3.0-alpha+2026-11-09.14-39.g2199af83+038 — current
+
+Rebased onto upstream `2199af83` (one commit past `92318a24`); `versionCode` `602010038`. Upstream's
+version did not move, so the build counter runs on from `+035` instead of restarting — a restart
+would have produced a lower `versionCode` than the one installed. Builds `+036` and `+037` were
+steps on the way and were not released.
+
+### From upstream
+
+- A guard against a crash when the app's cache directory is missing while a generated initials
+  avatar is stored: the directory is recreated, a failed write is caught, and the stock person
+  icon stands in (`2199af83`).
+
+### Look — nothing is filled
+
+- **Answer and Call are rings.** Answer on the incoming screen and Call on the dial panel were
+  solid yellow discs with a black icon; each is now a 3 dp yellow ring with a yellow icon, told
+  from the neutral keys beside it by weight alone.
+- **Decline and Hang up are red rings** with a red icon, on the incoming and the outgoing screen,
+  where they were solid red discs.
+- **Upstream's own call keys follow:** its green call / answer key and its red hang-up key (active
+  call, outgoing call, the stock incoming actions, the dial sheet, the ZRTP alert) are 3 dp rings
+  in their colour, with the icon or label in that colour instead of white.
+- **In-call controls at rest are thin yellow rings**, not grey discs; a disabled one is the same
+  ring at 38 %. A control that is on keeps its fill, which marks a selection.
+- The white discs behind the voice-recording and ZRTP buttons are thin rings.
+
+### Menus
+
+- **The chat bubble menu is a pill menu.** Resend, Info, Edit, Reply, Copy, Forward and Delete are
+  full-width outlined pills in the menu frame, the icon inside at the left and coloured by what
+  the row does (message blue, share orange, view yellow), Delete in red. The hairlines between
+  rows are gone.
+
+### Dialogs
+
+- **The main action of a dialog is heavier than the rest:** a 3 dp frame and a bold label for OK,
+  Send, the confirm pill, and Export in the export panel; 1.25 dp and normal weight for Cancel and
+  every other pill. All were 1.5 dp before. Applies to the fork's own dialogs, the colour picker,
+  the font picker and the export panel.
+
+## 6.3.0-alpha+2026-11-09.14-07.g92318a24+035
 
 Same upstream base as `+029` (`92318a24`); `versionCode` `602010035`. Builds `+030` to `+034` were
 the steps on the way and were not released.
