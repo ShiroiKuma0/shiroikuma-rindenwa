@@ -20,7 +20,7 @@ really reach this phone, and diagnostics that record nothing until you ask them 
 
 Installs **side-by-side** with stock Linphone (app id `shiroikuma.rindenwa`).
 
-**📥 Latest release: [`6.3.0-alpha+2026-11-09.14-39.g2199af83+040`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
+**📥 Latest release: [`6.3.0-alpha+2026-11-09.14-39.g2199af83+043`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
 
 </div>
 
@@ -316,7 +316,8 @@ the ring at once and then asks; the red pill puts the caller in the blocked numb
 the call. The history's long-press menu blocks and unblocks too, and “Blocked numbers” in the top
 row's menu is the register itself — unblock a caller, or add one by hand. A blocked caller is
 turned away on every account before the screen, the ringer or a notification stirs; the call stays
-in the history, marked as blocked. The register is the app's own, written as a number is written
+in the history, marked as blocked, and every row of a blocked caller carries a red “Blocked”
+pill after the number. The register is the app's own, written as a number is written
 everywhere else, and it travels in the backup.
 
 ---
