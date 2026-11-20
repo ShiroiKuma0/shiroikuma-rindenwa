@@ -20,7 +20,7 @@ really reach this phone, and diagnostics that record nothing until you ask them 
 
 Installs **side-by-side** with stock Linphone (app id `shiroikuma.rindenwa`).
 
-**📥 Latest release: [`6.3.0-alpha+2026-11-09.14-39.g2199af83+043`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
+**📥 Latest release: [`6.3.0-alpha+2026-11-09.14-39.g2199af83+048`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
 
 </div>
 
@@ -319,6 +319,19 @@ turned away on every account before the screen, the ringer or a notification sti
 in the history, marked as blocked, and every row of a blocked caller carries a red “Blocked”
 pill after the number. The register is the app's own, written as a number is written
 everywhere else, and it travels in the backup.
+
+---
+
+## 🪪 Unknown callers get a name
+
+A Czech number that is in no address book is looked up online while it rings — on tellows.cz, where
+people report who called them. The name found there takes the number's place on the incoming-call
+screen and on that number's rows in the history, followed by a small yellow **ID** mark, so it is
+never mistaken for one of your contacts. The call rings at once and the name arrives a moment
+later; every ring asks afresh. “ID online” in the history's long-press menu asks about any unknown
+number on the spot, and “add to contacts” hands 連絡先 the number in international form with the
+found name as the surname. A switch on the UI page turns the lookups off, since they send the
+number to that site.
 
 ---
 

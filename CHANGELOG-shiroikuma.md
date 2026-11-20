@@ -2,7 +2,52 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha+2026-11-09.14-39.g2199af83+043 — current
+## 6.3.0-alpha+2026-11-09.14-39.g2199af83+048 — current
+
+Same upstream base as `+043` (`2199af83`); `versionCode` `602010048`. Builds `+044` to `+047` were
+steps on the way and were not released.
+
+### Unknown callers get a name
+
+- **A number in no address book is looked up while it rings.** For a Czech number the public page
+  of tellows.cz often says who is calling. The name found there takes the number's place on the
+  incoming-call screen, and on the first line of every row of that number in the history.
+- **The “ID” mark.** A name found online is followed by “ID” in black on a filled yellow rounded
+  square, on the call screen and in the history, so it is never taken for a contact of yours.
+- **The call is never held up.** It rings at once under its number; the name arrives a moment
+  later, and a lookup slower than four seconds is given up.
+- **Every ring asks again.** A name found on an earlier call shows at once and is replaced when the
+  fresh answer differs; a fresh “nothing known” takes it away, a request that failed changes
+  nothing.
+- **Only when it makes sense:** never for a caller who is in 連絡先, never for the first leg of a
+  callback ordered here, and for now only for Czech numbers (`+420`).
+- **“ID online” in the history's long-press menu** asks about a number on the spot, for a number
+  in no address book. The rows take the name when one is found; finding nothing is said in a flash.
+- **A switch, because the number leaves the phone:** “Identify unknown callers online” in the Calls
+  section of the 臨電話 UI page, on by default. Off stops the lookups and hides the names already
+  found.
+- **The names travel with the call history** in the export and import, as `online_ids.json`.
+
+### Saving a caller to the address book
+
+- **Fix: the number is handed to 連絡先 in international form.** “Add to contacts” on a call from
+  a Czech caller opened the editor with nine bare digits (`601123456`); it now carries
+  `+420601123456`.
+- **A name found online goes along as the surname** — as a structured name row, the way Android
+  hands a name over in parts. 連絡先 needs its own update to read it.
+
+### Flashes
+
+- **Every flash is black and yellow, in the middle of the display.** The short messages the app
+  shows — “copied”, “blocked”, an error, the notes on the UI page and in the export panel — were
+  upstream's green, blue and red toasts sliding in at the top, or Android's grey toast at the
+  bottom. They are now one box in the theme's ground and text with the accent frame, centred.
+- **Only the icon keeps its colour:** green for done, blue for a note, red for something that went
+  wrong.
+- A flash takes no touches, so the list under it stays usable, and a second flash replaces the
+  first. The persistent red banner at the top is unchanged.
+
+## 6.3.0-alpha+2026-11-09.14-39.g2199af83+043
 
 Same upstream base as `+040` (`2199af83`); `versionCode` `602010043`. Builds `+041` and `+042` were
 steps on the way and were not released.
