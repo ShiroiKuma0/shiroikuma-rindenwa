@@ -253,6 +253,22 @@ class HistoryListFragment : AbstractMainFragment() {
         val headerItemDecoration = RecyclerViewHeaderDecoration(requireContext(), adapter)
         binding.historyList.addItemDecoration(headerItemDecoration)
 
+        // shiroikuma fork: sweeping a call's row aside, either way, dials it — what its handset
+        // does (白い熊, 2026-11-20). Not a meeting's row, which has no handset either.
+        fun sweptModel(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder) =
+            (holder as? HistoryListAdapter.CallLogViewHolder)?.binding?.model?.takeIf { !it.wasConference }
+        androidx.recyclerview.widget.ItemTouchHelper(
+            org.linphone.shiroikuma.SkSwipeToCall(
+                canCall = { sweptModel(it) != null },
+                onCall = { holder ->
+                    val model = sweptModel(holder)
+                    val index = holder.bindingAdapterPosition
+                    if (index >= 0) adapter.notifyItemChanged(index)
+                    if (model != null) adapter.callLogCallBackClickedEvent.value = Event(model)
+                }
+            )
+        ).attachToRecyclerView(binding.historyList)
+
         adapter.callLogLongClickedEvent.observe(viewLifecycleOwner) {
             it.consume { model ->
                 // shiroikuma fork: what the blocked numbers would know this caller by, if anything

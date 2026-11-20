@@ -12,6 +12,9 @@ import android.content.res.ColorStateList
 import android.net.Uri
 import android.util.TypedValue
 import android.widget.ImageView
+import androidx.core.view.doOnNextLayout
+import android.text.TextUtils
+import androidx.constraintlayout.widget.ConstraintLayout
 import android.widget.TextView
 import androidx.lifecycle.MutableLiveData
 import java.util.concurrent.Executors
@@ -225,6 +228,63 @@ object SkDenwaStyle {
         }
         if (root.isLaidOut && !root.isLayoutRequested) fit.run() else root.post(fit)
     }
+
+    /**
+     * The handset, the bubble and the ⋮ at the end of line 2 get their width written out: each
+     * as wide as that line is tall, the ⋮ half of it.
+     *
+     * The layout asks for the same through a ratio, but a ratio is the weakest wish in the row:
+     * on the narrow screen a long "<number> · <label>" took the width, the handset shrank to a
+     * speck and the bubble to nothing (白い熊, 2026-11-20). A written width stands, and the
+     * number is what gives way.
+     */
+    fun fitActions(row: HistoryListCellBinding) {
+        val root = row.root
+        // A recycled row starts over: [keepWholeNumber] may have taken these from it.
+        row.numberLabel.ellipsize = TextUtils.TruncateAt.END
+        row.numberLabel.textScaleX = 1f
+        val fit = Runnable {
+            val line = row.numberLabel.height
+            if (line <= 0) return@Runnable
+            var changed = false
+            listOf(row.call to line, row.message to line, row.rowMenu to line / 2).forEach { (icon, width) ->
+                val params = icon.layoutParams as? ConstraintLayout.LayoutParams ?: return@forEach
+                if (params.width != width || params.dimensionRatio != null) {
+                    params.width = width
+                    params.dimensionRatio = null
+                    icon.layoutParams = params
+                    changed = true
+                }
+            }
+            // The number is judged against the room the icons leave it, so after they are laid.
+            if (changed) root.doOnNextLayout { root.post { keepWholeNumber(row) } } else keepWholeNumber(row)
+        }
+        if (root.isLaidOut && !root.isLayoutRequested) fit.run() else root.post(fit)
+    }
+
+    /**
+     * Line 2 never cuts into the number (白い熊, 2026-11-20): on the narrow screen every row read
+     * "+420-601-123-45…", one digit short, for the sake of an ellipsis wider than the digit.
+     *
+     * When "<number> · <label>" does not fit, the label goes and the number stands alone, with no
+     * ellipsis. A number still too long for the room is drawn a little narrower — down to
+     * [NUMBER_SQUEEZE], below which digits stop being readable and the end is cut off instead.
+     */
+    private fun keepWholeNumber(row: HistoryListCellBinding) {
+        val label = row.numberLabel
+        val layout = label.layout ?: return
+        if (layout.lineCount == 0 || layout.getEllipsisCount(0) == 0) return
+        val text = label.text ?: return
+        val at = text.indexOf(" · ")
+        val number = if (at >= 0) text.subSequence(0, at) else text
+        val room = (label.width - label.paddingLeft - label.paddingRight).toFloat()
+        val needed = label.paint.measureText(number, 0, number.length) / label.textScaleX
+        label.ellipsize = null
+        label.textScaleX = if (needed > room && needed > 0f) (room / needed).coerceAtLeast(NUMBER_SQUEEZE) else 1f
+        label.text = number
+    }
+
+    private const val NUMBER_SQUEEZE = 0.85f
 
     /** Lay 電話's colours over a row [SkStyler] has just styled. A no-op when 電話 is silent. */
     fun applyToRow(row: HistoryListCellBinding, direction: SkCallLog.Direction?, unanswered: Boolean) {

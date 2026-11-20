@@ -307,6 +307,21 @@ object SkCallStamps {
     private fun identityOf(local: Address?): String =
         accountOf(local)?.params?.identityAddress?.asStringUriOnly() ?: local?.asStringUriOnly().orEmpty()
 
+    /** The identity of the account a live [call] goes through — what its stamp will carry. */
+    @WorkerThread
+    fun identityOf(call: Call): String = identityOf(call.callLog.localAddress)
+
+    /**
+     * What the account a live [call] goes through is called: the name it was given in its
+     * settings, and only for an account without one its user part.
+     */
+    @WorkerThread
+    fun accountNameOf(call: Call): String {
+        val local = call.callLog.localAddress
+        val identity = accountOf(local)?.params?.identityAddress ?: local
+        return identity?.displayName?.takeIf { it.isNotBlank() } ?: identity?.username.orEmpty()
+    }
+
     private fun withBadge(context: Context, stamp: SkCallStamp, identity: String): SkCallStamp {
         val number = SkAccountNumbers.numberOf(context, identity)
         val (ground, text) = SkAccountNumbers.colors(context, number)
