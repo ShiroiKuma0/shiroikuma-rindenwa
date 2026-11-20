@@ -207,6 +207,17 @@ class CallLogModel
     val skUnanswered: Boolean
         get() = direction == SkCallLog.Direction.OUTGOING && !connected
 
+    /**
+     * shiroikuma fork: the other party is in the blocked numbers (SkBlocked) — said on every row
+     * of that caller, the ones from before the block included, since it is the caller that is
+     * blocked and not a call. Read on every bind: a caller is blocked and unblocked while the
+     * list is on screen.
+     */
+    private val skBlockKey: String? = org.linphone.shiroikuma.SkBlocked.keyOf(callLog.remoteAddress)
+
+    val skBlocked: Boolean
+        get() = org.linphone.shiroikuma.SkBlocked.isBlocked(coreContext.context, skBlockKey)
+
     /** shiroikuma fork: this call was an Odorik callback ordered here (SkOdorikCallback). */
     val skIsCallback: Boolean
 

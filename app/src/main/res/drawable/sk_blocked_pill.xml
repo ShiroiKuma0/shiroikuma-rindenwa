@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma fork: the ground of the history row's "Blocked" mark — a filled red pill. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/sk_blocked_pill" />
+    <corners android:radius="100dp" />
+</shape>
