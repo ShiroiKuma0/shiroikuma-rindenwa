@@ -354,6 +354,10 @@ class CoreContext
                 // screen already on (upstream's full-screen intent only does it on a locked/dark
                 // screen), and a ringer 白い熊 silenced stays silent across a re-ring. See SkRinger.
                 SkRinger.onCallStateChanged(core, call, currentState)
+
+                // shiroikuma fork: a Czech number nobody here knows is looked up online while
+                // it rings; the name arrives on the call screen when it is found. See SkOnlineId.
+                org.linphone.shiroikuma.SkOnlineId.onCallStateChanged(call, currentState)
             }
 
             // shiroikuma fork: what the call was made through, kept for its row in the history —

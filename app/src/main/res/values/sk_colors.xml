@@ -42,6 +42,8 @@
     <!-- The "Blocked" mark on a history row: pure red, white text (白い熊, 2026-11-20). -->
     <color name="sk_blocked_pill">#FFFF0000</color>
     <color name="sk_blocked_pill_text">#FFFFFFFF</color>
+    <color name="sk_online_id_pill">#FFFFFF00</color>
+    <color name="sk_online_id_pill_text">#FF000000</color>
     <color name="sk_success">#FF00C853</color>
     <color name="sk_success_dim">#FF14532D</color>
     <color name="sk_info">#FF40C4FF</color>

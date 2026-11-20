@@ -1379,6 +1379,12 @@
     <string name="sk_blocked_numbers_add_hint" translatable="false">+420-601-123-456 or user@domain</string>
     <string name="sk_blocked_numbers_add_invalid" translatable="false">Not a number or a SIP address</string>
     <string name="sk_eim_cat_blocked" translatable="false">Blocked numbers</string>
+    <string name="sk_online_id_mark" translatable="false">ID</string>
+    <string name="sk_menu_online_id" translatable="false">ID online</string>
+    <string name="sk_online_id_nothing" translatable="false">Nothing was found for %1$s</string>
+    <string name="sk_online_id_failed" translatable="false">The lookup for %1$s did not get through</string>
+    <string name="sk_online_id_title" translatable="false">Identify unknown callers online</string>
+    <string name="sk_online_id_desc" translatable="false">When a Czech number that is not in your contacts rings, look it up on tellows.cz and show the name found there, marked ID. The number is sent to that site. Off also hides the names already found.</string>
     <string name="sk_eim_blocked_count" translatable="false">%1$d numbers</string>
     <string name="sk_stamp_server" translatable="false">Server</string>
     <string name="sk_stamp_codec" translatable="false">Codec</string>

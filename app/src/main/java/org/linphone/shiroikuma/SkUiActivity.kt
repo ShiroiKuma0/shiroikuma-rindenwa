@@ -23,7 +23,6 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import java.time.LocalDate
@@ -115,7 +114,7 @@ class SkUiActivity : AppCompatActivity() {
             if (SkAllAccounts.importPicture(this, uri)) {
                 refreshPage()
             } else {
-                Toast.makeText(this, R.string.sk_all_tab_picture_invalid, Toast.LENGTH_LONG).show()
+                SkFlash.show(this, R.string.sk_all_tab_picture_invalid)
             }
         }
 
@@ -126,7 +125,7 @@ class SkUiActivity : AppCompatActivity() {
             if (uri == null || slot == null) return@registerForActivityResult
             val imported = SkFonts.importFont(this, uri)
             if (imported == null) {
-                Toast.makeText(this, R.string.sk_font_invalid, Toast.LENGTH_LONG).show()
+                SkFlash.show(this, R.string.sk_font_invalid)
             } else {
                 SkTheme.setFontFamily(this, slot, imported)
                 refreshPage()
@@ -311,6 +310,16 @@ class SkUiActivity : AppCompatActivity() {
         addCallScreenOverlayRow(1)
         addDeclineMessagesRow(1)
         addBlockedNumbersRow(1)
+        // Who an unknown Czech number is, asked of tellows.cz while it rings. The number leaves
+        // the phone for that, which is why it has a switch. See SkOnlineId.
+        addSwitchRow(
+            R.string.sk_online_id_title,
+            R.string.sk_online_id_desc,
+            SkOnlineId.enabled(this),
+            1,
+        ) {
+            SkOnlineId.setEnabled(this, it)
+        }
         addColorRow(SkSlot.CALL_BACKGROUND, 1)
         addTextSlot(SkSlot.CALL_NAME, 1)
         addTextSlot(SkSlot.CALL_STATUS, 1)
@@ -564,7 +573,7 @@ class SkUiActivity : AppCompatActivity() {
             }
             runOnUiThread {
                 if (!isFinishing) {
-                    Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+                    SkFlash.show(this, message)
                 }
             }
         }, "sk-diag-export").start()
@@ -573,7 +582,7 @@ class SkUiActivity : AppCompatActivity() {
     private fun shareDiagnostics() {
         val intent = SkDiag.shareIntent(this)
         if (intent == null) {
-            Toast.makeText(this, R.string.sk_diag_stored_empty, Toast.LENGTH_SHORT).show()
+            SkFlash.show(this, R.string.sk_diag_stored_empty)
             return
         }
         startActivity(Intent.createChooser(intent, getString(R.string.sk_diag_share)))
@@ -583,7 +592,7 @@ class SkUiActivity : AppCompatActivity() {
     private fun purgeDiagnostics() {
         val inventory = SkDiag.inventory(this)
         if (inventory.empty) {
-            Toast.makeText(this, R.string.sk_diag_stored_empty, Toast.LENGTH_SHORT).show()
+            SkFlash.show(this, R.string.sk_diag_stored_empty)
             return
         }
         SkConfirmDialog(
@@ -593,11 +602,7 @@ class SkUiActivity : AppCompatActivity() {
             getString(R.string.sk_diag_purge_confirm),
         ) {
             val deleted = SkDiag.purge(this)
-            Toast.makeText(
-                this,
-                getString(R.string.sk_diag_purged, deleted.files),
-                Toast.LENGTH_LONG,
-            ).show()
+            SkFlash.show(this, getString(R.string.sk_diag_purged, deleted.files))
             buildRows()
         }
     }
@@ -795,7 +800,7 @@ class SkUiActivity : AppCompatActivity() {
             getSystemService(ClipboardManager::class.java).setPrimaryClip(
                 ClipData.newPlainText(getString(R.string.sk_auto_token_title), SkAutomation.token(this)),
             )
-            Toast.makeText(this, R.string.sk_auto_token_copied, Toast.LENGTH_SHORT).show()
+            SkFlash.show(this, R.string.sk_auto_token_copied)
         }
         row.skTokenRegenerate.setOnClickListener {
             SkConfirmDialog(
@@ -804,7 +809,7 @@ class SkUiActivity : AppCompatActivity() {
                 getString(R.string.sk_auto_token_regen_warning),
             ) {
                 row.skTokenValue.text = SkAutomation.abbreviate(SkAutomation.regenerateToken(this))
-                Toast.makeText(this, R.string.sk_auto_token_regenerated, Toast.LENGTH_LONG).show()
+                SkFlash.show(this, R.string.sk_auto_token_regenerated)
             }
         }
         indentRow(row.root, level)
@@ -845,7 +850,7 @@ class SkUiActivity : AppCompatActivity() {
             try {
                 startActivity(Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION))
             } catch (e2: Exception) {
-                Toast.makeText(this, e2.message ?: e2.toString(), Toast.LENGTH_LONG).show()
+                SkFlash.show(this, e2.message ?: e2.toString())
             }
         }
     }
@@ -1382,7 +1387,7 @@ class SkUiActivity : AppCompatActivity() {
                 }.toMap()
                 SkRinNumberDialog(this, name, number, takenBy) { picked ->
                     if (!SkAccountNumbers.set(this, identity, picked)) {
-                        Toast.makeText(this, R.string.sk_rin_number_taken, Toast.LENGTH_LONG).show()
+                        SkFlash.show(this, R.string.sk_rin_number_taken)
                     }
                     refill()
                 }

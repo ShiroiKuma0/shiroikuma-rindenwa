@@ -39,15 +39,40 @@
             app:layout_constraintTop_toBottomOf="@id/call_direction_label"
             app:layout_constraintBottom_toTopOf="@id/bottom_bar">
 
-            <androidx.appcompat.widget.AppCompatTextView
-                style="@style/default_text_style_300"
-                android:id="@+id/name"
+            <!-- shiroikuma fork: the name, and after it the mark of a name found online while
+                 the call rang (SkOnlineId). -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
-                android:text="@{viewModel.displayedName, default=`John Doe`}"
-                android:textColor="@color/sk_yellow"
-                android:textSize="22sp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/default_text_style_300"
+                    android:id="@+id/name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{viewModel.displayedName, default=`John Doe`}"
+                    android:textColor="@color/sk_yellow"
+                    android:textSize="22sp" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/default_text_style_700"
+                    android:id="@+id/sk_online_id"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:paddingStart="7dp"
+                    android:paddingEnd="7dp"
+                    android:includeFontPadding="false"
+                    android:text="@string/sk_online_id_mark"
+                    android:textColor="@color/sk_online_id_pill_text"
+                    android:textSize="16sp"
+                    android:background="@drawable/sk_online_id_pill"
+                    android:visibility="@{viewModel.skOnlineId ? View.VISIBLE : View.GONE, default=gone}" />
+
+            </LinearLayout>
 
             <androidx.appcompat.widget.AppCompatTextView
                 style="@style/default_text_style"

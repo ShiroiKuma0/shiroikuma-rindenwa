@@ -218,6 +218,21 @@ class CallLogModel
     val skBlocked: Boolean
         get() = org.linphone.shiroikuma.SkBlocked.isBlocked(coreContext.context, skBlockKey)
 
+    /**
+     * shiroikuma fork: who this number is, as found online when it rang here (SkOnlineId) — only
+     * for a caller in no address book, and empty when nothing was found. It takes the first line
+     * of the row, with the ID mark after it. Read on every bind, like [skBlocked]: the name can
+     * arrive while the row is on screen.
+     */
+    private val skOnlineKey: String? = org.linphone.shiroikuma.SkOnlineId.keyOf(callLog.remoteAddress.username)
+
+    val skOnlineName: String
+        get() = if (wasConference || friendExists) {
+            ""
+        } else {
+            org.linphone.shiroikuma.SkOnlineId.nameOf(coreContext.context, skOnlineKey)
+        }
+
     /** shiroikuma fork: this call was an Odorik callback ordered here (SkOdorikCallback). */
     val skIsCallback: Boolean
 

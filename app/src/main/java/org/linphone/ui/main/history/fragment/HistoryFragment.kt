@@ -249,7 +249,7 @@ class HistoryFragment : SlidingPaneChildFragment() {
             if (contactId != null) {
                 SkSisterApps.viewContact(requireContext(), contactId)
             } else if (!model?.skPhoneNumber.isNullOrEmpty()) {
-                SkSisterApps.newContact(requireContext(), model!!.skPhoneNumber)
+                SkSisterApps.newContact(requireContext(), model!!.skPhoneNumber, model.skOnlineName)
             }
             popupWindow.dismiss()
         }

@@ -299,6 +299,25 @@ class CurrentCallViewModel
      */
     val skCanBlock = MutableLiveData<Boolean>()
 
+    /**
+     * shiroikuma fork: the name on show was found online while the call rang and is in no address
+     * book — the incoming screen then puts the ID mark after it. See `SkOnlineId`.
+     */
+    val skOnlineId = MutableLiveData<Boolean>()
+
+    /** What the online names know this caller by; empty for a caller who is a contact. */
+    private var skOnlineKey: String = ""
+
+    /** What the caller is called without a name found online — put back when a name is withdrawn. */
+    private var skNameWithoutOnlineId: String = ""
+
+    // A name can arrive seconds into the ring, from the lookup's own thread.
+    private val skOnlineIdListener: () -> Unit = {
+        coreContext.postOnCoreThread {
+            if (::currentCall.isInitialized) skShowOnlineName(currentCall)
+        }
+    }
+
     /** What the register would know this caller by, and the number or address as it arrived. */
     private var skBlockKey: String = ""
     private var skBlockRaw: String = ""
@@ -605,7 +624,9 @@ class CurrentCallViewModel
         fullScreenMode.value = false
         // shiroikuma fork: the incoming screen's binding unboxes this one, so never leave it null
         isRingingSilenced.value = false
+        skOnlineId.value = false
         SkRinger.addSilencedListener(skSilencedListener)
+        org.linphone.shiroikuma.SkOnlineId.addListener(skOnlineIdListener)
         operationInProgress.value = false
         proximitySensorEnabled.value = false
         videoUpdateInProgress.value = false
@@ -667,6 +688,7 @@ class CurrentCallViewModel
         super.onCleared()
 
         SkRinger.removeSilencedListener(skSilencedListener)
+        org.linphone.shiroikuma.SkOnlineId.removeListener(skOnlineIdListener)
 
         coreContext.postOnCoreThread { core ->
             core.removeListener(coreListener)
@@ -1277,6 +1299,27 @@ class CurrentCallViewModel
         callMediaEncryptionModel.update(currentCall)
     }
 
+    /**
+     * shiroikuma fork: puts the name found online for this caller where the number stands, and
+     * raises the ID mark. Run when the call is taken up and again whenever a name arrives; a call
+     * whose caller is a contact has no [skOnlineKey] and is left alone.
+     */
+    @WorkerThread
+    private fun skShowOnlineName(call: Call) {
+        if (skOnlineKey.isEmpty()) return
+        val name = org.linphone.shiroikuma.SkOnlineId.nameOf(coreContext.context, skOnlineKey)
+        if (name.isEmpty()) {
+            // The fresh answer knows nothing where an older one had a name: back to the number.
+            if (skOnlineId.value == true) {
+                displayedName.postValue(skNameWithoutOnlineId)
+                skOnlineId.postValue(false)
+            }
+            return
+        }
+        displayedName.postValue(name)
+        skOnlineId.postValue(true)
+    }
+
     @WorkerThread
     private fun configureCall(call: Call) {
         Log.i(
@@ -1442,6 +1485,19 @@ class CurrentCallViewModel
         contact.postValue(model)
         // shiroikuma fork: “Callback → name” on the first leg of a callback ordered here
         displayedName.postValue(org.linphone.shiroikuma.SkOdorikCallback.label(call, model.friend.name))
+        // shiroikuma fork: a caller in no address book may have a name found online (SkOnlineId).
+        skOnlineKey = if (
+            conferenceInfo == null && call.dir == Call.Dir.Incoming &&
+            !org.linphone.shiroikuma.SkOdorikCallback.isCallback(call) &&
+            !coreContext.contactsManager.isContactAvailable(model.friend)
+        ) {
+            org.linphone.shiroikuma.SkOnlineId.keyOf(address.username).orEmpty()
+        } else {
+            ""
+        }
+        skNameWithoutOnlineId = org.linphone.shiroikuma.SkOdorikCallback.label(call, model.friend.name).orEmpty()
+        skOnlineId.postValue(false)
+        skShowOnlineName(call)
 
         val recording = call.params.isRecording
         isRecording.postValue(recording)

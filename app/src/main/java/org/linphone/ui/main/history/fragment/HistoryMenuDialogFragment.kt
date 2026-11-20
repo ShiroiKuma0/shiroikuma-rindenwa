@@ -49,7 +49,10 @@ class HistoryMenuDialogFragment(
     // shiroikuma fork: the blocked numbers — the row reads "Unblock" for one already in them
     private val showBlock: Boolean = false,
     private val isBlocked: Boolean = false,
-    private val onBlock: (() -> Unit)? = null
+    private val onBlock: (() -> Unit)? = null,
+    // shiroikuma fork: "ID online" — ask now who an unknown number is (SkOnlineId)
+    private val showOnlineId: Boolean = false,
+    private val onOnlineId: (() -> Unit)? = null
 ) : BottomSheetDialogFragment() {
     companion object {
         const val TAG = "HistoryMenuDialogFragment"
@@ -102,6 +105,12 @@ class HistoryMenuDialogFragment(
         view.isBlocked = isBlocked
         view.setBlockClickListener {
             onBlock?.invoke()
+            dismiss()
+        }
+
+        view.showOnlineId = showOnlineId
+        view.setOnlineIdClickListener {
+            onOnlineId?.invoke()
             dismiss()
         }
 
