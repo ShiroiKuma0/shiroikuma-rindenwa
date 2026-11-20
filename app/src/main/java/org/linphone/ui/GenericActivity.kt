@@ -44,7 +44,6 @@ import org.linphone.core.tools.Log
 import org.linphone.utils.ToastUtils
 import org.linphone.shiroikuma.SkStyler
 import org.linphone.utils.slideInToastFromTop
-import org.linphone.utils.slideInToastFromTopForDuration
 
 @MainThread
 open class GenericActivity : AppCompatActivity() {
@@ -141,19 +140,15 @@ open class GenericActivity : AppCompatActivity() {
     ) {
         lifecycleScope.launch {
             withContext(Dispatchers.Main) {
-                val greenToast = ToastUtils.getGreenToast(
+                // shiroikuma fork: in the middle of the display, in the theme's colours;
+                // only the icon keeps this toast's own colour. See SkFlash.
+                org.linphone.shiroikuma.SkFlash.show(
                     this@GenericActivity,
-                    toastsArea,
                     message,
                     icon,
-                    doNotTint
-                )
-                toastsArea.addView(greenToast.root)
-
-                greenToast.root.slideInToastFromTopForDuration(
-                    toastsArea,
-                    lifecycleScope,
-                    duration
+                    org.linphone.shiroikuma.SkFlash.Kind.DONE,
+                    tintIcon = !doNotTint,
+                    holdMs = duration - 1000
                 )
             }
         }
@@ -167,19 +162,15 @@ open class GenericActivity : AppCompatActivity() {
     ) {
         lifecycleScope.launch {
             withContext(Dispatchers.Main) {
-                val blueToast = ToastUtils.getBlueToast(
+                // shiroikuma fork: in the middle of the display, in the theme's colours;
+                // only the icon keeps this toast's own colour. See SkFlash.
+                org.linphone.shiroikuma.SkFlash.show(
                     this@GenericActivity,
-                    toastsArea,
                     message,
                     icon,
-                    doNotTint
-                )
-                toastsArea.addView(blueToast.root)
-
-                blueToast.root.slideInToastFromTopForDuration(
-                    toastsArea,
-                    lifecycleScope,
-                    duration
+                    org.linphone.shiroikuma.SkFlash.Kind.NOTE,
+                    tintIcon = !doNotTint,
+                    holdMs = duration - 1000
                 )
             }
         }
@@ -193,19 +184,15 @@ open class GenericActivity : AppCompatActivity() {
     ) {
         lifecycleScope.launch {
             withContext(Dispatchers.Main) {
-                val redToast = ToastUtils.getRedToast(
+                // shiroikuma fork: in the middle of the display, in the theme's colours;
+                // only the icon keeps this toast's own colour. See SkFlash.
+                org.linphone.shiroikuma.SkFlash.show(
                     this@GenericActivity,
-                    toastsArea,
                     message,
                     icon,
-                    doNotTint
-                )
-                toastsArea.addView(redToast.root)
-
-                redToast.root.slideInToastFromTopForDuration(
-                    toastsArea,
-                    lifecycleScope,
-                    duration
+                    org.linphone.shiroikuma.SkFlash.Kind.WRONG,
+                    tintIcon = !doNotTint,
+                    holdMs = duration - 1000
                 )
             }
         }

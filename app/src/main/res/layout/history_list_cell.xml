@@ -51,19 +51,46 @@
         <androidx.appcompat.widget.AppCompatTextView
             style="@style/default_text_style"
             android:id="@+id/call_log_display_name"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:singleLine="true"
             android:ellipsize="end"
-            android:text="@{model.skNameOverride.empty ? model.avatarModel.name : model.skNameOverride, default=`John Doe`}"
+            android:text="@{!model.skOnlineName.empty ? model.skOnlineName : (model.skNameOverride.empty ? model.avatarModel.name : model.skNameOverride), default=`John Doe`}"
             android:textSize="14sp"
             android:textColor="?attr/color_main2_800"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintHorizontal_bias="0"
             app:layout_constraintVertical_chainStyle="packed"
             app:layout_constraintStart_toEndOf="@id/avatar"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/sk_online_id"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@id/number_label"/>
+
+        <!-- shiroikuma fork: the name on this line was found online when the number rang, and is
+             in no address book (SkOnlineId) — "ID" in black on a filled yellow rounded square,
+             right after the name (白い熊, 2026-11-20). A mark, not a button. The name and the
+             mark are a packed chain kept to the left, as the number and "Blocked" are below. -->
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/default_text_style_700"
+            android:id="@+id/sk_online_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
+            android:singleLine="true"
+            android:includeFontPadding="false"
+            android:text="@string/sk_online_id_mark"
+            android:textSize="12sp"
+            android:textColor="@color/sk_online_id_pill_text"
+            android:background="@drawable/sk_online_id_pill"
+            android:visibility="@{model.skOnlineName.empty ? View.GONE : View.VISIBLE, default=gone}"
+            app:layout_constraintStart_toEndOf="@id/call_log_display_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/call_log_display_name"
+            app:layout_constraintBottom_toBottomOf="@id/call_log_display_name" />
 
         <!-- shiroikuma fork: which of the contact's numbers this call used, and the address-book
              field it is filed under. Gone when there is nothing to add beyond the name. -->

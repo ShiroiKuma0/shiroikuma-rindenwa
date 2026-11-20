@@ -29,6 +29,12 @@
             name="blockClickListener"
             type="View.OnClickListener" />
         <variable
+            name="onlineIdClickListener"
+            type="View.OnClickListener" />
+        <variable
+            name="showOnlineId"
+            type="Boolean" />
+        <variable
             name="showBlock"
             type="Boolean" />
         <variable
@@ -140,6 +146,25 @@
             android:drawableStart="@drawable/user_circle"
             skMenuRole="@{`contact`}"
             skMenuOpens="@{true}"
+            app:layout_constraintBottom_toTopOf="@id/sk_online_id"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <!-- shiroikuma fork: ask online who this number is, now (SkOnlineId) — only for a number
+             in no address book that there is a source for. The row's first line takes the name;
+             finding nothing is said in a flash. -->
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/sk_online_id"
+            android:onClick="@{onlineIdClickListener}"
+            android:visibility="@{showOnlineId ? View.VISIBLE : View.GONE}"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/sk_menu_online_id"
+            style="@style/context_menu_action_label_style"
+            android:background="@drawable/menu_item_background"
+            android:layout_marginBottom="1dp"
+            android:drawableStart="@drawable/globe_hemisphere_west"
+            skMenuRole="@{`contact`}"
             app:layout_constraintBottom_toTopOf="@id/share"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>

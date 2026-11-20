@@ -215,6 +215,45 @@ is ours.
   carries it, and unblocking takes it off them all. It is a mark, not a button, which is why it is
   the one filled pill. The list redraws through `SkBlocked.addListener`.
 
+## Unknown callers are looked up online — and marked ID
+
+`shiroikuma/SkOnlineId.kt`, asked for by 白い熊 on 2026-11-20 (+044). A caller in no address book
+is only a number; for a Czech one, `https://www.tellows.cz/num/<nine national digits>` often says
+who it is.
+
+- **When:** only as a call **rings in** (`CoreContext`'s call-state listener, behind the blocked
+  door and the callback's repointing), only for `+420` and nine digits, only for a number 連絡先
+  does not hold, only with the switch on (“Identify unknown callers online”, Calls section of the
+  臨電話 UI page, on by default — off also hides the names already found). **The history never
+  asks by itself**; a row carries a name because that number rang here once. Other countries wait
+  for a source of their own.
+- **The page:** the name is the text of `<span class="callerId">`; a page without that span knows
+  nothing. It is a page for people read by a program — when the markup moves, names stop arriving
+  and the “calls” diagnostic says `online id … no name` for every number.
+- **Never held up:** the call rings at once under its number; the name takes its place when the
+  answer comes (4 s timeout). **Every ring asks again** — never add a “fresh enough” check (白い熊,
+  2026-11-20). A name found before is shown at once and replaced if the fresh answer differs; a
+  fresh “nothing known” takes it away, a failed request changes nothing.
+- **On demand:** the history's long-press menu has “ID online” (`SkOnlineId.lookUp`), only for a
+  number in no address book that a source covers, with the switch on. A found name needs no word —
+  the rows take it; “nothing found” and a request that did not get through are flashed.
+- **The flash** is `shiroikuma/SkFlash.kt`: theme ground, theme text, accent frame, in the **centre
+  of the display**; only the icon keeps a colour (green done, blue note, red wrong). **Every flash
+  of the app goes through it** (白い熊, 2026-11-20): `GenericActivity.showGreenToast` /
+  `showBlueToast` / `showRedToast` hand theirs over, the fork's pages call `SkFlash.show`. Never
+  write a new `Toast.makeText` or a `ToastUtils` toast. Two exceptions stand: upstream's persistent
+  red banner (a standing notice, still at the top) and `SkDiagReceiver` (no window to draw in).
+- **Store:** the preferences file `sk_online_ids`, keyed `tel:<international digits>`, value
+  `name` / `src` / `at`. **Renaming or re-meaning a key breaks old exports**: it travels with the
+  call history as `online_ids.json`.
+- **The mark:** “ID” in black on a filled `#FFFF00` rounded square (`sk_online_id_pill`), after
+  the name on the incoming screen and on the first line of the history row. A mark, not a button.
+  白い熊 wanted it generic — never write the source's name there.
+- **Saving the caller:** `SkSisterApps.newContact` hands 連絡先 the number in international form
+  (`+420601123456`, never the nine bare digits the provider delivers) and the found name as a
+  `StructuredName` data row with only the family name set — 白い熊 files these under the surname.
+  `Insert.NAME` is not used: 連絡先 puts that in the first name.
+
 ## Numbers are written one way
 
 `shiroikuma/SkNumbers.kt` is the one place a phone number is formatted: `+420-601-123-456`,

@@ -285,7 +285,9 @@ class HistoryListFragment : AbstractMainFragment() {
                     onReply = { adapter.callLogReplyClickedEvent.value = Event(model) },
                     showBlock = blockKey != null && !model.wasConference,
                     isBlocked = blocked,
-                    onBlock = { blockKey?.let { skBlockOrUnblock(model, it, blocked) } }
+                    onBlock = { blockKey?.let { skBlockOrUnblock(model, it, blocked) } },
+                    showOnlineId = skCanIdOnline(model),
+                    onOnlineId = { skIdOnline(model) }
                 )
                 modalBottomSheet.show(parentFragmentManager, HistoryMenuDialogFragment.TAG)
                 bottomSheetDialog = modalBottomSheet
@@ -572,6 +574,7 @@ class HistoryListFragment : AbstractMainFragment() {
         bottomSheetDialog?.dismiss()
         bottomSheetDialog = null
         SkBlocked.removeListener(skBlockedChanged)
+        org.linphone.shiroikuma.SkOnlineId.removeListener(skBlockedChanged)
     }
 
     // shiroikuma fork: a caller was blocked or unblocked — from the row's menu, the register's
@@ -589,6 +592,8 @@ class HistoryListFragment : AbstractMainFragment() {
         super.onResume()
 
         SkBlocked.addListener(skBlockedChanged)
+        // A name found online for a caller who is ringing now belongs on that caller's rows.
+        org.linphone.shiroikuma.SkOnlineId.addListener(skBlockedChanged)
         Log.i("$TAG Fragment is resumed, resetting missed calls count")
         sharedViewModel.resetMissedCallsCountEvent.value = Event(true)
         sharedViewModel.refreshDrawerMenuAccountsListEvent.value = Event(false)
@@ -691,6 +696,51 @@ class HistoryListFragment : AbstractMainFragment() {
         }
     }
 
+    /**
+     * shiroikuma fork: whether the menu offers “ID online” for this row — a number in no address
+     * book, of a country there is a source for, with the lookups switched on. See SkOnlineId.
+     */
+    private fun skCanIdOnline(model: CallLogModel): Boolean {
+        if (model.wasConference || model.friendExists) return false
+        val context = requireContext()
+        val key = org.linphone.shiroikuma.SkOnlineId.keyOf(model.address.username)
+        return org.linphone.shiroikuma.SkOnlineId.enabled(context) &&
+            org.linphone.shiroikuma.SkOnlineId.isCovered(key)
+    }
+
+    /**
+     * shiroikuma fork: the menu's “ID online”. A name that is found needs no word — the rows of
+     * that number take it, through the listener this list already has; finding nothing, or not
+     * getting through, is said in a flash.
+     */
+    private fun skIdOnline(model: CallLogModel) {
+        val activity = requireActivity() as GenericActivity
+        val key = org.linphone.shiroikuma.SkOnlineId.keyOf(model.address.username) ?: return
+        val who = SkNumbers.format(model.address.username.orEmpty())
+        org.linphone.shiroikuma.SkOnlineId.lookUp(activity, key) { outcome ->
+            val message = when (outcome) {
+                org.linphone.shiroikuma.SkOnlineId.Outcome.FOUND -> return@lookUp
+                org.linphone.shiroikuma.SkOnlineId.Outcome.NOTHING -> R.string.sk_online_id_nothing
+                org.linphone.shiroikuma.SkOnlineId.Outcome.FAILED -> R.string.sk_online_id_failed
+            }
+            activity.runOnUiThread {
+                if (activity.isFinishing || activity.isDestroyed) return@runOnUiThread
+                // In the middle of the display and in our own colours, not upstream's toast.
+                val failed = outcome == org.linphone.shiroikuma.SkOnlineId.Outcome.FAILED
+                org.linphone.shiroikuma.SkFlash.show(
+                    activity,
+                    activity.getString(message, who),
+                    if (failed) R.drawable.warning_circle else R.drawable.globe_hemisphere_west,
+                    if (failed) {
+                        org.linphone.shiroikuma.SkFlash.Kind.WRONG
+                    } else {
+                        org.linphone.shiroikuma.SkFlash.Kind.DONE
+                    }
+                )
+            }
+        }
+    }
+
     private fun showDeleteConfirmationDialog(callLogModel: CallLogModel) {
         val dialogModel = ConfirmationDialogModel()
         val dialog = DialogUtils.getRemoveCallLogConfirmationDialog(
@@ -743,7 +793,7 @@ class HistoryListFragment : AbstractMainFragment() {
         if (contactId != null) {
             SkSisterApps.viewContact(requireContext(), contactId)
         } else if (model.skPhoneNumber.isNotEmpty()) {
-            SkSisterApps.newContact(requireContext(), model.skPhoneNumber)
+            SkSisterApps.newContact(requireContext(), model.skPhoneNumber, model.skOnlineName)
         }
     }
 }

@@ -16,7 +16,6 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.Space
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatTextView
 import org.linphone.R
@@ -282,7 +281,7 @@ class SkEximportPanel(
     }
 
     private fun toast(message: String) {
-        Toast.makeText(activity, message, Toast.LENGTH_LONG).show()
+        SkFlash.show(activity, message)
     }
 
     // ------------------------------------------------------------- progress dialog

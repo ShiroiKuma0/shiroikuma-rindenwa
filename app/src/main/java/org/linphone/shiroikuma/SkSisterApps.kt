@@ -1,6 +1,7 @@
 package org.linphone.shiroikuma
 
 import android.app.ActivityOptions
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -95,15 +96,33 @@ object SkSisterApps {
         start(context, intent, animated = true)
     }
 
-    /** 連絡先's editor for a new contact, with [number] already filled in. */
-    fun newContact(context: Context, number: String, name: String? = null) {
+    /**
+     * 連絡先's editor for a new contact, with [number] already filled in — always in its
+     * international form, `+420601123456`: a provider hands a Czech caller over as nine bare
+     * digits, and a contact saved that way is not found again from abroad or by another line.
+     *
+     * [surname] goes into the surname field: a name found online ([SkOnlineId]) is a company more
+     * often than a person, and 白い熊 files those under the surname. It travels as a
+     * `StructuredName` data row with only the family name set, which is how Android hands a name
+     * over in parts; `Insert.NAME` is one undivided string, and 連絡先 puts that in the first name.
+     */
+    fun newContact(context: Context, number: String, surname: String? = null) {
         val pkg = installed(context, RENRAKUSAKI) ?: return
+        val international = SkNumbers.international(number)?.let { "+$it" } ?: number
         val intent = Intent(Intent.ACTION_INSERT)
             .setPackage(pkg)
             .setType("vnd.android.cursor.dir/contact")
-            .putExtra(ContactsContract.Intents.Insert.PHONE, number)
+            .putExtra(ContactsContract.Intents.Insert.PHONE, international)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        if (!name.isNullOrEmpty()) intent.putExtra(ContactsContract.Intents.Insert.NAME, name)
+        if (!surname.isNullOrEmpty()) {
+            val row = ContentValues()
+            row.put(
+                ContactsContract.Data.MIMETYPE,
+                ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE,
+            )
+            row.put(ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME, surname)
+            intent.putParcelableArrayListExtra(ContactsContract.Intents.Insert.DATA, arrayListOf(row))
+        }
         start(context, intent, animated = true)
     }
 

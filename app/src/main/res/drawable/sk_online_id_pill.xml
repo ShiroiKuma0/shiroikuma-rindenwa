@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma fork: the ground of the "ID" mark — a filled yellow rounded square behind black
+     text, beside a caller's name that was found online and is in no address book (SkOnlineId).
+     A mark, not a button, which is why it may be filled. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/sk_online_id_pill" />
+    <corners android:radius="5dp" />
+</shape>
