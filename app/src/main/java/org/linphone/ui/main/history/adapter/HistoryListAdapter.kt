@@ -306,6 +306,7 @@ class HistoryListAdapter :
                 // has written the texts, because part of it is a colour inside line 2's text.
                 SkDenwaStyle.applyToRow(binding, callLogModel.direction, callLogModel.skUnanswered)
                 SkDenwaStyle.fitPicture(binding)
+                SkDenwaStyle.fitActions(binding)
                 // No line under the last call of a day: the day's own line follows it.
                 val next = bindingAdapterPosition + 1
                 val nextDay = if (next in 1 until itemCount) getItem(next).callLogModel?.dayKey else null

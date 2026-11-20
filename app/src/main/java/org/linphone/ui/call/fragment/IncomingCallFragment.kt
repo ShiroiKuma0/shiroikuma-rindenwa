@@ -65,6 +65,13 @@ class IncomingCallFragment : GenericCallFragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = callViewModel
 
+        // shiroikuma fork: the account's badge in the colours of its number.
+        callViewModel.skAccountColors.observe(viewLifecycleOwner) { (ground, text) ->
+            binding.skAccount.skAccountBadge.backgroundTintList =
+                android.content.res.ColorStateList.valueOf(ground)
+            binding.skAccount.skAccountBadge.setTextColor(text)
+        }
+
         callViewModel.isIncomingEarlyMedia.observe(viewLifecycleOwner) { earlyMedia ->
             if (earlyMedia) {
                 coreContext.postOnCoreThread { core ->

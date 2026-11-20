@@ -107,6 +107,15 @@ class CurrentCallViewModel
     // shiroikuma fork: what the call is doing, in words (see SkCallStatus).
     val skCallStatus = MutableLiveData<String>()
 
+    // shiroikuma fork: the account the call goes through — its 臨N badge, the badge's colours
+    // (ground, text) and its name — at the top of the outgoing and the incoming screen, where
+    // it must be plain which account the call goes through (白い熊, 2026-11-20).
+    val skAccountBadge = MutableLiveData<String>()
+
+    val skAccountColors = MutableLiveData<Pair<Int, Int>>()
+
+    val skAccountName = MutableLiveData<String>()
+
     val isRecordingEnabled = MutableLiveData<Boolean>()
 
     val isRecording = MutableLiveData<Boolean>()
@@ -1332,6 +1341,11 @@ class CurrentCallViewModel
         // shiroikuma fork
         isRingingSilenced.postValue(SkRinger.isSilenced(call))
         skCallStatus.postValue(SkCallStatus.textFor(call))
+        val skIdentity = org.linphone.shiroikuma.SkCallStamps.identityOf(call)
+        val skNumber = org.linphone.shiroikuma.SkAccountNumbers.numberOf(coreContext.context, skIdentity)
+        skAccountBadge.postValue(org.linphone.shiroikuma.SkAccountNumbers.badgeOf(coreContext.context, skIdentity))
+        skAccountColors.postValue(org.linphone.shiroikuma.SkAccountNumbers.colors(coreContext.context, skNumber))
+        skAccountName.postValue(org.linphone.shiroikuma.SkCallStamps.accountNameOf(call))
         skCallerKey.postValue(SkDeclineMessages.callerKey(call.remoteAddress))
         skCallerDid.postValue(SkDeclineMessages.didOf(call.callLog.localAddress))
         skBlockKey = org.linphone.shiroikuma.SkBlocked.keyOf(call.remoteAddress).orEmpty()

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma fork: the account a call goes through, large, at the top of the outgoing and the
+     incoming screen alike (白い熊, 2026-11-20): its 臨N badge in the badge's own colours — set
+     by the fragment, SkAccountNumbers — and beside it the account's name. Nothing under the
+     name: the server says nothing the name and the badge have not said. -->
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="org.linphone.ui.call.viewmodel.CurrentCallViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/default_text_style_700"
+            android:id="@+id/sk_account_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:singleLine="true"
+            android:text="@{viewModel.skAccountBadge, default=`臨1`}"
+            android:textSize="34sp"
+            android:textColor="@color/sk_badge_rin_text"
+            android:background="@drawable/sk_badge_rin" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/default_text_style_700"
+            android:id="@+id/sk_account_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:text="@{viewModel.skAccountName, default=`John Doe`}"
+            android:textSize="26sp"
+            android:textColor="@color/sk_yellow" />
+
+    </LinearLayout>
+
+</layout>
