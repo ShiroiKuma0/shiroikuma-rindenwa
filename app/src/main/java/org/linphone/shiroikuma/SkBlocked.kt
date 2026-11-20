@@ -85,10 +85,29 @@ object SkBlocked {
 
     fun isEntryKey(key: String): Boolean = key.startsWith(TEL) || key.startsWith(SIP)
 
+    /**
+     * Told whenever the register changes — from any thread, so a listener that draws posts to its
+     * own. The call history marks the rows of a blocked caller and has to redraw them.
+     */
+    private val listeners = java.util.concurrent.CopyOnWriteArraySet<() -> Unit>()
+
+    fun addListener(listener: () -> Unit) {
+        listeners.add(listener)
+    }
+
+    fun removeListener(listener: () -> Unit) {
+        listeners.remove(listener)
+    }
+
+    private fun changed() {
+        for (listener in listeners) listener()
+    }
+
     /** After an import wrote the file behind our back. */
     @AnyThread
     fun reload() {
         keys = null
+        changed()
     }
 
     private fun keys(context: Context): Set<String> =
@@ -151,6 +170,7 @@ object SkBlocked {
         keys = keys(context) + key
         Log.i("$TAG Blocked [$key]")
         SkDiag.log(context, SkDiagKind.CALLS, "blocked $key")
+        changed()
         return true
     }
 
@@ -160,6 +180,7 @@ object SkBlocked {
         keys = keys(context) - key
         Log.i("$TAG Unblocked [$key]")
         SkDiag.log(context, SkDiagKind.CALLS, "unblocked $key")
+        changed()
     }
 
     // ------------------------------------------------------------- the door

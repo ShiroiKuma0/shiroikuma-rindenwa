@@ -209,6 +209,11 @@ is ours.
   an `End` before the `IncomingReceived` it belongs to. It is judged **before** `SkOdorikCallback`
   repoints a callback's first leg, so a callback *to* a blocked number still rings.
 - The call stays in the history; its stamp ends `blocked` (“Blocked” in the stamp dialog).
+- **The history marks a blocked caller:** a filled `#FF0000` pill with white “Blocked” after the
+  number on the row's middle line (白い熊, 2026-11-20; `CallLogModel.skBlocked`, `sk_blocked` in
+  `history_list_cell.xml`). It follows today's register, not the call — every row of that caller
+  carries it, and unblocking takes it off them all. It is a mark, not a button, which is why it is
+  the one filled pill. The list redraws through `SkBlocked.addListener`.
 
 ## Numbers are written one way
 

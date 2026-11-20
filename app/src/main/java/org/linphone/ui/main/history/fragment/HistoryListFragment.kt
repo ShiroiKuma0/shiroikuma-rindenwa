@@ -571,6 +571,16 @@ class HistoryListFragment : AbstractMainFragment() {
 
         bottomSheetDialog?.dismiss()
         bottomSheetDialog = null
+        SkBlocked.removeListener(skBlockedChanged)
+    }
+
+    // shiroikuma fork: a caller was blocked or unblocked — from the row's menu, the register's
+    // dialog or an import — and every row of that caller carries the mark. Told from any thread.
+    @SuppressLint("NotifyDataSetChanged")
+    private val skBlockedChanged: () -> Unit = {
+        activity?.runOnUiThread {
+            if (view != null && binding.historyList.adapter === adapter) adapter.notifyDataSetChanged()
+        }
     }
 
     // notifyDataSetChanged is the point below: every visible row has to re-read the settings.
@@ -578,6 +588,7 @@ class HistoryListFragment : AbstractMainFragment() {
     override fun onResume() {
         super.onResume()
 
+        SkBlocked.addListener(skBlockedChanged)
         Log.i("$TAG Fragment is resumed, resetting missed calls count")
         sharedViewModel.resetMissedCallsCountEvent.value = Event(true)
         sharedViewModel.refreshDrawerMenuAccountsListEvent.value = Event(false)
@@ -665,14 +676,17 @@ class HistoryListFragment : AbstractMainFragment() {
     private fun skBlockOrUnblock(model: CallLogModel, key: String, blocked: Boolean) {
         val activity = requireActivity() as GenericActivity
         val number = model.address.username.orEmpty()
-        val who = model.avatarModel.contactName.orEmpty().ifEmpty { SkNumbers.format(number) }
+        // A caller in no address book is named by the number: the provider's "name" for them is
+        // the number and the tail of the line it rang, which is not a name (SkNumbers).
+        val name = if (model.skNameOverride.isEmpty()) model.avatarModel.contactName.orEmpty() else ""
+        val who = name.ifEmpty { SkNumbers.format(number) }
         if (blocked) {
             SkBlocked.remove(activity, key)
             activity.showGreenToast(getString(R.string.sk_unblock_done, who), R.drawable.sk_prohibit)
             return
         }
         SkBlockConfirmDialog(activity, who) {
-            SkBlocked.add(activity, key, number, model.avatarModel.contactName.orEmpty())
+            SkBlocked.add(activity, key, number, name)
             activity.showGreenToast(getString(R.string.sk_block_done, who), R.drawable.sk_prohibit)
         }
     }

@@ -70,7 +70,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             style="@style/default_text_style_300"
             android:id="@+id/number_label"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:singleLine="true"
             android:ellipsize="end"
@@ -78,10 +78,39 @@
             android:textSize="14sp"
             android:textColor="?attr/color_main2_600"
             android:visibility="@{model.numberWithLabel.empty ? View.INVISIBLE : View.VISIBLE}"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toStartOf="@id/call_log_display_name"
-            app:layout_constraintEnd_toStartOf="@id/call"
+            app:layout_constraintEnd_toStartOf="@id/sk_blocked"
             app:layout_constraintTop_toBottomOf="@id/call_log_display_name"
             app:layout_constraintBottom_toTopOf="@id/date_time"/>
+
+        <!-- shiroikuma fork: the caller is in the blocked numbers (SkBlocked) — a filled red
+             pill with white text right after the number, on every row of that caller (白い熊,
+             2026-11-20). The one filled pill in the app: it is a mark, not a button. The number
+             and the pill are a packed chain kept to the left, so the pill follows the number's
+             own end and a long number gives way to it. -->
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/default_text_style_700"
+            android:id="@+id/sk_blocked"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:singleLine="true"
+            android:includeFontPadding="false"
+            android:text="@string/sk_stamp_end_blocked"
+            android:textSize="12sp"
+            android:textColor="@color/sk_blocked_pill_text"
+            android:background="@drawable/sk_blocked_pill"
+            android:visibility="@{model.skBlocked ? View.VISIBLE : View.GONE, default=gone}"
+            app:layout_constraintStart_toEndOf="@id/number_label"
+            app:layout_constraintEnd_toStartOf="@id/call"
+            app:layout_constraintTop_toTopOf="@id/number_label"
+            app:layout_constraintBottom_toBottomOf="@id/number_label" />
 
         <!-- shiroikuma fork: 臨N — which SIP account the call went through. The same place the
              sister dialer puts its red 1 / blue 2 SIM mark. -->

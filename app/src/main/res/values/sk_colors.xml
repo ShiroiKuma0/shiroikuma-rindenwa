@@ -39,6 +39,9 @@
     <!-- Semantic colours keep their meaning — a hang-up button must still read as danger. -->
     <color name="sk_danger">#FFFF5252</color>
     <color name="sk_danger_dim">#FF7F1D1D</color>
+    <!-- The "Blocked" mark on a history row: pure red, white text (白い熊, 2026-11-20). -->
+    <color name="sk_blocked_pill">#FFFF0000</color>
+    <color name="sk_blocked_pill_text">#FFFFFFFF</color>
     <color name="sk_success">#FF00C853</color>
     <color name="sk_success_dim">#FF14532D</color>
     <color name="sk_info">#FF40C4FF</color>
