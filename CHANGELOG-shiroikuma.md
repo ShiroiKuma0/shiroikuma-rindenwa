@@ -2,7 +2,43 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha+2026-11-09.14-39.g2199af83+048 — current
+## 6.3.0-alpha+2026-11-09.14-39.g2199af83+052 — current
+
+Same upstream base as `+048` (`2199af83`); `versionCode` `602010052`. Builds `+049` to `+051` were
+steps on the way and were not released.
+
+### The call screens name the account
+
+- **The account a call goes through stands at the top of the call screen** — on the outgoing
+  screen and on the incoming one, in portrait and in landscape: its 臨N badge, large, in the
+  badge's own colours, and beside it the account's name.
+- **The name is the one the account was given in its settings.** An account without a name shows
+  the user part of its address. The server is not repeated under it.
+
+### Swipe a call to dial it
+
+- **Sweeping a row of the history aside, to the left or to the right, dials it** — the call the
+  row's handset places, through the account that row's call used.
+- **A green handset stands in the gap** the row leaves while it moves, and stops at the distance
+  from which letting go dials: a third of the row's width, far enough that scrolling the list
+  askew never places a call.
+- The row comes back to its place; nothing is removed from the list. A meeting's row does not
+  swipe.
+
+### The history on a narrow screen
+
+- **Fix: the handset, the bubble and the ⋮ at the end of a row no longer shrink away.** On the
+  folded screen a long “number · label” took the width of the line, the handset became a speck and
+  the bubble vanished. Each now has a width of its own — as wide as the line is tall — and the
+  number is what gives way.
+- **The gaps between the three are a third narrower** (19 dp and 13 dp, from 28 dp and 20 dp),
+  which leaves the number more room.
+- **Fix: the number is never cut short.** Every row read `+420-601-123-45…`, one digit short for
+  the sake of an ellipsis wider than the digit. When “number · label” does not fit, the label goes
+  and the number stands whole, with no ellipsis; a number still too long is drawn a little
+  narrower before anything is cut.
+
+## 6.3.0-alpha+2026-11-09.14-39.g2199af83+048
 
 Same upstream base as `+043` (`2199af83`); `versionCode` `602010048`. Builds `+044` to `+047` were
 steps on the way and were not released.

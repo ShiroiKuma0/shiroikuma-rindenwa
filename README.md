@@ -20,7 +20,7 @@ really reach this phone, and diagnostics that record nothing until you ask them 
 
 Installs **side-by-side** with stock Linphone (app id `shiroikuma.rindenwa`).
 
-**📥 Latest release: [`6.3.0-alpha+2026-11-09.14-39.g2199af83+048`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
+**📥 Latest release: [`6.3.0-alpha+2026-11-09.14-39.g2199af83+052`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
 
 </div>
 
@@ -335,11 +335,23 @@ number to that site.
 
 ---
 
+## 👉 Swipe a call to dial it
+
+Sweep any row of the history aside — left or right — and the call is placed, through the account
+that row's call used. A green handset appears in the gap and stops where letting go dials. On a
+narrow, folded screen the rows keep their handset, message bubble and menu at full size, and the
+number is always shown whole: the label after it gives way first.
+
+---
+
 ## 🗣 A call screen that says what is happening
 
 The rotating circle is gone. Under the number the call screen says it in words — 発信中…, 呼び出し中…,
 着信中…, 接続中… — and when the call is over, why: 話し中, 応答拒否, 応答なし. The same reason is
 written on the call's row in the history.
+
+At the top of the screen, outgoing and incoming alike, stands the account the call goes through:
+its 臨N badge, large and in its own colours, with the account's name beside it.
 
 ---
 
