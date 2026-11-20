@@ -2,7 +2,25 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha+2026-11-09.14-39.g2199af83+040 — current
+## 6.3.0-alpha+2026-11-09.14-39.g2199af83+043 — current
+
+Same upstream base as `+040` (`2199af83`); `versionCode` `602010043`. Builds `+041` and `+042` were
+steps on the way and were not released.
+
+### Blocked numbers
+
+- **The history shows who is blocked.** Every row of a caller who is in the blocked numbers carries
+  a filled red pill with white “Blocked” right after the number, on the row's middle line. It marks
+  the caller, not the call: calls from before the block carry it too, and unblocking takes it off
+  all of them. A long number with a label gives way to the pill before the pill is pushed aside.
+- **The list redraws at once** when a caller is blocked or unblocked — from the row's menu, the
+  “Blocked numbers” register or an import — without leaving the page.
+- **Fix: the confirmation names an unknown caller by the number.** Blocking a caller who is in no
+  address book said “720720156›666 is blocked” — the provider's display name, the number followed
+  by the tail of the line it rang. It now reads “+420-720-720-156 is blocked”, and that display
+  name is no longer kept in the register as the caller's name.
+
+## 6.3.0-alpha+2026-11-09.14-39.g2199af83+040
 
 Same upstream base as `+038` (`2199af83`); `versionCode` `602010040`. Build `+039` was a step on
 the way and was not released.
