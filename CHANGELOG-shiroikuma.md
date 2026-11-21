@@ -2,7 +2,92 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha+2026-11-09.14-39.g2199af83+052 — current
+## 6.3.0-alpha+2026-11-09.14-39.g2199af83+057 — current
+
+Same upstream base as `+052` (`2199af83`); `versionCode` `602010057`. Builds `+053` to `+056` were
+steps on the way and were not released.
+
+### Apps that may place calls — a selection, with メッセージ
+
+- **One selection replaces the two fixed switches.** “Apps that may place calls”, in the new
+  section “Accounts and apps” of the 臨電話 UI page, opens a list of every app on the phone that
+  has a launcher entry: the app's icon, its name, an outlined switch, and a field to filter by
+  name. A switch takes effect at once.
+- **白い熊 メッセージ is let in by default**, beside 白い熊 連絡先 and 白い熊 電話 — its call button
+  can now read the accounts here and dial through a 臨 account. An install that had already
+  stored its set gets メッセージ added once; switched off afterwards, it stays off.
+- The row names the apps that are let in, and turns red when none is.
+
+### The 臨電話 UI page folds, and has an index
+
+- **Every section folds.** A tap on a heading opens or closes it, with › when folded and ⌄ when
+  open. All sections start folded; a folded section's rows are not built until it is opened, so
+  the page opens quickly.
+- **A chip index stands on top**, one small chip per section. A tap unfolds the section and
+  scrolls to it; a long press drags the chip, the chips move under the finger, and the sections
+  below take the same order on release. “Reset section order” is in the new Maintenance section.
+- The order and what is unfolded are remembered, and travel in the export with the appearance.
+- **“App settings”**, a thick pill on top of the page, opens the app's own settings.
+- **Every row has an icon** coloured by what the row does, and a row with an explanation carries
+  a thin dim-gold rule at its left. A row that deletes — Purge, Remove picture, Reset all colours —
+  is red in frame and label.
+- 臨 numbers and the call selection moved out of “Export / Import” into “Accounts and apps”.
+
+### Every colour is a role that can be set
+
+- **No colour is fixed any more.** Yellow `#FFFF00` and black `#000000` are only what a fresh
+  install shows. About 240 colour roles — the text, frame and ground of a button, a dialog's
+  title, text, ground and buttons, a switch on and off, menu rows, lists, bars, text fields,
+  status colours, avatars, bubbles, the call screens, the dial pad, badges, sheets, flashes, the
+  UI page itself, the assistant and the meetings — each have a swatch row on the UI page, in the
+  section of the thing they colour.
+- **A role that is not set follows the foundation**: change Accent, Text or Background and
+  everything not set by itself follows. Colours that carry a meaning (danger red, success green,
+  the menu icon colours) keep their own defaults.
+- **Reset:** the picker's Default takes one colour back, “Reset all colours” in Maintenance takes
+  all of them back. The roles travel in the export with the appearance.
+- Upstream's screens are coloured through a resources loader that feeds each role's value in at
+  run time (Android 11 and later); below that the app shows placeholder colours.
+- The white text and icons that were left on the call screens now follow the text colour.
+- A PDF is shown on white paper, a role of its own.
+
+### Nothing is filled
+
+- **Round buttons are outlined**: the call, message and video circles on the contact, history and
+  conversation-details pages, the numpad keys, and the in-call controls. A control that is on
+  lends its red or green to its ring and its icon.
+- **A dialog that deletes confirms with a red pill** — deleting a contact, a meeting, an account,
+  call records, a conversation or its history, removing a participant, leaving a group,
+  cancelling a meeting, deleting a stored decline message, purging diagnostics.
+- **A main pill is bold and thick, every other pill thin and normal**, in upstream's screens too.
+- Skip on the welcome page, the three attach buttons of a conversation and “Create a group call”
+  / “Create a group conversation” are pills, where they were bare text.
+- **The date and time pickers of a meeting** are black and yellow, with pill buttons.
+- The two ZRTP dialogs lost their white ground and grey text.
+
+### Menus, sheets and lists
+
+- **A line divides the groups of a menu** — before the deleting row of the history, contacts,
+  recordings, calls, conversation, message and meeting menus, and between the groups of the
+  conversation's ⋮ menu.
+- The contacts filter menu is made of pills, with a check on the chosen one; “Add to favourites”
+  in a contact's menu is a pill like its neighbours.
+- **The call sheets colour each control's icon by what it does**: transfer and new call green,
+  chat blue, participants cyan, record orange, pause magenta.
+- Every line of the call statistics and of the encryption details has an icon; so have the audio
+  devices, the conference layouts and the numbers offered when a contact has several.
+- **The lists inside our own dialogs are rows of pills** — decline messages, blocked numbers,
+  choices (a check marks the chosen one), fonts.
+- Radio buttons and check boxes are yellow when chosen and dim yellow when not; no white or grey
+  mark is left.
+- Every switch in the app follows the two switch colours set on the UI page.
+
+### Landscape and wide screens
+
+- All of the above reaches the landscape layouts of the call screens, sheets, numpad and ZRTP
+  dialogs and the wide-screen layouts of the assistant and welcome pages.
+
+## 6.3.0-alpha+2026-11-09.14-39.g2199af83+052
 
 Same upstream base as `+048` (`2199af83`); `versionCode` `602010052`. Builds `+049` to `+051` were
 steps on the way and were not released.
