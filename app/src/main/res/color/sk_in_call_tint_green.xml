@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma fork: the glyph of an in-call control whose ring turns green when it is on — the
+     colour is lent to the ring and the glyph, never to a fill. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_enabled="false" android:color="@color/sk_ink_ghost" />
+    <item android:state_selected="true" android:color="?attr/color_success_500" />
+    <item android:color="@color/sk_yellow" />
+</selector>

@@ -45,9 +45,6 @@ object SkAccountNumbers {
 
     // ---- colours: each number's badge has its own ground and text colour ----
 
-    const val DEFAULT_GROUND = 0xFFFFFF00.toInt()
-    const val DEFAULT_TEXT = 0xFF0000FF.toInt()
-
     private const val UNSET = 1 // not a colour anyone can pick: alpha 0, but not transparent black
 
     private fun groundKey(number: Int) = "sk_rin_ground_$number"
@@ -69,8 +66,8 @@ object SkAccountNumbers {
      * yellow with blue text.
      */
     fun colors(context: Context, number: Int?): Pair<Int, Int> = Pair(
-        ownGround(context, number) ?: SkDenwaStyle.color("color.rin_badge") ?: DEFAULT_GROUND,
-        ownText(context, number) ?: SkDenwaStyle.color("color.rin_badge_text") ?: DEFAULT_TEXT,
+        ownGround(context, number) ?: SkDenwaStyle.color("color.rin_badge") ?: SkRoles.color(context, "rin_badge_ground"),
+        ownText(context, number) ?: SkDenwaStyle.color("color.rin_badge_text") ?: SkRoles.color(context, "rin_badge_text"),
     )
 
     fun setGround(context: Context, number: Int, color: Int?) = setColor(context, groundKey(number), color)

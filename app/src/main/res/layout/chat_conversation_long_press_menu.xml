@@ -108,9 +108,23 @@
             android:drawableStart="@drawable/phone"
             skMenuRole="@{`call`}"
             android:visibility="@{isGroup || isReadOnly ? View.GONE : View.VISIBLE}"
-            app:layout_constraintBottom_toTopOf="@id/delete_chat_room"
+            app:layout_constraintBottom_toTopOf="@+id/sk_div_delete_chat_room"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
+
+        <!-- shiroikuma fork: the line between two groups of the menu. -->
+        <View
+            android:id="@+id/sk_div_delete_chat_room"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginStart="22dp"
+            android:layout_marginEnd="22dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:background="@color/sk_menu_divider"
+            app:layout_constraintBottom_toTopOf="@id/delete_chat_room"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:onClick="@{deleteClickListener}"

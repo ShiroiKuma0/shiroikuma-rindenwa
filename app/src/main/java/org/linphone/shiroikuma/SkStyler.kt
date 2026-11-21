@@ -423,7 +423,7 @@ object SkStyler {
             cornerRadius = SkTheme.dimenPx(context, SkDimen.BUBBLE_CORNER_RADIUS).toFloat()
             setStroke(
                 SkTheme.dimenPx(context, SkDimen.BUBBLE_BORDER_WIDTH),
-                SkTheme.color(context, SkSlot.ACCENT),
+                SkRoles.color(context, "bubble_frame"),
             )
         }
         text?.let {
@@ -441,7 +441,7 @@ object SkStyler {
             cornerRadius = SkTheme.dimenPx(context, SkDimen.AVATAR_CORNER_RADIUS).toFloat()
             setStroke(
                 SkTheme.dimenPx(context, SkDimen.LIST_BORDER_WIDTH),
-                SkTheme.color(context, SkSlot.ACCENT),
+                SkRoles.color(context, "avatar_frame"),
             )
         }
         initials?.let {
@@ -462,7 +462,7 @@ object SkStyler {
         val colors = ColorStateList(
             arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
             intArrayOf(
-                SkTheme.color(context, SkSlot.ACCENT),
+                SkRoles.color(context, "switch_on"),
                 SkTheme.color(context, SkSlot.SWITCH_OFF),
             ),
         )

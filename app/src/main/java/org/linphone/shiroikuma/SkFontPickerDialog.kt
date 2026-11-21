@@ -25,9 +25,9 @@ class SkFontPickerDialog(
     init {
         val density = activity.resources.displayMetrics.density
         val binding = DialogSkFontPickerBinding.inflate(LayoutInflater.from(activity))
-        val textColor = SkTheme.color(activity, SkSlot.TEXT)
-        val accent = SkTheme.color(activity, SkSlot.ACCENT)
-        val background = SkTheme.color(activity, SkSlot.BACKGROUND)
+        val textColor = SkRoles.color(activity, "dialog_text")
+        val accent = SkRoles.color(activity, "dialog_frame")
+        val background = SkRoles.color(activity, "dialog_ground")
 
         val box = LinearLayout(activity).apply {
             orientation = LinearLayout.VERTICAL
@@ -46,7 +46,7 @@ class SkFontPickerDialog(
                 LayoutInflater.from(activity), binding.skFontPickerHolder, false,
             )
             row.skFontOptionLabel.text = option.displayName
-            row.skFontOptionLabel.setTextColor(textColor)
+            SkMenus.style(row.skFontOptionLabel, SkMenus.VIEW, false)
             // The whole point: each option is drawn in the font it selects.
             row.skFontOptionLabel.typeface = SkFonts.typeface(activity, option.fileName)
             row.skFontOptionLabel.setOnClickListener {
@@ -60,7 +60,8 @@ class SkFontPickerDialog(
             LayoutInflater.from(activity), binding.skFontPickerHolder, false,
         )
         addRow.skFontOptionLabel.text = activity.getString(R.string.sk_add_font)
-        addRow.skFontOptionLabel.setTextColor(accent)
+        addRow.skFontOptionLabel.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.plus_circle, 0, 0, 0)
+        SkMenus.style(addRow.skFontOptionLabel, SkMenus.SHARE, true)
         addRow.skFontOptionLabel.setOnClickListener {
             dialog.dismiss()
             onAddFont()
@@ -78,11 +79,7 @@ class SkFontPickerDialog(
                     setTextColor(accent)
                     isClickable = true
                     isFocusable = true
-                    this.background = GradientDrawable().apply {
-                        setColor(background)
-                        cornerRadius = 50 * density
-                        setStroke((1.25f * density).toInt().coerceAtLeast(2), accent)
-                    }
+                    this.background = SkMenus.pill(activity, accent)
                     setPadding(
                         (18 * density).toInt(), (8 * density).toInt(),
                         (18 * density).toInt(), (8 * density).toInt(),

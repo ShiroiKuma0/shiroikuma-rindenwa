@@ -5,8 +5,6 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.RippleDrawable
-import android.content.res.ColorStateList
 import android.view.Gravity
 import android.view.ViewGroup
 import android.text.InputType
@@ -27,9 +25,9 @@ import org.linphone.R
  */
 private class SkDialogChrome(val activity: Activity) {
     val density = activity.resources.displayMetrics.density
-    val accent = SkTheme.color(activity, SkSlot.ACCENT)
-    val background = SkTheme.color(activity, SkSlot.BACKGROUND)
-    val textColor = SkTheme.color(activity, SkSlot.TEXT)
+    val accent = SkRoles.color(activity, "dialog_frame")
+    val background = SkRoles.color(activity, "dialog_ground")
+    val textColor = SkRoles.color(activity, "dialog_text")
 
     fun dp(value: Int): Int = (value * density).toInt()
 
@@ -46,7 +44,7 @@ private class SkDialogChrome(val activity: Activity) {
     fun title(value: String): TextView = TextView(activity).apply {
         text = value
         textSize = 19f
-        setTextColor(accent)
+        setTextColor(SkRoles.color(activity, "dialog_title"))
         setTypeface(typeface, Typeface.BOLD)
     }
 
@@ -62,23 +60,20 @@ private class SkDialogChrome(val activity: Activity) {
      * weight alone: a 3 dp frame and a bold label against 1.25 dp and normal. [ink] is the accent
      * unless the pill is one that takes something away, which lends it red.
      */
-    fun pill(label: String, main: Boolean = false, ink: Int = accent, onClick: () -> Unit): TextView =
+    fun pill(label: String, main: Boolean = false, ink: Int? = null, onClick: () -> Unit): TextView =
         AppCompatTextView(activity).apply {
             text = label
             textSize = 14f
             if (main) setTypeface(typeface, Typeface.BOLD)
-            setTextColor(ink)
+            setTextColor(ink ?: SkRoles.color(activity, "dialog_button_text"))
             gravity = Gravity.CENTER
             isClickable = true
             isFocusable = true
-            background = RippleDrawable(
-                ColorStateList.valueOf((ink and 0x00FFFFFF) or 0x33000000),
-                GradientDrawable().apply {
-                    setColor(this@SkDialogChrome.background)
-                    cornerRadius = 50 * density
-                    setStroke(((if (main) 3f else 1.25f) * density).toInt().coerceAtLeast(2), ink)
-                },
-                null,
+            // See-through, like every pill: the dialog's own ground shows inside the frame.
+            background = SkMenus.pill(
+                activity,
+                ink ?: SkRoles.color(activity, "dialog_button_frame"),
+                if (main) 3f else 1.25f,
             )
             setPadding(dp(18), dp(8), dp(18), dp(8))
             layoutParams = LinearLayout.LayoutParams(
@@ -104,15 +99,38 @@ private class SkDialogChrome(val activity: Activity) {
         setPadding(0, dp(14), 0, dp(4))
     }
 
-    /** One tappable line of a list; a long press is the way to remove it. */
-    fun line(value: String, onClick: () -> Unit, onLongClick: (() -> Unit)? = null): TextView =
-        TextView(activity).apply {
+    /**
+     * One tappable row of a list, drawn as what it is: a full-width outlined pill with its icon at
+     * the left, coloured by what the row does ([role], see [SkMenus]), a › when it [opens]
+     * something and a check when it is the [checked] one of a choice. A long press is the way to
+     * remove it. Plain text lines gave no sign that they could be pressed.
+     */
+    fun line(
+        value: String,
+        onClick: () -> Unit,
+        onLongClick: (() -> Unit)? = null,
+        iconRes: Int = R.drawable.chat_teardrop_text,
+        role: String = SkMenus.MESSAGE,
+        opens: Boolean = false,
+        checked: Boolean = false,
+    ): TextView =
+        AppCompatTextView(activity).apply {
             text = value
-            textSize = 16f
-            setTextColor(textColor)
-            isClickable = true
             isFocusable = true
-            setPadding(dp(4), dp(9), dp(4), dp(9))
+            gravity = Gravity.CENTER_VERTICAL
+            setCompoundDrawablesRelativeWithIntrinsicBounds(iconRes, 0, 0, 0)
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+            ).apply {
+                topMargin = dp(3)
+                bottomMargin = dp(3)
+            }
+            SkMenus.style(this, role, opens, checked)
+            (layoutParams as LinearLayout.LayoutParams).apply {
+                marginStart = 0
+                marginEnd = 0
+            }
             setOnClickListener { onClick() }
             if (onLongClick != null) {
                 setOnLongClickListener {
@@ -158,6 +176,8 @@ class SkConfirmDialog(
     title: String,
     message: String,
     confirmLabel: String? = null,
+    /** The confirmation takes something away: its pill is red, frame and label. */
+    destructive: Boolean = false,
     onConfirm: () -> Unit,
 ) {
     init {
@@ -165,11 +185,12 @@ class SkConfirmDialog(
         val box = chrome.box()
         box.addView(chrome.title(title))
         box.addView(chrome.body(message))
+        val ink = if (destructive) SkTheme.color(activity, SkSlot.MENU_DELETE) else null
         val bar = chrome.bar()
         lateinit var dialog: AlertDialog
         bar.addView(chrome.pill(activity.getString(R.string.sk_cancel)) { dialog.dismiss() })
         bar.addView(
-            chrome.pill(confirmLabel ?: activity.getString(R.string.sk_ok), main = true) {
+            chrome.pill(confirmLabel ?: activity.getString(R.string.sk_ok), main = true, ink = ink) {
                 dialog.dismiss()
                 onConfirm()
             },
@@ -193,19 +214,18 @@ class SkChoiceDialog(
         box.addView(chrome.title(title))
         lateinit var dialog: AlertDialog
         options.forEachIndexed { index, label ->
+            // A list of pure choices carries no icons; the chosen one carries the check.
             box.addView(
-                TextView(activity).apply {
-                    text = if (index == selectedIndex) "• $label" else label
-                    textSize = 16f
-                    setTextColor(if (index == selectedIndex) chrome.accent else chrome.textColor)
-                    isClickable = true
-                    isFocusable = true
-                    setPadding(chrome.dp(4), chrome.dp(9), chrome.dp(4), chrome.dp(9))
-                    setOnClickListener {
+                chrome.line(
+                    label,
+                    onClick = {
                         dialog.dismiss()
                         onPick(index)
-                    }
-                },
+                    },
+                    iconRes = 0,
+                    role = SkMenus.VIEW,
+                    checked = index == selectedIndex,
+                ),
             )
         }
         val bar = chrome.bar()
@@ -318,6 +338,7 @@ class SkDeclineMessageDialog(
             activity.getString(R.string.sk_call_decline_title),
             message,
             activity.getString(R.string.sk_delete),
+            destructive = true,
         ) {
             remove()
             show()
@@ -478,6 +499,8 @@ class SkDeclineMessagesEditor(
                         dialog.dismiss()
                         openActions(index, message, messages)
                     },
+                    iconRes = R.drawable.pencil_simple,
+                    opens = true,
                 ),
             )
         }
@@ -589,7 +612,7 @@ class SkRinNumberDialog(
         box.addView(chrome.title(title))
         box.addView(
             chrome.body(activity.getString(R.string.sk_rin_number_explanation)).apply {
-                setTextColor(SkTheme.color(activity, SkSlot.TEXT_SECONDARY))
+                setTextColor(SkRoles.color(activity, "dialog_note"))
                 textSize = 13f
             },
         )
@@ -639,7 +662,7 @@ class SkRinNumberDialog(
                     maxLines = 1
                     ellipsize = android.text.TextUtils.TruncateAt.END
                     gravity = Gravity.CENTER
-                    setTextColor(SkTheme.color(activity, SkSlot.TEXT_SECONDARY))
+                    setTextColor(SkRoles.color(activity, "dialog_note"))
                 }
                 val cell = LinearLayout(activity).apply {
                     orientation = LinearLayout.VERTICAL
@@ -756,6 +779,9 @@ class SkBlockedNumbersDialog(
                         dialog.dismiss()
                         openActions(entry)
                     },
+                    iconRes = R.drawable.sk_prohibit,
+                    role = SkMenus.BLOCK,
+                    opens = true,
                 ),
             )
         }

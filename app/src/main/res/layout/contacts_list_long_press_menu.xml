@@ -47,8 +47,8 @@
             android:background="@drawable/menu_item_background"
             android:visibility="@{isStored &amp;&amp; !isReadOnly ? View.VISIBLE : View.GONE}"
             android:text="@{isFavourite ? @string/contact_details_remove_from_favourites : @string/contact_details_add_to_favourites, default=@string/contact_details_add_to_favourites}"
-            android:drawableStart="@{isFavourite ? @drawable/heart_fill : @drawable/heart, default=@drawable/heart_fill}"
-            android:drawableTint="@{isFavourite ? @color/danger_500 : @color/main2_500, default=@color/danger_500}"
+            android:drawableStart="@drawable/heart"
+            skMenuRole="@{`contact`}"
             app:layout_constraintBottom_toTopOf="@id/share"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
@@ -65,6 +65,20 @@
             android:drawableStart="@drawable/share_network"
             skMenuRole="@{`share`}"
             skMenuOpens="@{true}"
+            app:layout_constraintBottom_toTopOf="@+id/sk_div_delete"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- shiroikuma fork: the line between two groups of the menu. -->
+        <View
+            android:id="@+id/sk_div_delete"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginStart="22dp"
+            android:layout_marginEnd="22dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:background="@color/sk_menu_divider"
             app:layout_constraintBottom_toTopOf="@id/delete"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />

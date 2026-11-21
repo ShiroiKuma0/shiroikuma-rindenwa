@@ -52,7 +52,7 @@
                 android:ellipsize="end"
                 android:includeFontPadding="false"
                 android:text="@{model.displayName, default=`Display name`}"
-                android:textColor="?attr/color_main1_500"
+                skInk="@{`tab_label`}"
                 android:textSize="20sp" />
 
         </LinearLayout>

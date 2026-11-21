@@ -167,6 +167,16 @@
                     android:drawableStart="@drawable/forward"
                     android:visibility="@{viewModel.hideForward || viewModel.hasBeenRetracted ? View.GONE : View.VISIBLE}" />
 
+                <!-- shiroikuma fork: the line between two groups of the menu. -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="22dp"
+                    android:layout_marginEnd="22dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="4dp"
+                    android:background="@color/sk_menu_divider" />
+
                 <androidx.appcompat.widget.AppCompatTextView
                     style="@style/chat_bubble_popup_menu_style"
                     android:id="@+id/action_delete"

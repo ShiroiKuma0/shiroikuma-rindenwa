@@ -73,7 +73,7 @@
                 android:minHeight="@dimen/sk_dialpad_chrome_size"
                 android:paddingBottom="6dp"
                 android:text="@{dialpad.digits}"
-                android:textColor="@color/sk_yellow"
+                skInk="@{`dial_field_text`}"
                 android:textSize="@dimen/sk_dialpad_digits_size" />
 
             <ImageView
@@ -86,7 +86,7 @@
                 android:scaleType="fitCenter"
                 android:src="@drawable/backspace_fill"
                 android:contentDescription="@string/content_description_erase_last_input"
-                app:tint="@color/sk_yellow" />
+                skTint="@{`dial_icon`}" />
 
             <ImageView
                 android:id="@+id/collapse"
@@ -98,7 +98,7 @@
                 android:scaleType="fitCenter"
                 android:src="@drawable/caret_down"
                 android:contentDescription="@string/sk_content_description_hide_dialpad"
-                app:tint="@color/sk_yellow" />
+                skTint="@{`dial_icon`}" />
 
         </LinearLayout>
 
@@ -277,7 +277,7 @@
             android:scaleType="fitCenter"
             android:src="@drawable/phone"
             android:contentDescription="@string/content_description_call_start"
-            app:tint="@color/sk_yellow" />
+            skTint="@{`dial_icon`}" />
 
     </LinearLayout>
 

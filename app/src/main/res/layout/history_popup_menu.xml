@@ -80,7 +80,22 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/go_to_contact"
-            app:layout_constraintBottom_toTopOf="@id/delete_history"/>
+            app:layout_constraintBottom_toTopOf="@+id/sk_div_delete_history"/>
+
+        <!-- shiroikuma fork: the line between two groups of the menu. -->
+        <View
+            android:id="@+id/sk_div_delete_history"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginStart="22dp"
+            android:layout_marginEnd="22dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:background="@color/sk_menu_divider"
+            app:layout_constraintTop_toBottomOf="@id/copy_number"
+            app:layout_constraintBottom_toTopOf="@id/delete_history"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <androidx.appcompat.widget.AppCompatTextView
             style="@style/popup_menu_item"
@@ -95,7 +110,7 @@
             app:drawableTint="?attr/color_danger_500"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/copy_number"
+            app:layout_constraintTop_toBottomOf="@id/sk_div_delete_history"
             app:layout_constraintBottom_toTopOf="@id/bottom_anchor"/>
 
         <View

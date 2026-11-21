@@ -41,14 +41,15 @@ class SkEximportPanel(
     private val openImportFile: () -> Unit,
 ) {
     private val density = activity.resources.displayMetrics.density
-    private val accent = SkTheme.color(activity, SkSlot.ACCENT)
-    private val background = SkTheme.color(activity, SkSlot.BACKGROUND)
-    private val textColor = SkTheme.color(activity, SkSlot.TEXT)
+    private val accent = SkRoles.color(activity, "dialog_frame")
+    private val background = SkRoles.color(activity, "dialog_ground")
+    private val textColor = SkRoles.color(activity, "dialog_text")
 
     private val dialog: AlertDialog
     private lateinit var dirValue: TextView
     private lateinit var statusView: TextView
     private val catBoxes = LinkedHashMap<SkEximport.Cat, CheckBox>()
+    private val warnColor: Int get() = SkTheme.color(activity, SkSlot.MENU_DELETE)
     private var pendingExportCats: Set<SkEximport.Cat> = emptySet()
     private var pendingImportCats: Set<SkEximport.Cat> = emptySet()
     private var pendingExportName: String = ""
@@ -212,7 +213,12 @@ class SkEximportPanel(
             text = label
             textSize = 15f
             setTextColor(textColor)
-            buttonTintList = ColorStateList.valueOf(accent)
+            // A selection mark, in the two colours of a switch: accent when chosen, the opaque
+            // switch-off yellow when not.
+            buttonTintList = ColorStateList(
+                arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
+                intArrayOf(SkRoles.color(activity, "mark_on"), SkRoles.color(activity, "mark_off")),
+            )
             if (bold) setTypeface(typeface, Typeface.BOLD)
             setPadding(dp(4), dp(2), 0, dp(2))
             if (indent) {
@@ -273,10 +279,10 @@ class SkEximportPanel(
         val name = SkEximport.exportDir(activity)?.name
             ?: SkEximport.dirUri(activity)?.lastPathSegment
         dirValue.text = name ?: activity.getString(R.string.sk_eim_dir_unset)
-        dirValue.setTextColor(if (name == null) WARN_COLOR else textColor)
+        dirValue.setTextColor(if (name == null) warnColor else textColor)
         val (message, warn) = SkEximport.lastExportStatus(activity)
         statusView.text = message
-        statusView.setTextColor(if (warn) WARN_COLOR else textColor)
+        statusView.setTextColor(if (warn) warnColor else textColor)
         statusView.alpha = if (warn) 1f else 0.8f
     }
 
@@ -560,7 +566,4 @@ class SkEximportPanel(
         Runtime.getRuntime().exit(0)
     }
 
-    companion object {
-        private const val WARN_COLOR = 0xFFFF5252.toInt()
-    }
 }

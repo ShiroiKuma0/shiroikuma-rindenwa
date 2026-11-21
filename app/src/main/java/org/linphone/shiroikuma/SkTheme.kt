@@ -273,17 +273,21 @@ object SkTheme {
 
     fun setColor(context: Context, slot: SkSlot, color: Int) {
         prefs(context).edit().putInt(slot.key, color).apply()
+        SkPalette.changed()
     }
 
     fun clearColor(context: Context, slot: SkSlot) {
         prefs(context).edit().remove(slot.key).apply()
+        SkPalette.changed()
     }
 
     /** Inherited defaults — the black/yellow house look, initialized for everything. */
     fun default(context: Context, slot: SkSlot): Int = when (slot) {
         SkSlot.BACKGROUND -> SK_PALETTE_BLACK
         SkSlot.TEXT -> SK_PALETTE_YELLOW
-        SkSlot.TEXT_SECONDARY -> withAlpha(color(context, SkSlot.TEXT), 0.65f)
+        // The dim gold of notes and explanations: a darker, OPAQUE yellow (#C8C800 on the default
+        // pair) — 78 % of the way from the ground to the text, never a faded text colour.
+        SkSlot.TEXT_SECONDARY -> blend(color(context, SkSlot.BACKGROUND), color(context, SkSlot.TEXT), 0.78f)
         SkSlot.ACCENT -> SK_PALETTE_YELLOW
 
         SkSlot.TOOLBAR_BACKGROUND -> color(context, SkSlot.BACKGROUND)
@@ -335,7 +339,8 @@ object SkTheme {
         SkSlot.BUTTON_TEXT -> color(context, SkSlot.ACCENT)
         SkSlot.BUTTON_BORDER -> color(context, SkSlot.ACCENT)
 
-        SkSlot.SWITCH_OFF -> 0xFF8C8C00.toInt()
+        // 55 % of the way from the ground to the text: #8C8C00 on the default pair.
+        SkSlot.SWITCH_OFF -> blend(color(context, SkSlot.BACKGROUND), color(context, SkSlot.TEXT), 0.55f)
 
         // The sister dialer serves these roles too (SkDenwaStyle); the same defaults as there.
         SkSlot.MENU_CALL -> SkDenwaStyle.color("color.role.call") ?: 0xFF00FF00.toInt()
@@ -409,6 +414,16 @@ object SkTheme {
     }
 
     // --- helpers ---
+
+    /** The opaque colour [share] of the way from [from] to [to]. */
+    fun blend(from: Int, to: Int, share: Float): Int {
+        fun channel(shift: Int): Int {
+            val a = (from shr shift) and 0xFF
+            val b = (to shr shift) and 0xFF
+            return (a + (b - a) * share + 0.5f).toInt().coerceIn(0, 255)
+        }
+        return (0xFF shl 24) or (channel(16) shl 16) or (channel(8) shl 8) or channel(0)
+    }
 
     fun withAlpha(color: Int, alpha: Float): Int =
         ColorUtils.setAlphaComponent(color, (alpha * 255).toInt().coerceIn(0, 255))

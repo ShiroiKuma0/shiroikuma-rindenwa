@@ -244,7 +244,7 @@
             app:layout_constraintStart_toStartOf="@id/digit_sharp"
             app:layout_constraintEnd_toEndOf="@id/digit_sharp"
             app:layout_constraintTop_toTopOf="@id/call_barrier"
-            app:tint="@color/bc_white" />
+            app:tint="@color/sk_yellow" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

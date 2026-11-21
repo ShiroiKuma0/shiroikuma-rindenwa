@@ -254,6 +254,78 @@ who it is.
   `StructuredName` data row with only the family name set — 白い熊 files these under the surname.
   `Insert.NAME` is not used: 連絡先 puts that in the first name.
 
+## The call door — which apps may dial through 臨電話
+
+`SkCallsProvider` (`content://shiroikuma.rindenwa.calls`: `accounts`, `dial`, `callback`,
+`silence_ringer`) lets other apps place calls through an account here. Who is let in is
+`SkCallDoor`: the string set `sk_call_door_apps` in the default preferences.
+
+- **A selection, not fixed switches** (白い熊, 2026-11-21): the row “Apps that may place calls” in
+  the “Accounts and apps” section of the 臨電話 UI page opens `SkAppPickerDialog` — every app with
+  a launcher entry (hence the `MAIN` / `LAUNCHER` intent in the manifest’s `<queries>`), each row
+  the app’s icon, its name and an outlined switch that stores at once.
+- **Three defaults:** 連絡先, 電話 and メッセージ (`SkCallDoor.KNOWN`). The set is stored whole, so a
+  default added later does not reach an install that already stored one — `SkCallDoor.migrate`
+  adds each new default **once** (`sk_call_door_defaults_seen`), and what 白い熊 switches off
+  afterwards stays off. Add a future default to `KNOWN` and nothing else.
+- A `.debug` build is let in when its release id is; the caller’s package is confirmed against
+  its uid.
+
+## The 臨電話 UI page is a folding accordion with a chip index
+
+`SkUiActivity`, per the black-yellow-theme skill (applied fully 2026-11-21):
+
+- **Sections come from a registry** (`sections()`): a stable string key, a heading, a builder.
+  **Never rename a key** — `SkPageState` stores the order (`sk_ui_section_order`) and the open
+  set (`sk_ui_sections_open`) by key, in the default preferences, so both travel in the export’s
+  appearance category. A new section goes into `sections()` at its built place.
+- Every section is folded by default; a folded section’s rows are **not built** until it is first
+  opened. Row builders therefore add to `body`, never to `binding.skHolder`.
+- On top: the “App settings” pill (`SkSisterApps.EXTRA_OPEN_SETTINGS` → `MainActivity`), then the
+  chip index (`SkSectionIndex`: tap jumps, long press drags, chips reorder live, sections follow
+  on drop). “Reset section order” is in Maintenance.
+- Every row carries an icon coloured by role (`rowIcon`); a row with an explanation carries the
+  2 dp dim-gold left rule (`ruled`, after `indentRow`).
+- **`SkViewInflater`** (named by `viewInflaterClass` in `Theme.SkBlackYellow`) is where every
+  inflated switch, radio button and check box takes the settable accent / switch-off colours.
+  Radios and check boxes stay selection marks (白い熊, 2026-11-21).
+
+## Colours — no XML holds one; every item is a settable role
+
+白い熊, 2026-11-21: *“nothing hardcoded/pinned in XML, everything settable via UI settings”* — done
+the **mixed** way, chosen by 白い熊 because this fork is rebased onto every upstream commit.
+
+- **The role table is the one place a colour is written:** `shiroikuma/SkRoles.kt` (about 175
+  roles in `SkArea`s) and the `SkSlot`s of `SkTheme.kt`. `#FFFF00` / `#000000` are the defaults of
+  `SkSlot.ACCENT` / `TEXT` and `BACKGROUND`; every other role falls back to them, directly or
+  through another role, unless it carries a meaning (danger red, success green, …).
+- **XML names a role, never a value.** `values/sk_colors.xml` declares the role resources with
+  **placeholder** values (dark magenta ground, pink ink — seeing one on the phone means the loader
+  missed that surface). `Theme.SkBlackYellow` points each of upstream’s 61 colour attributes at
+  its own role (`sk_a_…`). Upstream’s own colour names used directly in its layouts (`bc_white`,
+  `gray_900`, …) are roles too (`up_…`), fed by id. **Upstream’s layouts are not edited for
+  colour** — that is the point: no rebase conflicts. The exceptions are the assistant, welcome and
+  meeting layouts, whose `?attr/color_x` became `@color/sk_asst_x` / `@color/sk_meet_x` so those
+  screens have roles of their own; after an upstream sync, re-apply that rewrite to any new
+  attribute reference in those files.
+- **`SkPalette`** lays the roles over the resources with a `ResourcesLoader` (Android 11+), built
+  by Material’s colour-table creator through `com.google.android.material.color.SkColorLoaderBridge`
+  (a class of ours in Material’s package, because the creator is package-private — check it still
+  compiles after a Material update). `SkPalette.apply` runs in `LinphoneApplication.onCreate` and
+  in every activity’s `getTheme()`; a stored colour bumps the generation and an activity built
+  from older colours recreates itself in `onResume`.
+- **The fork’s own layouts carry no colour at all**; they are coloured in code — by the binding
+  adapters `skInk` / `skTint` / `skGround` (a role key), or where they are inflated.
+- **A new coloured thing gets a role in the same commit**, and a role key is never renamed: it is
+  the preference key (`sk_role_<key>`, default preferences, so it travels in the export’s
+  appearance category). Every role has one swatch row on the 臨電話 UI page, in the section of its
+  area; the picker’s Default resets one role, “Reset all colours” in Maintenance resets all.
+- **What the platform draws before any code runs** stays in XML: `sk_window_black` (window ground
+  and system bars in `Theme.SkBlackYellow`, repainted by `SkPalette.paintWindow`), the splash
+  ground and the launcher icon ground (`bc_black`, read by the system without our loader).
+- Not roles: the fill of a vector icon (a mask, tinted where it is used) and upstream’s
+  multi-colour illustrations.
+
 ## Numbers are written one way
 
 `shiroikuma/SkNumbers.kt` is the one place a phone number is formatted: `+420-601-123-456`,

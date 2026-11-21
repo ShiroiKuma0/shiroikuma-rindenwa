@@ -38,27 +38,30 @@ enum class SkDiagKind(
     val key: String,
     @StringRes val labelRes: Int,
     @StringRes val descRes: Int,
+    /** The row's icon on the 臨電話 UI page, and the role that colours it (SkMenus). */
+    val icon: Int,
+    val role: String = SkMenus.VIEW,
 ) {
     /** Why the phone is not reachable: every REGISTER answer, including the SIP code. */
-    REGISTRATION("registration", R.string.sk_diag_registration, R.string.sk_diag_registration_desc),
+    REGISTRATION("registration", R.string.sk_diag_registration, R.string.sk_diag_registration_desc, R.drawable.globe_hemisphere_west),
 
     /** Why it did not ring: a line per incoming call, how it was announced and how it ended. */
-    CALLS("calls", R.string.sk_diag_calls, R.string.sk_diag_calls_desc),
+    CALLS("calls", R.string.sk_diag_calls, R.string.sk_diag_calls_desc, R.drawable.incoming_call, SkMenus.CALL),
 
     /**
      * Why the other end kept ringing: every state an outgoing call goes through, with the SIP
      * code and reason behind it, and the moment the hang-up was asked for.
      */
-    OUTGOING("outgoing", R.string.sk_diag_outgoing, R.string.sk_diag_outgoing_desc),
+    OUTGOING("outgoing", R.string.sk_diag_outgoing, R.string.sk_diag_outgoing_desc, R.drawable.outgoing_call, SkMenus.CALL),
 
     /**
      * What was actually said on the wire: every SIP message sent and received, whole, plus every
      * warning and error the SIP stack raises. The only record of whether a CANCEL left the phone.
      */
-    SIP("sip", R.string.sk_diag_sip, R.string.sk_diag_sip_desc),
+    SIP("sip", R.string.sk_diag_sip, R.string.sk_diag_sip_desc, R.drawable.file_text),
 
     /** Why it was dead: process starts, the keep-alive service going up and down. */
-    SERVICE("service", R.string.sk_diag_service, R.string.sk_diag_service_desc),
+    SERVICE("service", R.string.sk_diag_service, R.string.sk_diag_service_desc, R.drawable.bell),
     ;
 
     val prefsKey: String

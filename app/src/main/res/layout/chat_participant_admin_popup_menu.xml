@@ -130,7 +130,7 @@
             android:layout_width="0dp"
             android:layout_height="1dp"
             android:layout_marginTop="@dimen/popup_menu_padding"
-            android:background="?attr/color_main2_400"
+            android:background="@color/sk_menu_divider"
             android:importantForAccessibility="no"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

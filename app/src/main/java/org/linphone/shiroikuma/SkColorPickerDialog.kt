@@ -35,9 +35,9 @@ class SkColorPickerDialog(
     private val callback: (wasPositive: Boolean, color: Int) -> Unit,
 ) {
     private val density = activity.resources.displayMetrics.density
-    private val accent = SkTheme.color(activity, SkSlot.ACCENT)
-    private val background = SkTheme.color(activity, SkSlot.BACKGROUND)
-    private val textColor = SkTheme.color(activity, SkSlot.TEXT)
+    private val accent = SkRoles.color(activity, "dialog_frame")
+    private val background = SkRoles.color(activity, "dialog_ground")
+    private val textColor = SkRoles.color(activity, "dialog_text")
 
     private val binding = DialogSkColorPickerBinding.inflate(LayoutInflater.from(activity))
     private var red = Color.red(initialColor)

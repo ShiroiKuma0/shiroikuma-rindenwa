@@ -39,6 +39,9 @@ object SkSisterApps {
     /** What the other two send here: land on the call history, whatever was left open. */
     const val EXTRA_OPEN_HISTORY = "shiroikuma_open_history"
 
+    /** What the 臨電話 UI page sends to the main activity: show the app's own settings. */
+    const val EXTRA_OPEN_SETTINGS = "shiroikuma_open_settings"
+
     // The commons tab masks the other two apps use.
     const val TAB_CONTACTS = 1
     const val TAB_FAVORITES = 2

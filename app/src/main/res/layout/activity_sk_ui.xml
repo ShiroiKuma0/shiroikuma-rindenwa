@@ -11,6 +11,7 @@
         style="?attr/toolbarStyle" />
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/sk_scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true">

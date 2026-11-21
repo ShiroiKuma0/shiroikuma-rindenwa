@@ -67,6 +67,38 @@ class SkUiActivity : AppCompatActivity() {
     private var callPreview: ItemSkCallPreviewBinding? = null
     private var eximPanel: SkEximportPanel? = null
 
+    /** One top-level section: its stable key, its heading, and what fills it. */
+    private class Section(val key: String, val labelRes: Int, val build: () -> Unit)
+
+    /** Where the row builders put their rows: the body of the section being built. */
+    private lateinit var body: LinearLayout
+    private val sectionWrappers = HashMap<String, View>()
+    private val sectionBodies = HashMap<String, LinearLayout>()
+    private val sectionChevrons = HashMap<String, TextView>()
+    private val builtSections = HashSet<String>()
+
+    /** See [ruled]. */
+    private class LeftRule(
+        private val x: Float,
+        private val width: Float,
+        private val inset: Float,
+        color: Int,
+    ) : android.graphics.drawable.Drawable() {
+        private val paint = android.graphics.Paint().apply { this.color = color }
+
+        override fun draw(canvas: android.graphics.Canvas) {
+            val b = bounds
+            canvas.drawRect(x, b.top + inset, x + width, b.bottom - inset, paint)
+        }
+
+        override fun setAlpha(alpha: Int) = Unit
+
+        override fun setColorFilter(filter: android.graphics.ColorFilter?) = Unit
+
+        @Deprecated("Deprecated in Java")
+        override fun getOpacity(): Int = android.graphics.PixelFormat.TRANSLUCENT
+    }
+
     private val indentStepPx: Int
         get() = (INDENT_STEP_DP * resources.displayMetrics.density).toInt()
 
@@ -134,6 +166,7 @@ class SkUiActivity : AppCompatActivity() {
 
     /** Same black-yellow overlay the rest of the app gets, so our own chrome matches it. */
     override fun getTheme(): android.content.res.Resources.Theme {
+        SkPalette.apply(this)
         val theme = super.getTheme()
         theme.applyStyle(R.style.Theme_SkBlackYellow, true)
         return theme
@@ -147,6 +180,7 @@ class SkUiActivity : AppCompatActivity() {
         setTitle(R.string.sk_ui_title)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.toolbar.setNavigationOnClickListener { finish() }
+        SkPalette.paintWindow(this)
     }
 
     override fun onPause() {
@@ -162,6 +196,9 @@ class SkUiActivity : AppCompatActivity() {
     }
 
     private fun refreshPage() {
+        // A colour may just have been set: this page's own resources take it at once.
+        SkPalette.apply(this)
+        SkPalette.paintWindow(this)
         // A slot may have just gained (or lost) an override — tell the runtime pass before it runs.
         SkStyler.refreshOverrideState(this)
         SkStyler.apply(this)
@@ -177,9 +214,64 @@ class SkUiActivity : AppCompatActivity() {
         bubblePreview = null
         buttonPreview = null
         callPreview = null
+        sectionWrappers.clear()
+        sectionBodies.clear()
+        sectionChevrons.clear()
+        builtSections.clear()
+        body = binding.skHolder
 
+        // The one thing pinned above the sections: the way to the app's own settings.
+        addActionRow(
+            R.string.sk_app_settings,
+            0,
+            main = true,
+            opens = true,
+            level = 0,
+            icon = R.drawable.gear,
+        ) { openAppSettings() }
+
+        val sections = sections()
+        val order = SkPageState.order(this, sections.map { it.key })
+        addSectionIndex(order.map { key -> sections.first { it.key == key } })
+        for (key in order) {
+            addSection(sections.first { it.key == key })
+        }
+        body = binding.skHolder
+    }
+
+    /**
+     * The top-level sections in their built order — the order a fresh install shows, and the one
+     * "Reset section order" goes back to. The keys are what [SkPageState] stores, so they are
+     * never renamed; a section added later appears at its built place in a stored order.
+     */
+    private fun sections(): List<Section> = listOf(
+        Section("eximport", R.string.sk_section_eximport) { buildEximport() },
+        Section("accounts", R.string.sk_section_accounts_apps) { buildAccountsAndApps() },
+        Section("foundation", SkSection.FOUNDATION.labelRes) { buildFoundation() },
+        Section("top_bar", SkSection.TOP_BAR.labelRes) { buildTopBar() },
+        Section("main", SkSection.MAIN_SCREEN.labelRes) { buildMainScreen() },
+        Section("calls", SkSection.CALLS.labelRes) { buildCalls() },
+        Section("conversations", SkSection.CONVERSATIONS.labelRes) { buildConversations() },
+        Section("buttons", R.string.sk_section_buttons) { buildButtons() },
+        Section("switches", R.string.sk_section_switches) { buildSwitches() },
+        Section("menus", R.string.sk_section_menus) { buildMenus() },
+        Section("dialogs", R.string.sk_section_dialogs) { buildDialogs() },
+        Section("text", R.string.sk_section_text) { buildText() },
+        Section("surfaces", R.string.sk_section_surfaces) { buildSurfaces() },
+        Section("fields", R.string.sk_section_fields) { buildFields() },
+        Section("status", R.string.sk_section_status) { buildStatus() },
+        Section("marks", R.string.sk_section_marks) { buildMarks() },
+        Section("sheets", R.string.sk_section_sheets) { buildSheets() },
+        Section("flashes", R.string.sk_section_flashes) { buildFlashes() },
+        Section("page", R.string.sk_section_page) { buildPage() },
+        Section("assistant", R.string.sk_section_assistant) { buildAssistant() },
+        Section("meetings", R.string.sk_section_meetings) { buildMeetings() },
+        Section("diag", R.string.sk_section_diag) { buildDiagnostics() },
+        Section("maintenance", R.string.sk_section_maintenance) { buildMaintenance() },
+    )
+
+    private fun buildEximport() {
         // ---- Export / Import — always first, per the Kōjiki page ----
-        addSection(R.string.sk_section_eximport)
         addEximportRow(1)
         // The 保存復元 automation lives where backup lives — inside this section, below its rows.
         addAutomationSwitchRow(1)
@@ -189,36 +281,30 @@ class SkUiActivity : AppCompatActivity() {
         if (SkAutomation.requireToken(this)) {
             addAutomationTokenRow(1)
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            addAllFilesAccessRow(1)
+        }
+    }
 
+    private fun buildAccountsAndApps() {
         // ---- 臨0, 臨1, 臨2 …: the number each SIP account is known by (SkAccountNumbers) ----
         addSubgroup(R.string.sk_group_rin_numbers, 1)
         addRinNumberRows(1)
 
         // ---- The call door: which sister apps may dial through this one (SkCallsProvider) ----
         addSubgroup(R.string.sk_group_call_door, 1)
-        addSwitchRow(
-            R.string.sk_call_door_renrakusaki,
-            R.string.sk_call_door_renrakusaki_desc,
-            SkSisterApps.RENRAKUSAKI in SkCallDoor.allowed(this),
-            1,
-        ) { SkCallDoor.setAllowed(this, SkSisterApps.RENRAKUSAKI, it) }
-        addSwitchRow(
-            R.string.sk_call_door_denwa,
-            R.string.sk_call_door_denwa_desc,
-            SkSisterApps.DENWA in SkCallDoor.allowed(this),
-            1,
-        ) { SkCallDoor.setAllowed(this, SkSisterApps.DENWA, it) }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            addAllFilesAccessRow(1)
-        }
+        addCallDoorRow(1)
+    }
 
-        addSection(SkSection.FOUNDATION)
+    private fun buildFoundation() {
         addColorRow(SkSlot.BACKGROUND, 1)
         addTextSlot(SkSlot.TEXT, 1)
         addTextSlot(SkSlot.TEXT_SECONDARY, 1)
         addColorRow(SkSlot.ACCENT, 1)
+        addRoleRows(SkArea.ACCENT, 1)
+    }
 
-        addSection(SkSection.TOP_BAR)
+    private fun buildTopBar() {
         addColorRow(SkSlot.TOOLBAR_BACKGROUND, 1)
         addTextSlot(SkSlot.TOOLBAR_TITLE, 1)
         addColorRow(SkSlot.TOOLBAR_ICON, 1)
@@ -232,6 +318,7 @@ class SkUiActivity : AppCompatActivity() {
             main = false,
             opens = true,
             level = 2,
+            icon = R.drawable.image,
         ) { openAllTabPicture.launch(arrayOf("image/*")) }
         if (SkAllAccounts.hasPicture(this)) {
             addActionRow(
@@ -240,13 +327,17 @@ class SkUiActivity : AppCompatActivity() {
                 main = false,
                 opens = false,
                 level = 2,
+                icon = R.drawable.trash,
+                role = SkMenus.DELETE,
             ) {
                 SkAllAccounts.removePicture(this)
                 refreshPage()
             }
         }
+        addRoleGroup(SkArea.BARS, R.string.sk_group_roles_bars)
+    }
 
-        addSection(SkSection.MAIN_SCREEN)
+    private fun buildMainScreen() {
         addSubgroup(R.string.sk_group_list_rows, 1)
         addTextSlot(SkSlot.LIST_NAME, 2)
         addTextSlot(SkSlot.LIST_DETAIL, 2)
@@ -262,6 +353,7 @@ class SkUiActivity : AppCompatActivity() {
             R.string.sk_contact_sections_desc,
             SkContacts.sectionsEnabled(this),
             2,
+            icon = R.drawable.list,
         ) {
             SkContacts.setSectionsEnabled(this, it)
         }
@@ -280,6 +372,8 @@ class SkUiActivity : AppCompatActivity() {
             R.string.sk_contact_initials_desc,
             SkContacts.initialsEnabled(this),
             2,
+            icon = R.drawable.user_circle,
+            role = SkMenus.CONTACT,
         ) {
             SkContacts.setInitialsEnabled(this, it)
         }
@@ -303,8 +397,11 @@ class SkUiActivity : AppCompatActivity() {
         addSubgroup(R.string.sk_group_fab, 1)
         addColorRow(SkSlot.FAB_BACKGROUND, 2)
         addColorRow(SkSlot.FAB_ICON, 2)
+        addRoleGroup(SkArea.LISTS, R.string.sk_group_roles_lists)
+        addRoleGroup(SkArea.AVATARS, R.string.sk_group_roles_avatars)
+    }
 
-        addSection(SkSection.CALLS)
+    private fun buildCalls() {
         // Without this grant an incoming call can only drop a banner when the screen is already on,
         // so it belongs at the top of the section rather than buried under the colours.
         addCallScreenOverlayRow(1)
@@ -317,6 +414,8 @@ class SkUiActivity : AppCompatActivity() {
             R.string.sk_online_id_desc,
             SkOnlineId.enabled(this),
             1,
+            icon = R.drawable.magnifying_glass,
+            role = SkMenus.CONTACT,
         ) {
             SkOnlineId.setEnabled(this, it)
         }
@@ -332,6 +431,7 @@ class SkUiActivity : AppCompatActivity() {
             R.string.sk_call_day_headers_desc,
             SkCallLog.dayHeadersEnabled(this),
             2,
+            icon = R.drawable.calendar,
         ) {
             SkCallLog.setDayHeadersEnabled(this, it)
         }
@@ -348,6 +448,7 @@ class SkUiActivity : AppCompatActivity() {
             R.string.sk_call_relative_days_desc,
             SkCallLog.relativeDaysEnabled(this),
             2,
+            icon = R.drawable.calendar_blank,
         ) {
             SkCallLog.setRelativeDaysEnabled(this, it)
         }
@@ -364,6 +465,7 @@ class SkUiActivity : AppCompatActivity() {
             R.string.sk_call_show_duration_desc,
             SkCallLog.durationShown(this),
             2,
+            icon = R.drawable.clock,
         ) {
             SkCallLog.setDurationShown(this, it)
         }
@@ -380,6 +482,8 @@ class SkUiActivity : AppCompatActivity() {
             R.string.sk_call_show_direction_desc,
             SkCallLog.directionShown(this),
             2,
+            icon = R.drawable.incoming_call,
+            role = SkMenus.CALL,
         ) {
             SkCallLog.setDirectionShown(this, it)
         }
@@ -412,8 +516,11 @@ class SkUiActivity : AppCompatActivity() {
         addSubgroup(R.string.sk_group_call_buttons, 1)
         addColorRow(SkSlot.CALL_ANSWER, 2)
         addColorRow(SkSlot.CALL_HANGUP, 2)
+        addRoleGroup(SkArea.IN_CALL, R.string.sk_group_roles_in_call)
+        addRoleGroup(SkArea.DIAL, R.string.sk_group_roles_dial)
+    }
 
-        addSection(SkSection.CONVERSATIONS)
+    private fun buildConversations() {
         addSubgroup(R.string.sk_group_bubble_outgoing, 1)
         addColorRow(SkSlot.BUBBLE_OUTGOING, 2)
         addTextSlot(SkSlot.BUBBLE_OUTGOING_TEXT, 2)
@@ -424,15 +531,27 @@ class SkUiActivity : AppCompatActivity() {
         addDimenRow(SkDimen.BUBBLE_BORDER_WIDTH, 2)
         addDimenRow(SkDimen.BUBBLE_CORNER_RADIUS, 2)
         addBubblePreview(2)
+        addRoleGroup(SkArea.BUBBLES, R.string.sk_group_roles_bubbles)
+    }
 
-        addSection(SkSection.CONTROLS)
+    private fun buildButtons() {
         addColorRow(SkSlot.BUTTON_BACKGROUND, 1)
         addTextSlot(SkSlot.BUTTON_TEXT, 1)
         addColorRow(SkSlot.BUTTON_BORDER, 1)
         addDimenRow(SkDimen.BUTTON_BORDER_WIDTH, 1)
+        addDimenRow(SkDimen.BUTTON_CORNER_RADIUS, 1)
+        addButtonPreview(1)
+        addRoleRows(SkArea.BUTTONS, 1)
+    }
 
+    private fun buildSwitches() {
+        addRoleRows(SkArea.SWITCHES, 1) { it.key == "switch_on" }
         addColorRow(SkSlot.SWITCH_OFF, 1)
+        addRoleRows(SkArea.SWITCHES, 1) { it.key != "switch_on" }
+    }
 
+    private fun buildMenus() {
+        addRoleRows(SkArea.MENUS, 1)
         // The icon of a menu row is coloured by what the row does (SkMenus).
         addSubgroup(R.string.sk_group_menu_icons, 1)
         addColorRow(SkSlot.MENU_CALL, 2)
@@ -442,14 +561,64 @@ class SkUiActivity : AppCompatActivity() {
         addColorRow(SkSlot.MENU_VIEW, 2)
         addColorRow(SkSlot.MENU_BLOCK, 2)
         addColorRow(SkSlot.MENU_DELETE, 2)
-        addDimenRow(SkDimen.BUTTON_CORNER_RADIUS, 1)
-        addButtonPreview(1)
+    }
 
+    private fun buildDialogs() = addRoleRows(SkArea.DIALOGS, 1)
+
+    private fun buildText() = addRoleRows(SkArea.TEXT, 1)
+
+    private fun buildSurfaces() = addRoleRows(SkArea.SURFACES, 1)
+
+    private fun buildFields() = addRoleRows(SkArea.FIELDS, 1)
+
+    private fun buildStatus() = addRoleRows(SkArea.STATUS, 1)
+
+    private fun buildMarks() = addRoleRows(SkArea.MARKS, 1)
+
+    private fun buildSheets() = addRoleRows(SkArea.SHEETS, 1)
+
+    private fun buildFlashes() = addRoleRows(SkArea.FLASH, 1)
+
+    private fun buildPage() = addRoleRows(SkArea.PAGE, 1)
+
+    private fun buildAssistant() = addRoleRows(SkArea.ASSISTANT, 1)
+
+    private fun buildMeetings() = addRoleRows(SkArea.MEETINGS, 1)
+
+    /**
+     * One swatch row for every role of [area]: its colour of the moment, a tap opens the picker,
+     * and the picker's Default takes the stored colour away again. Every role of [SkRoles] is on
+     * this page exactly once, in the section its item belongs to.
+     */
+    private fun addRoleRows(area: SkArea, level: Int, only: (SkRole) -> Boolean = { true }) {
+        for (role in SkRoles.inArea(area).filter(only)) {
+            val row = ItemSkColorBinding.inflate(LayoutInflater.from(this), body, false)
+            row.skColorLabel.text = role.label
+            rowIcon(row.skColorLabel, R.drawable.sk_ic_drop)
+            row.skColorLabel.setTextColor(SkRoles.color(this, "page_label"))
+            row.skColorPreview.background = swatch(SkRoles.color(this, role))
+            row.root.setOnClickListener {
+                SkColorPickerDialog(this, SkRoles.color(this, role), showDefault = true) { wasPositive, color ->
+                    if (wasPositive) SkRoles.set(this, role, color) else SkRoles.clear(this, role)
+                    refreshPage()
+                }
+            }
+            indentRow(row.root, level)
+            body.addView(row.root)
+        }
+    }
+
+    /** The roles of [area] under a sub-heading of their own, inside a section that holds more. */
+    private fun addRoleGroup(area: SkArea, labelRes: Int) {
+        addSubgroup(labelRes, 1)
+        addRoleRows(area, 2)
+    }
+
+    private fun buildDiagnostics() {
         // ---- Diagnostics — every log behind its own switch, all of them off until asked for ----
-        addSection(R.string.sk_section_diag)
         addIntroNote(R.string.sk_diag_note, 1)
         for (kind in SkDiagKind.entries) {
-            addSwitchRow(kind.labelRes, kind.descRes, SkDiag.enabled(this, kind), 1) {
+            addSwitchRow(kind.labelRes, kind.descRes, SkDiag.enabled(this, kind), 1, kind.icon, kind.role) {
                 SkDiag.setEnabled(this, kind, it)
             }
         }
@@ -462,6 +631,8 @@ class SkUiActivity : AppCompatActivity() {
             main = false,
             opens = true,
             level = 2,
+            icon = R.drawable.download_simple,
+            role = SkMenus.SHARE,
         ) { diagExportPicker.launch(diagExportStart()) }
         addActionRow(
             R.string.sk_diag_share,
@@ -469,6 +640,8 @@ class SkUiActivity : AppCompatActivity() {
             main = false,
             opens = true,
             level = 2,
+            icon = R.drawable.share_network,
+            role = SkMenus.SHARE,
         ) { shareDiagnostics() }
         // Acts in place after a confirmation, so no chevron.
         addActionRow(
@@ -477,30 +650,216 @@ class SkUiActivity : AppCompatActivity() {
             main = false,
             opens = false,
             level = 2,
+            icon = R.drawable.trash,
+            role = SkMenus.DELETE,
         ) { purgeDiagnostics() }
         addDiagWhereRow(2)
+    }
+
+    private fun buildMaintenance() {
+        // Acts in place after a confirmation, so no chevron; it takes colours away, so it is red.
+        addActionRow(
+            R.string.sk_reset_all_colours,
+            R.string.sk_reset_all_colours_desc,
+            main = false,
+            opens = false,
+            level = 1,
+            icon = R.drawable.sk_ic_drop,
+            role = SkMenus.DELETE,
+        ) {
+            SkConfirmDialog(
+                this,
+                getString(R.string.sk_reset_all_colours),
+                getString(R.string.sk_reset_all_colours_warning),
+                getString(R.string.sk_reset_all_colours),
+                destructive = true,
+            ) {
+                SkRoles.resetAll(this)
+                refreshPage()
+            }
+        }
+        // Acts in place, so no chevron.
+        addActionRow(
+            R.string.sk_reset_section_order,
+            R.string.sk_reset_section_order_desc,
+            main = false,
+            opens = false,
+            level = 1,
+            icon = R.drawable.arrow_clockwise,
+        ) {
+            SkPageState.resetOrder(this)
+            buildRows()
+        }
+    }
+
+    /**
+     * The link to the app's own settings. Both pages live in one task and the main activity is
+     * single-task, so asking it for its settings page brings it forward over this one.
+     */
+    private fun openAppSettings() {
+        startActivity(
+            Intent(this, org.linphone.ui.main.MainActivity::class.java)
+                .putExtra(SkSisterApps.EXTRA_OPEN_SETTINGS, true)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP),
+        )
+        finish()
+    }
+
+    /**
+     * Which apps may place calls through this one — a selection from every app on the phone, the
+     * three sister apps let in by default. See [SkCallDoor] and [SkAppPickerDialog].
+     */
+    private fun addCallDoorRow(level: Int) {
+        val row = addActionRow(
+            R.string.sk_call_door_apps,
+            R.string.sk_call_door_apps_desc,
+            main = true,
+            opens = true,
+            level = level,
+            icon = R.drawable.phone_plus,
+            role = SkMenus.CALL,
+        ) { SkAppPickerDialog(this) { buildRows() }.show() }
+        val names = SkAppPickerDialog.describe(this)
+        setActionStatus(
+            row,
+            if (names.isEmpty()) {
+                getString(R.string.sk_call_door_apps_none)
+            } else {
+                getString(R.string.sk_call_door_apps_status, names)
+            },
+            warn = names.isEmpty(),
+        )
+    }
+
+    // ------------------------------------------------------------------ sections, folding, index
+
+    /** The chip index: one small outlined chip per section; a tap jumps, a long press drags. */
+    private fun addSectionIndex(ordered: List<Section>) {
+        val index = SkSectionIndex.build(
+            this,
+            ordered.map { SkSectionIndex.Item(it.key, getString(it.labelRes)) },
+            SkRoles.color(this, "page_chip_frame"),
+            SkRoles.color(this, "page_chip_text"),
+            onJump = { jumpToSection(it) },
+            onReordered = {
+                SkPageState.setOrder(this, it)
+                buildRows()
+            },
+        )
+        val density = resources.displayMetrics.density
+        val wrap = LinearLayout(this).apply {
+            setPadding(
+                (SECTION_INSET_DP * density).toInt(),
+                (6 * density).toInt(),
+                (16 * density).toInt(),
+                (2 * density).toInt(),
+            )
+            addView(index, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, WRAP_CONTENT))
+        }
+        binding.skHolder.addView(wrap)
+    }
+
+    /**
+     * A folding section: the settled heading with a › (folded) or ⌄ (open) at its right, the thin
+     * line above it kept either way, and its rows in an inner box that folds away. Folded unless
+     * [SkPageState] says otherwise; the rows of a folded section are not built until it is first
+     * opened, which is what keeps this long page quick to draw.
+     */
+    private fun addSection(section: Section) {
+        val row = ItemSkSectionBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
+        val accent = SkRoles.color(this, "page_heading")
+        row.skSectionLabel.setText(section.labelRes)
+        row.skSectionLabel.setTextColor(accent)
+        row.skSectionRule.setBackgroundColor(SkRoles.color(this, "page_heading_rule"))
+        // The line between sections, a darker accent — it stays whether the section is folded or open.
+        row.skSectionSpacer.setBackgroundColor(SkRoles.color(this, "page_divider"))
+        row.skSectionChevron.setTextColor(accent)
+        row.skSectionHeader.setOnClickListener { toggleSection(section) }
+        binding.skHolder.addView(row.root)
+        sectionWrappers[section.key] = row.root
+        sectionBodies[section.key] = row.skSectionBody
+        sectionChevrons[section.key] = row.skSectionChevron
+        showSection(section, SkPageState.isOpen(this, section.key))
+    }
+
+    private fun toggleSection(section: Section) {
+        val open = !SkPageState.isOpen(this, section.key)
+        SkPageState.setOpen(this, section.key, open)
+        showSection(section, open)
+    }
+
+    private fun showSection(section: Section, open: Boolean) {
+        val inner = sectionBodies[section.key] ?: return
+        if (open && builtSections.add(section.key)) {
+            body = inner
+            section.build()
+            body = binding.skHolder
+            updatePreviews()
+        }
+        inner.visibility = if (open) View.VISIBLE else View.GONE
+        sectionChevrons[section.key]?.text = if (open) CHEVRON_OPEN else CHEVRON
+    }
+
+    /** A tap on an index chip: unfold the section and scroll to it. */
+    private fun jumpToSection(key: String) {
+        val section = sections().firstOrNull { it.key == key } ?: return
+        val wrapper = sectionWrappers[key] ?: return
+        SkPageState.setOpen(this, key, true)
+        showSection(section, true)
+        binding.skHolder.post { binding.skScroll.smoothScrollTo(0, wrapper.top) }
+    }
+
+    /**
+     * The icon every row carries before its label, coloured by what the row does — the same
+     * settable roles as the menu icons ([SkMenus]).
+     */
+    private fun rowIcon(label: TextView, iconRes: Int, role: String = SkMenus.VIEW) {
+        val density = resources.displayMetrics.density
+        val icon = androidx.appcompat.content.res.AppCompatResources.getDrawable(this, iconRes)
+            ?.mutate()
+            ?.let {
+                SkMenus.FixedTint(it, SkTheme.color(this, SkMenus.slotOf(role)), (ROW_ICON_DP * density).toInt())
+            }
+        label.compoundDrawablePadding = (ROW_ICON_GAP_DP * density).toInt()
+        label.setCompoundDrawablesRelative(icon, null, null, null)
+    }
+
+    /**
+     * The 2 dp dim-gold rule down the left edge of a row that carries an explanation, 10 dp
+     * before its text. Drawn over the row rather than laid out in it, so the text stays where the
+     * indent put it. Call after [indentRow].
+     */
+    private fun ruled(row: View) {
+        val density = resources.displayMetrics.density
+        row.foreground = LeftRule(
+            row.paddingStart - (RULE_GAP_DP + RULE_WIDTH_DP) * density,
+            RULE_WIDTH_DP * density,
+            row.paddingTop.toFloat(),
+            SkRoles.color(this, "page_rule"),
+        )
     }
 
     // ------------------------------------------------------------------ diagnostics
 
     /** A note belonging to a whole section rather than to one row: dim gold, nothing to press. */
     private fun addIntroNote(textRes: Int, level: Int) {
-        val row = ItemSkNoteBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
+        val row = ItemSkNoteBinding.inflate(LayoutInflater.from(this), body, false)
         row.skNoteLabel.setText(textRes)
         row.skNoteLabel.textSize = NOTE_TEXT_SP
-        row.skNoteLabel.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
+        row.skNoteLabel.setTextColor(SkRoles.color(this, "page_note"))
         row.skNoteLabel.layoutParams = LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f)
         row.skNoteValue.visibility = View.GONE
         indentRow(row.root, level)
-        binding.skHolder.addView(row.root)
+        body.addView(row.root)
     }
 
     /** What is on the phone. Counting lists the directory, so it is filled in from a thread. */
     private fun addDiagStoredRow(level: Int) {
-        val row = ItemSkNoteBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
+        val row = ItemSkNoteBinding.inflate(LayoutInflater.from(this), body, false)
         row.skNoteLabel.setText(R.string.sk_diag_stored)
-        row.skNoteLabel.setTextColor(SkTheme.color(this, SkSlot.TEXT))
-        row.skNoteValue.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
+        rowIcon(row.skNoteLabel, R.drawable.file_text)
+        row.skNoteLabel.setTextColor(SkRoles.color(this, "page_label"))
+        row.skNoteValue.setTextColor(SkRoles.color(this, "page_note"))
         row.skNoteValue.text = PENDING_VALUE
         Thread({
             val described = runCatching { SkDiag.inventory(this).describe(this) }.getOrNull()
@@ -513,16 +872,17 @@ class SkUiActivity : AppCompatActivity() {
             }
         }, "sk-diag-inventory").start()
         indentRow(row.root, level)
-        binding.skHolder.addView(row.root)
+        body.addView(row.root)
     }
 
     /** How long recorded days are kept. 0 — the default — keeps everything. */
     private fun addDiagKeepDaysRow(level: Int) {
-        val row = ItemSkDimenBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
+        val row = ItemSkDimenBinding.inflate(LayoutInflater.from(this), body, false)
         row.skDimenLabel.setText(R.string.sk_diag_keep_days)
-        row.skDimenLabel.setTextColor(SkTheme.color(this, SkSlot.TEXT))
-        row.skDimenValue.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
-        tintSeekBar(row.skDimenSeekbar, SkTheme.color(this, SkSlot.ACCENT))
+        rowIcon(row.skDimenLabel, R.drawable.clock)
+        row.skDimenLabel.setTextColor(SkRoles.color(this, "page_label"))
+        row.skDimenValue.setTextColor(SkRoles.color(this, "page_note"))
+        tintSeekBar(row.skDimenSeekbar, SkRoles.color(this, "page_slider"))
         row.skDimenSeekbar.max = MAX_KEEP_DAYS
         row.skDimenSeekbar.progress = SkDiag.keepDays(this)
         row.skDimenValue.text = keepDaysLabel(SkDiag.keepDays(this))
@@ -538,18 +898,19 @@ class SkUiActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(bar: SeekBar?) {}
         })
         indentRow(row.root, level)
-        binding.skHolder.addView(row.root)
+        body.addView(row.root)
     }
 
     /** The path to type into adb — the files are readable with no permission at all. */
     private fun addDiagWhereRow(level: Int) {
-        val row = ItemSkNoteBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
+        val row = ItemSkNoteBinding.inflate(LayoutInflater.from(this), body, false)
         row.skNoteLabel.setText(R.string.sk_diag_where)
-        row.skNoteLabel.setTextColor(SkTheme.color(this, SkSlot.TEXT))
-        row.skNoteValue.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
+        rowIcon(row.skNoteLabel, R.drawable.info)
+        row.skNoteLabel.setTextColor(SkRoles.color(this, "page_label"))
+        row.skNoteValue.setTextColor(SkRoles.color(this, "page_note"))
         row.skNoteValue.text = SkDiag.directoryPath(this)
         indentRow(row.root, level)
-        binding.skHolder.addView(row.root)
+        body.addView(row.root)
     }
 
     private fun keepDaysLabel(days: Int): String =
@@ -600,6 +961,7 @@ class SkUiActivity : AppCompatActivity() {
             getString(R.string.sk_diag_purge),
             getString(R.string.sk_diag_purge_warning, inventory.describe(this)),
             getString(R.string.sk_diag_purge_confirm),
+            destructive = true,
         ) {
             val deleted = SkDiag.purge(this)
             SkFlash.show(this, getString(R.string.sk_diag_purged, deleted.files))
@@ -607,30 +969,14 @@ class SkUiActivity : AppCompatActivity() {
         }
     }
 
-    private fun addSection(section: SkSection) = addSection(section.labelRes)
-
-    private fun addSection(labelRes: Int) {
-        val row = ItemSkSectionBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
-        val accent = SkTheme.color(this, SkSlot.ACCENT)
-        row.skSectionLabel.setText(labelRes)
-        row.skSectionLabel.setTextColor(accent)
-        row.skSectionRule.setBackgroundColor(accent)
-        row.skSectionSpacer.setBackgroundColor(accent)
-        // The full-width hairline separates sections — the first one has nothing above it.
-        if (binding.skHolder.childCount == 0) {
-            row.skSectionSpacer.visibility = View.GONE
-        }
-        binding.skHolder.addView(row.root)
-    }
-
     /** The subgroup layout carries its own kxkb indent (54dp) — no indentRow here. */
     private fun addSubgroup(labelRes: Int, @Suppress("UNUSED_PARAMETER") level: Int) {
-        val row = ItemSkSubgroupBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
-        val accent = SkTheme.color(this, SkSlot.ACCENT)
+        val row = ItemSkSubgroupBinding.inflate(LayoutInflater.from(this), body, false)
+        val accent = SkRoles.color(this, "page_heading")
         row.skSubgroupLabel.setText(labelRes)
         row.skSubgroupLabel.setTextColor(accent)
         row.skSubgroupRule.setBackgroundColor(accent)
-        binding.skHolder.addView(row.root)
+        body.addView(row.root)
     }
 
     /**
@@ -649,24 +995,34 @@ class SkUiActivity : AppCompatActivity() {
         main: Boolean,
         opens: Boolean,
         level: Int,
+        icon: Int = R.drawable.arrow_square_out,
+        role: String = SkMenus.VIEW,
         onClick: () -> Unit,
     ): ItemSkActionBinding {
-        val row = ItemSkActionBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
-        val accent = SkTheme.color(this, SkSlot.ACCENT)
+        val row = ItemSkActionBinding.inflate(LayoutInflater.from(this), body, false)
+        // An action that takes something away lends its red to frame, label and ›.
+        val danger = role == SkMenus.DELETE
+        val accent = if (danger) SkTheme.color(this, SkSlot.MENU_DELETE) else SkRoles.color(this, "pill_frame")
         row.skActionTitle.setText(titleRes)
-        row.skActionTitle.setTextColor(SkTheme.color(this, SkSlot.TEXT))
+        row.skActionTitle.setTextColor(if (danger) accent else SkRoles.color(this, "pill_text"))
         row.skActionTitle.setTypeface(null, if (main) Typeface.BOLD else Typeface.NORMAL)
         row.skActionChevron.text = CHEVRON
         row.skActionChevron.setTextColor(accent)
         row.skActionChevron.visibility = if (opens) View.VISIBLE else View.GONE
-        row.skActionDesc.setText(descRes)
-        row.skActionDesc.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
+        rowIcon(row.skActionTitle, icon, role)
+        if (descRes != 0) {
+            row.skActionDesc.setText(descRes)
+            row.skActionDesc.setTextColor(SkRoles.color(this, "page_note"))
+        } else {
+            row.skActionDesc.visibility = View.GONE
+        }
         // Shown only by the rows that have something to report under the description.
         row.skActionStatus.visibility = View.GONE
         row.skActionPill.background = pillFrame(accent, main)
         row.skActionPill.setOnClickListener { onClick() }
         indentRow(row.root, level)
-        binding.skHolder.addView(row.root)
+        if (descRes != 0) ruled(row.root)
+        body.addView(row.root)
         return row
     }
 
@@ -675,7 +1031,7 @@ class SkUiActivity : AppCompatActivity() {
         row.skActionStatus.text = status
         row.skActionStatus.visibility = View.VISIBLE
         row.skActionStatus.setTextColor(
-            if (warn) EXIM_WARN_COLOR else SkTheme.color(this, SkSlot.TEXT_SECONDARY),
+            if (warn) SkTheme.color(this, SkSlot.MENU_DELETE) else SkRoles.color(this, "page_note"),
         )
     }
 
@@ -711,6 +1067,8 @@ class SkUiActivity : AppCompatActivity() {
             main = true,
             opens = true,
             level = level,
+            icon = R.drawable.download_simple,
+            role = SkMenus.SHARE,
         ) { openEximport() }
         // Queried on page open: the latest export in the settable directory. Red until it is set.
         val (status, warn) = SkEximport.lastExportStatus(this)
@@ -737,12 +1095,13 @@ class SkUiActivity : AppCompatActivity() {
      * entirely, and a feature that can be turned on but never off is one 白い熊 cannot retreat from.
      */
     private fun addAutomationSwitchRow(level: Int) {
-        val row = ItemSkSwitchBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
-        val accent = SkTheme.color(this, SkSlot.ACCENT)
+        val row = ItemSkSwitchBinding.inflate(LayoutInflater.from(this), body, false)
+        val accent = SkRoles.color(this, "page_heading")
         row.skSwitchTitle.setText(R.string.sk_auto_title)
-        row.skSwitchTitle.setTextColor(SkTheme.color(this, SkSlot.TEXT))
+        rowIcon(row.skSwitchTitle, R.drawable.wrench, SkMenus.SHARE)
+        row.skSwitchTitle.setTextColor(SkRoles.color(this, "page_label"))
         row.skSwitchDesc.setText(R.string.sk_auto_desc)
-        row.skSwitchDesc.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
+        row.skSwitchDesc.setTextColor(SkRoles.color(this, "page_note"))
         SkStyler.styleSwitch(row.skSwitchToggle)
         row.skSwitchToggle.isChecked = SkAutomation.enabled(this)
         row.skSwitchToggle.setOnCheckedChangeListener { _, checked ->
@@ -751,7 +1110,8 @@ class SkUiActivity : AppCompatActivity() {
         // The switch itself is not clickable — the whole row is its hit area.
         row.root.setOnClickListener { row.skSwitchToggle.toggle() }
         indentRow(row.root, level)
-        binding.skHolder.addView(row.root)
+        ruled(row.root)
+        body.addView(row.root)
     }
 
     /**
@@ -763,12 +1123,13 @@ class SkUiActivity : AppCompatActivity() {
      * that 応用管理's restore exists to recover from.
      */
     private fun addAutomationRequireTokenRow(level: Int) {
-        val row = ItemSkSwitchBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
-        val accent = SkTheme.color(this, SkSlot.ACCENT)
+        val row = ItemSkSwitchBinding.inflate(LayoutInflater.from(this), body, false)
+        val accent = SkRoles.color(this, "page_heading")
         row.skSwitchTitle.setText(R.string.sk_auto_require_token_title)
-        row.skSwitchTitle.setTextColor(SkTheme.color(this, SkSlot.TEXT))
+        rowIcon(row.skSwitchTitle, R.drawable.lock_key, SkMenus.VIEW)
+        row.skSwitchTitle.setTextColor(SkRoles.color(this, "page_label"))
         row.skSwitchDesc.setText(R.string.sk_auto_require_token_desc)
-        row.skSwitchDesc.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
+        row.skSwitchDesc.setTextColor(SkRoles.color(this, "page_note"))
         SkStyler.styleSwitch(row.skSwitchToggle)
         row.skSwitchToggle.isChecked = SkAutomation.requireToken(this)
         row.skSwitchToggle.setOnCheckedChangeListener { _, checked ->
@@ -780,21 +1141,23 @@ class SkUiActivity : AppCompatActivity() {
         }
         row.root.setOnClickListener { row.skSwitchToggle.toggle() }
         indentRow(row.root, level)
-        binding.skHolder.addView(row.root)
+        ruled(row.root)
+        body.addView(row.root)
     }
 
     /** Tap to copy the full token; "Regenerate" replaces it after a warning. */
     private fun addAutomationTokenRow(level: Int) {
-        val row = ItemSkTokenBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
+        val row = ItemSkTokenBinding.inflate(LayoutInflater.from(this), body, false)
         row.skTokenTitle.setText(R.string.sk_auto_token_title)
-        row.skTokenTitle.setTextColor(SkTheme.color(this, SkSlot.TEXT))
-        row.skTokenValue.setTextColor(SkTheme.color(this, SkSlot.ACCENT))
+        rowIcon(row.skTokenTitle, R.drawable.password)
+        row.skTokenTitle.setTextColor(SkRoles.color(this, "page_label"))
+        row.skTokenValue.setTextColor(SkRoles.color(this, "page_heading"))
         row.skTokenValue.text = SkAutomation.abbreviate(SkAutomation.token(this))
         row.skTokenRegenerate.setText(R.string.sk_auto_token_regenerate)
-        row.skTokenRegenerate.setTextColor(EXIM_WARN_COLOR)
+        row.skTokenRegenerate.setTextColor(SkTheme.color(this, SkSlot.MENU_DELETE))
         // No bare-text buttons: it is a pill like every other action, and red because it destroys
         // the token in place — a destructive action lends its colour to the frame, never a fill.
-        row.skTokenRegenerate.background = pillFrame(EXIM_WARN_COLOR, main = false)
+        row.skTokenRegenerate.background = pillFrame(SkTheme.color(this, SkSlot.MENU_DELETE), main = false)
         row.root.setOnClickListener {
             // Deliberately not toasting the value itself — the row abbreviates it for a reason.
             getSystemService(ClipboardManager::class.java).setPrimaryClip(
@@ -807,13 +1170,14 @@ class SkUiActivity : AppCompatActivity() {
                 this,
                 getString(R.string.sk_auto_token_regenerate),
                 getString(R.string.sk_auto_token_regen_warning),
+                destructive = true,
             ) {
                 row.skTokenValue.text = SkAutomation.abbreviate(SkAutomation.regenerateToken(this))
                 SkFlash.show(this, R.string.sk_auto_token_regenerated)
             }
         }
         indentRow(row.root, level)
-        binding.skHolder.addView(row.root)
+        body.addView(row.root)
     }
 
     /**
@@ -828,6 +1192,7 @@ class SkUiActivity : AppCompatActivity() {
             main = false,
             opens = true,
             level = level,
+            icon = R.drawable.file,
         ) { openAllFilesAccessSettings() }
         setActionStatus(
             row,
@@ -877,6 +1242,8 @@ class SkUiActivity : AppCompatActivity() {
             main = false,
             opens = true,
             level = level,
+            icon = R.drawable.phone_call,
+            role = SkMenus.CALL,
         ) { SkRinger.openCallScreenPermissionSettings(this) }
         setActionStatus(
             row,
@@ -899,6 +1266,8 @@ class SkUiActivity : AppCompatActivity() {
             main = false,
             opens = true,
             level = level,
+            icon = R.drawable.chat_teardrop_text,
+            role = SkMenus.MESSAGE,
         ) { openDeclineMessages() }
         setActionStatus(
             row,
@@ -922,6 +1291,8 @@ class SkUiActivity : AppCompatActivity() {
             main = false,
             opens = true,
             level = level,
+            icon = R.drawable.sk_prohibit,
+            role = SkMenus.BLOCK,
         ) { SkBlockedNumbersDialog(this) { buildRows() }.show() }
         setActionStatus(
             row,
@@ -958,22 +1329,27 @@ class SkUiActivity : AppCompatActivity() {
     }
 
     private fun addColorRow(slot: SkSlot, level: Int) {
-        val row = ItemSkColorBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
+        val row = ItemSkColorBinding.inflate(LayoutInflater.from(this), body, false)
         row.skColorLabel.setText(slot.labelRes)
-        row.skColorLabel.setTextColor(SkTheme.color(this, SkSlot.TEXT))
+        rowIcon(row.skColorLabel, R.drawable.sk_ic_drop)
+        row.skColorLabel.setTextColor(SkRoles.color(this, "page_label"))
         row.skColorPreview.background = swatch(SkTheme.color(this, slot))
         row.root.setOnClickListener { openColorPicker(slot) }
         indentRow(row.root, level)
-        binding.skHolder.addView(row.root)
+        body.addView(row.root)
     }
 
     private fun addTextSlot(slot: SkSlot, level: Int) {
-        val row = ItemSkTextBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
-        val textColor = SkTheme.color(this, SkSlot.TEXT)
-        val secondary = SkTheme.color(this, SkSlot.TEXT_SECONDARY)
-        val accent = SkTheme.color(this, SkSlot.ACCENT)
+        val row = ItemSkTextBinding.inflate(LayoutInflater.from(this), body, false)
+        val textColor = SkRoles.color(this, "page_label")
+        val secondary = SkRoles.color(this, "page_note")
+        val accent = SkRoles.color(this, "page_heading")
 
         row.skTextLabel.setText(slot.labelRes)
+        rowIcon(row.skTextLabel, R.drawable.sk_ic_drop)
+        rowIcon(row.skTextFontTitle, R.drawable.sk_ic_text)
+        rowIcon(row.skTextWeightTitle, R.drawable.sk_ic_text)
+        rowIcon(row.skTextSizeTitle, R.drawable.sk_ic_sliders)
         row.skTextLabel.setTextColor(textColor)
         row.skTextColorPreview.background = swatch(SkTheme.color(this, slot))
         row.skTextColorRow.setOnClickListener { openColorPicker(slot) }
@@ -1020,7 +1396,7 @@ class SkUiActivity : AppCompatActivity() {
         indentRow(row.skTextWeightRow, level + 1)
         indentRow(row.skTextSizeRow, level + 1)
         indentRow(row.skTextSample, level + 1)
-        binding.skHolder.addView(row.root)
+        body.addView(row.root)
     }
 
     /**
@@ -1032,14 +1408,17 @@ class SkUiActivity : AppCompatActivity() {
         descRes: Int,
         checked: Boolean,
         level: Int,
+        icon: Int = R.drawable.gear,
+        role: String = SkMenus.VIEW,
         onChange: (Boolean) -> Unit,
     ) {
-        val row = ItemSkSwitchBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
-        val accent = SkTheme.color(this, SkSlot.ACCENT)
+        val row = ItemSkSwitchBinding.inflate(LayoutInflater.from(this), body, false)
+        val accent = SkRoles.color(this, "page_heading")
         row.skSwitchTitle.setText(titleRes)
-        row.skSwitchTitle.setTextColor(SkTheme.color(this, SkSlot.TEXT))
+        rowIcon(row.skSwitchTitle, icon, role)
+        row.skSwitchTitle.setTextColor(SkRoles.color(this, "page_label"))
         row.skSwitchDesc.setText(descRes)
-        row.skSwitchDesc.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
+        row.skSwitchDesc.setTextColor(SkRoles.color(this, "page_note"))
         SkStyler.styleSwitch(row.skSwitchToggle)
         row.skSwitchToggle.isChecked = checked
         row.skSwitchToggle.setOnCheckedChangeListener { _, value ->
@@ -1048,7 +1427,8 @@ class SkUiActivity : AppCompatActivity() {
         }
         row.root.setOnClickListener { row.skSwitchToggle.toggle() }
         indentRow(row.root, level)
-        binding.skHolder.addView(row.root)
+        ruled(row.root)
+        body.addView(row.root)
     }
 
     /** A row naming a setting and the option currently picked for it; tapping opens the list. */
@@ -1059,10 +1439,11 @@ class SkUiActivity : AppCompatActivity() {
         level: Int,
         onPick: (Int) -> Unit,
     ) {
-        val row = ItemSkChoiceBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
+        val row = ItemSkChoiceBinding.inflate(LayoutInflater.from(this), body, false)
         row.skChoiceLabel.setText(labelRes)
-        row.skChoiceLabel.setTextColor(SkTheme.color(this, SkSlot.TEXT))
-        row.skChoiceValue.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
+        rowIcon(row.skChoiceLabel, R.drawable.list)
+        row.skChoiceLabel.setTextColor(SkRoles.color(this, "page_label"))
+        row.skChoiceValue.setTextColor(SkRoles.color(this, "page_note"))
         row.skChoiceValue.text = options.getOrElse(selectedIndex) { "" }
         row.root.setOnClickListener {
             SkChoiceDialog(this, getString(labelRes), options, selectedIndex) { picked ->
@@ -1072,15 +1453,16 @@ class SkUiActivity : AppCompatActivity() {
             }
         }
         indentRow(row.root, level)
-        binding.skHolder.addView(row.root)
+        body.addView(row.root)
     }
 
     private fun addDimenRow(dimen: SkDimen, level: Int) {
-        val row = ItemSkDimenBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
+        val row = ItemSkDimenBinding.inflate(LayoutInflater.from(this), body, false)
         row.skDimenLabel.setText(dimen.labelRes)
-        row.skDimenLabel.setTextColor(SkTheme.color(this, SkSlot.TEXT))
-        row.skDimenValue.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
-        tintSeekBar(row.skDimenSeekbar, SkTheme.color(this, SkSlot.ACCENT))
+        rowIcon(row.skDimenLabel, R.drawable.sk_ic_sliders)
+        row.skDimenLabel.setTextColor(SkRoles.color(this, "page_label"))
+        row.skDimenValue.setTextColor(SkRoles.color(this, "page_note"))
+        tintSeekBar(row.skDimenSeekbar, SkRoles.color(this, "page_slider"))
         row.skDimenSeekbar.max = dimen.maxDp
         row.skDimenSeekbar.progress = SkTheme.dimenDp(this, dimen)
         row.skDimenValue.text = dimenLabel(dimen, SkTheme.dimenDp(this, dimen))
@@ -1098,16 +1480,16 @@ class SkUiActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(bar: SeekBar?) {}
         })
         indentRow(row.root, level)
-        binding.skHolder.addView(row.root)
+        body.addView(row.root)
     }
 
     // ------------------------------------------------------------------ live previews
 
     private fun addListPreview(level: Int) {
-        val row = ItemSkPreviewBoxBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
+        val row = ItemSkPreviewBoxBinding.inflate(LayoutInflater.from(this), body, false)
         listPreview = row.skPreviewBox
         indentRow(row.root, level)
-        binding.skHolder.addView(row.root)
+        body.addView(row.root)
         updatePreviews()
     }
 
@@ -1116,26 +1498,26 @@ class SkUiActivity : AppCompatActivity() {
      * [SkStyler] entry points the real list uses, so the page shows exactly what will land.
      */
     private fun addCallRowPreview(level: Int) {
-        val row = ItemSkCallPreviewBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
+        val row = ItemSkCallPreviewBinding.inflate(LayoutInflater.from(this), body, false)
         callPreview = row
         indentRow(row.root, level)
-        binding.skHolder.addView(row.root)
+        body.addView(row.root)
         updatePreviews()
     }
 
     private fun addBubblePreview(level: Int) {
-        val row = ItemSkPreviewBoxBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
+        val row = ItemSkPreviewBoxBinding.inflate(LayoutInflater.from(this), body, false)
         bubblePreview = row.skPreviewBox
         indentRow(row.root, level)
-        binding.skHolder.addView(row.root)
+        body.addView(row.root)
         updatePreviews()
     }
 
     private fun addButtonPreview(level: Int) {
-        val row = ItemSkPreviewBoxBinding.inflate(LayoutInflater.from(this), binding.skHolder, false)
+        val row = ItemSkPreviewBoxBinding.inflate(LayoutInflater.from(this), body, false)
         buttonPreview = row.skPreviewBox
         indentRow(row.root, level)
-        binding.skHolder.addView(row.root)
+        body.addView(row.root)
         updatePreviews()
     }
 
@@ -1166,7 +1548,7 @@ class SkUiActivity : AppCompatActivity() {
                     SkTheme.dimenPx(this@SkUiActivity, SkDimen.BUBBLE_CORNER_RADIUS).toFloat()
                 setStroke(
                     SkTheme.dimenPx(this@SkUiActivity, SkDimen.BUBBLE_BORDER_WIDTH),
-                    SkTheme.color(this@SkUiActivity, SkSlot.ACCENT),
+                    SkRoles.color(this@SkUiActivity, "page_swatch_frame"),
                 )
             }
         }
@@ -1288,7 +1670,7 @@ class SkUiActivity : AppCompatActivity() {
      */
     private fun addRinNumberRows(level: Int) {
         val box = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
-        binding.skHolder.addView(box)
+        body.addView(box)
 
         coreContext.postOnCoreThread { core ->
             // In the order of the tab strip (白い熊's own, SkAccountOrder), not the Core's: a row
@@ -1332,7 +1714,7 @@ class SkUiActivity : AppCompatActivity() {
             val number = SkAccountNumbers.numberOf(this, identity)
             val row = ItemSkChoiceBinding.inflate(LayoutInflater.from(this), box, false)
             row.skChoiceLabel.text = name
-            row.skChoiceLabel.setTextColor(SkTheme.color(this, SkSlot.TEXT))
+            row.skChoiceLabel.setTextColor(SkRoles.color(this, "page_label"))
             row.skChoiceLabel.setTypeface(null, Typeface.BOLD)
             // The account's picture before its name; an account without one gets the house 人
             // mark its tab shows, so a row looks like its tab either way.
@@ -1360,7 +1742,7 @@ class SkUiActivity : AppCompatActivity() {
 
             if (number == null) {
                 row.skChoiceValue.text = getString(R.string.sk_rin_number_none)
-                row.skChoiceValue.setTextColor(SkTheme.color(this, SkSlot.TEXT_SECONDARY))
+                row.skChoiceValue.setTextColor(SkRoles.color(this, "page_note"))
             } else {
                 val (ground, text) = SkAccountNumbers.colors(this, number)
                 row.skChoiceValue.text = "${SkAccountNumbers.MARK}$number"
@@ -1420,7 +1802,8 @@ class SkUiActivity : AppCompatActivity() {
     ) {
         val row = ItemSkColorBinding.inflate(LayoutInflater.from(this), box, false)
         row.skColorLabel.text = label
-        row.skColorLabel.setTextColor(SkTheme.color(this, SkSlot.TEXT))
+        rowIcon(row.skColorLabel, R.drawable.sk_ic_drop)
+        row.skColorLabel.setTextColor(SkRoles.color(this, "page_label"))
         row.skColorPreview.background = swatch(color)
         row.root.setOnClickListener {
             SkColorPickerDialog(this, color, showDefault = true) { wasPositive, picked ->
@@ -1452,14 +1835,13 @@ class SkUiActivity : AppCompatActivity() {
         setColor(color)
         setStroke(
             (1.5f * resources.displayMetrics.density).toInt(),
-            SkTheme.color(this@SkUiActivity, SkSlot.ACCENT),
+            SkRoles.color(this@SkUiActivity, "page_swatch_frame"),
         )
     }
 
     companion object {
         private const val BASE_INDENT_DP = 54
         private const val INDENT_STEP_DP = 18
-        private const val EXIM_WARN_COLOR = 0xFFFF5252.toInt()
 
         // Diagnostics: the note's size, the slider's reach, and where its export picker opens.
         private const val NOTE_TEXT_SP = 13f
@@ -1476,6 +1858,16 @@ class SkUiActivity : AppCompatActivity() {
         private const val PILL_FRAME_DP = 1.25f
         private const val PILL_RIPPLE_ALPHA = 0x4D000000
         private const val CHEVRON = "\u203A"
+        private const val CHEVRON_OPEN = "\u2304"
+
+        // Sections: the heading's inset.
+        private const val SECTION_INSET_DP = 36
+
+        // A row's icon, and the dim-gold rule left of a row that carries an explanation.
+        private const val ROW_ICON_DP = 18f
+        private const val ROW_ICON_GAP_DP = 8f
+        private const val RULE_WIDTH_DP = 2f
+        private const val RULE_GAP_DP = 10f
 
         // The call-history sample: two days back, 15:36, an 11:01 call.
         private const val SAMPLE_DAYS_BACK = 2L

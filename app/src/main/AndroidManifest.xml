@@ -74,6 +74,12 @@
          is one more line here — never QUERY_ALL_PACKAGES, which is Play-policy-restricted and
          buys nothing this needs. -->
     <queries>
+        <!-- shiroikuma fork: the selection of apps that may place calls through this one
+             (SkAppPickerDialog) lists every app that has a launcher entry. -->
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
         <package android:name="shiroikuma.oyokanri" />
         <package android:name="shiroikuma.jiyusagyoban" />
         <!-- shiroikuma fork: a call declined with a message is written back as a real SMS, which

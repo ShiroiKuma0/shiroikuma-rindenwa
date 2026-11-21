@@ -13,7 +13,6 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.annotation.UiThread
 import androidx.appcompat.widget.AppCompatTextView
-import androidx.core.content.ContextCompat
 import org.linphone.R
 
 /**
@@ -76,8 +75,8 @@ object SkFlash {
             setPadding(dp(20), dp(14), dp(22), dp(14))
             background = GradientDrawable().apply {
                 cornerRadius = 16 * density
-                setColor(SkTheme.color(activity, SkSlot.BACKGROUND))
-                setStroke(dp(2), SkTheme.color(activity, SkSlot.ACCENT))
+                setColor(SkRoles.color(activity, "flash_ground"))
+                setStroke(dp(2), SkRoles.color(activity, "flash_frame"))
             }
             elevation = 12 * density
             isClickable = false
@@ -97,7 +96,7 @@ object SkFlash {
             AppCompatTextView(activity).apply {
                 text = message
                 textSize = 16f
-                setTextColor(SkTheme.color(activity, SkSlot.TEXT))
+                setTextColor(SkRoles.color(activity, "flash_text"))
             },
             LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -124,12 +123,12 @@ object SkFlash {
 
     /** The colours upstream's three toasts had, kept for the icon alone. */
     @ColorInt
-    private fun iconColor(activity: Activity, kind: Kind): Int = ContextCompat.getColor(
+    private fun iconColor(activity: Activity, kind: Kind): Int = SkRoles.color(
         activity,
         when (kind) {
-            Kind.DONE -> R.color.success_500
-            Kind.NOTE -> R.color.info_500
-            Kind.WRONG -> R.color.danger_500
+            Kind.DONE -> "flash_done"
+            Kind.NOTE -> "flash_note"
+            Kind.WRONG -> "flash_wrong"
         },
     )
 }

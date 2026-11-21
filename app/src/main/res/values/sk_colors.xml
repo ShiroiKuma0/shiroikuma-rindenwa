@@ -1,67 +1,143 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  shiroikuma-rindenwa fork — the 白い熊 臨電話 black-yellow palette.
+  shiroikuma-rindenwa fork — the colour ROLES, as resources.
 
-  Upstream funnels its entire UI through ~60 theme attributes (see values/attrs.xml), so these
-  colours plus the Theme.SkBlackYellow overlay in sk_theme.xml are what actually turn the app
-  black-yellow: every data-bound layout resolves ?attr/… and picks them up with no runtime work.
+  Every name here is one role of the role table in code (shiroikuma/SkRoles.kt). The values in
+  this file are PLACEHOLDERS and are never meant to be seen: at run time SkPalette lays a
+  resources loader over the app that gives each of these names the colour its role has — the
+  value 白い熊 set on the 臨電話 UI page, or the role’s default, which is written in SkRoles.kt and
+  nowhere else. A dark magenta ground or a pink ink on the phone therefore means one thing:
+  the loader did not reach that surface.
+
+  So: never write a real colour here, and never point XML at a literal. A new coloured thing
+  gets a role in SkRoles.kt and, if XML must name it, a placeholder line here.
 -->
 <resources>
-    <color name="sk_black">#FF000000</color>
-    <color name="sk_yellow">#FFFFFF00</color>
+    <!-- The one colour the platform draws before any code runs: the ground of a starting
+         window and its system bars. The activity repaints them from the roles in onCreate. -->
+    <color name="sk_window_black">#FF000000</color>
 
-    <!-- Surfaces: pure black, with two barely-lifted steps so stacked panels stay legible. -->
-    <color name="sk_surface">#FF000000</color>
-    <color name="sk_surface_alt">#FF0A0A0A</color>
-    <color name="sk_surface_raised">#FF141414</color>
-
-    <!-- Ink ramp — yellow at full strength down through dimmed steps for secondary text. -->
-    <color name="sk_ink">#FFFFFF00</color>
-    <color name="sk_ink_dim">#B3FFFF00</color>
-    <color name="sk_ink_faint">#80FFFF00</color>
-    <color name="sk_ink_ghost">#4DFFFF00</color>
-
-    <!-- A disabled pill keeps its frame and its label, both at 38% (black-yellow-theme). -->
-    <color name="sk_yellow_38">#61FFFF00</color>
-
-    <!-- Yellow washes for "tinted background" roles (pressed states, accent chips). -->
-    <color name="sk_yellow_wash">#33FFFF00</color>
-    <color name="sk_yellow_wash_strong">#59FFFF00</color>
-
-    <!-- The top bars stay black; the accent is carried by the text and icons on them. -->
-    <color name="sk_bar_background">#FF000000</color>
-
-    <!-- Field pills. Upstream strokes them with color_grey_200, which on a black surface is
-         invisible — every text input carries a yellow border in this fork instead. -->
-    <color name="sk_field_border">#FFFFFF00</color>
-    <color name="sk_field_border_dim">#66FFFF00</color>
-
-    <!-- Semantic colours keep their meaning — a hang-up button must still read as danger. -->
-    <color name="sk_danger">#FFFF5252</color>
-    <color name="sk_danger_dim">#FF7F1D1D</color>
-    <!-- The "Blocked" mark on a history row: pure red, white text (白い熊, 2026-11-20). -->
-    <color name="sk_blocked_pill">#FFFF0000</color>
-    <color name="sk_blocked_pill_text">#FFFFFFFF</color>
-    <color name="sk_online_id_pill">#FFFFFF00</color>
-    <color name="sk_online_id_pill_text">#FF000000</color>
-    <color name="sk_success">#FF00C853</color>
-    <color name="sk_success_dim">#FF14532D</color>
-    <color name="sk_info">#FF40C4FF</color>
-    <color name="sk_warning">#FFFFC400</color>
-    <color name="sk_warning_dim">#FF4A3B00</color>
-    <color name="sk_offline">#FF9E9E9E</color>
-    <color name="sk_disabled">#FF3A3A3A</color>
-
-    <!-- shiroikuma fork: the 臨N badge's text (on the yellow ground of sk_badge_rin), and the
-         mark of a recorded call. -->
-    <color name="sk_badge_rin_text">#FF0000FF</color>
-    <color name="sk_recorded">#FFFF3030</color>
-
-    <!-- shiroikuma fork: the divider between two groups of a menu — 70 % of the way from the
-         background to the accent, opaque. -->
-    <color name="sk_menu_divider">#FFB3B300</color>
-
-    <!-- shiroikuma fork: the row's own message and call icons, in their menu role colours. -->
-    <color name="sk_role_message">#FF4D94FF</color>
-    <color name="sk_role_call">#FF00FF00</color>
+    <color name="sk_yellow">#FFFF66FF</color>
+    <color name="sk_yellow_wash">#33FF66FF</color>
+    <color name="sk_yellow_wash_strong">#33FF66FF</color>
+    <color name="sk_yellow_38">#FFFF66FF</color>
+    <color name="sk_disabled">#FF140014</color>
+    <color name="sk_black">#FF140014</color>
+    <color name="sk_surface">#FF140014</color>
+    <color name="sk_surface_alt">#FF140014</color>
+    <color name="sk_surface_raised">#FF140014</color>
+    <color name="sk_ink">#FFFF66FF</color>
+    <color name="sk_ink_dim">#FFFF66FF</color>
+    <color name="sk_ink_faint">#FFFF66FF</color>
+    <color name="sk_ink_ghost">#FFFF66FF</color>
+    <color name="sk_bar_background">#FF140014</color>
+    <color name="sk_field_border">#FFFF66FF</color>
+    <color name="sk_field_border_dim">#FFFF66FF</color>
+    <color name="sk_danger">#FFFF66FF</color>
+    <color name="sk_danger_dim">#FF140014</color>
+    <color name="sk_success">#FFFF66FF</color>
+    <color name="sk_success_dim">#FF140014</color>
+    <color name="sk_info">#FFFF66FF</color>
+    <color name="sk_warning">#FFFF66FF</color>
+    <color name="sk_warning_dim">#FF140014</color>
+    <color name="sk_offline">#FFFF66FF</color>
+    <color name="sk_blocked_pill">#FF140014</color>
+    <color name="sk_blocked_pill_text">#FFFF66FF</color>
+    <color name="sk_online_id_pill">#FF140014</color>
+    <color name="sk_online_id_pill_text">#FFFF66FF</color>
+    <color name="sk_badge_rin_text">#FFFF66FF</color>
+    <color name="sk_recorded">#FFFF66FF</color>
+    <color name="sk_menu_divider">#FFFF66FF</color>
+    <color name="sk_a_main1_100">#33FF66FF</color>
+    <color name="sk_a_main1_500">#FFFF66FF</color>
+    <color name="sk_a_main2_000">#FF140014</color>
+    <color name="sk_a_main2_100">#FF140014</color>
+    <color name="sk_a_main2_200">#FF140014</color>
+    <color name="sk_a_main2_300">#FFFF66FF</color>
+    <color name="sk_a_main2_400">#FFFF66FF</color>
+    <color name="sk_a_main2_500">#FFFF66FF</color>
+    <color name="sk_a_main2_600">#FFFF66FF</color>
+    <color name="sk_a_main2_700">#FFFF66FF</color>
+    <color name="sk_a_main2_800">#FFFF66FF</color>
+    <color name="sk_a_main2_900">#FFFF66FF</color>
+    <color name="sk_a_grey_100">#FF140014</color>
+    <color name="sk_a_grey_200">#FF140014</color>
+    <color name="sk_a_grey_300">#FFFF66FF</color>
+    <color name="sk_a_grey_400">#FFFF66FF</color>
+    <color name="sk_a_grey_500">#FFFF66FF</color>
+    <color name="sk_a_grey_600">#FFFF66FF</color>
+    <color name="sk_a_grey_800">#FFFF66FF</color>
+    <color name="sk_a_grey_900">#FFFF66FF</color>
+    <color name="sk_a_danger_100">#FF140014</color>
+    <color name="sk_a_danger_500">#FFFF66FF</color>
+    <color name="sk_a_danger_600">#FFFF66FF</color>
+    <color name="sk_a_danger_700">#FFFF66FF</color>
+    <color name="sk_a_danger_900">#FF140014</color>
+    <color name="sk_a_success_100">#FF140014</color>
+    <color name="sk_a_success_200">#FF140014</color>
+    <color name="sk_a_success_500">#FFFF66FF</color>
+    <color name="sk_a_success_700">#FFFF66FF</color>
+    <color name="sk_a_success_900">#FF140014</color>
+    <color name="sk_a_info_500">#FFFF66FF</color>
+    <color name="sk_a_warning_100">#FF140014</color>
+    <color name="sk_a_warning_600">#FFFF66FF</color>
+    <color name="sk_a_warning_900">#FF140014</color>
+    <color name="sk_a_plain_text_security_warning_600">#FFFF66FF</color>
+    <color name="sk_a_offline_100">#FF140014</color>
+    <color name="sk_a_offline_900">#FFFF66FF</color>
+    <color name="sk_a_on_main">#FF140014</color>
+    <color name="sk_a_background_contrast_in_dark_mode">#FF140014</color>
+    <color name="sk_a_separator">#FFFF66FF</color>
+    <color name="sk_a_text">#FFFF66FF</color>
+    <color name="sk_a_hint_text">#FFFF66FF</color>
+    <color name="sk_a_text_field_background">#FF140014</color>
+    <color name="sk_a_avatar_background">#FF140014</color>
+    <color name="sk_a_avatar_text">#FFFF66FF</color>
+    <color name="sk_a_chat_bubble_incoming">#FF140014</color>
+    <color name="sk_a_chat_bubble_outgoing">#FF140014</color>
+    <color name="sk_a_chat_bubble_reply">#FF140014</color>
+    <color name="sk_a_chat_bubble_file">#FF140014</color>
+    <color name="sk_a_message_text_field_background">#FF140014</color>
+    <color name="sk_a_conversation_send_area_background">#FF140014</color>
+    <color name="sk_a_button_background">#FF140014</color>
+    <color name="sk_a_button_pressed_background">#33FF66FF</color>
+    <color name="sk_a_button_disabled_background">#FF140014</color>
+    <color name="sk_a_gradient_start">#FF140014</color>
+    <color name="sk_a_gradient_end">#FF140014</color>
+    <color name="sk_a_trust_background">#FF140014</color>
+    <color name="sk_a_trust_track">#FF140014</color>
+    <color name="sk_a_bottom_sheet_handle">#FFFF66FF</color>
+    <color name="sk_a_bottom_sheet_background">#FF140014</color>
+    <color name="sk_a_bottom_sheet_disabled_menu">#FFFF66FF</color>
+    <color name="sk_asst_danger_500">#FFFF66FF</color>
+    <color name="sk_asst_main1_500">#FFFF66FF</color>
+    <color name="sk_asst_main2_000">#FF140014</color>
+    <color name="sk_asst_main2_200">#FF140014</color>
+    <color name="sk_asst_main2_500">#FFFF66FF</color>
+    <color name="sk_asst_main2_600">#FFFF66FF</color>
+    <color name="sk_asst_main2_700">#FFFF66FF</color>
+    <color name="sk_asst_text">#FFFF66FF</color>
+    <color name="sk_meet_background_contrast_in_dark_mode">#FF140014</color>
+    <color name="sk_meet_danger_500">#FFFF66FF</color>
+    <color name="sk_meet_grey_100">#FF140014</color>
+    <color name="sk_meet_main1_500">#FFFF66FF</color>
+    <color name="sk_meet_main2_000">#FF140014</color>
+    <color name="sk_meet_main2_400">#FFFF66FF</color>
+    <color name="sk_meet_main2_500">#FFFF66FF</color>
+    <color name="sk_meet_main2_600">#FFFF66FF</color>
+    <color name="sk_meet_main2_800">#FFFF66FF</color>
+    <color name="sk_meet_on_main">#FF140014</color>
+    <color name="sk_meet_separator">#FFFF66FF</color>
+    <color name="sk_role_message">#FFFF66FF</color>
+    <color name="sk_role_call">#FFFF66FF</color>
+    <color name="sk_dim_gold">#FFFF66FF</color>
+    <color name="sk_switch_on">#FFFF66FF</color>
+    <color name="sk_switch_off">#FFFF66FF</color>
+    <color name="sk_viewer_bar">#FF140014</color>
+    <color name="sk_pdf_paper">#FF140014</color>
+    <color name="sk_role_contact">#FFFF66FF</color>
+    <color name="sk_role_share">#FFFF66FF</color>
+    <color name="sk_role_view">#FFFF66FF</color>
+    <color name="sk_role_block">#FFFF66FF</color>
+    <color name="sk_role_delete">#FFFF66FF</color>
 </resources>

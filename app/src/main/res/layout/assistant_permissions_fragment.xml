@@ -41,7 +41,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
-        android:background="?attr/color_main2_000">
+        android:background="@color/sk_asst_main2_000">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -55,7 +55,7 @@
                 android:layout_height="@dimen/top_bar_height"
                 android:src="@drawable/caret_left"
                 android:contentDescription="@string/content_description_go_back_icon"
-                app:tint="?attr/color_main2_500"
+                app:tint="@color/sk_asst_main2_500"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"/>
     
@@ -65,7 +65,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/assistant_permissions_title"
-                android:textColor="?attr/color_text"
+                android:textColor="@color/sk_asst_text"
                 app:layout_constraintTop_toTopOf="@id/back"
                 app:layout_constraintBottom_toBottomOf="@id/back"
                 app:layout_constraintStart_toStartOf="parent"
@@ -97,7 +97,7 @@
                 android:src="@drawable/bell_ringing"
                 android:contentDescription="@null"
                 android:visibility="@{viewModel.postNotificationsPermissionGranted ? View.GONE : View.VISIBLE}"
-                app:tint="?attr/color_main2_500"
+                app:tint="@color/sk_asst_main2_500"
                 app:layout_constraintTop_toBottomOf="@id/subtitle"
                 app:layout_constraintStart_toStartOf="parent"/>
 
@@ -130,7 +130,7 @@
                 android:src="@drawable/address_book"
                 android:contentDescription="@null"
                 android:visibility="gone"
-                app:tint="?attr/color_main2_500"
+                app:tint="@color/sk_asst_main2_500"
                 app:layout_constraintTop_toBottomOf="@id/post_notifications_icon"
                 app:layout_constraintStart_toStartOf="parent"/>
 
@@ -163,7 +163,7 @@
                 android:src="@drawable/microphone"
                 android:contentDescription="@null"
                 android:visibility="@{viewModel.recordAudioPermissionGranted ? View.GONE : View.VISIBLE}"
-                app:tint="?attr/color_main2_500"
+                app:tint="@color/sk_asst_main2_500"
                 app:layout_constraintTop_toBottomOf="@id/read_contacts_icon"
                 app:layout_constraintStart_toStartOf="parent"/>
 
@@ -196,7 +196,7 @@
                 android:src="@drawable/video_camera"
                 android:contentDescription="@null"
                 android:visibility="@{viewModel.cameraPermissionGranted ? View.GONE : View.VISIBLE}"
-                app:tint="?attr/color_main2_500"
+                app:tint="@color/sk_asst_main2_500"
                 app:layout_constraintTop_toBottomOf="@id/record_audio_icon"
                 app:layout_constraintStart_toStartOf="parent"/>
 
@@ -229,7 +229,7 @@
                 android:src="@drawable/share_network"
                 android:contentDescription="@null"
                 android:visibility="@{viewModel.accessLocalNetworkPermissionGranted ? View.GONE : View.VISIBLE}"
-                app:tint="?attr/color_main2_500"
+                app:tint="@color/sk_asst_main2_500"
                 app:layout_constraintTop_toBottomOf="@id/access_camera_icon"
                 app:layout_constraintStart_toStartOf="parent"/>
 
@@ -310,7 +310,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:tint="?attr/color_main1_500" />
+                app:tint="@color/sk_asst_main1_500" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

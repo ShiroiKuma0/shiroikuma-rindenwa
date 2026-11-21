@@ -65,7 +65,7 @@
                     android:scaleType="fitCenter"
                     android:src="@drawable/bell_slash"
                     android:contentDescription="@string/sk_content_description_silence_ringer"
-                    app:tint="@color/sk_yellow" />
+                    skTint="@{`call_control_icon`}" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     style="@style/default_text_style_700"
@@ -78,7 +78,7 @@
                     android:ellipsize="end"
                     android:alpha="@{viewModel.isRingingSilenced ? 0.4f : 1f}"
                     android:text="@{viewModel.isRingingSilenced ? @string/sk_call_silence_ringer_done : @string/sk_call_silence_ringer, default=@string/sk_call_silence_ringer}"
-                    android:textColor="@color/sk_yellow"
+                    skInk="@{`call_control_label`}"
                     android:textSize="@dimen/sk_call_action_label_size" />
 
             </LinearLayout>
@@ -101,7 +101,7 @@
                     android:scaleType="fitCenter"
                     android:src="@drawable/speaker_high"
                     android:contentDescription="@string/sk_content_description_answer_on_speaker"
-                    app:tint="@color/sk_yellow" />
+                    skTint="@{`call_control_icon`}" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     style="@style/default_text_style_700"
@@ -113,7 +113,7 @@
                     android:maxLines="1"
                     android:ellipsize="end"
                     android:text="@string/sk_call_answer_on_speaker"
-                    android:textColor="@color/sk_yellow"
+                    skInk="@{`call_control_label`}"
                     android:textSize="@dimen/sk_call_action_label_size" />
 
             </LinearLayout>
@@ -135,7 +135,7 @@
                     android:scaleType="fitCenter"
                     android:src="@drawable/chat_teardrop_text"
                     android:contentDescription="@string/sk_content_description_decline_with_message"
-                    app:tint="@color/sk_yellow" />
+                    skTint="@{`call_control_icon`}" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     style="@style/default_text_style_700"
@@ -147,7 +147,7 @@
                     android:maxLines="1"
                     android:ellipsize="end"
                     android:text="@string/sk_call_decline_with_message"
-                    android:textColor="@color/sk_yellow"
+                    skInk="@{`call_control_label`}"
                     android:textSize="@dimen/sk_call_action_label_size" />
 
             </LinearLayout>
@@ -170,7 +170,7 @@
                     android:scaleType="fitCenter"
                     android:src="@drawable/sk_prohibit"
                     android:contentDescription="@string/sk_content_description_block_caller"
-                    app:tint="@color/sk_danger" />
+                    skTint="@{`sk_call_hangup`}" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     style="@style/default_text_style_700"
@@ -182,7 +182,7 @@
                     android:maxLines="1"
                     android:ellipsize="end"
                     android:text="@string/sk_block"
-                    android:textColor="@color/sk_yellow"
+                    skInk="@{`call_control_label`}"
                     android:textSize="@dimen/sk_call_action_label_size" />
 
             </LinearLayout>
@@ -208,7 +208,7 @@
                 android:scaleType="fitCenter"
                 android:src="@drawable/phone_disconnect"
                 android:contentDescription="@string/content_description_hang_up_call"
-                app:tint="@color/sk_danger" />
+                skTint="@{`sk_call_hangup`}" />
 
             <ImageView
                 android:id="@+id/answer_call"
@@ -223,7 +223,7 @@
                 android:scaleType="fitCenter"
                 android:src="@{viewModel.isVideoEnabled ? @drawable/video_camera : @drawable/phone, default=@drawable/phone}"
                 android:contentDescription="@{viewModel.isVideoEnabled ? @string/content_description_answer_video_call : @string/content_description_answer_audio_call}"
-                app:tint="@color/sk_yellow" />
+                skTint="@{`call_control_icon`}" />
 
         </LinearLayout>
 

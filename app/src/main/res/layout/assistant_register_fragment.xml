@@ -26,7 +26,7 @@
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?attr/color_main2_000">
+        android:background="@color/sk_asst_main2_000">
 
         <ScrollView
             android:layout_width="match_parent"
@@ -64,7 +64,7 @@
                     android:layout_height="@dimen/top_bar_height"
                     android:src="@drawable/caret_left"
                     android:contentDescription="@string/content_description_go_back_icon"
-                    app:tint="?attr/color_main2_500"
+                    app:tint="@color/sk_asst_main2_500"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintStart_toStartOf="parent"/>
 
@@ -74,7 +74,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/assistant_account_register"
-                    android:textColor="?attr/color_text"
+                    android:textColor="@color/sk_asst_text"
                     app:layout_constraintTop_toTopOf="@id/back"
                     app:layout_constraintBottom_toBottomOf="@id/back"
                     app:layout_constraintStart_toStartOf="parent"
@@ -89,7 +89,7 @@
                     android:padding="16dp"
                     android:src="@drawable/bell_slash"
                     android:contentDescription="@null"
-                    app:tint="?attr/color_main2_500"
+                    app:tint="@color/sk_asst_main2_500"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/title"/>
@@ -132,7 +132,7 @@
                     android:paddingEnd="20dp"
                     android:text="@={viewModel.username, default=`johndoe`}"
                     android:textSize="14sp"
-                    android:textColor="?attr/color_main2_600"
+                    android:textColor="@color/sk_asst_main2_600"
                     android:background="@{viewModel.usernameError.length() > 0 ? @drawable/shape_edit_text_error_background : @drawable/edit_text_background, default=@drawable/edit_text_background}"
                     android:inputType="text"
                     android:hint="@string/username"
@@ -149,7 +149,7 @@
                     android:layout_height="wrap_content"
                     android:text="@{viewModel.usernameError, default=`Error`}"
                     android:textSize="13sp"
-                    android:textColor="?attr/color_danger_500"
+                    android:textColor="@color/sk_asst_danger_500"
                     app:layout_constraintTop_toBottomOf="@id/username"
                     app:layout_constraintStart_toStartOf="@id/username"
                     app:layout_constraintEnd_toEndOf="@id/username"/>
@@ -186,7 +186,7 @@
                     android:paddingStart="20dp"
                     android:paddingEnd="25dp"
                     android:textSize="14sp"
-                    android:textColor="?attr/color_main2_600"
+                    android:textColor="@color/sk_asst_main2_600"
                     android:gravity="center_vertical"
                     android:overlapAnchor="false"
                     android:dropDownVerticalOffset="25dp"
@@ -203,7 +203,7 @@
                     android:layout_height="wrap_content"
                     android:src="@drawable/caret_down"
                     android:contentDescription="@null"
-                    app:tint="?attr/color_main2_600"
+                    app:tint="@color/sk_asst_main2_600"
                     app:layout_constraintTop_toTopOf="@id/prefix"
                     app:layout_constraintBottom_toBottomOf="@id/prefix"
                     app:layout_constraintEnd_toEndOf="@id/prefix"/>
@@ -217,7 +217,7 @@
                     android:paddingEnd="20dp"
                     android:text="@={viewModel.phoneNumber, default=`6 01 02 03 04 05`}"
                     android:textSize="14sp"
-                    android:textColor="?attr/color_main2_600"
+                    android:textColor="@color/sk_asst_main2_600"
                     android:inputType="phone"
                     android:drawableStart="@drawable/separator"
                     android:drawablePadding="10dp"
@@ -237,7 +237,7 @@
                     android:layout_height="wrap_content"
                     android:text="@{viewModel.phoneNumberError, default=`Error`}"
                     android:textSize="13sp"
-                    android:textColor="?attr/color_danger_500"
+                    android:textColor="@color/sk_asst_danger_500"
                     app:layout_constraintTop_toBottomOf="@id/prefix"
                     app:layout_constraintStart_toStartOf="@id/prefix"
                     app:layout_constraintEnd_toEndOf="@id/phone_number"/>
@@ -266,7 +266,7 @@
                     android:paddingEnd="20dp"
                     android:text="@={viewModel.password, default=`johndoe`}"
                     android:textSize="14sp"
-                    android:textColor="?attr/color_main2_600"
+                    android:textColor="@color/sk_asst_main2_600"
                     android:background="@drawable/edit_text_background"
                     android:hint="@string/password"
                     passwordInputType="@{viewModel.showPassword ? InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD : InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD, default=textPassword}"
@@ -283,7 +283,7 @@
                     android:layout_height="wrap_content"
                     android:text="@{viewModel.passwordError, default=`Error`}"
                     android:textSize="13sp"
-                    android:textColor="?attr/color_danger_500"
+                    android:textColor="@color/sk_asst_danger_500"
                     app:layout_constraintTop_toBottomOf="@id/password"
                     app:layout_constraintStart_toStartOf="@id/password"
                     app:layout_constraintEnd_toEndOf="@id/password"/>
@@ -297,7 +297,7 @@
                     android:layout_marginEnd="20dp"
                     android:contentDescription="@string/content_description_toggle_password_visibility"
                     android:src="@{viewModel.showPassword ? @drawable/eye_slash : @drawable/eye, default=@drawable/eye}"
-                    app:tint="?attr/color_main2_500"
+                    app:tint="@color/sk_asst_main2_500"
                     app:layout_constraintEnd_toEndOf="@id/password"
                     app:layout_constraintTop_toTopOf="@id/password"
                     app:layout_constraintBottom_toBottomOf="@id/password" />
@@ -327,7 +327,7 @@
                     android:gravity="center"
                     android:text="@string/assistant_create_account_using_email_on_our_web_platform"
                     android:textSize="14sp"
-                    android:textColor="?attr/color_main2_700"
+                    android:textColor="@color/sk_asst_main2_700"
                     app:layout_constraintTop_toBottomOf="@id/create"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"/>
@@ -361,7 +361,7 @@
                     android:paddingEnd="20dp"
                     android:text="@string/assistant_already_have_an_account"
                     android:textSize="14sp"
-                    android:textColor="?attr/color_main2_700"
+                    android:textColor="@color/sk_asst_main2_700"
                     app:layout_constraintHorizontal_chainStyle="packed"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/login"
@@ -395,7 +395,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:tint="?attr/color_main1_500" />
+                    app:tint="@color/sk_asst_main1_500" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

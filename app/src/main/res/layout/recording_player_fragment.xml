@@ -111,7 +111,7 @@
             android:id="@+id/top_bar_background"
             android:layout_width="0dp"
             android:layout_height="@dimen/top_bar_height"
-            android:background="@color/bc_white"
+            android:background="@color/sk_viewer_bar"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="@id/top_bar_barrier"
             app:layout_constraintStart_toStartOf="parent"

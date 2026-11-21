@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma fork: outlined, never filled (black-yellow-theme skill, applied fully 2026-11-21). -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
     <size android:width="44dp" android:height="44dp" />
-    <solid android:color="?attr/color_button_background"/>
+    <solid android:color="@android:color/transparent" />
+    <stroke android:width="1.25dp" android:color="@color/sk_yellow" />
 </shape>

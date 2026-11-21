@@ -53,7 +53,7 @@ class SkSwipeToCall(
             if (shown > size + margin) {
                 val top = row.top + (row.height - size) / 2
                 val left = if (dX > 0) row.left + shown - size - margin else row.right - shown + margin
-                icon.setTint(ContextCompat.getColor(recyclerView.context, R.color.sk_role_call))
+                icon.setTint(SkTheme.color(recyclerView.context, SkSlot.MENU_CALL))
                 icon.setBounds(left, top, left + size, top + size)
                 icon.draw(canvas)
             }

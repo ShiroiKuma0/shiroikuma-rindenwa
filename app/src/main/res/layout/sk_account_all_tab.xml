@@ -17,7 +17,7 @@
         android:includeFontPadding="false"
         android:maxLines="1"
         android:text="全"
-        android:textColor="@color/sk_yellow"
+
         android:textSize="56sp" />
 
     <ImageView

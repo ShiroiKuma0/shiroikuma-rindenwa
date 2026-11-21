@@ -56,7 +56,13 @@ open class GenericActivity : AppCompatActivity() {
     // shiroikuma fork: yellow, matching the themeMainColor default
     private var mainColor: String = "yellow"
 
+    // shiroikuma fork: the generation of colour roles this activity was built from (SkPalette).
+    private var paletteGeneration = 0
+
     override fun getTheme(): Resources.Theme {
+        // shiroikuma fork: the colour roles are laid over the resources before anything — the
+        // theme included — is read from them. See SkPalette.
+        org.linphone.shiroikuma.SkPalette.apply(this)
         mainColor = corePreferences.themeMainColor
         val theme = super.theme
         when (mainColor) {
@@ -103,6 +109,11 @@ open class GenericActivity : AppCompatActivity() {
         }
 
         super.onCreate(savedInstanceState)
+
+        // shiroikuma fork: the window ground and the system bars, black in the theme because the
+        // platform draws them before any code runs, repainted from their roles.
+        paletteGeneration = org.linphone.shiroikuma.SkPalette.generation()
+        org.linphone.shiroikuma.SkPalette.paintWindow(this)
     }
 
     /**
@@ -117,6 +128,13 @@ open class GenericActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        // shiroikuma fork: a colour was set on the 臨電話 UI page since this activity was built —
+        // its views were inflated from the old values, so it is built again.
+        if (org.linphone.shiroikuma.SkPalette.isStale(paletteGeneration)) {
+            paletteGeneration = org.linphone.shiroikuma.SkPalette.generation()
+            recreate()
+            return
+        }
         SkStyler.refreshOverrideState(this)
         SkStyler.apply(this)
     }

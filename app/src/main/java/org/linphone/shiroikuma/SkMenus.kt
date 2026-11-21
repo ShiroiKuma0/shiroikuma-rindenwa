@@ -179,14 +179,18 @@ object SkMenus {
         return popup
     }
 
-    fun style(view: TextView, role: String?, opens: Boolean) {
+    /**
+     * [checked] is for a row of a choice list: the chosen row carries a check at its right end,
+     * in the accent, where a row that opens something carries its ›.
+     */
+    fun style(view: TextView, role: String?, opens: Boolean, checked: Boolean = false) {
         val context = view.context
-        val accent = SkTheme.color(context, SkSlot.ACCENT)
         val roleColor = SkTheme.color(context, slotOf(role))
-        val ink = if (role == DELETE) roleColor else accent
+        val delete = role == DELETE
+        val ink = if (delete) roleColor else SkRoles.color(context, "menu_caret")
 
-        view.background = pill(context, ink)
-        view.setTextColor(ink)
+        view.background = pill(context, if (delete) roleColor else SkRoles.color(context, "menu_frame"))
+        view.setTextColor(if (delete) roleColor else SkRoles.color(context, "menu_label"))
         view.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
         view.setPaddingRelative(dp(context, 14f), dp(context, 9f), dp(context, 12f), dp(context, 9f))
         view.compoundDrawablePadding = dp(context, 12f)
@@ -206,11 +210,13 @@ object SkMenus {
         val icon = (view.compoundDrawablesRelative[0] as? FixedTint)?.inner
             ?: view.compoundDrawablesRelative[0]
         val start = icon?.let { FixedTint(it.mutate(), roleColor, dp(context, 22f)) }
-        val caret = if (opens) {
-            AppCompatResources.getDrawable(context, R.drawable.caret_right)?.mutate()
+        val caret = when {
+            opens -> R.drawable.caret_right
+            checked -> R.drawable.check
+            else -> null
+        }?.let { end ->
+            AppCompatResources.getDrawable(context, end)?.mutate()
                 ?.let { FixedTint(it, ink, dp(context, 18f)) }
-        } else {
-            null
         }
         view.setCompoundDrawablesRelative(start, null, caret, null)
     }
@@ -220,7 +226,7 @@ object SkMenus {
 @BindingAdapter("skMenuToggleRole")
 fun bindSkMenuToggleRole(view: TextView, role: String?) {
     val context = view.context
-    view.setTextColor(SkTheme.color(context, SkSlot.ACCENT))
+    view.setTextColor(SkRoles.color(context, "menu_label"))
     view.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
     val current = view.compoundDrawablesRelative[0]
     val icon = ((current as? SkMenus.FixedTint)?.inner ?: current)?.let {
@@ -240,9 +246,9 @@ fun bindSkSwitch(view: SwitchCompat, on: Boolean?) {
     if (on == true) SkStyler.styleSwitch(view)
 }
 
-@BindingAdapter(value = ["skMenuRole", "skMenuOpens"], requireAll = false)
-fun bindSkMenuRole(view: TextView, role: String?, opens: Boolean?) {
-    SkMenus.style(view, role, opens == true)
+@BindingAdapter(value = ["skMenuRole", "skMenuOpens", "skMenuChecked"], requireAll = false)
+fun bindSkMenuRole(view: TextView, role: String?, opens: Boolean?, checked: Boolean?) {
+    SkMenus.style(view, role, opens == true, checked == true)
 }
 
 /**
@@ -259,13 +265,13 @@ fun bindSkMenuRole(view: TextView, role: String?, opens: Boolean?) {
 fun bindSkPill(view: TextView, kind: String?) {
     val context = view.context
     val density = context.resources.displayMetrics.density
-    val accent = SkTheme.color(context, SkSlot.ACCENT)
-    val ink = if (kind == "danger") SkTheme.color(context, SkSlot.MENU_DELETE) else accent
+    val danger = kind == "danger"
+    val ink = if (danger) SkTheme.color(context, SkSlot.MENU_DELETE) else SkRoles.color(context, "pill_frame")
     val main = kind == "main"
     val opens = main || kind == "opens"
 
     view.background = SkMenus.pill(context, ink, if (main) 3f else 1.25f)
-    view.setTextColor(ink)
+    view.setTextColor(if (danger) ink else SkRoles.color(context, "pill_text"))
     view.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
     view.setTypeface(Typeface.create(view.typeface, if (main) Typeface.BOLD else Typeface.NORMAL))
     view.maxLines = 1
@@ -301,4 +307,44 @@ fun bindSkPill(view: TextView, kind: String?) {
             }
         }
     }
+}
+
+/**
+ * The icon of a row outside a popup menu — a picker cell, a sheet row, a tile — coloured by what
+ * the row does, from the same settable roles as the menu icons. On a text view it tints the
+ * compound drawables (and survives their being set again by a binding); on an image view, the
+ * image.
+ */
+@BindingAdapter("skIconRole")
+fun bindSkIconRole(view: View, role: String?) {
+    val tint = ColorStateList.valueOf(SkTheme.color(view.context, SkMenus.slotOf(role)))
+    when (view) {
+        is TextView -> androidx.core.widget.TextViewCompat.setCompoundDrawableTintList(view, tint)
+        is android.widget.ImageView -> androidx.core.widget.ImageViewCompat.setImageTintList(view, tint)
+    }
+}
+
+/**
+ * A colour by **role**, for the fork's own layouts, which carry no colour at all: `skInk` paints a
+ * text view's text, `skTint` an image view's image, `skGround` a view's ground. The key is a role
+ * of [SkRoles] or the key of an [SkSlot].
+ */
+@BindingAdapter("skInk")
+fun bindSkInk(view: TextView, role: String?) {
+    if (role != null) view.setTextColor(SkRoles.color(view.context, role))
+}
+
+@BindingAdapter("skTint")
+fun bindSkTint(view: android.widget.ImageView, role: String?) {
+    if (role != null) {
+        androidx.core.widget.ImageViewCompat.setImageTintList(
+            view,
+            ColorStateList.valueOf(SkRoles.color(view.context, role)),
+        )
+    }
+}
+
+@BindingAdapter("skGround")
+fun bindSkGround(view: View, role: String?) {
+    if (role != null) view.setBackgroundColor(SkRoles.color(view.context, role))
 }
