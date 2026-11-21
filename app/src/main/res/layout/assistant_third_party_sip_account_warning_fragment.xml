@@ -23,7 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
-        android:background="@color/sk_asst_main2_000">
+        android:background="?attr/color_main2_000">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -37,7 +37,7 @@
                 android:layout_height="@dimen/top_bar_height"
                 android:src="@drawable/caret_left"
                 android:contentDescription="@string/content_description_go_back_icon"
-                app:tint="@color/sk_asst_main2_500"
+                app:tint="?attr/color_main2_500"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"/>
 
@@ -47,7 +47,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/assistant_login_third_party_sip_account_title"
-                android:textColor="@color/sk_asst_text"
+                android:textColor="?attr/color_text"
                 app:layout_constraintTop_toTopOf="@id/back"
                 app:layout_constraintBottom_toBottomOf="@id/back"
                 app:layout_constraintStart_toStartOf="parent"
@@ -63,7 +63,7 @@
                 android:padding="16dp"
                 android:src="@drawable/chat_teardrop_slash"
                 android:contentDescription="@null"
-                app:tint="@color/sk_asst_main2_500"
+                app:tint="?attr/color_main2_500"
                 app:layout_constraintHorizontal_chainStyle="packed"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/no_video"
@@ -78,7 +78,7 @@
                 android:padding="16dp"
                 android:src="@drawable/video_camera_slash"
                 android:contentDescription="@null"
-                app:tint="@color/sk_asst_main2_500"
+                app:tint="?attr/color_main2_500"
                 app:layout_constraintStart_toEndOf="@id/no_chat"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/third_party_warning_title"/>
@@ -165,7 +165,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:tint="@color/sk_asst_main1_500" />
+                app:tint="?attr/color_main1_500" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

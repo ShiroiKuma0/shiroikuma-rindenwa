@@ -6,7 +6,6 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.RippleDrawable
 import android.net.Uri
 import android.view.Gravity
 import android.view.View
@@ -108,7 +107,7 @@ class SkEximportPanel(
         }
 
         holder.addView(
-            text(activity.getString(R.string.sk_eim_title), 18f, accent, bold = true).apply {
+            text(activity.getString(R.string.sk_eim_title), 18f, SkRoles.color(activity, "dialog_title"), bold = true).apply {
                 gravity = Gravity.CENTER_HORIZONTAL
             },
         )
@@ -126,14 +125,14 @@ class SkEximportPanel(
             background = GradientDrawable().apply {
                 cornerRadius = 8 * density
                 setColor(this@SkEximportPanel.background)
-                setStroke((1.5f * density).toInt(), accent)
+                setStroke((1.5f * density).toInt(), SkRoles.color(activity, "dialog_field_frame"))
             }
             isClickable = true
             isFocusable = true
             setOnClickListener { pickDirectory() }
         }
         dirBox.addView(
-            text(activity.getString(R.string.sk_eim_dir), 12f, accent).apply { alpha = 0.8f },
+            text(activity.getString(R.string.sk_eim_dir), 12f, SkRoles.color(activity, "dialog_heading")).apply { alpha = 0.8f },
         )
         dirValue = text("", 15f, textColor, bold = true).apply { setPadding(0, dp(2), 0, 0) }
         dirBox.addView(dirValue)
@@ -230,7 +229,7 @@ class SkEximportPanel(
         }
 
     private fun divider(): View = View(activity).apply {
-        setBackgroundColor(accent)
+        setBackgroundColor(SkRoles.color(activity, "dialog_divider"))
         layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1).apply {
             topMargin = dp(12)
             bottomMargin = dp(6)
@@ -248,19 +247,15 @@ class SkEximportPanel(
             text = label
             textSize = 14f
             if (main) setTypeface(typeface, android.graphics.Typeface.BOLD)
-            setTextColor(accent)
+            setTextColor(SkRoles.color(activity, "dialog_button_text"))
             gravity = Gravity.CENTER
             isClickable = true
             isFocusable = true
-            val shape = GradientDrawable().apply {
-                setColor(this@SkEximportPanel.background)
-                cornerRadius = 50 * density
-                setStroke(((if (main) 3f else 1.25f) * density).toInt().coerceAtLeast(2), accent)
-            }
-            background = RippleDrawable(
-                ColorStateList.valueOf((accent and 0x00FFFFFF) or 0x33000000),
-                shape,
-                null,
+            // See-through, like every pill.
+            background = SkMenus.pill(
+                activity,
+                SkRoles.color(activity, "dialog_button_frame"),
+                if (main) 3f else 1.25f,
             )
             setPadding(dp(20), dp(8), dp(20), dp(8))
             layoutParams = LinearLayout.LayoutParams(
@@ -299,8 +294,8 @@ class SkEximportPanel(
             setPadding(dp(26), dp(20), dp(26), dp(20))
             background = borderedBox(16)
         }
-        box.addView(text(activity.getString(titleRes), 19f, accent, bold = true))
-        progressCount = text("", 21f, accent, bold = true).apply {
+        box.addView(text(activity.getString(titleRes), 19f, SkRoles.color(activity, "dialog_title"), bold = true))
+        progressCount = text("", 21f, SkRoles.color(activity, "dialog_text"), bold = true).apply {
             gravity = Gravity.CENTER_HORIZONTAL
             setPadding(0, dp(10), 0, dp(4))
         }
@@ -495,8 +490,8 @@ class SkEximportPanel(
             setPadding(dp(22), dp(20), dp(22), dp(16))
             background = borderedBox(16)
         }
-        box.addView(text(title, 19f, accent, bold = true))
-        box.addView(text(body, 14f, accent).apply { setPadding(0, dp(10), 0, 0) })
+        box.addView(text(title, 19f, SkRoles.color(activity, "dialog_title"), bold = true))
+        box.addView(text(body, 14f, SkRoles.color(activity, "dialog_text")).apply { setPadding(0, dp(10), 0, 0) })
 
         val bar = LinearLayout(activity).apply {
             orientation = LinearLayout.HORIZONTAL

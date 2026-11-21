@@ -304,10 +304,23 @@ the **mixed** way, chosen by 白い熊 because this fork is rebased onto every u
   missed that surface). `Theme.SkBlackYellow` points each of upstream’s 61 colour attributes at
   its own role (`sk_a_…`). Upstream’s own colour names used directly in its layouts (`bc_white`,
   `gray_900`, …) are roles too (`up_…`), fed by id. **Upstream’s layouts are not edited for
-  colour** — that is the point: no rebase conflicts. The exceptions are the assistant, welcome and
-  meeting layouts, whose `?attr/color_x` became `@color/sk_asst_x` / `@color/sk_meet_x` so those
-  screens have roles of their own; after an upstream sync, re-apply that rewrite to any new
-  attribute reference in those files.
+  colour in the repository** — that is the point: no rebase conflicts.
+- **Every item still has roles of its own — made at build time.** The Gradle task `skItemRoles`
+  runs `tools/sk_colour_roles.py --out app/build/generated/sk-item-roles` before every build: it
+  copies `res/`, and in the copy rewrites each shared colour name to a role of the item — per
+  screen group and kind for layouts (`sk_hist__a_main2_600__t`: history, secondary labels, text),
+  per file for shapes (`sk_d__…`) and state selectors (`sk_c__…`), per style for text styles
+  (`sk_s__…`) — and writes `sk_roles_generated.xml` and `SkRolesGenerated.kt` beside it. The build
+  takes its resources and that table from the copy. About 515 item roles; each falls back to the
+  general role it replaced. **Never run the script on the sources and never commit its output**;
+  a layout upstream adds or changes gets its roles at the next build with nothing to do by hand.
+  A build needs `python3`.
+- **The fork’s own shapes are drawn in code** (`shiroikuma/SkShapes.kt`). `drawable/sk_*.xml` that
+  are not icons are colourless **stubs** keeping the name layouts use; `SkShapes.install` puts a
+  factory in front of each activity’s inflater that replaces a stub given as `android:background`
+  by the shape built from its own roles. A background chosen by a binding expression uses the
+  `skShape` adapter instead. A new shape: a stub file, a branch in `SkShapes.build` and
+  `isStub`, and its roles.
 - **`SkPalette`** lays the roles over the resources with a `ResourcesLoader` (Android 11+), built
   by Material’s colour-table creator through `com.google.android.material.color.SkColorLoaderBridge`
   (a class of ours in Material’s package, because the creator is package-private — check it still

@@ -88,6 +88,9 @@ open class GenericActivity : AppCompatActivity() {
 
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
+        // shiroikuma fork: the fork's own shapes are drawn in code; this is where views get them.
+        org.linphone.shiroikuma.SkShapes.install(this)
+
         enableWindowSecureMode(corePreferences.enableSecureMode)
 
         val nightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK

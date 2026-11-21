@@ -2,9 +2,10 @@
 <!-- shiroikuma fork: a switch is an outlined pill with the background showing through — never
      filled, not even when on. 52 × 28 dp, 2 dp outline; only its brightness and the dot's side
      tell on from off. -->
+<!-- The white is a mask: the switch is tinted in code from its two roles (SkStyler.styleSwitch). -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
     <size android:width="52dp" android:height="28dp" />
     <corners android:radius="14dp" />
     <solid android:color="@android:color/transparent" />
-    <stroke android:width="2dp" android:color="@color/sk_switch_color" />
+    <stroke android:width="2dp" android:color="@android:color/white" />
 </shape>

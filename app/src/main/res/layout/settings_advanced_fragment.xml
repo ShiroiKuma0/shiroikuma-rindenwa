@@ -257,7 +257,7 @@
                     android:text="@string/settings_advanced_audio_devices_title"
                     android:drawableEnd="@{viewModel.expandAudioDevices ? @drawable/caret_down : @drawable/caret_right, default=@drawable/caret_down}"
                     android:drawableTint="?attr/color_main2_600"
-                    android:background="@{viewModel.expandAudioDevices ? @drawable/sk_settings_group_header_open : @drawable/sk_settings_group_header_closed, default=@drawable/sk_settings_group_header_open}"
+                    skShape="@{viewModel.expandAudioDevices ? `settings_group_header_open` : `settings_group_header_closed`}"
                     app:layout_constraintWidth_max="@dimen/section_max_width"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"

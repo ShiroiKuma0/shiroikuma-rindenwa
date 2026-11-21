@@ -102,17 +102,17 @@ class SkColorPickerDialog(
         listOf(
             binding.skSliderRLabel, binding.skSliderGLabel,
             binding.skSliderBLabel, binding.skSliderALabel,
-        ).forEach { it.setTextColor(accent) }
+        ).forEach { it.setTextColor(SkRoles.color(activity, "dialog_heading")) }
         listOf(
             binding.skSliderRValue, binding.skSliderGValue,
             binding.skSliderBValue, binding.skSliderAValue,
         ).forEach { it.setTextColor(textColor) }
         binding.skPickerArrow.setTextColor(textColor)
-        binding.skPickerHex.setTextColor(accent)
+        binding.skPickerHex.setTextColor(SkRoles.color(activity, "dialog_text"))
         listOf(binding.skSliderR, binding.skSliderG, binding.skSliderB, binding.skSliderA)
             .forEach {
-                it.progressTintList = android.content.res.ColorStateList.valueOf(accent)
-                it.thumbTintList = android.content.res.ColorStateList.valueOf(accent)
+                it.progressTintList = android.content.res.ColorStateList.valueOf(SkRoles.color(activity, "dialog_slider"))
+                it.thumbTintList = android.content.res.ColorStateList.valueOf(SkRoles.color(activity, "dialog_slider"))
             }
     }
 
@@ -194,19 +194,11 @@ class SkColorPickerDialog(
             text = label
             textSize = 14f
             if (main) setTypeface(typeface, android.graphics.Typeface.BOLD)
-            setTextColor(accent)
+            setTextColor(SkRoles.color(activity, "dialog_button_text"))
             gravity = Gravity.CENTER
             isClickable = true
             isFocusable = true
-            background = android.graphics.drawable.RippleDrawable(
-                android.content.res.ColorStateList.valueOf((accent and 0x00FFFFFF) or 0x33000000),
-                GradientDrawable().apply {
-                    setColor(this@SkColorPickerDialog.background)
-                    cornerRadius = 50 * density
-                    setStroke(((if (main) 3f else 1.25f) * density).toInt().coerceAtLeast(2), accent)
-                },
-                null,
-            )
+            background = SkMenus.pill(activity, SkRoles.color(activity, "dialog_button_frame"), if (main) 3f else 1.25f)
             setPadding(dp(18), dp(8), dp(18), dp(8))
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,

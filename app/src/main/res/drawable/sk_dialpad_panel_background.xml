@@ -1,24 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  shiroikuma fork — the dial panel's own surface: black, rounded at the top, with a yellow rule
-  along its upper edge so the panel reads as a sheet lying over the history rather than as the
-  bottom of the screen.
--->
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape android:shape="rectangle">
-            <solid android:color="@color/sk_yellow" />
-            <corners
-                android:topLeftRadius="@dimen/sk_dialpad_panel_corner"
-                android:topRightRadius="@dimen/sk_dialpad_panel_corner" />
-        </shape>
-    </item>
-    <item android:top="@dimen/sk_dialpad_panel_edge">
-        <shape android:shape="rectangle">
-            <solid android:color="@color/sk_surface" />
-            <corners
-                android:topLeftRadius="@dimen/sk_dialpad_panel_corner"
-                android:topRightRadius="@dimen/sk_dialpad_panel_corner" />
-        </shape>
-    </item>
-</layer-list>
+<!-- shiroikuma fork: a STUB. It keeps the name layouts refer to and holds no colour; the shape
+     that is shown is drawn in code, from colour roles of its own — see SkShapes.build. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle" />

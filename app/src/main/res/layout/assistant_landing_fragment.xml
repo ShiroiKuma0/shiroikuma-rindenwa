@@ -35,7 +35,7 @@
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/sk_asst_main2_000">
+        android:background="?attr/color_main2_000">
 
         <ScrollView
             android:layout_width="match_parent"
@@ -55,7 +55,7 @@
                     android:src="@drawable/caret_left"
                     android:contentDescription="@string/content_description_go_back_icon"
                     android:visibility="@{viewModel.showBackButton ? View.VISIBLE : View.INVISIBLE, default=invisible}"
-                    app:tint="@color/sk_asst_main2_500"
+                    app:tint="?attr/color_main2_500"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintStart_toStartOf="parent"/>
 
@@ -65,7 +65,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/assistant_account_login"
-                    android:textColor="@color/sk_asst_text"
+                    android:textColor="?attr/color_text"
                     app:layout_constraintTop_toTopOf="@id/back"
                     app:layout_constraintBottom_toBottomOf="@id/back"
                     app:layout_constraintStart_toStartOf="parent"
@@ -81,11 +81,11 @@
                     android:padding="10dp"
                     android:text="@string/help_title"
                     android:textSize="14sp"
-                    android:textColor="@color/sk_asst_main2_500"
+                    android:textColor="?attr/color_main2_500"
                     android:drawableStart="@drawable/question"
                     android:drawablePadding="5dp"
                     android:background="@drawable/squircle_transparent_button_background"
-                    app:drawableTint="@color/sk_asst_main2_500"
+                    app:drawableTint="?attr/color_main2_500"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@id/login_title"
                     app:layout_constraintBottom_toBottomOf="@id/login_title"/>
@@ -113,7 +113,7 @@
                     android:paddingEnd="20dp"
                     android:text="@={viewModel.sipIdentity, default=`johndoe`}"
                     android:textSize="14sp"
-                    android:textColor="@color/sk_asst_main2_600"
+                    android:textColor="?attr/color_main2_600"
                     android:background="@drawable/edit_text_background"
                     android:inputType="text|textNoSuggestions"
                     android:hint="@string/username"
@@ -146,7 +146,7 @@
                     android:paddingEnd="20dp"
                     android:text="@={viewModel.password, default=`johndoe`}"
                     android:textSize="14sp"
-                    android:textColor="@color/sk_asst_main2_600"
+                    android:textColor="?attr/color_main2_600"
                     android:background="@drawable/edit_text_background"
                     android:hint="@string/password"
                     passwordInputType="@{viewModel.showPassword ? InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD : InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD, default=textPassword}"
@@ -164,7 +164,7 @@
                     android:layout_marginEnd="20dp"
                     android:contentDescription="@string/content_description_toggle_password_visibility"
                     android:src="@{viewModel.showPassword ? @drawable/eye_slash : @drawable/eye, default=@drawable/eye}"
-                    app:tint="@color/sk_asst_main2_500"
+                    app:tint="?attr/color_main2_500"
                     app:layout_constraintEnd_toEndOf="@id/password"
                     app:layout_constraintTop_toTopOf="@id/password"
                     app:layout_constraintBottom_toBottomOf="@id/password" />
@@ -198,7 +198,7 @@
                     android:paddingEnd="20dp"
                     android:text="@string/assistant_forgotten_password"
                     android:textSize="13sp"
-                    android:textColor="@color/sk_asst_main2_500"
+                    android:textColor="?attr/color_main2_500"
                     android:background="@drawable/squircle_transparent_button_background"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -214,7 +214,7 @@
                     android:paddingEnd="10dp"
                     android:text="@string/or"
                     android:textSize="14sp"
-                    android:textColor="@color/sk_asst_main2_500"
+                    android:textColor="?attr/color_main2_500"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/forgotten_password"/>
@@ -223,7 +223,7 @@
                     android:layout_width="0dp"
                     android:layout_height="1dp"
                     android:layout_marginStart="16dp"
-                    android:background="@color/sk_asst_main2_200"
+                    android:background="?attr/color_main2_200"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/or"
                     app:layout_constraintTop_toTopOf="@id/or"
@@ -233,7 +233,7 @@
                     android:layout_width="0dp"
                     android:layout_height="1dp"
                     android:layout_marginEnd="16dp"
-                    android:background="@color/sk_asst_main2_200"
+                    android:background="?attr/color_main2_200"
                     app:layout_constraintStart_toEndOf="@id/or"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@id/or"
@@ -300,7 +300,7 @@
                     android:layout_marginStart="10dp"
                     android:text="@string/assistant_no_account_yet"
                     android:textSize="14sp"
-                    android:textColor="@color/sk_asst_main2_700"
+                    android:textColor="?attr/color_main2_700"
                     android:visibility="@{viewModel.hideCreateAccount ? View.GONE : View.VISIBLE}"
                     app:layout_constraintHorizontal_chainStyle="packed"
                     app:layout_constraintStart_toStartOf="parent"
@@ -337,7 +337,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:tint="@color/sk_asst_main1_500" />
+                    app:tint="?attr/color_main1_500" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

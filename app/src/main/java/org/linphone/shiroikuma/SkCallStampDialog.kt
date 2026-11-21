@@ -52,8 +52,8 @@ class SkCallStampDialog(private val activity: Activity, private val model: CallL
     private val background = SkRoles.color(activity, "dialog_ground")
 
     // The dim gold of notes, and the menus' darker accent for the rule.
-    private val captionColor = blend(background, accent, 0.78f)
-    private val ruleColor = blend(background, accent, 0.7f)
+    private val captionColor = SkRoles.color(activity, "dialog_caption")
+    private val ruleColor = SkRoles.color(activity, "dialog_divider")
     private val valueColor = SkDenwaStyle.color("color.number") ?: SkTheme.color(activity, SkSlot.LIST_NUMBER)
 
     private val stamp = model.skStamp ?: SkCallStamp()
@@ -118,7 +118,7 @@ class SkCallStampDialog(private val activity: Activity, private val model: CallL
         lines.addView(
             TextView(activity).apply {
                 this.text = user.ifEmpty { activity.getString(R.string.sk_stamp_account_unknown) }
-                setTextColor(accent)
+                setTextColor(SkRoles.color(activity, "dialog_title"))
                 typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
                 maxLines = 1
                 // One line whatever the width: the account shrinks before it breaks.
@@ -156,7 +156,7 @@ class SkCallStampDialog(private val activity: Activity, private val model: CallL
         )
         if (model.skIsCallback) {
             box.addView(
-                row(icon(R.drawable.sk_call_callback), accent, R.string.sk_stamp_placed_as, getString(R.string.sk_stamp_callback))
+                row(icon(R.drawable.sk_call_callback), SkRoles.color(activity, "dialog_fact_icon"), R.string.sk_stamp_placed_as, getString(R.string.sk_stamp_callback))
             )
         }
 
@@ -169,7 +169,7 @@ class SkCallStampDialog(private val activity: Activity, private val model: CallL
                     activity.getString(R.string.sk_stamp_rang_unanswered, rang)
                 else -> rang
             }
-            box.addView(row(icon(R.drawable.clock), accent, R.string.sk_stamp_rang, text))
+            box.addView(row(icon(R.drawable.clock), SkRoles.color(activity, "dialog_fact_icon"), R.string.sk_stamp_rang, text))
         }
         if (answered && model.skDurationSeconds > 0) {
             box.addView(
@@ -194,7 +194,7 @@ class SkCallStampDialog(private val activity: Activity, private val model: CallL
                 activity.getString(R.string.sk_stamp_codec_rate, number)
             }
             box.addView(
-                row(icon(R.drawable.waveform), accent, R.string.sk_stamp_codec, listOfNotNull(stamp.codec, rate).joinToString(" · "))
+                row(icon(R.drawable.waveform), SkRoles.color(activity, "dialog_fact_icon"), R.string.sk_stamp_codec, listOfNotNull(stamp.codec, rate).joinToString(" · "))
             )
         }
         encryptionLabel()?.let {
@@ -221,7 +221,7 @@ class SkCallStampDialog(private val activity: Activity, private val model: CallL
                 R.string.sk_stamp_quality_value,
                 String.format(Locale.US, "%.1f", stamp.quality.coerceAtMost(MAX_QUALITY)),
             )
-            box.addView(row(icon(glyph), accent, R.string.sk_stamp_quality, value))
+            box.addView(row(icon(glyph), SkRoles.color(activity, "dialog_fact_icon"), R.string.sk_stamp_quality, value))
         }
         if (model.skRecorded) {
             box.addView(
@@ -229,7 +229,7 @@ class SkCallStampDialog(private val activity: Activity, private val model: CallL
             )
         }
         if (stamp.agent.isNotEmpty()) {
-            box.addView(row(icon(R.drawable.info), accent, R.string.sk_stamp_agent, stamp.agent))
+            box.addView(row(icon(R.drawable.info), SkRoles.color(activity, "dialog_fact_icon"), R.string.sk_stamp_agent, stamp.agent))
         }
     }
 
@@ -332,7 +332,7 @@ class SkCallStampDialog(private val activity: Activity, private val model: CallL
     /** Green for a call that simply ended, the accent for one given up here, red for a failure. */
     private fun endColor(): Int = when (stamp.end) {
         SkCallStamp.END_LOCAL, SkCallStamp.END_REMOTE, SkCallStamp.END_ELSEWHERE -> role(SkSlot.MENU_CALL)
-        SkCallStamp.END_CANCELLED, SkCallStamp.END_DECLINED_HERE -> accent
+        SkCallStamp.END_CANCELLED, SkCallStamp.END_DECLINED_HERE -> SkRoles.color(activity, "dialog_fact_icon")
         else -> role(SkSlot.MENU_DELETE)
     }
 
@@ -390,10 +390,10 @@ class SkCallStampDialog(private val activity: Activity, private val model: CallL
     /** The theme's pill: never filled; the main one told by its 3 dp frame and bold label. */
     private fun pill(labelRes: Int, main: Boolean, onClick: () -> Unit) = TextView(activity).apply {
         setText(labelRes)
-        setTextColor(accent)
+        setTextColor(SkRoles.color(activity, "dialog_button_text"))
         setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
         if (main) setTypeface(typeface, Typeface.BOLD)
-        background = SkMenus.pill(activity, accent, if (main) 3f else 1.25f)
+        background = SkMenus.pill(activity, SkRoles.color(activity, "dialog_button_frame"), if (main) 3f else 1.25f)
         setPadding(dp(18), dp(9), dp(18), dp(9))
         isClickable = true
         isFocusable = true

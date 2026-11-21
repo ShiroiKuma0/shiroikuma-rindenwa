@@ -33,7 +33,7 @@
             android:layout_height="@dimen/top_bar_height"
             android:src="@drawable/caret_left"
             android:contentDescription="@string/content_description_go_back_icon"
-            app:tint="@color/sk_meet_main1_500"
+            app:tint="?attr/color_main1_500"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -240,7 +240,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="40dp"
                 android:indeterminate="true"
-                app:indicatorColor="@color/sk_meet_main1_500"
+                app:indicatorColor="?attr/color_main1_500"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/joining_subtitle"

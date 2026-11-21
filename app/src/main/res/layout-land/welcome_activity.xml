@@ -36,7 +36,7 @@
                 android:background="@drawable/secondary_button_background"
                 android:text="@string/welcome_carousel_skip"
                 android:textSize="13sp"
-                android:textColor="@color/sk_asst_text"
+                android:textColor="?attr/color_text"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 
@@ -47,7 +47,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="65dp"
                 android:text="@string/welcome_page_title"
-                android:textColor="@color/sk_asst_text"
+                android:textColor="?attr/color_text"
                 android:textSize="36sp"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"/>
@@ -59,7 +59,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:text="@string/welcome_page_subtitle"
-                android:textColor="@color/sk_asst_text"
+                android:textColor="?attr/color_text"
                 android:textSize="26sp"
                 app:layout_constraintBottom_toBottomOf="@id/title_first_line"
                 app:layout_constraintStart_toEndOf="@id/title_first_line"/>
@@ -79,12 +79,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
-                app:dotsColor="@color/sk_asst_main2_200"
+                app:dotsColor="?attr/color_main2_200"
                 app:dotsCornerRadius="8dp"
                 app:dotsSize="13dp"
                 app:dotsSpacing="5dp"
                 app:dotsWidthFactor="2.5"
-                app:selectedDotColor="@color/sk_asst_main1_500"
+                app:selectedDotColor="?attr/color_main1_500"
                 app:progressMode="false"
                 app:layout_constraintTop_toBottomOf="@id/pager"
                 app:layout_constraintBottom_toTopOf="@id/next"
