@@ -2,7 +2,46 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha+2026-11-09.14-39.g2199af83+057 — current
+## 6.3.0-alpha+2026-11-09.14-39.g2199af83+058 — current
+
+Same upstream base as `+057` (`2199af83`); `versionCode` `602010058`.
+
+### Every item has a colour role of its own
+
+- **About 515 item roles join the general ones.** Until now two things that upstream coloured
+  with one name shared one role. Now text, icons, ground and frame are separate roles for each
+  group of screens — the main frame, history, contacts, new call and new conversation, call
+  screens, conversations, settings, account pages, the drawer, recordings, help pages, file
+  viewers, the assistant, meetings, menus, dialogs — and so is each of upstream's shapes, each
+  state colour and each text style.
+- **Nothing looks different until one is set**: an item role follows the general role it took the
+  place of, which follows Accent, Text or Background.
+- **New sections on the 臨電話 UI page** hold them: Main frame, History screens, Contact screens,
+  New call and new conversation, Settings screens, Account pages, Drawer, Recordings, Help pages,
+  File viewers, Other layouts, Text styles, Shapes, State colours. Dialogs, Menus, Calls and
+  Conversations each gained a “by item” group.
+- **The assistant and meeting roles of `+057` were renamed** by this; a colour stored for one of
+  them is no longer read. Every other stored colour is kept.
+
+### The fork's own dialogs and shapes
+
+- **The colour picker, the font picker, the app selection, the export panel and the call stamp**
+  use the dialog roles one by one — title, text, button frame, button label, field frame — and
+  new ones for group headings, dividers, captions, sliders and the icons of a call stamp's facts.
+- **The fork's own frames, pills and grounds are drawn in code**, each from roles of its own: the
+  menu ground and frame, the settings groups, the search pill, the status pill, the dial pad's
+  keys, line and panel, the round call buttons, the deleting pill, the 臨 badge, the Blocked and
+  ID marks. Their XML files hold no colour any more.
+
+### Packaging
+
+- **The item roles are made at build time.** `tools/sk_colour_roles.py`, run by the Gradle task
+  `skItemRoles` before every build, rewrites a copy of the resources and writes the role table;
+  the layouts in the repository keep upstream's own colour names, so an upstream sync conflicts
+  no more than before and a layout upstream adds gets its roles by itself. The assistant, welcome
+  and meeting layouts went back to upstream's names. A build now needs `python3`.
+
+## 6.3.0-alpha+2026-11-09.14-39.g2199af83+057
 
 Same upstream base as `+052` (`2199af83`); `versionCode` `602010057`. Builds `+053` to `+056` were
 steps on the way and were not released.
