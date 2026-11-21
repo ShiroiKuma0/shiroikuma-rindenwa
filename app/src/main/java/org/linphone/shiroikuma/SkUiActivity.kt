@@ -173,6 +173,7 @@ class SkUiActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        SkShapes.install(this)
         super.onCreate(savedInstanceState)
         binding = ActivitySkUiBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -264,6 +265,20 @@ class SkUiActivity : AppCompatActivity() {
         Section("sheets", R.string.sk_section_sheets) { buildSheets() },
         Section("flashes", R.string.sk_section_flashes) { buildFlashes() },
         Section("page", R.string.sk_section_page) { buildPage() },
+        Section("screen_main", R.string.sk_section_screen_main) { addRoleRows(SkArea.SCREEN_MAIN, 1) },
+        Section("screen_history", R.string.sk_section_screen_history) { addRoleRows(SkArea.SCREEN_HISTORY, 1) },
+        Section("screen_contacts", R.string.sk_section_screen_contacts) { addRoleRows(SkArea.SCREEN_CONTACTS, 1) },
+        Section("screen_start", R.string.sk_section_screen_start) { addRoleRows(SkArea.SCREEN_START, 1) },
+        Section("screen_settings", R.string.sk_section_screen_settings) { addRoleRows(SkArea.SCREEN_SETTINGS, 1) },
+        Section("screen_account", R.string.sk_section_screen_account) { addRoleRows(SkArea.SCREEN_ACCOUNT, 1) },
+        Section("screen_drawer", R.string.sk_section_screen_drawer) { addRoleRows(SkArea.SCREEN_DRAWER, 1) },
+        Section("screen_recordings", R.string.sk_section_screen_recordings) { addRoleRows(SkArea.SCREEN_RECORDINGS, 1) },
+        Section("screen_help", R.string.sk_section_screen_help) { addRoleRows(SkArea.SCREEN_HELP, 1) },
+        Section("screen_viewers", R.string.sk_section_screen_viewers) { addRoleRows(SkArea.SCREEN_VIEWERS, 1) },
+        Section("screen_other", R.string.sk_section_screen_other) { addRoleRows(SkArea.SCREEN_OTHER, 1) },
+        Section("styles", R.string.sk_section_styles) { addRoleRows(SkArea.STYLES, 1) },
+        Section("shapes", R.string.sk_section_shapes) { addRoleRows(SkArea.SHAPES, 1) },
+        Section("states", R.string.sk_section_states) { addRoleRows(SkArea.STATES, 1) },
         Section("assistant", R.string.sk_section_assistant) { buildAssistant() },
         Section("meetings", R.string.sk_section_meetings) { buildMeetings() },
         Section("diag", R.string.sk_section_diag) { buildDiagnostics() },
@@ -518,6 +533,7 @@ class SkUiActivity : AppCompatActivity() {
         addColorRow(SkSlot.CALL_HANGUP, 2)
         addRoleGroup(SkArea.IN_CALL, R.string.sk_group_roles_in_call)
         addRoleGroup(SkArea.DIAL, R.string.sk_group_roles_dial)
+        addRoleGroup(SkArea.SCREEN_CALL, R.string.sk_group_roles_call_items)
     }
 
     private fun buildConversations() {
@@ -532,6 +548,7 @@ class SkUiActivity : AppCompatActivity() {
         addDimenRow(SkDimen.BUBBLE_CORNER_RADIUS, 2)
         addBubblePreview(2)
         addRoleGroup(SkArea.BUBBLES, R.string.sk_group_roles_bubbles)
+        addRoleGroup(SkArea.SCREEN_CHAT, R.string.sk_group_roles_chat_items)
     }
 
     private fun buildButtons() {
@@ -561,9 +578,13 @@ class SkUiActivity : AppCompatActivity() {
         addColorRow(SkSlot.MENU_VIEW, 2)
         addColorRow(SkSlot.MENU_BLOCK, 2)
         addColorRow(SkSlot.MENU_DELETE, 2)
+        addRoleGroup(SkArea.SCREEN_MENUS, R.string.sk_group_roles_upstream_menus)
     }
 
-    private fun buildDialogs() = addRoleRows(SkArea.DIALOGS, 1)
+    private fun buildDialogs() {
+        addRoleRows(SkArea.DIALOGS, 1)
+        addRoleGroup(SkArea.SCREEN_DIALOGS, R.string.sk_group_roles_upstream_dialogs)
+    }
 
     private fun buildText() = addRoleRows(SkArea.TEXT, 1)
 

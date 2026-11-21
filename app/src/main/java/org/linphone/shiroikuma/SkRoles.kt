@@ -39,6 +39,24 @@ enum class SkArea(val key: String, val label: String, val icon: Int) {
     PAGE("page", "This page", R.drawable.gear),
     ASSISTANT("assistant", "Assistant", R.drawable.user_plus),
     MEETINGS("meetings", "Meetings", R.drawable.calendar),
+    SCREEN_MAIN("screen_main", "Main frame", R.drawable.layout),
+    SCREEN_HISTORY("screen_history", "History", R.drawable.clock),
+    SCREEN_CONTACTS("screen_contacts", "Contacts", R.drawable.users),
+    SCREEN_CALL("screen_call", "Call screens", R.drawable.phone_call),
+    SCREEN_CHAT("screen_chat", "Conversations", R.drawable.chat_teardrop_text),
+    SCREEN_START("screen_start", "New call and new conversation", R.drawable.phone_plus),
+    SCREEN_SETTINGS("screen_settings", "Settings", R.drawable.gear),
+    SCREEN_ACCOUNT("screen_account", "Account pages", R.drawable.user_circle),
+    SCREEN_DRAWER("screen_drawer", "Drawer", R.drawable.list),
+    SCREEN_DIALOGS("screen_dialogs", "Upstream's dialogs", R.drawable.chat_teardrop_text),
+    SCREEN_MENUS("screen_menus", "Upstream's menus", R.drawable.list),
+    SCREEN_RECORDINGS("screen_recordings", "Recordings", R.drawable.record_fill),
+    SCREEN_HELP("screen_help", "Help", R.drawable.question),
+    SCREEN_VIEWERS("screen_viewers", "File viewers", R.drawable.file),
+    SCREEN_OTHER("screen_other", "Other layouts", R.drawable.squares_four),
+    STYLES("styles", "Text styles", R.drawable.sk_ic_text),
+    SHAPES("shapes", "Shapes", R.drawable.squares_four),
+    STATES("states", "State colours", R.drawable.check),
 }
 
 /** [resId] is the colour resource the loader feeds for this role; 0 for a role only code reads. */
@@ -48,7 +66,11 @@ class SkRole(
     val area: SkArea,
     val label: String,
     val default: (Context) -> Int,
-)
+) {
+    /** A role that simply follows another one — [base], by key — until it is set itself. */
+    constructor(key: String, resId: Int, area: SkArea, label: String, base: String) :
+        this(key, resId, area, label, { c -> SkRoles.color(c, base) })
+}
 
 object SkRoles {
     private const val PREFIX = "sk_role_"
@@ -61,7 +83,8 @@ object SkRoles {
 
     private fun r(c: Context, key: String) = color(c, key)
 
-    val ALL: List<SkRole> = listOf(
+    /** The roles written by hand; [ALL] adds the generated ones (one per item of upstream's XML). */
+    private val HAND: List<SkRole> = listOf(
         SkRole("sk_yellow", R.color.sk_yellow, SkArea.ACCENT, "Accent of upstream’s screens — icons, frames, active states") { c -> ac(c) },
         SkRole("sk_yellow_wash", R.color.sk_yellow_wash, SkArea.BUTTONS, "Wash of a pressed button or a selected row") { c -> SkTheme.withAlpha(r(c, "sk_yellow"), 0.2f) },
         SkRole("sk_yellow_wash_strong", R.color.sk_yellow_wash_strong, SkArea.BUTTONS, "Stronger wash of a pressed main button") { c -> SkTheme.withAlpha(r(c, "sk_yellow"), 0.35f) },
@@ -196,6 +219,11 @@ object SkRoles {
         SkRole("dialog_button_frame", 0, SkArea.DIALOGS, "Dialog — button frame") { c -> ac(c) },
         SkRole("dialog_button_text", 0, SkArea.DIALOGS, "Dialog — button label") { c -> ac(c) },
         SkRole("dialog_field_frame", 0, SkArea.DIALOGS, "Dialog — text field frame") { c -> ac(c) },
+        SkRole("dialog_heading", 0, SkArea.DIALOGS, "Dialog — group heading and label") { c -> r(c, "dialog_title") },
+        SkRole("dialog_divider", 0, SkArea.DIALOGS, "Dialog — line between groups") { c -> SkTheme.blend(r(c, "dialog_ground"), r(c, "dialog_frame"), 0.70f) },
+        SkRole("dialog_caption", 0, SkArea.DIALOGS, "Dialog — caption of a fact") { c -> SkTheme.blend(r(c, "dialog_ground"), r(c, "dialog_frame"), 0.78f) },
+        SkRole("dialog_slider", 0, SkArea.DIALOGS, "Dialog — slider") { c -> r(c, "dialog_frame") },
+        SkRole("dialog_fact_icon", 0, SkArea.DIALOGS, "Dialog — icon of a plain fact") { c -> SkTheme.color(c, SkSlot.MENU_VIEW) },
         SkRole("switch_on", 0, SkArea.SWITCHES, "Switch that is on — outline and dot") { c -> ac(c) },
         SkRole("mark_on", 0, SkArea.SWITCHES, "Radio button or check box — chosen") { c -> ac(c) },
         SkRole("mark_off", 0, SkArea.SWITCHES, "Radio button or check box — not chosen") { c -> SkTheme.color(c, SkSlot.SWITCH_OFF) },
@@ -215,6 +243,28 @@ object SkRoles {
         SkRole("bubble_frame", 0, SkArea.BUBBLES, "Bubble — frame") { c -> ac(c) },
         SkRole("avatar_frame", 0, SkArea.AVATARS, "Avatar — frame") { c -> ac(c) },
         SkRole("tab_frame", 0, SkArea.BARS, "Account tab — outline") { c -> ac(c) },
+        SkRole("menu_ground", 0, SkArea.MENUS, "Menu — ground") { c -> r(c, "sk_surface") },
+        SkRole("menu_box_frame", 0, SkArea.MENUS, "Menu — frame round the whole menu") { c -> ac(c) },
+        SkRole("settings_group_ground", 0, SkArea.SCREEN_SETTINGS, "Settings group — ground") { c -> r(c, "sk_surface") },
+        SkRole("settings_group_frame", 0, SkArea.SCREEN_SETTINGS, "Settings group — frame") { c -> ac(c) },
+        SkRole("settings_header_ground", 0, SkArea.SCREEN_SETTINGS, "Settings group — heading ground") { c -> r(c, "sk_surface_alt") },
+        SkRole("search_frame", 0, SkArea.BARS, "Search pill — frame") { c -> ac(c) },
+        SkRole("status_pill_ground", 0, SkArea.BARS, "Account status pill — ground") { c -> r(c, "sk_surface") },
+        SkRole("status_pill_frame", 0, SkArea.BARS, "Account status pill — frame") { c -> r(c, "sk_field_border") },
+        SkRole("dial_key_ground", 0, SkArea.DIAL, "Dial pad — key ground") { c -> r(c, "sk_surface") },
+        SkRole("dial_key_frame", 0, SkArea.DIAL, "Dial pad — key frame") { c -> ac(c) },
+        SkRole("dial_key_wash", 0, SkArea.DIAL, "Dial pad — pressed key") { c -> r(c, "sk_yellow_wash") },
+        SkRole("dial_underline", 0, SkArea.DIAL, "Dial pad — line under the number") { c -> ac(c) },
+        SkRole("dial_panel_edge", 0, SkArea.DIAL, "Dial pad — top edge of the panel") { c -> ac(c) },
+        SkRole("dial_panel_ground", 0, SkArea.DIAL, "Dial pad — panel ground") { c -> r(c, "sk_surface") },
+        SkRole("call_key_ground", 0, SkArea.IN_CALL, "Round call button — ground") { c -> r(c, "sk_surface") },
+        SkRole("call_key_ring", 0, SkArea.IN_CALL, "Round call button — ring") { c -> ac(c) },
+        SkRole("call_key_wash", 0, SkArea.IN_CALL, "Round call button — pressed") { c -> r(c, "sk_yellow_wash") },
+        SkRole("call_main_ring", 0, SkArea.IN_CALL, "Answer and Call buttons — ring") { c -> ac(c) },
+        SkRole("call_main_wash", 0, SkArea.IN_CALL, "Answer and Call buttons — pressed") { c -> r(c, "sk_yellow_wash_strong") },
+        SkRole("danger_pill_frame", 0, SkArea.DIALOGS, "Deleting pill — frame and label") { c -> r(c, "sk_danger") },
+        SkRole("danger_pill_wash", 0, SkArea.DIALOGS, "Deleting pill — pressed") { c -> r(c, "sk_yellow_wash") },
+        SkRole("danger_pill_disabled", 0, SkArea.DIALOGS, "Deleting pill — disabled frame") { c -> r(c, "sk_danger_dim") },
         SkRole("flash_ground", 0, SkArea.FLASH, "Flash — ground") { c -> bg(c) },
         SkRole("flash_text", 0, SkArea.FLASH, "Flash — text") { c -> tx(c) },
         SkRole("flash_frame", 0, SkArea.FLASH, "Flash — frame") { c -> ac(c) },
@@ -223,25 +273,6 @@ object SkRoles {
         SkRole("flash_wrong", 0, SkArea.FLASH, "Flash — wrong icon") { c -> r(c, "sk_danger") },
         SkRole("rin_badge_ground", 0, SkArea.MARKS, "臨 badge — default ground") { c -> ac(c) },
         SkRole("rin_badge_text", 0, SkArea.MARKS, "臨 badge — default text") { c -> 0xFF0000FF.toInt() },
-        SkRole("sk_asst_danger_500", R.color.sk_asst_danger_500, SkArea.ASSISTANT, "Assistant — danger — text and icons") { c -> r(c, "sk_a_danger_500") },
-        SkRole("sk_asst_main1_500", R.color.sk_asst_main1_500, SkArea.ASSISTANT, "Assistant — accent — icons, links, active states") { c -> r(c, "sk_a_main1_500") },
-        SkRole("sk_asst_main2_000", R.color.sk_asst_main2_000, SkArea.ASSISTANT, "Assistant — page ground") { c -> r(c, "sk_a_main2_000") },
-        SkRole("sk_asst_main2_200", R.color.sk_asst_main2_200, SkArea.ASSISTANT, "Assistant — raised ground") { c -> r(c, "sk_a_main2_200") },
-        SkRole("sk_asst_main2_500", R.color.sk_asst_main2_500, SkArea.ASSISTANT, "Assistant — icons and labels") { c -> r(c, "sk_a_main2_500") },
-        SkRole("sk_asst_main2_600", R.color.sk_asst_main2_600, SkArea.ASSISTANT, "Assistant — secondary labels and icons") { c -> r(c, "sk_a_main2_600") },
-        SkRole("sk_asst_main2_700", R.color.sk_asst_main2_700, SkArea.ASSISTANT, "Assistant — strong labels") { c -> r(c, "sk_a_main2_700") },
-        SkRole("sk_asst_text", R.color.sk_asst_text, SkArea.ASSISTANT, "Assistant — body text") { c -> r(c, "sk_a_text") },
-        SkRole("sk_meet_background_contrast_in_dark_mode", R.color.sk_meet_background_contrast_in_dark_mode, SkArea.MEETINGS, "Meetings — ground behind lists and pages") { c -> r(c, "sk_a_background_contrast_in_dark_mode") },
-        SkRole("sk_meet_danger_500", R.color.sk_meet_danger_500, SkArea.MEETINGS, "Meetings — danger — text and icons") { c -> r(c, "sk_a_danger_500") },
-        SkRole("sk_meet_grey_100", R.color.sk_meet_grey_100, SkArea.MEETINGS, "Meetings — neutral ground — menus, cells") { c -> r(c, "sk_a_grey_100") },
-        SkRole("sk_meet_main1_500", R.color.sk_meet_main1_500, SkArea.MEETINGS, "Meetings — accent — icons, links, active states") { c -> r(c, "sk_a_main1_500") },
-        SkRole("sk_meet_main2_000", R.color.sk_meet_main2_000, SkArea.MEETINGS, "Meetings — page ground") { c -> r(c, "sk_a_main2_000") },
-        SkRole("sk_meet_main2_400", R.color.sk_meet_main2_400, SkArea.MEETINGS, "Meetings — faint labels") { c -> r(c, "sk_a_main2_400") },
-        SkRole("sk_meet_main2_500", R.color.sk_meet_main2_500, SkArea.MEETINGS, "Meetings — icons and labels") { c -> r(c, "sk_a_main2_500") },
-        SkRole("sk_meet_main2_600", R.color.sk_meet_main2_600, SkArea.MEETINGS, "Meetings — secondary labels and icons") { c -> r(c, "sk_a_main2_600") },
-        SkRole("sk_meet_main2_800", R.color.sk_meet_main2_800, SkArea.MEETINGS, "Meetings — stronger labels") { c -> r(c, "sk_a_main2_800") },
-        SkRole("sk_meet_on_main", R.color.sk_meet_on_main, SkArea.MEETINGS, "Meetings — content drawn on the accent") { c -> r(c, "sk_a_on_main") },
-        SkRole("sk_meet_separator", R.color.sk_meet_separator, SkArea.MEETINGS, "Meetings — separator line") { c -> r(c, "sk_a_separator") },
     )
 
     /** Resources that follow a role or a slot without being a role of their own. */
@@ -258,11 +289,15 @@ object SkRoles {
         R.color.sk_switch_off to { c: Context -> SkTheme.color(c, SkSlot.SWITCH_OFF) },
     )
 
+    val ALL: List<SkRole> by lazy { HAND + SkRolesGenerated.ALL }
+
     private val BY_KEY: Map<String, SkRole> by lazy { ALL.associateBy { it.key } }
+
+    private val BY_AREA: Map<SkArea, List<SkRole>> by lazy { ALL.groupBy { it.area } }
 
     fun byKey(key: String): SkRole? = BY_KEY[key]
 
-    fun inArea(area: SkArea): List<SkRole> = ALL.filter { it.area == area }
+    fun inArea(area: SkArea): List<SkRole> = BY_AREA[area].orEmpty()
 
     fun color(context: Context, role: SkRole): Int {
         val stored = SkTheme.prefs(context).getInt(PREFIX + role.key, SK_UNSET)

@@ -1,19 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  shiroikuma fork — the round button that means "no": Decline, Hang up. Red stays red, but as the theme has it — lent
-  to the ring and the icon, never a filled disc (it was one until 2026-11-19).
--->
-<ripple xmlns:android="http://schemas.android.com/apk/res/android"
-    android:color="@color/sk_yellow_wash">
-    <item android:id="@android:id/mask">
-        <shape android:shape="oval">
-            <solid android:color="@android:color/white" />
-        </shape>
-    </item>
-    <item>
-        <shape android:shape="oval">
-            <solid android:color="@android:color/transparent" />
-            <stroke android:width="3dp" android:color="@color/sk_danger" />
-        </shape>
-    </item>
-</ripple>
+<!-- shiroikuma fork: a STUB. It keeps the name layouts refer to and holds no colour; the shape
+     that is shown is drawn in code, from colour roles of its own — see SkShapes.build. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle" />

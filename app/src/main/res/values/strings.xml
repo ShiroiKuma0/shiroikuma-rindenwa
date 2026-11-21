@@ -1472,6 +1472,24 @@
     <string name="sk_reset_all_colours" translatable="false">Reset all colours</string>
     <string name="sk_reset_all_colours_desc" translatable="false">Takes every colour set on this page back to its default — the black ground, the yellow ink, and the colours that carry a meaning.</string>
     <string name="sk_reset_all_colours_warning" translatable="false">Every colour you have set on this page is forgotten. Fonts, sizes and switches stay as they are.</string>
+    <string name="sk_section_screen_main" translatable="false">Main frame</string>
+    <string name="sk_section_screen_history" translatable="false">History screens</string>
+    <string name="sk_section_screen_contacts" translatable="false">Contact screens</string>
+    <string name="sk_section_screen_start" translatable="false">New call and new conversation</string>
+    <string name="sk_section_screen_settings" translatable="false">Settings screens</string>
+    <string name="sk_section_screen_account" translatable="false">Account pages</string>
+    <string name="sk_section_screen_drawer" translatable="false">Drawer</string>
+    <string name="sk_section_screen_recordings" translatable="false">Recordings</string>
+    <string name="sk_section_screen_help" translatable="false">Help pages</string>
+    <string name="sk_section_screen_viewers" translatable="false">File viewers</string>
+    <string name="sk_section_screen_other" translatable="false">Other layouts</string>
+    <string name="sk_section_styles" translatable="false">Text styles</string>
+    <string name="sk_section_shapes" translatable="false">Shapes</string>
+    <string name="sk_section_states" translatable="false">State colours</string>
+    <string name="sk_group_roles_upstream_dialogs" translatable="false">Upstream’s dialogs — by item</string>
+    <string name="sk_group_roles_upstream_menus" translatable="false">Upstream’s menus — by item</string>
+    <string name="sk_group_roles_call_items" translatable="false">Call screens — by item</string>
+    <string name="sk_group_roles_chat_items" translatable="false">Conversation screens — by item</string>
     <string name="sk_section_maintenance" translatable="false">Maintenance</string>
     <string name="sk_reset_section_order" translatable="false">Reset section order</string>
     <string name="sk_reset_section_order_desc" translatable="false">Puts the sections of this page, and the chips above them, back in their original order. What is folded stays folded.</string>

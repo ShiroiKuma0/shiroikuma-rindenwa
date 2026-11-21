@@ -1,16 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  shiroikuma fork — an unfolded settings group's header: the top half of the yellow box.
-
-  Bottom corners are square and the body drawable pulls itself 2dp up under this one, so the
-  header and its content read as a single framed box with one divider line at the seam.
--->
-<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    <corners
-        android:topLeftRadius="15dp"
-        android:topRightRadius="15dp"
-        android:bottomLeftRadius="0dp"
-        android:bottomRightRadius="0dp" />
-    <solid android:color="@color/sk_surface_alt" />
-    <stroke android:width="2dp" android:color="@color/sk_yellow" />
-</shape>
+<!-- shiroikuma fork: a STUB. It keeps the name layouts refer to and holds no colour; the shape
+     that is shown is drawn in code, from colour roles of its own — see SkShapes.build. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle" />

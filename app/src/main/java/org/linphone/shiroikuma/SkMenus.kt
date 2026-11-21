@@ -142,7 +142,7 @@ object SkMenus {
         val context = anchor.context
         val column = android.widget.LinearLayout(context).apply {
             orientation = android.widget.LinearLayout.VERTICAL
-            setBackgroundResource(R.drawable.sk_menu_frame)
+            background = SkShapes.build(context, R.drawable.sk_menu_frame)
             setPadding(0, dp(context, 8f), 0, dp(context, 8f))
         }
         val popup = PopupWindow(

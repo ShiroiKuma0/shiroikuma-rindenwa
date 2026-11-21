@@ -76,10 +76,10 @@ class SkFontPickerDialog(
                 AppCompatTextView(activity).apply {
                     text = activity.getString(R.string.sk_cancel)
                     textSize = 14f
-                    setTextColor(accent)
+                    setTextColor(SkRoles.color(activity, "dialog_button_text"))
                     isClickable = true
                     isFocusable = true
-                    this.background = SkMenus.pill(activity, accent)
+                    this.background = SkMenus.pill(activity, SkRoles.color(activity, "dialog_button_frame"))
                     setPadding(
                         (18 * density).toInt(), (8 * density).toInt(),
                         (18 * density).toInt(), (8 * density).toInt(),

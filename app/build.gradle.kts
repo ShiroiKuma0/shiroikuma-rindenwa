@@ -405,6 +405,8 @@ dependencies {
 
 configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
     android.set(true)
+    // shiroikuma fork: generated sources are not ours to format.
+    filter { exclude { it.file.path.contains("/build/") } }
     ignoreFailures.set(true)
     additionalEditorconfig.set(
         mapOf(
@@ -445,6 +447,33 @@ configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
     )
 }
 project.tasks.preBuild.dependsOn("ktlintFormat")
+
+// shiroikuma fork: every item of upstream's XML gets colour roles of its own — at BUILD time.
+// tools/sk_colour_roles.py copies src/main/res, rewrites the shared colour names in the copy
+// (?attr/color_x, @color/bc_white, …) to one role per layout group, shape, selector and text style,
+// and writes the role table that goes with them. The build takes its resources and that table
+// from the copy; the sources keep upstream's names, so an upstream sync is not disturbed.
+val skItemRolesDir = layout.buildDirectory.dir("generated/sk-item-roles").get().asFile
+tasks.register<Exec>("skItemRoles") {
+    val script = rootProject.file("tools/sk_colour_roles.py")
+    inputs.file(script)
+    inputs.dir("src/main/res")
+    inputs.file("src/main/java/org/linphone/shiroikuma/SkRoles.kt")
+    outputs.dir(skItemRolesDir)
+    commandLine("python3", script.absolutePath, "--out", skItemRolesDir.absolutePath)
+}
+project.tasks.preBuild.dependsOn("skItemRoles")
+// ktlint lists the generated source directory among its inputs (and skips the file in it, see
+// the filter above), so its tasks have to come after the one that writes that directory.
+tasks.matching { it.name.contains("ktlint", ignoreCase = true) }.configureEach { dependsOn("skItemRoles") }
+android {
+    sourceSets {
+        getByName("main") {
+            res.setSrcDirs(listOf(skItemRolesDir.resolve("res")))
+            java.srcDir(skItemRolesDir.resolve("kotlin"))
+        }
+    }
+}
 
 if (crashlyticsAvailable) {
     afterEvaluate {

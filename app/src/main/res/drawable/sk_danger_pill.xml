@@ -1,26 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- shiroikuma fork: the pill of an action that takes something away — red lent to the frame and
-     the label, never to a fill (black-yellow-theme skill). -->
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_enabled="false">
-        <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-            <corners android:radius="48dp" />
-            <solid android:color="@android:color/transparent" />
-            <stroke android:width="3dp" android:color="@color/sk_danger_dim" />
-        </shape>
-    </item>
-    <item android:state_pressed="true">
-        <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-            <corners android:radius="48dp" />
-            <solid android:color="@color/sk_yellow_wash" />
-            <stroke android:width="3dp" android:color="?attr/color_danger_500" />
-        </shape>
-    </item>
-    <item>
-        <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-            <corners android:radius="48dp" />
-            <solid android:color="@android:color/transparent" />
-            <stroke android:width="3dp" android:color="?attr/color_danger_500" />
-        </shape>
-    </item>
-</selector>
+<!-- shiroikuma fork: a STUB. It keeps the name layouts refer to and holds no colour; the shape
+     that is shown is drawn in code, from colour roles of its own — see SkShapes.build. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle" />

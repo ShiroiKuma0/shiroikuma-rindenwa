@@ -55,7 +55,7 @@ class SkAppPickerDialog(
     private val ground = SkRoles.color(activity, "dialog_ground")
     private val ink = SkRoles.color(activity, "dialog_text")
     private val dim = SkRoles.color(activity, "dialog_note")
-    private val divider = SkTheme.blend(ground, accent, DIVIDER_SHARE)
+    private val divider = SkRoles.color(activity, "dialog_divider")
 
     private var top: List<App> = emptyList()
     private var others: List<App> = emptyList()
@@ -80,7 +80,7 @@ class SkAppPickerDialog(
             TextView(activity).apply {
                 setText(R.string.sk_call_door_apps)
                 textSize = 19f
-                setTextColor(accent)
+                setTextColor(SkRoles.color(activity, "dialog_title"))
                 setTypeface(typeface, Typeface.BOLD)
             },
         )
@@ -103,7 +103,7 @@ class SkAppPickerDialog(
             background = GradientDrawable().apply {
                 cornerRadius = 50 * density
                 setColor(Color.TRANSPARENT)
-                setStroke(dp(1.25f), accent)
+                setStroke(dp(1.25f), SkRoles.color(activity, "dialog_field_frame"))
             }
             setPadding(dp(16f), dp(8f), dp(16f), dp(8f))
             addTextChangedListener(object : TextWatcher {
@@ -143,11 +143,11 @@ class SkAppPickerDialog(
                 setText(R.string.sk_done)
                 textSize = 14f
                 setTypeface(typeface, Typeface.BOLD)
-                setTextColor(accent)
+                setTextColor(SkRoles.color(activity, "dialog_button_text"))
                 gravity = Gravity.CENTER
                 isClickable = true
                 isFocusable = true
-                background = SkMenus.pill(activity, accent, MAIN_FRAME_DP)
+                background = SkMenus.pill(activity, SkRoles.color(activity, "dialog_button_frame"), MAIN_FRAME_DP)
                 setPadding(dp(18f), dp(8f), dp(18f), dp(8f))
                 setOnClickListener { dialog.dismiss() }
             },
@@ -264,7 +264,7 @@ class SkAppPickerDialog(
                 addView(
                     TextView(activity).apply {
                         textSize = 13f
-                        setTextColor(accent)
+                        setTextColor(SkRoles.color(activity, "dialog_heading"))
                         setTypeface(typeface, Typeface.BOLD)
                         setPadding(0, dp(4f), 0, dp(2f))
                     },
@@ -353,7 +353,6 @@ class SkAppPickerDialog(
 
     companion object {
         private const val LIST_HEIGHT_SHARE = 0.5f
-        private const val DIVIDER_SHARE = 0.7f
         private const val MAIN_FRAME_DP = 3f
         private const val ROW_HEIGHT_DP = 36f
         private const val ICON_DP = 30f

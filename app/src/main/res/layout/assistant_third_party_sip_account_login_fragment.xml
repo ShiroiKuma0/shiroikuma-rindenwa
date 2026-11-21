@@ -20,7 +20,7 @@
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/sk_asst_main2_000">
+        android:background="?attr/color_main2_000">
 
         <ScrollView
             android:layout_width="match_parent"
@@ -39,7 +39,7 @@
                     android:layout_height="@dimen/top_bar_height"
                     android:src="@drawable/caret_left"
                     android:contentDescription="@string/content_description_go_back_icon"
-                    app:tint="@color/sk_asst_main2_500"
+                    app:tint="?attr/color_main2_500"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintStart_toStartOf="parent"/>
 
@@ -49,7 +49,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/assistant_login_third_party_sip_account_title"
-                    android:textColor="@color/sk_asst_text"
+                    android:textColor="?attr/color_text"
                     app:layout_constraintTop_toTopOf="@id/back"
                     app:layout_constraintBottom_toBottomOf="@id/back"
                     app:layout_constraintStart_toStartOf="parent"
@@ -79,7 +79,7 @@
                     android:paddingEnd="20dp"
                     android:text="@={viewModel.username, default=`johndoe`}"
                     android:textSize="14sp"
-                    android:textColor="@color/sk_asst_main2_600"
+                    android:textColor="?attr/color_main2_600"
                     android:background="@drawable/edit_text_background"
                     android:inputType="text"
                     android:hint="@string/username"
@@ -112,7 +112,7 @@
                     android:paddingEnd="20dp"
                     android:text="@={viewModel.password, default=`johndoe`}"
                     android:textSize="14sp"
-                    android:textColor="@color/sk_asst_main2_600"
+                    android:textColor="?attr/color_main2_600"
                     android:background="@drawable/edit_text_background"
                     android:hint="@string/password"
                     passwordInputType="@{viewModel.showPassword ? InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD : InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD, default=textPassword}"
@@ -130,7 +130,7 @@
                     android:padding="4dp"
                     android:contentDescription="@string/content_description_toggle_password_visibility"
                     android:src="@{viewModel.showPassword ? @drawable/eye_slash : @drawable/eye, default=@drawable/eye}"
-                    app:tint="@color/sk_asst_main2_500"
+                    app:tint="?attr/color_main2_500"
                     app:layout_constraintEnd_toEndOf="@id/password"
                     app:layout_constraintTop_toTopOf="@id/password"
                     app:layout_constraintBottom_toBottomOf="@id/password" />
@@ -159,7 +159,7 @@
                     android:paddingEnd="20dp"
                     android:text="@={viewModel.domain, default=`sip.example.net`}"
                     android:textSize="14sp"
-                    android:textColor="@color/sk_asst_main2_600"
+                    android:textColor="?attr/color_main2_600"
                     android:background="@drawable/edit_text_background"
                     android:inputType="text|textUri"
                     android:hint="@string/sip_address_domain"
@@ -192,7 +192,7 @@
                     android:paddingEnd="20dp"
                     android:text="@={viewModel.displayName, default=`John Doe`}"
                     android:textSize="14sp"
-                    android:textColor="@color/sk_asst_main2_600"
+                    android:textColor="?attr/color_main2_600"
                     android:background="@drawable/edit_text_background"
                     android:inputType="text|textPersonName|textCapSentences"
                     android:hint="@string/sip_address_display_name"
@@ -239,7 +239,7 @@
                     android:layout_marginEnd="20dp"
                     android:src="@drawable/caret_down"
                     android:contentDescription="@null"
-                    app:tint="@color/sk_asst_main2_600"
+                    app:tint="?attr/color_main2_600"
                     app:layout_constraintTop_toTopOf="@id/transport"
                     app:layout_constraintBottom_toBottomOf="@id/transport"
                     app:layout_constraintEnd_toEndOf="@id/transport"/>
@@ -256,7 +256,7 @@
                     android:layout_marginTop="20dp"
                     android:text="@string/settings_advanced_title"
                     android:drawableEnd="@{viewModel.expandAdvancedSettings ? @drawable/caret_down : @drawable/caret_right, default=@drawable/caret_down}"
-                    android:drawableTint="@color/sk_asst_main2_600"
+                    android:drawableTint="?attr/color_main2_600"
                     android:background="@drawable/squircle_transparent_button_background"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -293,7 +293,7 @@
                     android:paddingEnd="20dp"
                     android:text="@={viewModel.authId}"
                     android:textSize="14sp"
-                    android:textColor="@color/sk_asst_main2_600"
+                    android:textColor="?attr/color_main2_600"
                     android:background="@drawable/edit_text_background"
                     android:inputType="text"
                     android:hint="@string/authentication_id"
@@ -326,7 +326,7 @@
                     android:paddingEnd="20dp"
                     android:text="@={viewModel.proxy, default=`sip.example.net`}"
                     android:textSize="14sp"
-                    android:textColor="@color/sk_asst_main2_600"
+                    android:textColor="?attr/color_main2_600"
                     android:background="@drawable/edit_text_background"
                     android:inputType="text|textUri"
                     android:hint="@string/account_settings_sip_proxy_url_title"
@@ -355,7 +355,7 @@
                     android:layout_marginEnd="16dp"
                     android:src="@drawable/info"
                     android:contentDescription="@string/content_description_click_for_more_info"
-                    app:tint="@color/sk_asst_main2_600"
+                    app:tint="?attr/color_main2_600"
                     app:layout_constraintTop_toTopOf="@id/outbound_proxy_label"
                     app:layout_constraintBottom_toBottomOf="@id/outbound_proxy_label"
                     app:layout_constraintEnd_toEndOf="@id/outbound_proxy" />
@@ -371,7 +371,7 @@
                     android:paddingEnd="20dp"
                     android:text="@={viewModel.outboundProxy, default=`sip12.example.net`}"
                     android:textSize="14sp"
-                    android:textColor="@color/sk_asst_main2_600"
+                    android:textColor="?attr/color_main2_600"
                     android:background="@drawable/edit_text_background"
                     android:inputType="text|textUri"
                     android:hint="@string/account_settings_outbound_proxy_title"
@@ -410,7 +410,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:tint="@color/sk_asst_main1_500" />
+                    app:tint="?attr/color_main1_500" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
