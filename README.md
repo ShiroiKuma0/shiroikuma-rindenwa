@@ -20,7 +20,7 @@ really reach this phone, and diagnostics that record nothing until you ask them 
 
 Installs **side-by-side** with stock Linphone (app id `shiroikuma.rindenwa`).
 
-**📥 Latest release: [`6.3.0-alpha+2026-11-09.14-39.g2199af83+057`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
+**📥 Latest release: [`6.3.0-alpha+2026-11-09.14-39.g2199af83+058`](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-rindenwa/releases)
 
 </div>
 
@@ -81,6 +81,12 @@ Every surface is a slot you can set: colours through an RGBA slider picker with 
 your recent choices; fonts imported from your own `.ttf`/`.otf` files and **rendered in their own
 glyphs** in the picker; per-slot weight and size; and border and roundness sliders that go all the
 way to zero. Everything previews live.
+
+**No colour is fixed.** Yellow and black are only what a fresh install shows: every item — the
+labels of the history, the icons of the drawer, the frame of a menu, each of upstream's shapes and
+text styles — has a role of its own with a swatch row here, about 700 in all, and a role you leave
+alone follows Accent, Text or Background. The item roles are made when the app is built, from
+upstream's own layouts, so a screen upstream adds is settable the day it arrives.
 
 A row that *does* something when you tap it is drawn as an **outlined pill** — never filled, and
 never wider than the label it carries — with its explanation beneath in dim gold and a **›** only
@@ -456,6 +462,8 @@ RINDENWA_RELEASE_STORE_PASSWORD=…
 RINDENWA_RELEASE_KEY_ALIAS=…
 RINDENWA_RELEASE_KEY_PASSWORD=…
 ```
+
+The build needs `python3` (it derives the colour roles of every item from the layouts).
 
 `buildApk` assembles the signed release APK, copies it to `~/tmp/` as
 `shiroikuma-rindenwa_<version>_arm64-v8a.apk`, and bumps the build counter. The Linphone SDK is
