@@ -21,96 +21,154 @@
     <!-- parent="" is required: the dotted name would otherwise make AAPT infer a "Theme" parent.
          This is an overlay applied on top of Theme.Linphone, so it must inherit nothing. -->
     <style name="Theme.SkBlackYellow" parent="">
-        <item name="android:windowBackground">@color/sk_surface</item>
-        <item name="android:statusBarColor">@color/sk_bar_background</item>
-        <item name="android:navigationBarColor">@color/sk_surface</item>
+        <item name="android:windowBackground">@color/sk_window_black</item>
+        <item name="android:statusBarColor">@color/sk_window_black</item>
+        <item name="android:navigationBarColor">@color/sk_window_black</item>
         <item name="android:colorBackground">@color/sk_surface</item>
 
+        <!-- Every inflated switch, radio button and check box takes its colours from the settable
+             roles — see SkViewInflater. -->
+        <item name="viewInflaterClass">org.linphone.shiroikuma.SkViewInflater</item>
+
+        <!-- Material's own widgets — the meeting date and time pickers above all — know nothing
+             of upstream's colour attributes, so they are told here: black ground, yellow ink,
+             and pills for their buttons. -->
+        <item name="colorPrimary">@color/sk_yellow</item>
+        <item name="colorOnPrimary">@color/sk_black</item>
+        <item name="colorPrimaryContainer">@color/sk_surface_raised</item>
+        <item name="colorOnPrimaryContainer">@color/sk_yellow</item>
+        <item name="colorSecondary">@color/sk_yellow</item>
+        <item name="colorOnSecondary">@color/sk_black</item>
+        <item name="colorSecondaryContainer">@color/sk_surface_raised</item>
+        <item name="colorOnSecondaryContainer">@color/sk_yellow</item>
+        <item name="colorTertiary">@color/sk_yellow</item>
+        <item name="colorOnTertiary">@color/sk_black</item>
+        <item name="colorTertiaryContainer">@color/sk_surface_raised</item>
+        <item name="colorOnTertiaryContainer">@color/sk_yellow</item>
+        <item name="colorSurface">@color/sk_surface</item>
+        <item name="colorOnSurface">@color/sk_yellow</item>
+        <item name="colorSurfaceVariant">@color/sk_surface_alt</item>
+        <item name="colorOnSurfaceVariant">@color/sk_dim_gold</item>
+        <item name="colorSurfaceContainer">@color/sk_surface</item>
+        <item name="colorSurfaceContainerLow">@color/sk_surface</item>
+        <item name="colorSurfaceContainerHigh">@color/sk_surface</item>
+        <item name="colorSurfaceContainerHighest">@color/sk_surface_raised</item>
+        <item name="colorOutline">@color/sk_yellow</item>
+        <item name="colorOutlineVariant">@color/sk_menu_divider</item>
+        <item name="materialCalendarTheme">@style/ThemeOverlay.Sk.Calendar</item>
+        <item name="materialTimePickerTheme">@style/ThemeOverlay.Sk.TimePicker</item>
+
         <!-- Accent -->
-        <item name="color_main1_100">@color/sk_yellow_wash</item>
-        <item name="color_main1_500">@color/sk_yellow</item>
+        <item name="color_main1_100">@color/sk_a_main1_100</item>
+        <item name="color_main1_500">@color/sk_a_main1_500</item>
 
         <!-- Surface → ink ramp. 000 is the base surface, 900 the strongest ink. -->
-        <item name="color_main2_000">@color/sk_surface</item>
-        <item name="color_main2_100">@color/sk_surface_alt</item>
-        <item name="color_main2_200">@color/sk_surface_raised</item>
-        <item name="color_main2_300">@color/sk_ink_ghost</item>
-        <item name="color_main2_400">@color/sk_ink_faint</item>
-        <item name="color_main2_500">@color/sk_ink_dim</item>
-        <item name="color_main2_600">@color/sk_ink_dim</item>
+        <item name="color_main2_000">@color/sk_a_main2_000</item>
+        <item name="color_main2_100">@color/sk_a_main2_100</item>
+        <item name="color_main2_200">@color/sk_a_main2_200</item>
+        <item name="color_main2_300">@color/sk_a_main2_300</item>
+        <item name="color_main2_400">@color/sk_a_main2_400</item>
+        <item name="color_main2_500">@color/sk_a_main2_500</item>
+        <item name="color_main2_600">@color/sk_a_main2_600</item>
         <!-- 700 is INK, not a surface: upstream's night theme maps it to gray_main2_300 (light).
              Mapping it to a dark surface made every label using it black-on-black — that is what
              hid the account name above the status pill in the drawer. -->
-        <item name="color_main2_700">@color/sk_ink</item>
-        <item name="color_main2_800">@color/sk_ink</item>
-        <item name="color_main2_900">@color/sk_ink</item>
+        <item name="color_main2_700">@color/sk_a_main2_700</item>
+        <item name="color_main2_800">@color/sk_a_main2_800</item>
+        <item name="color_main2_900">@color/sk_a_main2_900</item>
 
         <!-- Neutrals -->
-        <item name="color_grey_100">@color/sk_surface_alt</item>
-        <item name="color_grey_200">@color/sk_surface_raised</item>
-        <item name="color_grey_300">@color/sk_ink_ghost</item>
-        <item name="color_grey_400">@color/sk_ink_faint</item>
-        <item name="color_grey_500">@color/sk_ink_dim</item>
-        <item name="color_grey_600">@color/sk_ink_dim</item>
-        <item name="color_grey_800">@color/sk_ink</item>
-        <item name="color_grey_900">@color/sk_ink</item>
+        <item name="color_grey_100">@color/sk_a_grey_100</item>
+        <item name="color_grey_200">@color/sk_a_grey_200</item>
+        <item name="color_grey_300">@color/sk_a_grey_300</item>
+        <item name="color_grey_400">@color/sk_a_grey_400</item>
+        <item name="color_grey_500">@color/sk_a_grey_500</item>
+        <item name="color_grey_600">@color/sk_a_grey_600</item>
+        <item name="color_grey_800">@color/sk_a_grey_800</item>
+        <item name="color_grey_900">@color/sk_a_grey_900</item>
 
         <!-- Semantic — meaning preserved, surfaces darkened. -->
-        <item name="color_danger_100">@color/sk_danger_dim</item>
-        <item name="color_danger_500">@color/sk_danger</item>
-        <item name="color_danger_600">@color/sk_danger</item>
-        <item name="color_danger_700">@color/sk_danger</item>
-        <item name="color_danger_900">@color/sk_danger_dim</item>
+        <item name="color_danger_100">@color/sk_a_danger_100</item>
+        <item name="color_danger_500">@color/sk_a_danger_500</item>
+        <item name="color_danger_600">@color/sk_a_danger_600</item>
+        <item name="color_danger_700">@color/sk_a_danger_700</item>
+        <item name="color_danger_900">@color/sk_a_danger_900</item>
 
-        <item name="color_success_100">@color/sk_success_dim</item>
-        <item name="color_success_200">@color/sk_success_dim</item>
-        <item name="color_success_500">@color/sk_success</item>
-        <item name="color_success_700">@color/sk_success</item>
-        <item name="color_success_900">@color/sk_success_dim</item>
+        <item name="color_success_100">@color/sk_a_success_100</item>
+        <item name="color_success_200">@color/sk_a_success_200</item>
+        <item name="color_success_500">@color/sk_a_success_500</item>
+        <item name="color_success_700">@color/sk_a_success_700</item>
+        <item name="color_success_900">@color/sk_a_success_900</item>
 
-        <item name="color_info_500">@color/sk_info</item>
+        <item name="color_info_500">@color/sk_a_info_500</item>
 
-        <item name="color_warning_100">@color/sk_warning_dim</item>
-        <item name="color_warning_600">@color/sk_warning</item>
-        <item name="color_warning_900">@color/sk_warning_dim</item>
-        <item name="color_plain_text_security_warning_600">@color/sk_warning</item>
+        <item name="color_warning_100">@color/sk_a_warning_100</item>
+        <item name="color_warning_600">@color/sk_a_warning_600</item>
+        <item name="color_warning_900">@color/sk_a_warning_900</item>
+        <item name="color_plain_text_security_warning_600">@color/sk_a_plain_text_security_warning_600</item>
 
-        <item name="color_offline_100">@color/sk_surface_raised</item>
-        <item name="color_offline_900">@color/sk_offline</item>
+        <item name="color_offline_100">@color/sk_a_offline_100</item>
+        <item name="color_offline_900">@color/sk_a_offline_900</item>
 
         <!-- Content drawn ON the accent must be black, or a yellow fill swallows it. -->
-        <item name="color_on_main">@color/sk_black</item>
+        <item name="color_on_main">@color/sk_a_on_main</item>
 
-        <item name="color_background_contrast_in_dark_mode">@color/sk_surface</item>
-        <item name="color_separator">@color/sk_ink_ghost</item>
-        <item name="color_text">@color/sk_ink</item>
-        <item name="color_hint_text">@color/sk_ink_faint</item>
+        <item name="color_background_contrast_in_dark_mode">@color/sk_a_background_contrast_in_dark_mode</item>
+        <item name="color_separator">@color/sk_a_separator</item>
+        <item name="color_text">@color/sk_a_text</item>
+        <item name="color_hint_text">@color/sk_a_hint_text</item>
 
-        <item name="color_text_field_background">@color/sk_surface_alt</item>
-        <item name="color_avatar_background">@color/sk_surface_raised</item>
-        <item name="color_avatar_text">@color/sk_ink</item>
+        <item name="color_text_field_background">@color/sk_a_text_field_background</item>
+        <item name="color_avatar_background">@color/sk_a_avatar_background</item>
+        <item name="color_avatar_text">@color/sk_a_avatar_text</item>
 
-        <item name="color_chat_bubble_incoming">@color/sk_surface_alt</item>
-        <item name="color_chat_bubble_outgoing">@color/sk_surface_raised</item>
-        <item name="color_chat_bubble_reply">@color/sk_surface_raised</item>
-        <item name="color_chat_bubble_file">@color/sk_surface_raised</item>
+        <item name="color_chat_bubble_incoming">@color/sk_a_chat_bubble_incoming</item>
+        <item name="color_chat_bubble_outgoing">@color/sk_a_chat_bubble_outgoing</item>
+        <item name="color_chat_bubble_reply">@color/sk_a_chat_bubble_reply</item>
+        <item name="color_chat_bubble_file">@color/sk_a_chat_bubble_file</item>
 
-        <item name="color_message_text_field_background">@color/sk_surface_alt</item>
-        <item name="color_conversation_send_area_background">@color/sk_surface</item>
+        <item name="color_message_text_field_background">@color/sk_a_message_text_field_background</item>
+        <item name="color_conversation_send_area_background">@color/sk_a_conversation_send_area_background</item>
 
-        <item name="color_button_background">@color/sk_surface_alt</item>
-        <item name="color_button_pressed_background">@color/sk_yellow_wash</item>
-        <item name="color_button_disabled_background">@color/sk_disabled</item>
+        <item name="color_button_background">@color/sk_a_button_background</item>
+        <item name="color_button_pressed_background">@color/sk_a_button_pressed_background</item>
+        <item name="color_button_disabled_background">@color/sk_a_button_disabled_background</item>
 
-        <item name="color_gradient_start">@color/sk_surface</item>
-        <item name="color_gradient_end">@color/sk_surface</item>
+        <item name="color_gradient_start">@color/sk_a_gradient_start</item>
+        <item name="color_gradient_end">@color/sk_a_gradient_end</item>
 
-        <item name="color_trust_background">@color/sk_surface_raised</item>
-        <item name="color_trust_track">@color/sk_surface_alt</item>
+        <item name="color_trust_background">@color/sk_a_trust_background</item>
+        <item name="color_trust_track">@color/sk_a_trust_track</item>
 
-        <item name="color_bottom_sheet_handle">@color/sk_ink_faint</item>
-        <item name="color_bottom_sheet_background">@color/sk_surface_alt</item>
-        <item name="color_bottom_sheet_disabled_menu">@color/sk_ink_ghost</item>
+        <item name="color_bottom_sheet_handle">@color/sk_a_bottom_sheet_handle</item>
+        <item name="color_bottom_sheet_background">@color/sk_a_bottom_sheet_background</item>
+        <item name="color_bottom_sheet_disabled_menu">@color/sk_a_bottom_sheet_disabled_menu</item>
+    </style>
+
+    <!-- The buttons of Material's pickers: outlined pills, the confirming one thick and bold. -->
+    <style name="Sk.PickerButton" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:textColor">@color/sk_yellow</item>
+        <item name="android:textStyle">normal</item>
+        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="strokeColor">@color/sk_yellow</item>
+        <item name="strokeWidth">1.25dp</item>
+        <item name="cornerRadius">48dp</item>
+        <item name="rippleColor">@color/sk_yellow_wash</item>
+        <item name="android:layout_marginStart">8dp</item>
+    </style>
+    <style name="Sk.PickerButton.Main">
+        <item name="android:textStyle">bold</item>
+        <item name="strokeWidth">3dp</item>
+    </style>
+    <style name="ThemeOverlay.Sk.Calendar" parent="ThemeOverlay.Material3.MaterialCalendar">
+        <item name="buttonBarPositiveButtonStyle">@style/Sk.PickerButton.Main</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Sk.PickerButton</item>
+        <item name="borderlessButtonStyle">@style/Sk.PickerButton</item>
+    </style>
+    <style name="ThemeOverlay.Sk.TimePicker" parent="ThemeOverlay.Material3.MaterialTimePicker">
+        <item name="buttonBarPositiveButtonStyle">@style/Sk.PickerButton.Main</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Sk.PickerButton</item>
+        <item name="borderlessButtonStyle">@style/Sk.PickerButton</item>
     </style>
 
     <!--
@@ -122,12 +180,12 @@
       variant makes the layer below yellow as well, so no orange survives anywhere.
     -->
     <style name="Theme.LinphoneYellow" parent="Theme.Linphone">
-        <item name="color_main1_100">@color/sk_yellow_wash</item>
-        <item name="color_main1_500">@color/sk_yellow</item>
-        <item name="color_chat_bubble_outgoing">@color/sk_surface_raised</item>
+        <item name="color_main1_100">@color/sk_a_main1_100</item>
+        <item name="color_main1_500">@color/sk_a_main1_500</item>
+        <item name="color_chat_bubble_outgoing">@color/sk_a_chat_bubble_outgoing</item>
     </style>
 
     <style name="Theme.LinphoneInCallYellow" parent="Theme.LinphoneYellow">
-        <item name="android:windowBackground">@color/sk_surface</item>
+        <item name="android:windowBackground">@color/sk_window_black</item>
     </style>
 </resources>

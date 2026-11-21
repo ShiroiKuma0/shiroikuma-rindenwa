@@ -61,7 +61,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:onClick="@{() -> viewModel.confirm()}"
-            style="@style/primary_dialog_button_label_style"
+            style="@style/sk_danger_dialog_button_label_style"
             android:id="@+id/send_notification"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

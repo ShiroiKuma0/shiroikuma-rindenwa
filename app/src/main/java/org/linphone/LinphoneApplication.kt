@@ -76,6 +76,9 @@ class LinphoneApplication : Application(), SingletonImageLoader.Factory {
     override fun onCreate() {
         super.onCreate()
         val context = applicationContext
+        // shiroikuma fork: the colour roles, for everything drawn from the application's own
+        // resources (notifications, services). Activities do the same for theirs. See SkPalette.
+        org.linphone.shiroikuma.SkPalette.apply(context)
 
         val powerManager = context.getSystemService(POWER_SERVICE) as PowerManager
         val wakeLock = powerManager.newWakeLock(

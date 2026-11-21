@@ -89,6 +89,8 @@ class SkAccountTabsView
         private fun addAllTab(inflater: LayoutInflater) {
             val tab = SkAccountAllTabBinding.inflate(inflater, strip, false)
             tab.skAllPicture.clipToOutline = true
+            // The layout carries no colour: the glyph takes its role here.
+            tab.skAllGlyph.setTextColor(SkTheme.color(context, SkSlot.ALL_TAB))
             strip.addView(tab.root)
             // The strip makes every child draggable as it is added; this one stays where it is.
             tab.root.setOnLongClickListener(null)

@@ -147,6 +147,8 @@ class HistoryListAdapter :
     /** shiroikuma fork: the day headline itself — its text from the settings, its look from the UI page. */
     private fun dayHeaderView(context: Context, position: Int): View {
         val binding = SkHistoryDayDecorationBinding.inflate(LayoutInflater.from(context))
+        // shiroikuma fork: the layout carries no colour; the ground takes its role here.
+        binding.root.setBackgroundColor(org.linphone.shiroikuma.SkRoles.color(context, "sk_surface"))
         val timestamp = modelAt(position)?.timestamp
         binding.skDayText.text = if (timestamp != null) {
             SkCallLog.dayText(context, timestamp)

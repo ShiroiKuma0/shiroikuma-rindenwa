@@ -60,7 +60,7 @@ class SkFolderTabPainter(context: Context, pointUp: Boolean) {
         get() = frontPaint.strokeWidth / 2f
 
     fun refreshColors(context: Context) {
-        val accent = SkTheme.color(context, SkSlot.ACCENT)
+        val accent = SkRoles.color(context, "tab_frame")
         frontPaint.color = accent
         backPaint.color = SkTheme.withAlpha(accent, BACK_ALPHA)
     }

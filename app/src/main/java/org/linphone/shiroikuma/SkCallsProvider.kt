@@ -52,8 +52,8 @@ import org.linphone.utils.LinphoneUtils
  *
  * ## Who is let in
  *
- * The apps 白い熊 allows on the 臨電話 UI page ([SkCallDoor]) — the address book and the SIM
- * dialer by default. The package name the framework reports is confirmed against the calling uid.
+ * The apps 白い熊 selects on the 臨電話 UI page ([SkCallDoor]) — the address book, the SIM
+ * dialer and the messenger by default. The package name the framework reports is confirmed against the calling uid.
  * A refusal is answered, never thrown: the caller shows it, and an exception across a binder
  * would show our stack trace instead.
  */
@@ -221,23 +221,49 @@ class SkCallsProvider : ContentProvider() {
 /**
  * shiroikuma-rindenwa fork — which apps may use the call door ([SkCallsProvider]).
  *
- * The two that have a reason to: the address book, whose 臨 badges and swipes dial through here,
- * and the SIM dialer. Both are let in by default and each can be switched off on the 臨電話 UI
- * page. A debug build is let in when its release id is.
+ * 白い熊 picks them on the 臨電話 UI page, from every app on the phone ([SkAppPickerDialog]; a
+ * selection since 2026-11-21, where there were two fixed switches). The three that have a reason
+ * to are let in by default: the address book, whose 臨 badges and swipes dial through here, the
+ * SIM dialer, and the messenger, whose call button dials through a 臨 account. A debug build is
+ * let in when its release id is.
+ *
+ * The set is stored whole, so a new default does not reach an install that already stored one;
+ * [migrate] adds such a default once.
  */
 object SkCallDoor {
     private const val KEY = "sk_call_door_apps"
+    private const val KEY_DEFAULTS_SEEN = "sk_call_door_defaults_seen"
 
-    /** The apps offered on the UI page, in the order shown. */
-    val KNOWN = listOf(SkSisterApps.RENRAKUSAKI, SkSisterApps.DENWA)
+    /** The sister apps, let in by default, in the order shown on top of the selection. */
+    val KNOWN = listOf(SkSisterApps.RENRAKUSAKI, SkSisterApps.DENWA, SkSisterApps.MESSEJI)
 
-    fun allowed(context: Context): Set<String> =
-        SkTheme.prefs(context).getStringSet(KEY, null)?.toSet() ?: KNOWN.toSet()
+    fun allowed(context: Context): Set<String> {
+        migrate(context)
+        return SkTheme.prefs(context).getStringSet(KEY, null)?.toSet() ?: KNOWN.toSet()
+    }
 
     fun setAllowed(context: Context, pkg: String, on: Boolean) {
         val set = allowed(context).toMutableSet()
         if (on) set += pkg else set -= pkg
         SkTheme.prefs(context).edit().putStringSet(KEY, set).apply()
+    }
+
+    /**
+     * A default that arrived after the set was stored is added to it once — メッセージ, on
+     * 2026-11-21. What 白い熊 switches off afterwards stays off: each default is offered one time.
+     */
+    private fun migrate(context: Context) {
+        val prefs = SkTheme.prefs(context)
+        val seen = prefs.getStringSet(KEY_DEFAULTS_SEEN, null)?.toSet()
+        if (seen != null && seen.containsAll(KNOWN)) return
+        val stored = prefs.getStringSet(KEY, null)?.toSet()
+        val editor = prefs.edit().putStringSet(KEY_DEFAULTS_SEEN, KNOWN.toSet())
+        if (stored != null) {
+            // Before this bookkeeping existed the defaults were the address book and the dialer.
+            val known = seen ?: setOf(SkSisterApps.RENRAKUSAKI, SkSisterApps.DENWA)
+            editor.putStringSet(KEY, stored + (KNOWN - known))
+        }
+        editor.apply()
     }
 
     fun isAllowed(context: Context, pkg: String?, uid: Int): Boolean {

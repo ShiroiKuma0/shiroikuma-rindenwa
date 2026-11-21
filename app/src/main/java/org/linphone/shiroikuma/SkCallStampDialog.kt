@@ -48,8 +48,8 @@ class SkCallStampDialog(private val activity: Activity, private val model: CallL
     }
 
     private val density = activity.resources.displayMetrics.density
-    private val accent = SkTheme.color(activity, SkSlot.ACCENT)
-    private val background = SkTheme.color(activity, SkSlot.BACKGROUND)
+    private val accent = SkRoles.color(activity, "dialog_frame")
+    private val background = SkRoles.color(activity, "dialog_ground")
 
     // The dim gold of notes, and the menus' darker accent for the rule.
     private val captionColor = blend(background, accent, 0.78f)

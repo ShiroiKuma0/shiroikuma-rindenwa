@@ -37,7 +37,22 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/delete_meeting"/>
+            app:layout_constraintBottom_toTopOf="@+id/sk_div_delete_meeting"/>
+
+        <!-- shiroikuma fork: the line between two groups of the menu. -->
+        <View
+            android:id="@+id/sk_div_delete_meeting"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginStart="22dp"
+            android:layout_marginEnd="22dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:background="@color/sk_menu_divider"
+            app:layout_constraintTop_toBottomOf="@id/export_as_calendar"
+            app:layout_constraintBottom_toTopOf="@id/delete_meeting"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <androidx.appcompat.widget.AppCompatTextView
             style="@style/popup_menu_item"
@@ -46,14 +61,14 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@{cancelInsteadOfDelete ? @string/meeting_cancel_action_label : @string/meeting_delete_action_label, default=@string/meeting_delete_action_label}"
-            android:textColor="?attr/color_danger_500"
+            android:textColor="@color/sk_meet_danger_500"
             android:drawableStart="@drawable/trash_simple"
             skMenuRole="@{`delete`}"
-            app:drawableTint="?attr/color_danger_500"
+            app:drawableTint="@color/sk_meet_danger_500"
             app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/export_as_calendar"
+            app:layout_constraintTop_toBottomOf="@id/sk_div_delete_meeting"
             app:layout_constraintBottom_toTopOf="@id/bottom_anchor"/>
 
         <View

@@ -36,7 +36,7 @@
             android:layout_height="wrap_content"
             android:padding="11dp"
             android:src="@drawable/shape_drawer_handle"
-            app:tint="@color/bc_white"
+            app:tint="@color/sk_yellow"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
@@ -47,7 +47,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="30dp"
-            android:textColor="@color/bc_white"
+            android:textColor="@color/sk_yellow"
             android:textSize="30sp"
             android:text="@{model.digits, default=`0123456789`}"
             android:background="@color/transparent_color"
@@ -73,7 +73,7 @@
             android:contentDescription="@string/content_description_erase_last_input"
             android:padding="20dp"
             android:elevation="3dp"
-            app:tint="@color/bc_white"
+            app:tint="@color/sk_yellow"
             app:layout_constraintTop_toBottomOf="@id/numpad_handle"
             app:layout_constraintStart_toEndOf="@id/digits_history"
             app:layout_constraintEnd_toEndOf="parent"/>

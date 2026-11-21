@@ -34,7 +34,7 @@
             android:layout_marginBottom="1dp"
             android:drawableStart="@drawable/phone_pause"
             skMenuRole="@{`call`}"
-            app:layout_constraintBottom_toTopOf="@id/hang_up"
+            app:layout_constraintBottom_toTopOf="@+id/sk_div_hang_up"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 
@@ -50,9 +50,23 @@
             android:layout_marginBottom="1dp"
             android:drawableStart="@drawable/phone_pause"
             skMenuRole="@{`call`}"
-            app:layout_constraintBottom_toTopOf="@id/hang_up"
+            app:layout_constraintBottom_toTopOf="@+id/sk_div_hang_up"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
+
+        <!-- shiroikuma fork: the line between two groups of the menu. -->
+        <View
+            android:id="@+id/sk_div_hang_up"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginStart="22dp"
+            android:layout_marginEnd="22dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:background="@color/sk_menu_divider"
+            app:layout_constraintBottom_toTopOf="@id/hang_up"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/hang_up"

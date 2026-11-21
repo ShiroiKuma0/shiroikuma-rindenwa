@@ -1438,10 +1438,44 @@
     <!-- shiroikuma fork: the shared bottom bar and top row. The two phone tabs are named exactly
          so in every language (白い熊, 2026-11-17). -->
     <string name="sk_group_call_door" translatable="false">Calls from other apps</string>
-    <string name="sk_call_door_renrakusaki" translatable="false">白い熊 連絡先 may place calls</string>
-    <string name="sk_call_door_renrakusaki_desc" translatable="false">The address book reads the list of accounts here and dials through them — its 臨 badges and its swipes.</string>
-    <string name="sk_call_door_denwa" translatable="false">白い熊 電話 may place calls</string>
-    <string name="sk_call_door_denwa_desc" translatable="false">The SIM dialer may hand a number over to be called through an account here.</string>
+    <string name="sk_call_door_apps" translatable="false">Apps that may place calls</string>
+    <string name="sk_call_door_apps_desc" translatable="false">The apps allowed to read the list of accounts here and to dial through them — the address book’s 臨 badges and swipes, the SIM dialer’s hand-over, the messenger’s call button.</string>
+    <string name="sk_call_door_apps_status" translatable="false">Allowed: %1$s</string>
+    <string name="sk_call_door_apps_none" translatable="false">No app is allowed</string>
+    <string name="sk_call_door_apps_note" translatable="false">A switch takes effect at once. An app that is switched on may place calls through an account here without asking.</string>
+    <string name="sk_call_door_apps_filter" translatable="false">Filter by name</string>
+    <string name="sk_call_door_apps_sisters" translatable="false">白い熊 apps</string>
+    <string name="sk_call_door_apps_others" translatable="false">Other apps</string>
+    <string name="sk_call_door_apps_absent" translatable="false">Not installed · %1$s</string>
+    <string name="sk_done" translatable="false">Done</string>
+    <string name="sk_section_accounts_apps" translatable="false">Accounts and apps</string>
+    <string name="sk_section_buttons" translatable="false">Buttons</string>
+    <string name="sk_section_switches" translatable="false">Switches and marks</string>
+    <string name="sk_section_menus" translatable="false">Menus</string>
+    <string name="sk_section_dialogs" translatable="false">Dialogs</string>
+    <string name="sk_section_text" translatable="false">Text</string>
+    <string name="sk_section_surfaces" translatable="false">Surfaces</string>
+    <string name="sk_section_fields" translatable="false">Text fields</string>
+    <string name="sk_section_status" translatable="false">Status colours</string>
+    <string name="sk_section_marks" translatable="false">Badges and marks</string>
+    <string name="sk_section_sheets" translatable="false">Bottom sheets</string>
+    <string name="sk_section_flashes" translatable="false">Flashes</string>
+    <string name="sk_section_page" translatable="false">This page</string>
+    <string name="sk_section_assistant" translatable="false">Assistant</string>
+    <string name="sk_section_meetings" translatable="false">Meetings</string>
+    <string name="sk_group_roles_bars" translatable="false">Bars and tabs — colours</string>
+    <string name="sk_group_roles_lists" translatable="false">Lists — colours</string>
+    <string name="sk_group_roles_avatars" translatable="false">Avatars — colours</string>
+    <string name="sk_group_roles_in_call" translatable="false">Call screens — colours</string>
+    <string name="sk_group_roles_dial" translatable="false">Dial pad — colours</string>
+    <string name="sk_group_roles_bubbles" translatable="false">Conversations — colours</string>
+    <string name="sk_reset_all_colours" translatable="false">Reset all colours</string>
+    <string name="sk_reset_all_colours_desc" translatable="false">Takes every colour set on this page back to its default — the black ground, the yellow ink, and the colours that carry a meaning.</string>
+    <string name="sk_reset_all_colours_warning" translatable="false">Every colour you have set on this page is forgotten. Fonts, sizes and switches stay as they are.</string>
+    <string name="sk_section_maintenance" translatable="false">Maintenance</string>
+    <string name="sk_reset_section_order" translatable="false">Reset section order</string>
+    <string name="sk_reset_section_order_desc" translatable="false">Puts the sections of this page, and the chips above them, back in their original order. What is folded stays folded.</string>
+    <string name="sk_app_settings" translatable="false">App settings</string>
     <string name="sk_rin_number_title" translatable="false">臨 number</string>
     <string name="sk_callback_menu_callback" translatable="false">Callback</string>
     <string name="sk_callback_menu_call" translatable="false">Call</string>

@@ -46,7 +46,7 @@
                 android:contentDescription="@string/content_description_go_back_icon"
                 android:background="@drawable/circle_transparent_button_background"
                 android:visibility="invisible"
-                app:tint="?attr/color_main2_500"
+                app:tint="@color/sk_asst_main2_500"
                 app:layout_constraintTop_toTopOf="@id/register_code_confirmation_title"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/register_code_confirmation_title"/>
@@ -59,7 +59,7 @@
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="@dimen/assistant_title_top_margin"
                 android:text="@string/assistant_account_creation_sms_confirmation_title"
-                android:textColor="?attr/color_text"
+                android:textColor="@color/sk_asst_text"
                 android:textSize="28sp"
                 android:drawableStart="@drawable/user_circle"
                 android:drawablePadding="10dp"
@@ -77,7 +77,7 @@
                 android:layout_marginTop="16dp"
                 android:text="@{viewModel.confirmationMessage, default=@string/assistant_account_creation_sms_confirmation_explanation}"
                 android:textSize="14sp"
-                android:textColor="?attr/color_main2_600"
+                android:textColor="@color/sk_asst_main2_600"
                 app:layout_constraintVertical_chainStyle="packed"
                 app:layout_constraintTop_toBottomOf="@id/register_code_confirmation_title"
                 app:layout_constraintBottom_toTopOf="@id/code_first_digit"
@@ -205,7 +205,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:tint="?attr/color_main1_500" />
+                app:tint="@color/sk_asst_main1_500" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

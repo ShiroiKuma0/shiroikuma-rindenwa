@@ -60,7 +60,7 @@
                     android:scaleType="fitCenter"
                     android:src="@{viewModel.isMicrophoneMuted ? @drawable/microphone_slash : @drawable/microphone, default=@drawable/microphone}"
                     android:contentDescription="@string/content_description_toggle_microphone"
-                    app:tint="@color/sk_yellow" />
+                    skTint="@{`call_control_icon`}" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     style="@style/default_text_style_700"
@@ -72,7 +72,7 @@
                     android:maxLines="1"
                     android:ellipsize="end"
                     android:text="@{viewModel.isMicrophoneMuted ? @string/sk_call_muted : @string/sk_call_mute, default=@string/sk_call_mute}"
-                    android:textColor="@color/sk_yellow"
+                    skInk="@{`call_control_label`}"
                     android:textSize="@dimen/sk_call_action_label_size" />
 
             </LinearLayout>
@@ -96,7 +96,7 @@
                     android:scaleType="fitCenter"
                     android:src="@{viewModel.isHeadsetEnabled ? @drawable/headset : viewModel.isBluetoothEnabled ? @drawable/bluetooth : viewModel.isSpeakerEnabled ? @drawable/speaker_high : @drawable/speaker_slash, default=@drawable/speaker_slash}"
                     android:contentDescription="@string/content_description_change_output_audio_device"
-                    app:tint="@color/sk_yellow" />
+                    skTint="@{`call_control_icon`}" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     style="@style/default_text_style_700"
@@ -108,7 +108,7 @@
                     android:maxLines="1"
                     android:ellipsize="end"
                     android:text="@{viewModel.isHeadsetEnabled ? @string/sk_call_output_headset : viewModel.isBluetoothEnabled ? @string/sk_call_output_bluetooth : @string/sk_call_output_speaker, default=@string/sk_call_output_speaker}"
-                    android:textColor="@color/sk_yellow"
+                    skInk="@{`call_control_label`}"
                     android:textSize="@dimen/sk_call_action_label_size" />
 
             </LinearLayout>
@@ -132,7 +132,7 @@
                     android:scaleType="fitCenter"
                     android:src="@drawable/numpad"
                     android:contentDescription="@string/content_description_show_numpad"
-                    app:tint="@color/sk_yellow" />
+                    skTint="@{`call_control_icon`}" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     style="@style/default_text_style_700"
@@ -144,7 +144,7 @@
                     android:maxLines="1"
                     android:ellipsize="end"
                     android:text="@string/sk_call_keypad"
-                    android:textColor="@color/sk_yellow"
+                    skInk="@{`call_control_label`}"
                     android:textSize="@dimen/sk_call_action_label_size" />
 
             </LinearLayout>
@@ -164,7 +164,7 @@
             android:scaleType="fitCenter"
             android:src="@drawable/phone_disconnect"
             android:contentDescription="@string/content_description_hang_up_call"
-            app:tint="@color/sk_danger" />
+            skTint="@{`sk_call_hangup`}" />
 
     </LinearLayout>
 

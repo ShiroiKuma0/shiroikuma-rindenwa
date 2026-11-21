@@ -3,7 +3,7 @@
      2026-11-17, the same in the sister dialer): a rounded square with a 3 dp yellow outline, the
      page's own black inside it so the list does not show through, and a yellow ripple. -->
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
-    android:color="#4DFFFF00">
+    android:color="@color/sk_yellow_wash">
     <item>
         <shape android:shape="rectangle">
             <corners android:radius="16dp" />

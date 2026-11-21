@@ -670,6 +670,19 @@ class MainActivity : GenericActivity() {
             }
         }
 
+        // shiroikuma fork: the "App settings" pill on top of the 臨電話 UI page.
+        if (intent.getBooleanExtra(SkSisterApps.EXTRA_OPEN_SETTINGS, false)) {
+            intent.removeExtra(SkSisterApps.EXTRA_OPEN_SETTINGS)
+            try {
+                val navController = findNavController()
+                if (navController.currentDestination?.id != R.id.settingsFragment) {
+                    navController.navigate(R.id.action_global_settingsFragment)
+                }
+            } catch (e: Exception) {
+                Log.e("$TAG Can't open the settings: $e")
+            }
+        }
+
         val action = intent.action ?: return
         when (action) {
             Intent.ACTION_SEND -> {

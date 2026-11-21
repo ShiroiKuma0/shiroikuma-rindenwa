@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- shiroikuma fork: the two colours of a switch — the accent when on, a darker, opaque yellow
-     (#8C8C00, never a faded one) when off. -->
+<!-- shiroikuma fork: the two colours of a switch or a selection mark, by role — the names are
+     fed from the role table at run time (SkPalette); no colour is written here. -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_checked="true" android:color="@color/sk_yellow" />
-    <item android:color="#FF8C8C00" />
+    <item android:state_checked="true" android:color="@color/sk_switch_on" />
+    <item android:color="@color/sk_switch_off" />
 </selector>

@@ -29,7 +29,7 @@
             android:singleLine="true"
             android:text="@{viewModel.skAccountBadge, default=`臨1`}"
             android:textSize="34sp"
-            android:textColor="@color/sk_badge_rin_text"
+            skInk="@{`sk_badge_rin_text`}"
             android:background="@drawable/sk_badge_rin" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -42,7 +42,7 @@
             android:ellipsize="end"
             android:text="@{viewModel.skAccountName, default=`John Doe`}"
             android:textSize="26sp"
-            android:textColor="@color/sk_yellow" />
+            skInk="@{`call_account_label`}" />
 
     </LinearLayout>
 

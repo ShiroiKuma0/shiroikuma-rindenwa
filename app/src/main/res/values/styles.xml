@@ -83,7 +83,7 @@
         <item name="android:ellipsize">end</item>
     </style>
     <style name="primary_button_label_style">
-        <item name="android:fontFamily">@font/noto_sans_600</item>
+        <item name="android:fontFamily">@font/noto_sans_700</item>
         <item name="android:textColor">@color/primary_button_label_color</item>
         <item name="android:textSize">18sp</item>
         <item name="android:gravity">center</item>
@@ -94,7 +94,7 @@
         <item name="android:paddingEnd">@dimen/primary_secondary_buttons_label_start_end_padding</item>
     </style>
     <style name="secondary_button_label_style">
-        <item name="android:fontFamily">@font/noto_sans_600</item>
+        <item name="android:fontFamily">@font/noto_sans</item>
         <item name="android:textColor">@color/secondary_button_label_color</item>
         <item name="android:textSize">18sp</item>
         <item name="android:gravity">center</item>
@@ -105,7 +105,7 @@
         <item name="android:paddingEnd">@dimen/primary_secondary_buttons_label_start_end_padding</item>
     </style>
     <style name="tertiary_button_label_style">
-        <item name="android:fontFamily">@font/noto_sans_600</item>
+        <item name="android:fontFamily">@font/noto_sans</item>
         <item name="android:textColor">@color/tertiary_button_label_color</item>
         <item name="android:textSize">13sp</item>
         <item name="android:gravity">center</item>
@@ -116,7 +116,7 @@
         <item name="android:paddingEnd">@dimen/tertiary_buttons_label_start_end_padding</item>
     </style>
     <style name="primary_dialog_button_label_style">
-        <item name="android:fontFamily">@font/noto_sans_600</item>
+        <item name="android:fontFamily">@font/noto_sans_700</item>
         <item name="android:textColor">@color/primary_button_label_color</item>
         <item name="android:textSize">13sp</item>
         <item name="android:gravity">center</item>
@@ -127,7 +127,7 @@
         <item name="android:paddingBottom">@dimen/primary_secondary_buttons_label_padding</item>
     </style>
     <style name="secondary_dialog_button_label_style">
-        <item name="android:fontFamily">@font/noto_sans_600</item>
+        <item name="android:fontFamily">@font/noto_sans</item>
         <item name="android:textColor">@color/secondary_button_label_color</item>
         <item name="android:textSize">13sp</item>
         <item name="android:gravity">center</item>
@@ -267,5 +267,11 @@
     <style name="numpad_button_style">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">@dimen/call_dtmf_button_size</item>
+    </style>
+    <!-- shiroikuma fork: the confirming pill of a dialog that deletes or removes — the main pill
+         (3 dp, bold), with red lent to frame and label. -->
+    <style name="sk_danger_dialog_button_label_style" parent="primary_dialog_button_label_style">
+        <item name="android:textColor">?attr/color_danger_500</item>
+        <item name="android:background">@drawable/sk_danger_pill</item>
     </style>
 </resources>
