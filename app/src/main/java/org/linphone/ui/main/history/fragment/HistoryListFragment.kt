@@ -147,6 +147,13 @@ class HistoryListFragment : AbstractMainFragment() {
             listViewModel.applyFilter(digits)
         }
 
+        // Long press on the number field opens its menu: paste, copy, clear, and the sister
+        // apps for the number as it stands.
+        binding.dialpadPanel.digits.setOnLongClickListener { field ->
+            showDialpadNumberMenu(field)
+            true
+        }
+
         // While the panel is up, back puts it away rather than leaving the Calls tab.
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner,
@@ -160,6 +167,74 @@ class HistoryListFragment : AbstractMainFragment() {
                 }
             }
         )
+    }
+
+    /**
+     * shiroikuma fork: the menu of the dial panel's number field. A row is there only when it
+     * has something to act on — Paste when the clipboard holds a number, the others when one is
+     * typed; with neither, there is no menu to show and a flash says why.
+     */
+    private fun showDialpadNumberMenu(field: View) {
+        val context = requireContext()
+        val clipboard = context.getSystemService(android.content.ClipboardManager::class.java)
+        val clip = clipboard?.primaryClip?.takeIf { it.itemCount > 0 }
+            ?.getItemAt(0)?.coerceToText(context)
+        val pasted = dialpadViewModel.numberIn(clip)
+        val typed = dialpadViewModel.digits.value.orEmpty()
+        val isNumber = typed.isNotEmpty() && !typed.contains('@')
+        val menus = org.linphone.shiroikuma.SkMenus
+        val sisters = org.linphone.shiroikuma.SkSisterApps
+
+        val items = ArrayList<org.linphone.shiroikuma.SkMenus.Item>()
+        if (pasted != null) {
+            items.add(
+                org.linphone.shiroikuma.SkMenus.Item(getString(R.string.sk_dialpad_menu_paste), R.drawable.download_simple, menus.SHARE) {
+                    dialpadViewModel.replace(pasted)
+                }
+            )
+        }
+        if (typed.isNotEmpty()) {
+            items.add(
+                org.linphone.shiroikuma.SkMenus.Item(getString(R.string.sk_dialpad_menu_copy), R.drawable.copy, menus.SHARE) {
+                    clipboard?.setPrimaryClip(android.content.ClipData.newPlainText("number", typed))
+                    org.linphone.shiroikuma.SkFlash.show(
+                        requireActivity(),
+                        getString(R.string.sk_dialpad_copied),
+                        R.drawable.copy
+                    )
+                }
+            )
+        }
+        if (isNumber) {
+            items.add(
+                org.linphone.shiroikuma.SkMenus.Item(getString(R.string.sk_dialpad_menu_new_contact), R.drawable.user_plus, menus.CONTACT, true) {
+                    sisters.newContact(context, typed)
+                }
+            )
+            items.add(
+                org.linphone.shiroikuma.SkMenus.Item(getString(R.string.sk_dialpad_menu_message), R.drawable.chat_teardrop_text, menus.MESSAGE, true) {
+                    sisters.openMessages(context, typed)
+                }
+            )
+        }
+        if (typed.isNotEmpty()) {
+            items.add(
+                org.linphone.shiroikuma.SkMenus.Item(getString(R.string.sk_dialpad_menu_clear), R.drawable.trash_simple, menus.DELETE) {
+                    dialpadViewModel.replace("")
+                }
+            )
+        }
+
+        if (items.isEmpty()) {
+            org.linphone.shiroikuma.SkFlash.show(
+                requireActivity(),
+                getString(R.string.sk_dialpad_paste_nothing),
+                R.drawable.copy,
+                org.linphone.shiroikuma.SkFlash.Kind.NOTE
+            )
+            return
+        }
+        menus.popup(field, items)
     }
 
     /**

@@ -1571,6 +1571,13 @@
     <!-- shiroikuma fork: the dial panel that replaces upstream's separate "New call" screen. -->
     <string name="sk_content_description_show_dialpad" translatable="false">Open the dial panel</string>
     <string name="sk_content_description_hide_dialpad" translatable="false">Put the dial panel away</string>
+    <string name="sk_dialpad_paste_nothing" translatable="false">No number in the clipboard</string>
+    <string name="sk_dialpad_copied" translatable="false">Number copied</string>
+    <string name="sk_dialpad_menu_paste" translatable="false">Paste</string>
+    <string name="sk_dialpad_menu_copy" translatable="false">Copy</string>
+    <string name="sk_dialpad_menu_clear" translatable="false">Clear</string>
+    <string name="sk_dialpad_menu_new_contact" translatable="false">New contact</string>
+    <string name="sk_dialpad_menu_message" translatable="false">Write a message</string>
 
     <!-- shiroikuma fork: the Diagnostics section of the 臨電話 UI page. Every diagnostic is behind
          its own switch and off by default; the files live in the app's own diag directory and are

@@ -32,6 +32,10 @@ class SkDialpadViewModel
     constructor() : ViewModel() {
     companion object {
         private const val TAG = "[Sk Dialpad]"
+
+        private const val DIAL_CHARS = "0123456789+*#"
+        private val NUMBER_RUN = Regex("""[+*#\d][\d\s\-()./*#]*""")
+        private val SIP_ADDRESS = Regex("""(?:sips?:)?[\w.+\-]+@[\w.\-]+(?::\d+)?""")
     }
 
     /** What has been typed so far. The history list filters on exactly this string. */
@@ -125,6 +129,26 @@ class SkDialpadViewModel
             Log.i("$TAG Calling [${address.asStringUriOnly()}]")
             coreContext.startAudioCall(address)
         }
+    }
+
+    /**
+     * What of [clip] can be dialled, for the Paste row of the number field's menu: a SIP address
+     * whole; otherwise the first run that reads as a number, with whatever it was written with
+     * (spaces, dashes, brackets, a `tel:` in front) left behind. Null when there is nothing.
+     */
+    fun numberIn(clip: CharSequence?): String? {
+        val text = clip?.toString()?.trim().orEmpty()
+        if (text.isEmpty()) return null
+
+        return SIP_ADDRESS.find(text)?.value ?: NUMBER_RUN.findAll(text)
+            .map { run -> run.value.filter { it in DIAL_CHARS } }
+            .firstOrNull { it.length >= 3 }
+    }
+
+    /** [number] takes the place of what was typed. */
+    @UiThread
+    fun replace(number: String) {
+        set(number)
     }
 
     @UiThread
