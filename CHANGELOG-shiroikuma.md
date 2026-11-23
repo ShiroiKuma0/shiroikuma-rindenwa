@@ -2,7 +2,23 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha+2026-11-09.14-39.g2199af83+058 — current
+## 6.3.0-alpha+2026-11-09.14-39.g2199af83+060 — current
+
+Same upstream base as `+058` (`2199af83`); `versionCode` `602010060`. `+059` was an unpublished
+step on the way (it pasted at once, with no menu).
+
+### The dial panel's number field
+
+- **A long press on the number opens a menu.** Each row is there only when it has something to
+  act on: **Paste** when the clipboard holds a number or a SIP address — the first run that reads
+  as a number, without the spaces, dashes, brackets or `tel:` it was written with — and it takes
+  the place of what was typed; **Copy**, **New contact** (連絡先's editor, the number in
+  international form), **Write a message** (メッセージ) and **Clear** when something is typed.
+  With nothing typed and nothing usable in the clipboard, a flash says so.
+- **A long number is no longer cut short on a narrow display.** The field shrinks its type from
+  30 sp down to 14 sp to fit, and only below that drops the front of the number.
+
+## 6.3.0-alpha+2026-11-09.14-39.g2199af83+058
 
 Same upstream base as `+057` (`2199af83`); `versionCode` `602010058`.
 
