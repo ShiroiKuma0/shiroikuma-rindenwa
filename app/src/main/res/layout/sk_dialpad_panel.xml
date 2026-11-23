@@ -8,8 +8,8 @@
   where it was — and every digit filters it, which is what actually finds the number: the call
   you want is almost always one you have already had.
 
-  Its row of chrome is the sheet's own: the number as it is being typed, a backspace (long press
-  clears), and the chevron that puts the sheet away. Nothing navigates; nothing is lost.
+  Its row of chrome is the sheet's own: the number as it is being typed (long press opens its
+  menu — paste, copy, clear; and it shrinks its type rather than cut a long number short), a backspace (long press clears), and the chevron that puts the sheet away. Nothing navigates; nothing is lost.
 
   Four plain rows rather than a ConstraintLayout Flow: the sheet has to measure its own height,
   and rows of fixed-size keys say what that height is without anybody having to trust a virtual
@@ -63,16 +63,20 @@
                 style="@style/default_text_style_300"
                 android:id="@+id/digits"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/sk_dialpad_field_height"
                 android:layout_weight="1"
                 android:layout_marginEnd="12dp"
+                app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="14sp"
+                app:autoSizeMaxTextSize="@dimen/sk_dialpad_digits_size"
+                app:autoSizeStepGranularity="1sp"
                 android:background="@drawable/sk_dialpad_digits_underline"
                 android:gravity="center"
                 android:maxLines="1"
                 android:ellipsize="start"
-                android:minHeight="@dimen/sk_dialpad_chrome_size"
                 android:paddingBottom="6dp"
                 android:text="@{dialpad.digits}"
+                android:longClickable="true"
                 skInk="@{`dial_field_text`}"
                 android:textSize="@dimen/sk_dialpad_digits_size" />
 

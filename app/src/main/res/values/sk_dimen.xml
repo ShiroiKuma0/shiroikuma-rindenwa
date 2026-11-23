@@ -45,6 +45,8 @@
     <dimen name="sk_dialpad_sub_label_size">12sp</dimen>
     <dimen name="sk_dialpad_digits_size">30sp</dimen>
     <dimen name="sk_dialpad_chrome_size">44dp</dimen>
+    <!-- Fixed, because a field that sizes its type to its width cannot also wrap its height. -->
+    <dimen name="sk_dialpad_field_height">52dp</dimen>
     <dimen name="sk_dialpad_call_button_size">76dp</dimen>
     <dimen name="sk_dialpad_panel_padding">16dp</dimen>
     <dimen name="sk_dialpad_panel_corner">20dp</dimen>
