@@ -242,6 +242,7 @@ class SkUiActivity : AppCompatActivity() {
         ) { openAppSettings() }
 
         val sections = sections()
+        SkPageState.putFirstOnce(this, "language")
         val order = SkPageState.order(this, sections.map { it.key })
         addSectionIndex(order.map { key -> sections.first { it.key == key } })
         for (key in order) {
@@ -262,6 +263,7 @@ class SkUiActivity : AppCompatActivity() {
      * tone**; keep it so when adding a section. An order 白い熊 dragged is never touched.
      */
     private fun sections(): List<Section> = listOf(
+        Section("language", R.string.sk_section_language, R.drawable.globe_hemisphere_west, TONE_WORDS) { buildLanguage() },
         Section("eximport", R.string.sk_section_eximport, R.drawable.share_network, TONE_REACH) { buildEximport() },
         Section("accounts", R.string.sk_section_accounts_apps, R.drawable.user_circle_gear, TONE_BASE) {
             buildAccountsAndApps()
@@ -328,6 +330,27 @@ class SkUiActivity : AppCompatActivity() {
         Section("meetings", R.string.sk_section_meetings, R.drawable.calendar, TONE_BASE) { buildMeetings() },
         Section("maintenance", R.string.sk_section_maintenance, R.drawable.wrench, TONE_WARNING) { buildMaintenance() },
     )
+
+    /**
+     * App language — always the first section and the first chip. One row, a pill that opens the
+     * list of the languages the app ships; a choice applies at once, to this app alone.
+     */
+    private fun buildLanguage() {
+        val row = addActionRow(
+            R.string.sk_language_row,
+            R.string.sk_language_desc,
+            main = true,
+            opens = true,
+            level = 1,
+            icon = R.drawable.globe_hemisphere_west,
+        ) {
+            SkLanguageDialog(this, SkLanguage.tag(this)) { SkLanguage.set(this, it) }
+        }
+        row.skActionTitle.text = getString(
+            R.string.sk_language_row,
+            SkLanguage.currentName(this, getString(R.string.sk_language_system)),
+        )
+    }
 
     private fun buildEximport() {
         // ---- Export / Import — always first, per the Kōjiki page ----

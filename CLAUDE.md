@@ -279,6 +279,14 @@ who it is.
   **Never rename a key** — `SkPageState` stores the order (`sk_ui_section_order`) and the open
   set (`sk_ui_sections_open`) by key, in the default preferences, so both travel in the export’s
   appearance category. A new section goes into `sections()` at its built place.
+- **“App language” (`language`) is the first section and the first chip** (白い熊, 2026-11-24):
+  one pill row, “Language: ‹current›”, opening `SkLanguageDialog` — plain rows, only the current
+  language in a pill, the tag in a right-hand column. `SkLanguage` keeps the tag as
+  `sk_app_language` (default preferences, so it travels in the appearance export), reads the list
+  from `res/xml/locales_config.xml`, asserts the choice again in `LinphoneApplication.onCreate`
+  (EMUI forgets the per-app language across a sideloaded update) and, below Android 13, gives
+  the application's own resources the language too, so notifications and services follow.
+  `SkPageState.putFirstOnce` put the section first once in an order stored before it existed.
 - Every section is folded by default; a folded section’s rows are **not built** until it is first
   opened. Row builders therefore add to `body`, never to `binding.skHolder`.
 - On top: the “App settings” pill (`SkSisterApps.EXTRA_OPEN_SETTINGS` → `MainActivity`), then the

@@ -878,3 +878,119 @@ class SkBlockedNumbersDialog(
         dialog.setOnCancelListener { show() }
     }
 }
+
+/**
+ * shiroikuma fork — the App language picker, in the look settled on 2026-11-24: plain rows, and
+ * only the current language in a pill (full width, 3 dp, its name bold). Each row carries the
+ * selection ring, the language's name in that language with its region beneath in dim gold, and
+ * the tag in dim-gold monospace in a column of its own at the right — also for a right-to-left
+ * language. “System default” comes first, with no region and no tag. A 1 px line separates
+ * rows, but never touches the current row's pill. Choosing a row applies it and closes the list.
+ */
+class SkLanguageDialog(
+    activity: Activity,
+    current: String,
+    onPick: (tag: String) -> Unit,
+) {
+    init {
+        val chrome = SkDialogChrome(activity)
+        val box = chrome.box()
+        box.addView(chrome.title(activity.getString(R.string.sk_section_language)))
+        box.addView(android.view.View(activity), LinearLayout.LayoutParams(1, chrome.dp(8)))
+        lateinit var dialog: AlertDialog
+        val note = SkRoles.color(activity, "dialog_note")
+        val divider = SkRoles.color(activity, "dialog_divider")
+        val on = SkRoles.color(activity, "mark_on")
+        val off = SkRoles.color(activity, "mark_off")
+        val tags = listOf("") + SkLanguage.shippedTags(activity).sortedBy { SkLanguage.ownName(it).lowercase() }
+
+        fun ring(chosen: Boolean) = android.view.View(activity).apply {
+            val outline = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(Color.TRANSPARENT)
+                setStroke(chrome.dp(2), if (chosen) on else off)
+            }
+            background = if (chosen) {
+                val dot = GradientDrawable().apply {
+                    shape = GradientDrawable.OVAL
+                    setColor(on)
+                }
+                android.graphics.drawable.LayerDrawable(arrayOf(outline, dot)).apply {
+                    val inset = chrome.dp(5)
+                    setLayerInset(1, inset, inset, inset, inset)
+                }
+            } else {
+                outline
+            }
+            layoutParams = LinearLayout.LayoutParams(chrome.dp(18), chrome.dp(18)).apply { marginEnd = chrome.dp(12) }
+        }
+
+        tags.forEachIndexed { index, tag ->
+            val chosen = tag == current
+            val beforeChosen = tags.getOrNull(index + 1) == current
+            val row = LinearLayout(activity).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                // The tag column stays at the right whatever the direction of the language.
+                layoutDirection = android.view.View.LAYOUT_DIRECTION_LTR
+                setPadding(chrome.dp(12), chrome.dp(7), chrome.dp(14), chrome.dp(7))
+                isClickable = true
+                isFocusable = true
+                if (chosen) background = SkMenus.pill(activity, SkRoles.color(activity, "dialog_button_frame"), 3f)
+                setOnClickListener {
+                    dialog.dismiss()
+                    if (!chosen) onPick(tag)
+                }
+            }
+            row.addView(ring(chosen))
+            val names = LinearLayout(activity).apply { orientation = LinearLayout.VERTICAL }
+            names.addView(
+                TextView(activity).apply {
+                    text = if (tag.isEmpty()) activity.getString(R.string.sk_language_system) else SkLanguage.ownName(tag)
+                    textSize = 16f
+                    setTextColor(chrome.textColor)
+                    if (chosen) setTypeface(typeface, Typeface.BOLD)
+                },
+            )
+            val region = if (tag.isEmpty()) "" else SkLanguage.ownRegion(tag)
+            if (region.isNotEmpty()) {
+                names.addView(
+                    TextView(activity).apply {
+                        text = region
+                        textSize = 12f
+                        setTextColor(note)
+                    },
+                )
+            }
+            row.addView(names, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+            if (tag.isNotEmpty()) {
+                row.addView(
+                    TextView(activity).apply {
+                        text = tag
+                        textSize = 12f
+                        typeface = Typeface.MONOSPACE
+                        setTextColor(note)
+                        gravity = Gravity.END
+                    },
+                )
+            }
+            box.addView(
+                row,
+                LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT),
+            )
+            if (index < tags.lastIndex && !chosen && !beforeChosen) {
+                box.addView(
+                    android.view.View(activity).apply { setBackgroundColor(divider) },
+                    LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1).apply {
+                        marginStart = chrome.dp(42)
+                        marginEnd = chrome.dp(14)
+                    },
+                )
+            }
+        }
+        val bar = chrome.bar()
+        bar.addView(chrome.pill(activity.getString(R.string.sk_cancel)) { dialog.dismiss() })
+        box.addView(bar)
+        dialog = chrome.show(box)
+    }
+}

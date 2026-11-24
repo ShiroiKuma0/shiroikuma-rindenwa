@@ -1383,6 +1383,10 @@
     <string name="sk_diag_service">サービスとプロセス</string>
     <string name="sk_diag_service_desc">プロセスの起動と、常駐サービスの開始・停止を記録します。アプリが止まっていた理由がわかります。</string>
     <string name="sk_group_diag_data">記録したデータ</string>
+    <string name="sk_section_language">アプリの言語</string>
+    <string name="sk_language_row">言語: %1$s</string>
+    <string name="sk_language_desc">このアプリだけの言語です。選ぶとすぐに切り替わります。</string>
+    <string name="sk_language_system">システムの既定</string>
     <string name="sk_group_section_icons">このページのセクションアイコン</string>
     <string name="sk_diag_stored">保存済み</string>
     <string name="sk_diag_stored_empty">まだ何も記録されていません</string>

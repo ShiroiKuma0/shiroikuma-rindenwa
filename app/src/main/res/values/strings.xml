@@ -1595,6 +1595,10 @@
     <string name="sk_diag_service">Service and process</string>
     <string name="sk_diag_service_desc">Process starts and the keep-alive service going up and down — why the app was dead.</string>
     <string name="sk_group_diag_data">Recorded data</string>
+    <string name="sk_section_language">App language</string>
+    <string name="sk_language_row">Language: %1$s</string>
+    <string name="sk_language_desc">The language of this app alone. A choice applies at once.</string>
+    <string name="sk_language_system">System default</string>
     <string name="sk_group_section_icons">Section icons of this page</string>
     <string name="sk_diag_stored">Stored</string>
     <string name="sk_diag_stored_empty">Nothing recorded yet</string>

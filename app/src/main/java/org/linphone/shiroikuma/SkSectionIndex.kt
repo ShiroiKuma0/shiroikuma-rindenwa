@@ -36,6 +36,22 @@ object SkPageState {
         return stored + built.filter { it !in stored }
     }
 
+    /**
+     * A section that belongs at the top and arrived in an update: put first in a stored order
+     * too, **once** — nothing dragged it anywhere yet. Afterwards it stays where it is dragged.
+     */
+    fun putFirstOnce(context: Context, key: String) {
+        val prefs = SkTheme.prefs(context)
+        val seen = "sk_ui_section_first_seen_$key"
+        if (prefs.getBoolean(seen, false)) return
+        val stored = prefs.getString(KEY_ORDER, null)
+        val editor = prefs.edit().putBoolean(seen, true)
+        if (!stored.isNullOrEmpty()) {
+            editor.putString(KEY_ORDER, (listOf(key) + stored.split(',').filter { it != key }).joinToString(","))
+        }
+        editor.apply()
+    }
+
     fun setOrder(context: Context, order: List<String>) {
         SkTheme.prefs(context).edit().putString(KEY_ORDER, order.joinToString(",")).apply()
     }

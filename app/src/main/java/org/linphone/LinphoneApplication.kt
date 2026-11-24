@@ -79,6 +79,8 @@ class LinphoneApplication : Application(), SingletonImageLoader.Factory {
         // shiroikuma fork: the colour roles, for everything drawn from the application's own
         // resources (notifications, services). Activities do the same for theirs. See SkPalette.
         org.linphone.shiroikuma.SkPalette.apply(context)
+        // shiroikuma fork: the language chosen for this app alone, asserted again at every start.
+        org.linphone.shiroikuma.SkLanguage.reassert(this)
 
         val powerManager = context.getSystemService(POWER_SERVICE) as PowerManager
         val wakeLock = powerManager.newWakeLock(
