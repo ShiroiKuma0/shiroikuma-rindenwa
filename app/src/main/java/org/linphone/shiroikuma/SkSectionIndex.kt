@@ -66,7 +66,7 @@ object SkPageState {
  * the same order.
  */
 object SkSectionIndex {
-    class Item(val key: String, val label: String)
+    class Item(val key: String, val label: String, val icon: Int, val iconColor: Int)
 
     private const val GAP_DP = 6f
     private const val FRAME_DP = 1.25f
@@ -84,7 +84,7 @@ object SkSectionIndex {
         val flow = Flow(context, (GAP_DP * density).toInt())
         flow.setPadding(0, (2 * density).toInt(), 0, (6 * density).toInt())
         for (item in items) {
-            val chip = chip(context, item.label, frame, text, density)
+            val chip = chip(context, item, frame, text, density)
             chip.tag = item.key
             chip.setOnClickListener { onJump(it.tag as String) }
             chip.setOnLongClickListener {
@@ -141,15 +141,25 @@ object SkSectionIndex {
         return best
     }
 
-    private fun chip(context: Context, label: String, frame: Int, ink: Int, density: Float) =
+    /**
+     * As wide as its icon, its label and its padding — never a uniform width. The icon is the
+     * section's own, in the section's colour, sized by the chip's label.
+     */
+    private fun chip(context: Context, item: Item, frame: Int, ink: Int, density: Float) =
         TextView(context).apply {
-            text = label
+            text = item.label
+            SkLabelIcon.set(
+                this,
+                androidx.appcompat.content.res.AppCompatResources.getDrawable(context, item.icon),
+                item.iconColor,
+                floorDp = 0f,
+            )
             setTextColor(ink)
             textSize = 12f
             setSingleLine()
             gravity = Gravity.CENTER
             setPadding(
-                (12 * density).toInt(),
+                (10 * density).toInt(),
                 (5 * density).toInt(),
                 (12 * density).toInt(),
                 (5 * density).toInt(),

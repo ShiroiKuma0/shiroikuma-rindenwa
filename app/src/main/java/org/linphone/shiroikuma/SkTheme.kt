@@ -342,13 +342,15 @@ object SkTheme {
         // 55 % of the way from the ground to the text: #8C8C00 on the default pair.
         SkSlot.SWITCH_OFF -> blend(color(context, SkSlot.BACKGROUND), color(context, SkSlot.TEXT), 0.55f)
 
-        // The sister dialer serves these roles too (SkDenwaStyle); the same defaults as there.
-        SkSlot.MENU_CALL -> SkDenwaStyle.color("color.role.call") ?: 0xFF00FF00.toInt()
-        SkSlot.MENU_MESSAGE -> SkDenwaStyle.color("color.role.message") ?: 0xFF4D94FF.toInt()
-        SkSlot.MENU_CONTACT -> SkDenwaStyle.color("color.role.contact") ?: 0xFF00FFFF.toInt()
+        // The sister dialer serves these roles too (SkDenwaStyle). The defaults are the ones of
+        // 2026-11-23: a heavy green, blues far apart, a rose — none of the pure green, cyan and
+        // magenta 白い熊 cannot tell from yellow or from one another. A stored colour stays.
+        SkSlot.MENU_CALL -> SkDenwaStyle.color("color.role.call") ?: 0xFF00A550.toInt()
+        SkSlot.MENU_MESSAGE -> SkDenwaStyle.color("color.role.message") ?: 0xFF0066FF.toInt()
+        SkSlot.MENU_CONTACT -> SkDenwaStyle.color("color.role.contact") ?: 0xFF00B0FF.toInt()
         SkSlot.MENU_SHARE -> SkDenwaStyle.color("color.role.share") ?: 0xFFFF8000.toInt()
         SkSlot.MENU_VIEW -> SkDenwaStyle.color("color.role.view") ?: color(context, SkSlot.ACCENT)
-        SkSlot.MENU_BLOCK -> SkDenwaStyle.color("color.role.block") ?: 0xFFFF00FF.toInt()
+        SkSlot.MENU_BLOCK -> SkDenwaStyle.color("color.role.block") ?: 0xFFFF3D7F.toInt()
         SkSlot.MENU_DELETE -> SkDenwaStyle.color("color.role.delete") ?: 0xFFFF0000.toInt()
     }
 

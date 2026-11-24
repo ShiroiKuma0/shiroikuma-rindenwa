@@ -284,8 +284,19 @@ who it is.
 - On top: the “App settings” pill (`SkSisterApps.EXTRA_OPEN_SETTINGS` → `MainActivity`), then the
   chip index (`SkSectionIndex`: tap jumps, long press drags, chips reorder live, sections follow
   on drop). “Reset section order” is in Maintenance.
+- **Every section names its icon and its tone** in `sections()`, and heading and chip both draw
+  them (白い熊, 2026-11-23). The tone is one of seven settable roles — `section_base` (yellow: the
+  app and its settings), `section_controls` (green), `section_words` (light blue),
+  `section_frame` (heavy blue), `section_reach` (orange), `section_warning` (red: Maintenance,
+  Diagnostics) and `section_flash` (rose, one section only) — shown under “This page” →
+  “Section icons of this page”. **In the built order no two neighbours share a tone**; keep it
+  so when adding a section. A stored order is never touched. Chips are as wide as their content.
 - Every row carries an icon coloured by role (`rowIcon`); a row with an explanation carries the
   2 dp dim-gold left rule (`ruled`, after `indentRow`).
+- **Every icon before a label goes through `SkLabelIcon.set`**: 1.25 × the label's text size
+  (rows never under 18 dp), read again at every layout, the gap half the icon, centred on the
+  label's first line. The gutter is reported to what stands under the label's text (a row's
+  explanation, a heading's underline).
 - **`SkViewInflater`** (named by `viewInflaterClass` in `Theme.SkBlackYellow`) is where every
   inflated switch, radio button and check box takes the settable accent / switch-off colours.
   Radios and check boxes stay selection marks (白い熊, 2026-11-21).
@@ -338,6 +349,25 @@ the **mixed** way, chosen by 白い熊 because this fork is rebased onto every u
   ground and the launcher icon ground (`bc_black`, read by the system without our loader).
 - Not roles: the fill of a vector icon (a mask, tinted where it is used) and upstream’s
   multi-colour illustrations.
+
+## Japanese — every string has one
+
+白い熊, 2026-11-23. Upstream has no Japanese translation, so `values-ja/strings.xml` is wholly the
+fork's: **every translatable key of `values/strings.xml`, upstream's and ours, has an entry**
+(1377 at +061). A string added or reworded gets its Japanese in the same change — and after an
+upstream sync, so does every string upstream added. Compare the key sets before a build is
+called done.
+
+- The fork's strings are **not** marked `translatable="false"` (they were until +060, which hid
+  the gap). Only what is not text keeps the mark: sample names and numbers, formats, 電話 / 臨電話.
+- **Colour-role labels** are English literals in `SkRoles.kt`; their Japanese is
+  `tools/sk_role_labels_ja.tsv` (`key<TAB>label`). `tools/sk_colour_roles.py` writes both into
+  the build's copy of the resources (`sk_role_labels.xml`, `values` and `values-ja`) with
+  `SkRoleLabels.kt`, and composes the labels of the item roles in both languages.
+  **A hand-written role without a line in the tsv stops the build.** The page reads a label
+  through `SkRoleLabels.of`.
+- Terms: 通話 / 発信 / 着信 / 不在着信, 連絡先, 会話, 会議, 録音, 端末, 着信拒否 (block), 背景 (ground),
+  枠 (frame), 通知表示 (flash). A directory is ディレクトリ.
 
 ## Numbers are written one way
 

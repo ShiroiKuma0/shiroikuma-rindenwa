@@ -1,0 +1,194 @@
+sk_yellow	本家の画面のアクセント色 — アイコン、枠、有効な状態
+sk_yellow_wash	押下時のボタンや選択時の行の薄塗り
+sk_yellow_wash_strong	押下時の主ボタンの濃いめの薄塗り
+sk_yellow_38	無効時のボタンの枠とラベル
+sk_disabled	無効時の丸ボタンの背景
+sk_black	アクセント色の上に描く内容
+sk_surface	基本の面
+sk_surface_alt	別の面 — 入力欄、シート、カード
+sk_surface_raised	浮き上がった面 — 吹き出し、アバター、入れ物
+sk_ink	主な文字
+sk_ink_dim	淡い文字 — 補助ラベルとアイコン
+sk_ink_faint	薄い文字 — ヒント、つまみ
+sk_ink_ghost	ごく薄い文字 — 枠、区切り線
+sk_bar_background	ステータスバーと上部バーの背景
+sk_viewer_bar	ファイルビューアと録音プレーヤーの上部バー
+sk_pdf_paper	PDFのページの後ろの紙
+sk_field_border	入力欄の枠
+sk_field_border_dim	使用中でない入力欄の枠
+sk_danger	危険 — エラー、拒否、削除
+sk_danger_dim	危険の背景
+sk_success	成功 — 登録済み、応答済み
+sk_success_dim	成功の背景
+sk_info	情報
+sk_warning	警告
+sk_warning_dim	警告の背景
+sk_offline	オフライン
+sk_blocked_pill	着信拒否の印 — 背景
+sk_blocked_pill_text	着信拒否の印 — 文字
+sk_online_id_pill	IDの印 — 背景
+sk_online_id_pill_text	IDの印 — 文字
+sk_badge_rin_text	臨バッジ — 通話画面での文字
+sk_recorded	録音の印
+sk_menu_divider	メニューのグループ間の線
+sk_a_main1_100	アクセント色の薄塗り
+sk_a_main1_500	アクセント色 — アイコン、リンク、有効な状態
+sk_a_main2_000	ページの背景
+sk_a_main2_100	カードと入力欄の背景
+sk_a_main2_200	浮き上がった背景
+sk_a_main2_300	枠
+sk_a_main2_400	薄いラベル
+sk_a_main2_500	アイコンとラベル
+sk_a_main2_600	補助ラベルとアイコン
+sk_a_main2_700	強いラベル
+sk_a_main2_800	より強いラベル
+sk_a_main2_900	最も強いラベル
+sk_a_grey_100	無彩色の背景 — メニュー、セル
+sk_a_grey_200	無彩色の浮き上がった背景
+sk_a_grey_300	無彩色の枠
+sk_a_grey_400	無彩色の薄いラベル
+sk_a_grey_500	無彩色のラベル
+sk_a_grey_600	無彩色の補助ラベル
+sk_a_grey_800	無彩色の強いラベル
+sk_a_grey_900	無彩色の最も強いラベル
+sk_a_danger_100	危険 — 背景
+sk_a_danger_500	危険 — 文字とアイコン
+sk_a_danger_600	危険 — 押下時
+sk_a_danger_700	危険 — 枠
+sk_a_danger_900	危険 — 暗い背景
+sk_a_success_100	成功 — 背景
+sk_a_success_200	成功 — 明るい背景
+sk_a_success_500	成功 — 文字とアイコン
+sk_a_success_700	成功 — 押下時
+sk_a_success_900	成功 — 暗い背景
+sk_a_info_500	情報 — 文字とアイコン
+sk_a_warning_100	警告 — 背景
+sk_a_warning_600	警告 — 文字とアイコン
+sk_a_warning_900	警告 — 暗い背景
+sk_a_plain_text_security_warning_600	暗号化されていない通話の警告
+sk_a_offline_100	オフライン — 背景
+sk_a_offline_900	オフライン — 文字
+sk_a_on_main	アクセント色の上に描く内容
+sk_a_background_contrast_in_dark_mode	リストとページの後ろの背景
+sk_a_separator	区切り線
+sk_a_text	本文
+sk_a_hint_text	ヒントの文字
+sk_a_text_field_background	入力欄の背景
+sk_a_avatar_background	アバターの背景
+sk_a_avatar_text	アバターの頭文字
+sk_a_chat_bubble_incoming	受信の吹き出し
+sk_a_chat_bubble_outgoing	送信の吹き出し
+sk_a_chat_bubble_reply	返信の引用の背景
+sk_a_chat_bubble_file	ファイルの吹き出しの背景
+sk_a_message_text_field_background	メッセージ入力欄の背景
+sk_a_conversation_send_area_background	送信欄の背景
+sk_a_button_background	丸ボタンの背景
+sk_a_button_pressed_background	丸ボタン — 押下時
+sk_a_button_disabled_background	丸ボタン — 無効時
+sk_a_gradient_start	グラデーション — 始点
+sk_a_gradient_end	グラデーション — 終点
+sk_a_trust_background	信頼の輪の背景
+sk_a_trust_track	信頼の輪の軌道
+sk_a_bottom_sheet_handle	シートのつまみ
+sk_a_bottom_sheet_background	シートの背景
+sk_a_bottom_sheet_disabled_menu	シート — 無効時の行
+up_bc_white	通話画面とビューアの文字
+up_bc_black	ビューアとスキャナーの背景
+up_gray_900	通話画面の背景
+up_gray_600	通話のパネルとシートの背景
+up_gray_700	無効時の応答ボタンや終了ボタンの枠
+up_gray_400	淡くした通話アイコン
+up_gray_main2_600	通話画面の補助の文字
+up_gray_main2_500	通話画面のラベル
+up_gray_main2_400	通話画面の薄いラベル
+up_gray_main2_300	押下時の丸い操作部品
+up_gray_main2_200	通話タイルを囲む枠
+up_gray_300_alpha_40	メッセージメニューの後ろの暗幕
+up_dialog_background	ダイアログや処理中表示の後ろの暗幕
+up_gradient_progress	音声録音の進み具合
+up_blue_info_500	情報 — 通話画面
+up_orange_warning_600	警告 — 通話画面
+up_orange_warning_600_night	警告 — 暗号化の詳細
+up_red_danger_500	危険 — 通話画面
+up_red_danger_500_night	危険 — 暗号化の詳細
+up_green_success_500	成功 — 通話画面
+up_green_success_500_night	成功 — 暗号化の詳細
+pill_frame	ピル型ボタン — 枠
+pill_text	ピル型ボタン — ラベル
+call_control_icon	通話の操作ボタン — アイコン
+call_control_label	通話の操作ボタン — ラベル
+call_account_label	通話画面に表示するアカウント名
+dial_digit	ダイヤルパッド — 数字
+dial_letters	ダイヤルパッド — 英字
+dial_field_text	ダイヤルパッド — 入力中の番号
+dial_icon	ダイヤルパッド — アイコン
+tab_label	アカウントのタブ — ラベル
+dialog_ground	ダイアログ — 背景
+dialog_frame	ダイアログ — 枠
+dialog_title	ダイアログ — 題名
+dialog_text	ダイアログ — 文字
+dialog_note	ダイアログ — 注記とヒント
+dialog_button_frame	ダイアログ — ボタンの枠
+dialog_button_text	ダイアログ — ボタンのラベル
+dialog_field_frame	ダイアログ — 入力欄の枠
+dialog_heading	ダイアログ — グループの見出しとラベル
+dialog_divider	ダイアログ — グループ間の線
+dialog_caption	ダイアログ — 項目の見出し
+dialog_slider	ダイアログ — スライダー
+dialog_fact_icon	ダイアログ — 通常の項目のアイコン
+switch_on	オンのスイッチ — 枠と丸
+mark_on	ラジオボタンとチェックボックス — 選択時
+mark_off	ラジオボタンとチェックボックス — 未選択時
+menu_frame	メニューの行 — 枠
+menu_label	メニューの行 — ラベル
+menu_caret	メニューの行 — ›とチェック印
+page_heading	セクションの見出し
+page_heading_rule	見出しの下の線
+page_divider	セクション間の線
+page_chip_frame	索引チップ — 枠
+page_chip_text	索引チップ — ラベル
+page_rule	説明付きの行の左の線
+page_slider	スライダー
+page_swatch_frame	色見本の枠
+page_label	行のラベル
+page_note	行の値と説明
+bubble_frame	吹き出し — 枠
+avatar_frame	アバター — 枠
+tab_frame	アカウントのタブ — 枠
+menu_ground	メニュー — 背景
+menu_box_frame	メニュー — メニュー全体を囲む枠
+settings_group_ground	設定グループ — 背景
+settings_group_frame	設定グループ — 枠
+settings_header_ground	設定グループ — 見出しの背景
+search_frame	検索欄 — 枠
+status_pill_ground	アカウントの状態表示 — 背景
+status_pill_frame	アカウントの状態表示 — 枠
+dial_key_ground	ダイヤルパッド — キーの背景
+dial_key_frame	ダイヤルパッド — キーの枠
+dial_key_wash	ダイヤルパッド — 押下時のキー
+dial_underline	ダイヤルパッド — 番号の下の線
+dial_panel_edge	ダイヤルパッド — パネルの上端
+dial_panel_ground	ダイヤルパッド — パネルの背景
+call_key_ground	丸い通話ボタン — 背景
+call_key_ring	丸い通話ボタン — 輪
+call_key_wash	丸い通話ボタン — 押下時
+call_main_ring	応答ボタンと発信ボタン — 輪
+call_main_wash	応答ボタンと発信ボタン — 押下時
+danger_pill_frame	削除のピル型ボタン — 枠とラベル
+danger_pill_wash	削除のピル型ボタン — 押下時
+danger_pill_disabled	削除のピル型ボタン — 無効時の枠
+flash_ground	通知表示 — 背景
+flash_text	通知表示 — 文字
+flash_frame	通知表示 — 枠
+flash_done	通知表示 — 完了のアイコン
+flash_note	通知表示 — お知らせのアイコン
+flash_wrong	通知表示 — エラーのアイコン
+rin_badge_ground	臨バッジ — 既定の背景
+rin_badge_text	臨バッジ — 既定の文字
+section_base	セクションアイコン — 基本：アプリそのものとその設定
+section_controls	セクションアイコン — 操作するもの
+section_words	セクションアイコン — 書く文字、読む文字
+section_frame	セクションアイコン — 枠組みとその中の箱
+section_reach	セクションアイコン — アプリからの働きかけ：尋ねる、差し出す、渡す
+section_warning	セクションアイコン — 警告：リセット、消去、診断
+section_flash	セクションアイコン — 一瞬の表示

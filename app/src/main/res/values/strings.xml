@@ -1098,434 +1098,434 @@
          Fork-owned strings. Kept non-translatable so an upstream Weblate sync never touches them,
          and named sk_* so the export layer can tell them apart from upstream's keys. -->
 
-    <string name="sk_ui_title" translatable="false">白い熊 臨電話 UI</string>
-    <string name="sk_settings_entry_title" translatable="false">白い熊 臨電話 UI</string>
-    <string name="sk_settings_entry_subtitle" translatable="false">Colours, fonts, shapes, and the full-app backup</string>
-    <string name="sk_ok" translatable="false">OK</string>
-    <string name="sk_cancel" translatable="false">Cancel</string>
-    <string name="sk_delete" translatable="false">Delete</string>
-    <string name="sk_default" translatable="false">Default</string>
-    <string name="sk_sp_value" translatable="false">%1$d sp</string>
-    <string name="sk_dp_value" translatable="false">%1$d dp</string>
+    <string name="sk_ui_title">白い熊 臨電話 UI</string>
+    <string name="sk_settings_entry_title">白い熊 臨電話 UI</string>
+    <string name="sk_settings_entry_subtitle">Colours, fonts, shapes, and the full-app backup</string>
+    <string name="sk_ok">OK</string>
+    <string name="sk_cancel">Cancel</string>
+    <string name="sk_delete">Delete</string>
+    <string name="sk_default">Default</string>
+    <string name="sk_sp_value">%1$d sp</string>
+    <string name="sk_dp_value">%1$d dp</string>
 
     <!-- Sections -->
-    <string name="sk_section_eximport" translatable="false">Export / Import</string>
-    <string name="sk_section_foundation" translatable="false">Foundation</string>
-    <string name="sk_section_top_bar" translatable="false">Top bar</string>
-    <string name="sk_section_main" translatable="false">Main screen</string>
-    <string name="sk_section_calls" translatable="false">Calls</string>
-    <string name="sk_section_conversations" translatable="false">Conversations</string>
-    <string name="sk_section_controls" translatable="false">Controls</string>
+    <string name="sk_section_eximport">Export / Import</string>
+    <string name="sk_section_foundation">Foundation</string>
+    <string name="sk_section_top_bar">Top bar</string>
+    <string name="sk_section_main">Main screen</string>
+    <string name="sk_section_calls">Calls</string>
+    <string name="sk_section_conversations">Conversations</string>
+    <string name="sk_section_controls">Controls</string>
 
     <!-- Sub-groups -->
-    <string name="sk_group_list_rows" translatable="false">List rows</string>
-    <string name="sk_group_avatar" translatable="false">Avatar</string>
-    <string name="sk_group_fab" translatable="false">Action button</string>
-    <string name="sk_group_contact_sections" translatable="false">Contacts letter headings</string>
-    <string name="sk_group_contact_rows" translatable="false">Contacts rows</string>
-    <string name="sk_group_favourites" translatable="false">Favorites tiles</string>
-    <string name="sk_group_call_buttons" translatable="false">Call buttons</string>
-    <string name="sk_group_call_reading" translatable="false">Call history reading</string>
-    <string name="sk_group_call_day" translatable="false">Call history day headline</string>
-    <string name="sk_group_call_history" translatable="false">Call history rows</string>
-    <string name="sk_group_bubble_outgoing" translatable="false">Outgoing bubble</string>
-    <string name="sk_group_bubble_incoming" translatable="false">Incoming bubble</string>
-    <string name="sk_group_bubble_shape" translatable="false">Bubble shape</string>
+    <string name="sk_group_list_rows">List rows</string>
+    <string name="sk_group_avatar">Avatar</string>
+    <string name="sk_group_fab">Action button</string>
+    <string name="sk_group_contact_sections">Contacts letter headings</string>
+    <string name="sk_group_contact_rows">Contacts rows</string>
+    <string name="sk_group_favourites">Favorites tiles</string>
+    <string name="sk_group_call_buttons">Call buttons</string>
+    <string name="sk_group_call_reading">Call history reading</string>
+    <string name="sk_group_call_day">Call history day headline</string>
+    <string name="sk_group_call_history">Call history rows</string>
+    <string name="sk_group_bubble_outgoing">Outgoing bubble</string>
+    <string name="sk_group_bubble_incoming">Incoming bubble</string>
+    <string name="sk_group_bubble_shape">Bubble shape</string>
 
     <!-- Slots -->
-    <string name="sk_slot_background" translatable="false">Background</string>
-    <string name="sk_slot_text" translatable="false">Text</string>
-    <string name="sk_slot_text_secondary" translatable="false">Secondary text</string>
-    <string name="sk_slot_accent" translatable="false">Accent</string>
-    <string name="sk_slot_toolbar_background" translatable="false">Top bar background</string>
-    <string name="sk_slot_toolbar_title" translatable="false">Top bar title</string>
-    <string name="sk_slot_toolbar_icon" translatable="false">Top bar icons</string>
-    <string name="sk_slot_all_tab" translatable="false">The 全 tab’s character</string>
-    <string name="sk_group_all_tab" translatable="false">The 全 tab (all accounts)</string>
-    <string name="sk_all_tab_description" translatable="false">Calls of all accounts</string>
-    <string name="sk_all_tab_picture" translatable="false">Use a picture</string>
-    <string name="sk_all_tab_picture_desc" translatable="false">Choose a PNG or another image to stand on the 全 tab in place of the character.</string>
-    <string name="sk_all_tab_picture_remove" translatable="false">Remove the picture</string>
-    <string name="sk_all_tab_picture_remove_desc" translatable="false">Go back to the character 全, drawn in the font set above.</string>
-    <string name="sk_all_tab_picture_invalid" translatable="false">That file is not a picture</string>
-    <string name="sk_slot_list_name" translatable="false">Row name</string>
-    <string name="sk_slot_list_number" translatable="false">Call number</string>
-    <string name="sk_slot_list_detail" translatable="false">Row detail</string>
-    <string name="sk_slot_list_background" translatable="false">Row background</string>
-    <string name="sk_slot_list_border" translatable="false">Row border</string>
-    <string name="sk_slot_contact_section" translatable="false">Letter heading</string>
-    <string name="sk_slot_contact_section_underline" translatable="false">Letter heading underline</string>
-    <string name="sk_slot_contact_section_divider" translatable="false">Letter separator band</string>
-    <string name="sk_slot_contact_number" translatable="false">Contact number</string>
-    <string name="sk_slot_contact_row_divider" translatable="false">Contact row separator</string>
-    <string name="sk_slot_favourite_name" translatable="false">Favorite tile name</string>
-    <string name="sk_slot_avatar_background" translatable="false">Avatar background</string>
-    <string name="sk_slot_avatar_text" translatable="false">Avatar initials</string>
-    <string name="sk_slot_fab_background" translatable="false">Action button background</string>
-    <string name="sk_slot_fab_icon" translatable="false">Action button icon</string>
-    <string name="sk_slot_call_background" translatable="false">Call background</string>
-    <string name="sk_slot_call_name" translatable="false">Caller name</string>
-    <string name="sk_slot_call_status" translatable="false">Call status</string>
-    <string name="sk_slot_call_answer" translatable="false">Answer button</string>
-    <string name="sk_slot_call_hangup" translatable="false">Hang-up button</string>
-    <string name="sk_slot_call_day" translatable="false">Day headline</string>
-    <string name="sk_slot_call_day_underline" translatable="false">Day headline underline</string>
-    <string name="sk_slot_call_day_divider" translatable="false">Day separator band</string>
-    <string name="sk_slot_call_row_name" translatable="false">Caller name (history)</string>
-    <string name="sk_slot_call_time" translatable="false">Call time</string>
-    <string name="sk_slot_call_duration" translatable="false">Call duration</string>
-    <string name="sk_slot_call_dir_incoming" translatable="false">Incoming arrow</string>
-    <string name="sk_slot_call_dir_outgoing" translatable="false">Outgoing arrow</string>
-    <string name="sk_slot_call_dir_missed" translatable="false">Missed arrow</string>
-    <string name="sk_slot_call_row_divider" translatable="false">Record separator</string>
-    <string name="sk_slot_bubble_outgoing" translatable="false">Outgoing bubble fill</string>
-    <string name="sk_slot_bubble_outgoing_text" translatable="false">Outgoing bubble text</string>
-    <string name="sk_slot_bubble_incoming" translatable="false">Incoming bubble fill</string>
-    <string name="sk_slot_bubble_incoming_text" translatable="false">Incoming bubble text</string>
-    <string name="sk_slot_button_background" translatable="false">Button background</string>
-    <string name="sk_slot_button_text" translatable="false">Button text</string>
-    <string name="sk_slot_button_border" translatable="false">Button border</string>
-    <string name="sk_slot_switch_off" translatable="false">Switch that is off</string>
-    <string name="sk_group_menu_icons" translatable="false">Menu icons</string>
-    <string name="sk_slot_menu_call" translatable="false">Call, connect</string>
-    <string name="sk_slot_menu_message" translatable="false">Message, write</string>
-    <string name="sk_slot_menu_contact" translatable="false">Contact, person</string>
-    <string name="sk_slot_menu_share" translatable="false">Copy, share, export</string>
-    <string name="sk_slot_menu_view" translatable="false">View, open, settings</string>
-    <string name="sk_slot_menu_block" translatable="false">Block, mute, leave</string>
-    <string name="sk_slot_menu_delete" translatable="false">Delete, remove</string>
-    <string name="sk_group_rin_numbers" translatable="false">臨 numbers of the accounts</string>
-    <string name="sk_menu_call_back" translatable="false">Call back</string>
-    <string name="sk_menu_message" translatable="false">Write a message</string>
-    <string name="sk_menu_written_reply" translatable="false">Reply with a stored line</string>
-    <string name="sk_menu_ui_page" translatable="false">白い熊 臨電話 UI</string>
+    <string name="sk_slot_background">Background</string>
+    <string name="sk_slot_text">Text</string>
+    <string name="sk_slot_text_secondary">Secondary text</string>
+    <string name="sk_slot_accent">Accent</string>
+    <string name="sk_slot_toolbar_background">Top bar background</string>
+    <string name="sk_slot_toolbar_title">Top bar title</string>
+    <string name="sk_slot_toolbar_icon">Top bar icons</string>
+    <string name="sk_slot_all_tab">The 全 tab’s character</string>
+    <string name="sk_group_all_tab">The 全 tab (all accounts)</string>
+    <string name="sk_all_tab_description">Calls of all accounts</string>
+    <string name="sk_all_tab_picture">Use a picture</string>
+    <string name="sk_all_tab_picture_desc">Choose a PNG or another image to stand on the 全 tab in place of the character.</string>
+    <string name="sk_all_tab_picture_remove">Remove the picture</string>
+    <string name="sk_all_tab_picture_remove_desc">Go back to the character 全, drawn in the font set above.</string>
+    <string name="sk_all_tab_picture_invalid">That file is not a picture</string>
+    <string name="sk_slot_list_name">Row name</string>
+    <string name="sk_slot_list_number">Call number</string>
+    <string name="sk_slot_list_detail">Row detail</string>
+    <string name="sk_slot_list_background">Row background</string>
+    <string name="sk_slot_list_border">Row border</string>
+    <string name="sk_slot_contact_section">Letter heading</string>
+    <string name="sk_slot_contact_section_underline">Letter heading underline</string>
+    <string name="sk_slot_contact_section_divider">Letter separator band</string>
+    <string name="sk_slot_contact_number">Contact number</string>
+    <string name="sk_slot_contact_row_divider">Contact row separator</string>
+    <string name="sk_slot_favourite_name">Favorite tile name</string>
+    <string name="sk_slot_avatar_background">Avatar background</string>
+    <string name="sk_slot_avatar_text">Avatar initials</string>
+    <string name="sk_slot_fab_background">Action button background</string>
+    <string name="sk_slot_fab_icon">Action button icon</string>
+    <string name="sk_slot_call_background">Call background</string>
+    <string name="sk_slot_call_name">Caller name</string>
+    <string name="sk_slot_call_status">Call status</string>
+    <string name="sk_slot_call_answer">Answer button</string>
+    <string name="sk_slot_call_hangup">Hang-up button</string>
+    <string name="sk_slot_call_day">Day headline</string>
+    <string name="sk_slot_call_day_underline">Day headline underline</string>
+    <string name="sk_slot_call_day_divider">Day separator band</string>
+    <string name="sk_slot_call_row_name">Caller name (history)</string>
+    <string name="sk_slot_call_time">Call time</string>
+    <string name="sk_slot_call_duration">Call duration</string>
+    <string name="sk_slot_call_dir_incoming">Incoming arrow</string>
+    <string name="sk_slot_call_dir_outgoing">Outgoing arrow</string>
+    <string name="sk_slot_call_dir_missed">Missed arrow</string>
+    <string name="sk_slot_call_row_divider">Record separator</string>
+    <string name="sk_slot_bubble_outgoing">Outgoing bubble fill</string>
+    <string name="sk_slot_bubble_outgoing_text">Outgoing bubble text</string>
+    <string name="sk_slot_bubble_incoming">Incoming bubble fill</string>
+    <string name="sk_slot_bubble_incoming_text">Incoming bubble text</string>
+    <string name="sk_slot_button_background">Button background</string>
+    <string name="sk_slot_button_text">Button text</string>
+    <string name="sk_slot_button_border">Button border</string>
+    <string name="sk_slot_switch_off">Switch that is off</string>
+    <string name="sk_group_menu_icons">Menu icons</string>
+    <string name="sk_slot_menu_call">Call, connect</string>
+    <string name="sk_slot_menu_message">Message, write</string>
+    <string name="sk_slot_menu_contact">Contact, person</string>
+    <string name="sk_slot_menu_share">Copy, share, export</string>
+    <string name="sk_slot_menu_view">View, open, settings</string>
+    <string name="sk_slot_menu_block">Block, mute, leave</string>
+    <string name="sk_slot_menu_delete">Delete, remove</string>
+    <string name="sk_group_rin_numbers">臨 numbers of the accounts</string>
+    <string name="sk_menu_call_back">Call back</string>
+    <string name="sk_menu_message">Write a message</string>
+    <string name="sk_menu_written_reply">Reply with a stored line</string>
+    <string name="sk_menu_ui_page">白い熊 臨電話 UI</string>
 
     <!-- Dimensions (all sliders, all reaching 0) -->
-    <string name="sk_dimen_list_border_width" translatable="false">Row border</string>
-    <string name="sk_dimen_list_corner_radius" translatable="false">Row roundness</string>
-    <string name="sk_dimen_bubble_border_width" translatable="false">Bubble border</string>
-    <string name="sk_dimen_bubble_corner_radius" translatable="false">Bubble roundness</string>
-    <string name="sk_dimen_button_border_width" translatable="false">Button border</string>
-    <string name="sk_dimen_button_corner_radius" translatable="false">Button roundness</string>
-    <string name="sk_dimen_avatar_corner_radius" translatable="false">Avatar roundness</string>
-    <string name="sk_dimen_call_row_padding" translatable="false">Call row spacing</string>
-    <string name="sk_dimen_call_line_spacing" translatable="false">Call line spacing</string>
-    <string name="sk_dimen_call_day_underline" translatable="false">Day headline underline</string>
-    <string name="sk_dimen_call_day_divider" translatable="false">Day separator band</string>
-    <string name="sk_dimen_call_row_divider" translatable="false">Record separator</string>
-    <string name="sk_dimen_call_avatar" translatable="false">Call photo size</string>
-    <string name="sk_dimen_contact_section_underline" translatable="false">Letter heading underline</string>
-    <string name="sk_dimen_contact_section_divider" translatable="false">Letter separator band</string>
-    <string name="sk_dimen_contact_section_padding" translatable="false">Letter heading spacing</string>
-    <string name="sk_dimen_contact_avatar" translatable="false">Contact photo size</string>
-    <string name="sk_dimen_contact_row_divider" translatable="false">Contact row separator</string>
-    <string name="sk_dimen_contact_row_padding" translatable="false">Contact row spacing</string>
-    <string name="sk_dimen_favourite_columns" translatable="false">Favorite tiles per row</string>
-    <string name="sk_dimen_favourite_avatar" translatable="false">Favorite photo size</string>
-    <string name="sk_dimen_favourite_tile_padding" translatable="false">Favorite tile spacing</string>
+    <string name="sk_dimen_list_border_width">Row border</string>
+    <string name="sk_dimen_list_corner_radius">Row roundness</string>
+    <string name="sk_dimen_bubble_border_width">Bubble border</string>
+    <string name="sk_dimen_bubble_corner_radius">Bubble roundness</string>
+    <string name="sk_dimen_button_border_width">Button border</string>
+    <string name="sk_dimen_button_corner_radius">Button roundness</string>
+    <string name="sk_dimen_avatar_corner_radius">Avatar roundness</string>
+    <string name="sk_dimen_call_row_padding">Call row spacing</string>
+    <string name="sk_dimen_call_line_spacing">Call line spacing</string>
+    <string name="sk_dimen_call_day_underline">Day headline underline</string>
+    <string name="sk_dimen_call_day_divider">Day separator band</string>
+    <string name="sk_dimen_call_row_divider">Record separator</string>
+    <string name="sk_dimen_call_avatar">Call photo size</string>
+    <string name="sk_dimen_contact_section_underline">Letter heading underline</string>
+    <string name="sk_dimen_contact_section_divider">Letter separator band</string>
+    <string name="sk_dimen_contact_section_padding">Letter heading spacing</string>
+    <string name="sk_dimen_contact_avatar">Contact photo size</string>
+    <string name="sk_dimen_contact_row_divider">Contact row separator</string>
+    <string name="sk_dimen_contact_row_padding">Contact row spacing</string>
+    <string name="sk_dimen_favourite_columns">Favorite tiles per row</string>
+    <string name="sk_dimen_favourite_avatar">Favorite photo size</string>
+    <string name="sk_dimen_favourite_tile_padding">Favorite tile spacing</string>
 
     <!-- Contacts letter headings -->
-    <string name="sk_contact_initials" translatable="false">Initials instead of the 人 mark</string>
-    <string name="sk_contact_initials_desc" translatable="false">Draw a contact with no photo as its initials. Off: the house 人 mark, as in the sister apps.</string>
-    <string name="sk_contact_sections" translatable="false">Letter headings</string>
-    <string name="sk_contact_sections_desc" translatable="false">Group contacts under one-letter headings (kana rows, then A–Z, then #). Tap a heading to fold its section; which sections stand open is remembered.</string>
+    <string name="sk_contact_initials">Initials instead of the 人 mark</string>
+    <string name="sk_contact_initials_desc">Draw a contact with no photo as its initials. Off: the house 人 mark, as in the sister apps.</string>
+    <string name="sk_contact_sections">Letter headings</string>
+    <string name="sk_contact_sections_desc">Group contacts under one-letter headings (kana rows, then A–Z, then #). Tap a heading to fold its section; which sections stand open is remembered.</string>
 
     <!-- Call history reading: what a record says, and in which calendar -->
-    <string name="sk_call_day_headers" translatable="false">Day headlines</string>
-    <string name="sk_call_day_headers_desc" translatable="false">Write each day once above its calls, leaving only the time on the record itself.</string>
-    <string name="sk_call_date_format" translatable="false">Day format</string>
+    <string name="sk_call_day_headers">Day headlines</string>
+    <string name="sk_call_day_headers_desc">Write each day once above its calls, leaving only the time on the record itself.</string>
+    <string name="sk_call_date_format">Day format</string>
     <string name="sk_call_date_imperial" translatable="false">和暦 — 令和八年七月三十日（木曜日）</string>
     <string name="sk_call_date_common_era" translatable="false">西暦 — 二〇二六年七月三十日（木曜日）</string>
-    <string name="sk_call_relative_days" translatable="false">Name today and yesterday</string>
-    <string name="sk_call_relative_days_desc" translatable="false">The two most recent days are named instead of dated.</string>
-    <string name="sk_call_time_format" translatable="false">Time format</string>
+    <string name="sk_call_relative_days">Name today and yesterday</string>
+    <string name="sk_call_relative_days_desc">The two most recent days are named instead of dated.</string>
+    <string name="sk_call_time_format">Time format</string>
     <string name="sk_call_format_japanese" translatable="false">日本語 — 午後三時三十六分</string>
-    <string name="sk_call_format_system" translatable="false">System</string>
-    <string name="sk_call_time_24h" translatable="false">24-hour — 15:36</string>
-    <string name="sk_call_time_12h" translatable="false">12-hour — 3:36 PM</string>
-    <string name="sk_call_show_duration" translatable="false">Show duration</string>
-    <string name="sk_call_show_duration_desc" translatable="false">How long the call ran, written after its time. Only ever shown for a call that connected.</string>
-    <string name="sk_call_duration_format" translatable="false">Duration format</string>
-    <string name="sk_call_duration_digital" translatable="false">Digital — 11:01</string>
+    <string name="sk_call_format_system">System</string>
+    <string name="sk_call_time_24h">24-hour — 15:36</string>
+    <string name="sk_call_time_12h">12-hour — 3:36 PM</string>
+    <string name="sk_call_show_duration">Show duration</string>
+    <string name="sk_call_show_duration_desc">How long the call ran, written after its time. Only ever shown for a call that connected.</string>
+    <string name="sk_call_duration_format">Duration format</string>
+    <string name="sk_call_duration_digital">Digital — 11:01</string>
     <string name="sk_call_duration_separator" translatable="false">·</string>
-    <string name="sk_call_show_direction" translatable="false">Show direction arrow</string>
-    <string name="sk_call_show_direction_desc" translatable="false">The in / out / missed arrow in front of the time.</string>
+    <string name="sk_call_show_direction">Show direction arrow</string>
+    <string name="sk_call_show_direction_desc">The in / out / missed arrow in front of the time.</string>
 
     <!-- Per-slot text controls -->
-    <string name="sk_font" translatable="false">Font</string>
-    <string name="sk_weight" translatable="false">Weight</string>
-    <string name="sk_size" translatable="false">Size</string>
-    <string name="sk_font_sample" translatable="false">白い熊 臨電話 — AaBbCc 0123</string>
-    <string name="sk_font_system_default" translatable="false">System default</string>
-    <string name="sk_font_monospace" translatable="false">Monospace</string>
-    <string name="sk_font_invalid" translatable="false">Not a usable font file (need .ttf or .otf)</string>
-    <string name="sk_add_font" translatable="false">Add font…</string>
-    <string name="sk_weight_default" translatable="false">Default</string>
-    <string name="sk_weight_thin" translatable="false">Thin (100)</string>
-    <string name="sk_weight_light" translatable="false">Light (300)</string>
-    <string name="sk_weight_regular" translatable="false">Regular (400)</string>
-    <string name="sk_weight_medium" translatable="false">Medium (500)</string>
-    <string name="sk_weight_semibold" translatable="false">Semi-bold (600)</string>
-    <string name="sk_weight_bold" translatable="false">Bold (700)</string>
-    <string name="sk_weight_black" translatable="false">Black (900)</string>
+    <string name="sk_font">Font</string>
+    <string name="sk_weight">Weight</string>
+    <string name="sk_size">Size</string>
+    <string name="sk_font_sample">白い熊 臨電話 — AaBbCc 0123</string>
+    <string name="sk_font_system_default">System default</string>
+    <string name="sk_font_monospace">Monospace</string>
+    <string name="sk_font_invalid">Not a usable font file (need .ttf or .otf)</string>
+    <string name="sk_add_font">Add font…</string>
+    <string name="sk_weight_default">Default</string>
+    <string name="sk_weight_thin">Thin (100)</string>
+    <string name="sk_weight_light">Light (300)</string>
+    <string name="sk_weight_regular">Regular (400)</string>
+    <string name="sk_weight_medium">Medium (500)</string>
+    <string name="sk_weight_semibold">Semi-bold (600)</string>
+    <string name="sk_weight_bold">Bold (700)</string>
+    <string name="sk_weight_black">Black (900)</string>
 
     <!-- Live previews -->
-    <string name="sk_preview_list" translatable="false">Row preview</string>
-    <string name="sk_preview_bubble" translatable="false">Bubble preview</string>
-    <string name="sk_preview_button" translatable="false">Button</string>
+    <string name="sk_preview_list">Row preview</string>
+    <string name="sk_preview_bubble">Bubble preview</string>
+    <string name="sk_preview_button">Button</string>
     <string name="sk_preview_call_name" translatable="false">白い熊 爲右衞門</string>
     <string name="sk_preview_call_number" translatable="false">+420-601-524-009 · その他</string>
 
     <!-- Export / Import panel -->
-    <string name="sk_eim_row_desc" translatable="false">Back up and restore everything this app holds</string>
-    <string name="sk_eim_title" translatable="false">Export / Import</string>
-    <string name="sk_eim_desc" translatable="false">Pick a directory once; every backup is written there as one ZIP. Import merges — it never clears what is already here.</string>
-    <string name="sk_eim_dir" translatable="false">Backup directory</string>
-    <string name="sk_eim_dir_unset" translatable="false">Not set — tap to choose</string>
-    <string name="sk_eim_select_all" translatable="false">Select all</string>
-    <string name="sk_eim_import" translatable="false">Import</string>
-    <string name="sk_eim_export" translatable="false">Export</string>
-    <string name="sk_eim_exporting" translatable="false">Exporting…</string>
-    <string name="sk_eim_importing" translatable="false">Importing…</string>
+    <string name="sk_eim_row_desc">Back up and restore everything this app holds</string>
+    <string name="sk_eim_title">Export / Import</string>
+    <string name="sk_eim_desc">Pick a directory once; every backup is written there as one ZIP. Import merges — it never clears what is already here.</string>
+    <string name="sk_eim_dir">Backup directory</string>
+    <string name="sk_eim_dir_unset">Not set — tap to choose</string>
+    <string name="sk_eim_select_all">Select all</string>
+    <string name="sk_eim_import">Import</string>
+    <string name="sk_eim_export">Export</string>
+    <string name="sk_eim_exporting">Exporting…</string>
+    <string name="sk_eim_importing">Importing…</string>
     <string name="sk_eim_progress" translatable="false">%1$d / %2$d</string>
-    <string name="sk_eim_none_selected" translatable="false">No categories selected.</string>
-    <string name="sk_eim_export_fail" translatable="false">Export failed: %1$s</string>
-    <string name="sk_eim_import_fail" translatable="false">Import failed: %1$s</string>
-    <string name="sk_eim_import_none" translatable="false">That file is not a 白い熊 臨電話 backup.</string>
-    <string name="sk_eim_export_done_title" translatable="false">Export finished</string>
-    <string name="sk_eim_export_done_body" translatable="false">Written to %1$s\n\n%2$s</string>
-    <string name="sk_eim_import_done_title" translatable="false">Import finished</string>
-    <string name="sk_eim_import_done_body" translatable="false">%1$s\n\nAccounts, history and SIP settings are brought live when the app starts — restart now, or the next start will do it. Favourites follow once the contacts have been read.</string>
-    <string name="sk_eim_import_done_body_live" translatable="false">%1$s\n\nApplied.</string>
-    <string name="sk_eim_restart_later" translatable="false">Later</string>
-    <string name="sk_eim_restart_now" translatable="false">Restart now</string>
-    <string name="sk_eim_warn_nodir" translatable="false">No backup directory set</string>
-    <string name="sk_eim_warn_none" translatable="false">No backup in that directory yet</string>
-    <string name="sk_eim_last" translatable="false">Last backup: %1$s</string>
+    <string name="sk_eim_none_selected">No categories selected.</string>
+    <string name="sk_eim_export_fail">Export failed: %1$s</string>
+    <string name="sk_eim_import_fail">Import failed: %1$s</string>
+    <string name="sk_eim_import_none">That file is not a 白い熊 臨電話 backup.</string>
+    <string name="sk_eim_export_done_title">Export finished</string>
+    <string name="sk_eim_export_done_body">Written to %1$s\n\n%2$s</string>
+    <string name="sk_eim_import_done_title">Import finished</string>
+    <string name="sk_eim_import_done_body">%1$s\n\nAccounts, history and SIP settings are brought live when the app starts — restart now, or the next start will do it. Favourites follow once the contacts have been read.</string>
+    <string name="sk_eim_import_done_body_live">%1$s\n\nApplied.</string>
+    <string name="sk_eim_restart_later">Later</string>
+    <string name="sk_eim_restart_now">Restart now</string>
+    <string name="sk_eim_warn_nodir">No backup directory set</string>
+    <string name="sk_eim_warn_none">No backup in that directory yet</string>
+    <string name="sk_eim_last">Last backup: %1$s</string>
 
     <!-- Export categories -->
-    <string name="sk_eim_cat_accounts" translatable="false">Accounts and their configuration</string>
-    <string name="sk_eim_cat_history" translatable="false">History</string>
-    <string name="sk_eim_cat_history_calls" translatable="false">Call history</string>
-    <string name="sk_eim_cat_history_chat" translatable="false">Conversations</string>
-    <string name="sk_eim_cat_sip_settings" translatable="false">SIP and media settings</string>
-    <string name="sk_eim_cat_appearance" translatable="false">Appearance</string>
-    <string name="sk_eim_cat_appearance_fonts" translatable="false">Imported fonts</string>
-    <string name="sk_eim_cat_settings" translatable="false">App settings</string>
+    <string name="sk_eim_cat_accounts">Accounts and their configuration</string>
+    <string name="sk_eim_cat_history">History</string>
+    <string name="sk_eim_cat_history_calls">Call history</string>
+    <string name="sk_eim_cat_history_chat">Conversations</string>
+    <string name="sk_eim_cat_sip_settings">SIP and media settings</string>
+    <string name="sk_eim_cat_appearance">Appearance</string>
+    <string name="sk_eim_cat_appearance_fonts">Imported fonts</string>
+    <string name="sk_eim_cat_settings">App settings</string>
 
     <!-- Export summary counts -->
-    <string name="sk_eim_accounts_count" translatable="false">%1$d accounts</string>
-    <string name="sk_eim_files_count" translatable="false">%1$d files</string>
-    <string name="sk_eim_sections_count" translatable="false">%1$d sections</string>
-    <string name="sk_eim_prefs_count" translatable="false">%1$d settings</string>
-    <string name="sk_eim_fonts_count" translatable="false">%1$d fonts</string>
+    <string name="sk_eim_accounts_count">%1$d accounts</string>
+    <string name="sk_eim_files_count">%1$d files</string>
+    <string name="sk_eim_sections_count">%1$d sections</string>
+    <string name="sk_eim_prefs_count">%1$d settings</string>
+    <string name="sk_eim_fonts_count">%1$d fonts</string>
 
     <!-- 保存復元 automation (inside the Export/Import section, never its own) -->
-    <string name="sk_auto_title" translatable="false">Automation export</string>
-    <string name="sk_auto_desc" translatable="false">Let sister apps trigger this app\'s export and back up its data. On by default.</string>
-    <string name="sk_auto_require_token_title" translatable="false">Use authorization token?</string>
-    <string name="sk_auto_require_token_desc" translatable="false">Off: any sister app may drive the automation. On: a caller must also present the token below. The data door checks the caller\'s package, uid and signing certificate either way.</string>
-    <string name="sk_auto_token_title" translatable="false">Automation token</string>
-    <string name="sk_auto_token_regenerate" translatable="false">Regenerate</string>
-    <string name="sk_auto_token_copied" translatable="false">Token copied to the clipboard</string>
-    <string name="sk_auto_token_regen_warning" translatable="false">Any copy already pasted elsewhere stops working and must be replaced with the new token.</string>
-    <string name="sk_auto_token_regenerated" translatable="false">New token generated — update it wherever it was pasted</string>
-    <string name="sk_auto_allfiles_title" translatable="false">All-files access</string>
-    <string name="sk_auto_allfiles_desc" translatable="false">Needed only so an automation export can write to the directory the caller names.</string>
-    <string name="sk_auto_allfiles_granted" translatable="false">Granted</string>
-    <string name="sk_auto_allfiles_needed" translatable="false">Not granted — tap to allow</string>
+    <string name="sk_auto_title">Automation export</string>
+    <string name="sk_auto_desc">Let sister apps trigger this app\'s export and back up its data. On by default.</string>
+    <string name="sk_auto_require_token_title">Use authorization token?</string>
+    <string name="sk_auto_require_token_desc">Off: any sister app may drive the automation. On: a caller must also present the token below. The data door checks the caller\'s package, uid and signing certificate either way.</string>
+    <string name="sk_auto_token_title">Automation token</string>
+    <string name="sk_auto_token_regenerate">Regenerate</string>
+    <string name="sk_auto_token_copied">Token copied to the clipboard</string>
+    <string name="sk_auto_token_regen_warning">Any copy already pasted elsewhere stops working and must be replaced with the new token.</string>
+    <string name="sk_auto_token_regenerated">New token generated — update it wherever it was pasted</string>
+    <string name="sk_auto_allfiles_title">All-files access</string>
+    <string name="sk_auto_allfiles_desc">Needed only so an automation export can write to the directory the caller names.</string>
+    <string name="sk_auto_allfiles_granted">Granted</string>
+    <string name="sk_auto_allfiles_needed">Not granted — tap to allow</string>
     <string name="sk_state_progress_unit" translatable="false">項目</string>
-    <string name="sk_assistant_skip" translatable="false">Skip — restore from a backup instead</string>
-    <string name="sk_call_silence_ringer" translatable="false">Silence</string>
-    <string name="sk_stamp_account_unknown" translatable="false">Account unknown</string>
-    <string name="sk_stamp_call" translatable="false">Call</string>
-    <string name="sk_stamp_outgoing" translatable="false">Outgoing</string>
-    <string name="sk_stamp_incoming" translatable="false">Incoming</string>
-    <string name="sk_stamp_missed" translatable="false">Missed</string>
-    <string name="sk_stamp_placed_as" translatable="false">Placed as</string>
-    <string name="sk_stamp_callback" translatable="false">Odorik callback</string>
-    <string name="sk_stamp_rang" translatable="false">Rang</string>
-    <string name="sk_stamp_rang_answered" translatable="false">%1$s before the answer</string>
-    <string name="sk_stamp_rang_unanswered" translatable="false">%1$s, no answer</string>
-    <string name="sk_stamp_talked" translatable="false">Talked</string>
-    <string name="sk_stamp_ended" translatable="false">Ended</string>
-    <string name="sk_stamp_end_local" translatable="false">You hung up</string>
-    <string name="sk_stamp_end_remote" translatable="false">They hung up</string>
-    <string name="sk_stamp_end_cancelled" translatable="false">You gave up</string>
-    <string name="sk_stamp_end_declined" translatable="false">They declined</string>
-    <string name="sk_stamp_end_missed" translatable="false">Not taken</string>
-    <string name="sk_stamp_end_declined_here" translatable="false">You declined</string>
-    <string name="sk_stamp_end_elsewhere" translatable="false">Taken on another device</string>
-    <string name="sk_stamp_end_blocked" translatable="false">Blocked</string>
+    <string name="sk_assistant_skip">Skip — restore from a backup instead</string>
+    <string name="sk_call_silence_ringer">Silence</string>
+    <string name="sk_stamp_account_unknown">Account unknown</string>
+    <string name="sk_stamp_call">Call</string>
+    <string name="sk_stamp_outgoing">Outgoing</string>
+    <string name="sk_stamp_incoming">Incoming</string>
+    <string name="sk_stamp_missed">Missed</string>
+    <string name="sk_stamp_placed_as">Placed as</string>
+    <string name="sk_stamp_callback">Odorik callback</string>
+    <string name="sk_stamp_rang">Rang</string>
+    <string name="sk_stamp_rang_answered">%1$s before the answer</string>
+    <string name="sk_stamp_rang_unanswered">%1$s, no answer</string>
+    <string name="sk_stamp_talked">Talked</string>
+    <string name="sk_stamp_ended">Ended</string>
+    <string name="sk_stamp_end_local">You hung up</string>
+    <string name="sk_stamp_end_remote">They hung up</string>
+    <string name="sk_stamp_end_cancelled">You gave up</string>
+    <string name="sk_stamp_end_declined">They declined</string>
+    <string name="sk_stamp_end_missed">Not taken</string>
+    <string name="sk_stamp_end_declined_here">You declined</string>
+    <string name="sk_stamp_end_elsewhere">Taken on another device</string>
+    <string name="sk_stamp_end_blocked">Blocked</string>
 
     <!-- shiroikuma fork: blocked numbers — the button on the incoming-call panel, the row in the
          history menu, the register on the 臨電話 UI page (SkBlocked). -->
-    <string name="sk_block" translatable="false">Block</string>
-    <string name="sk_unblock" translatable="false">Unblock</string>
-    <string name="sk_content_description_block_caller" translatable="false">Block this caller and decline the call</string>
-    <string name="sk_block_confirm_title" translatable="false">Block this caller?</string>
-    <string name="sk_block_confirm_message" translatable="false">%1$s will no longer ring here. Their calls are declined at once and kept in the history, marked as blocked.</string>
-    <string name="sk_menu_block_number" translatable="false">Block number</string>
-    <string name="sk_menu_unblock_number" translatable="false">Unblock number</string>
-    <string name="sk_block_done" translatable="false">%1$s is blocked</string>
-    <string name="sk_unblock_done" translatable="false">%1$s is no longer blocked</string>
-    <string name="sk_block_not_possible" translatable="false">A caller who withholds the number cannot be blocked</string>
-    <string name="sk_blocked_numbers_title" translatable="false">Blocked numbers</string>
-    <string name="sk_blocked_numbers_desc" translatable="false">Callers who do not ring here: their calls are declined at once. Tap one to unblock it, or add a number by hand.</string>
-    <string name="sk_blocked_numbers_status" translatable="false">%1$d blocked</string>
-    <string name="sk_blocked_numbers_empty" translatable="false">Nobody is blocked.</string>
-    <string name="sk_blocked_numbers_since" translatable="false">Blocked %1$s</string>
-    <string name="sk_blocked_numbers_add_title" translatable="false">Block a number</string>
-    <string name="sk_blocked_numbers_add_hint" translatable="false">+420-601-123-456 or user@domain</string>
-    <string name="sk_blocked_numbers_add_invalid" translatable="false">Not a number or a SIP address</string>
-    <string name="sk_eim_cat_blocked" translatable="false">Blocked numbers</string>
-    <string name="sk_online_id_mark" translatable="false">ID</string>
-    <string name="sk_menu_online_id" translatable="false">ID online</string>
-    <string name="sk_online_id_nothing" translatable="false">Nothing was found for %1$s</string>
-    <string name="sk_online_id_failed" translatable="false">The lookup for %1$s did not get through</string>
-    <string name="sk_online_id_title" translatable="false">Identify unknown callers online</string>
-    <string name="sk_online_id_desc" translatable="false">When a Czech number that is not in your contacts rings, look it up on tellows.cz and show the name found there, marked ID. The number is sent to that site. Off also hides the names already found.</string>
-    <string name="sk_eim_blocked_count" translatable="false">%1$d numbers</string>
-    <string name="sk_stamp_server" translatable="false">Server</string>
-    <string name="sk_stamp_codec" translatable="false">Codec</string>
-    <string name="sk_stamp_codec_rate" translatable="false">%1$s kHz</string>
-    <string name="sk_stamp_encryption" translatable="false">Encryption</string>
-    <string name="sk_stamp_encryption_none" translatable="false">None</string>
-    <string name="sk_stamp_network" translatable="false">Network</string>
-    <string name="sk_stamp_network_wifi" translatable="false">Wi-Fi</string>
-    <string name="sk_stamp_network_mobile" translatable="false">Mobile data</string>
-    <string name="sk_stamp_network_ethernet" translatable="false">Ethernet</string>
-    <string name="sk_stamp_network_other" translatable="false">Other</string>
-    <string name="sk_stamp_audio" translatable="false">Audio</string>
-    <string name="sk_stamp_route_earpiece" translatable="false">Earpiece</string>
-    <string name="sk_stamp_route_speaker" translatable="false">Speaker</string>
-    <string name="sk_stamp_route_bluetooth" translatable="false">Bluetooth</string>
-    <string name="sk_stamp_route_headset" translatable="false">Headset</string>
-    <string name="sk_stamp_route_hearing_aid" translatable="false">Hearing aid</string>
-    <string name="sk_stamp_route_other" translatable="false">Other device</string>
-    <string name="sk_stamp_quality" translatable="false">Quality</string>
-    <string name="sk_stamp_quality_value" translatable="false">%1$s of 5</string>
-    <string name="sk_stamp_recording" translatable="false">Recording</string>
-    <string name="sk_stamp_recorded" translatable="false">On this phone</string>
-    <string name="sk_stamp_agent" translatable="false">Other end</string>
-    <string name="sk_stamp_copy" translatable="false">Copy address</string>
-    <string name="sk_stamp_close" translatable="false">Close</string>
-    <string name="sk_call_silence_ringer_done" translatable="false">Silenced</string>
-    <string name="sk_content_description_silence_ringer" translatable="false">Silence the ringer without answering or declining</string>
-    <string name="sk_call_overlay_title" translatable="false">Display over other apps</string>
-    <string name="sk_call_overlay_desc" translatable="false">Needed to open the full call screen when a call arrives while the screen is already on. Without it an incoming call only drops a banner from the top.</string>
-    <string name="sk_call_overlay_granted" translatable="false">Granted</string>
-    <string name="sk_call_overlay_needed" translatable="false">Not granted — tap to allow</string>
-    <string name="sk_call_overlay_prompt_title" translatable="false">Let calls open the call screen</string>
-    <string name="sk_call_overlay_prompt_message" translatable="false">白い熊 臨電話 needs “Display over other apps” to show the full call screen when a call arrives while you are using the phone. Without it an incoming call can only drop a banner from the top of the screen.\n\nThe next screen is Android’s own: find 白い熊 臨電話 in the list and turn the switch on.</string>
-    <string name="sk_call_overlay_prompt_confirm" translatable="false">Open settings</string>
+    <string name="sk_block">Block</string>
+    <string name="sk_unblock">Unblock</string>
+    <string name="sk_content_description_block_caller">Block this caller and decline the call</string>
+    <string name="sk_block_confirm_title">Block this caller?</string>
+    <string name="sk_block_confirm_message">%1$s will no longer ring here. Their calls are declined at once and kept in the history, marked as blocked.</string>
+    <string name="sk_menu_block_number">Block number</string>
+    <string name="sk_menu_unblock_number">Unblock number</string>
+    <string name="sk_block_done">%1$s is blocked</string>
+    <string name="sk_unblock_done">%1$s is no longer blocked</string>
+    <string name="sk_block_not_possible">A caller who withholds the number cannot be blocked</string>
+    <string name="sk_blocked_numbers_title">Blocked numbers</string>
+    <string name="sk_blocked_numbers_desc">Callers who do not ring here: their calls are declined at once. Tap one to unblock it, or add a number by hand.</string>
+    <string name="sk_blocked_numbers_status">%1$d blocked</string>
+    <string name="sk_blocked_numbers_empty">Nobody is blocked.</string>
+    <string name="sk_blocked_numbers_since">Blocked %1$s</string>
+    <string name="sk_blocked_numbers_add_title">Block a number</string>
+    <string name="sk_blocked_numbers_add_hint">+420-601-123-456 or user@domain</string>
+    <string name="sk_blocked_numbers_add_invalid">Not a number or a SIP address</string>
+    <string name="sk_eim_cat_blocked">Blocked numbers</string>
+    <string name="sk_online_id_mark">ID</string>
+    <string name="sk_menu_online_id">ID online</string>
+    <string name="sk_online_id_nothing">Nothing was found for %1$s</string>
+    <string name="sk_online_id_failed">The lookup for %1$s did not get through</string>
+    <string name="sk_online_id_title">Identify unknown callers online</string>
+    <string name="sk_online_id_desc">When a Czech number that is not in your contacts rings, look it up on tellows.cz and show the name found there, marked ID. The number is sent to that site. Off also hides the names already found.</string>
+    <string name="sk_eim_blocked_count">%1$d numbers</string>
+    <string name="sk_stamp_server">Server</string>
+    <string name="sk_stamp_codec">Codec</string>
+    <string name="sk_stamp_codec_rate">%1$s kHz</string>
+    <string name="sk_stamp_encryption">Encryption</string>
+    <string name="sk_stamp_encryption_none">None</string>
+    <string name="sk_stamp_network">Network</string>
+    <string name="sk_stamp_network_wifi">Wi-Fi</string>
+    <string name="sk_stamp_network_mobile">Mobile data</string>
+    <string name="sk_stamp_network_ethernet">Ethernet</string>
+    <string name="sk_stamp_network_other">Other</string>
+    <string name="sk_stamp_audio">Audio</string>
+    <string name="sk_stamp_route_earpiece">Earpiece</string>
+    <string name="sk_stamp_route_speaker">Speaker</string>
+    <string name="sk_stamp_route_bluetooth">Bluetooth</string>
+    <string name="sk_stamp_route_headset">Headset</string>
+    <string name="sk_stamp_route_hearing_aid">Hearing aid</string>
+    <string name="sk_stamp_route_other">Other device</string>
+    <string name="sk_stamp_quality">Quality</string>
+    <string name="sk_stamp_quality_value">%1$s of 5</string>
+    <string name="sk_stamp_recording">Recording</string>
+    <string name="sk_stamp_recorded">On this phone</string>
+    <string name="sk_stamp_agent">Other end</string>
+    <string name="sk_stamp_copy">Copy address</string>
+    <string name="sk_stamp_close">Close</string>
+    <string name="sk_call_silence_ringer_done">Silenced</string>
+    <string name="sk_content_description_silence_ringer">Silence the ringer without answering or declining</string>
+    <string name="sk_call_overlay_title">Display over other apps</string>
+    <string name="sk_call_overlay_desc">Needed to open the full call screen when a call arrives while the screen is already on. Without it an incoming call only drops a banner from the top.</string>
+    <string name="sk_call_overlay_granted">Granted</string>
+    <string name="sk_call_overlay_needed">Not granted — tap to allow</string>
+    <string name="sk_call_overlay_prompt_title">Let calls open the call screen</string>
+    <string name="sk_call_overlay_prompt_message">白い熊 臨電話 needs “Display over other apps” to show the full call screen when a call arrives while you are using the phone. Without it an incoming call can only drop a banner from the top of the screen.\n\nThe next screen is Android’s own: find 白い熊 臨電話 in the list and turn the switch on.</string>
+    <string name="sk_call_overlay_prompt_confirm">Open settings</string>
 
     <!-- shiroikuma fork: the incoming-call panel's two new controls, and the decline-with-a-message
          flow behind one of them. -->
-    <string name="sk_call_answer_on_speaker" translatable="false">Speaker</string>
-    <string name="sk_content_description_answer_on_speaker" translatable="false">Answer with the loudspeaker already on</string>
-    <string name="sk_call_decline_with_message" translatable="false">Message</string>
-    <string name="sk_content_description_decline_with_message" translatable="false">Decline the call and write back</string>
+    <string name="sk_call_answer_on_speaker">Speaker</string>
+    <string name="sk_content_description_answer_on_speaker">Answer with the loudspeaker already on</string>
+    <string name="sk_call_decline_with_message">Message</string>
+    <string name="sk_content_description_decline_with_message">Decline the call and write back</string>
 
     <!-- shiroikuma fork: the outgoing-call panel (sk_call_outgoing_actions.xml). -->
-    <string name="sk_call_mute" translatable="false">Mute</string>
-    <string name="sk_call_muted" translatable="false">Muted</string>
-    <string name="sk_call_output_speaker" translatable="false">Speaker</string>
-    <string name="sk_call_output_bluetooth" translatable="false">Bluetooth</string>
-    <string name="sk_call_output_headset" translatable="false">Headset</string>
-    <string name="sk_call_keypad" translatable="false">Keypad</string>
+    <string name="sk_call_mute">Mute</string>
+    <string name="sk_call_muted">Muted</string>
+    <string name="sk_call_output_speaker">Speaker</string>
+    <string name="sk_call_output_bluetooth">Bluetooth</string>
+    <string name="sk_call_output_headset">Headset</string>
+    <string name="sk_call_keypad">Keypad</string>
 
     <!-- shiroikuma fork: the shared bottom bar and top row. The two phone tabs are named exactly
          so in every language (白い熊, 2026-11-17). -->
-    <string name="sk_group_call_door" translatable="false">Calls from other apps</string>
-    <string name="sk_call_door_apps" translatable="false">Apps that may place calls</string>
-    <string name="sk_call_door_apps_desc" translatable="false">The apps allowed to read the list of accounts here and to dial through them — the address book’s 臨 badges and swipes, the SIM dialer’s hand-over, the messenger’s call button.</string>
-    <string name="sk_call_door_apps_status" translatable="false">Allowed: %1$s</string>
-    <string name="sk_call_door_apps_none" translatable="false">No app is allowed</string>
-    <string name="sk_call_door_apps_note" translatable="false">A switch takes effect at once. An app that is switched on may place calls through an account here without asking.</string>
-    <string name="sk_call_door_apps_filter" translatable="false">Filter by name</string>
-    <string name="sk_call_door_apps_sisters" translatable="false">白い熊 apps</string>
-    <string name="sk_call_door_apps_others" translatable="false">Other apps</string>
-    <string name="sk_call_door_apps_absent" translatable="false">Not installed · %1$s</string>
-    <string name="sk_done" translatable="false">Done</string>
-    <string name="sk_section_accounts_apps" translatable="false">Accounts and apps</string>
-    <string name="sk_section_buttons" translatable="false">Buttons</string>
-    <string name="sk_section_switches" translatable="false">Switches and marks</string>
-    <string name="sk_section_menus" translatable="false">Menus</string>
-    <string name="sk_section_dialogs" translatable="false">Dialogs</string>
-    <string name="sk_section_text" translatable="false">Text</string>
-    <string name="sk_section_surfaces" translatable="false">Surfaces</string>
-    <string name="sk_section_fields" translatable="false">Text fields</string>
-    <string name="sk_section_status" translatable="false">Status colours</string>
-    <string name="sk_section_marks" translatable="false">Badges and marks</string>
-    <string name="sk_section_sheets" translatable="false">Bottom sheets</string>
-    <string name="sk_section_flashes" translatable="false">Flashes</string>
-    <string name="sk_section_page" translatable="false">This page</string>
-    <string name="sk_section_assistant" translatable="false">Assistant</string>
-    <string name="sk_section_meetings" translatable="false">Meetings</string>
-    <string name="sk_group_roles_bars" translatable="false">Bars and tabs — colours</string>
-    <string name="sk_group_roles_lists" translatable="false">Lists — colours</string>
-    <string name="sk_group_roles_avatars" translatable="false">Avatars — colours</string>
-    <string name="sk_group_roles_in_call" translatable="false">Call screens — colours</string>
-    <string name="sk_group_roles_dial" translatable="false">Dial pad — colours</string>
-    <string name="sk_group_roles_bubbles" translatable="false">Conversations — colours</string>
-    <string name="sk_reset_all_colours" translatable="false">Reset all colours</string>
-    <string name="sk_reset_all_colours_desc" translatable="false">Takes every colour set on this page back to its default — the black ground, the yellow ink, and the colours that carry a meaning.</string>
-    <string name="sk_reset_all_colours_warning" translatable="false">Every colour you have set on this page is forgotten. Fonts, sizes and switches stay as they are.</string>
-    <string name="sk_section_screen_main" translatable="false">Main frame</string>
-    <string name="sk_section_screen_history" translatable="false">History screens</string>
-    <string name="sk_section_screen_contacts" translatable="false">Contact screens</string>
-    <string name="sk_section_screen_start" translatable="false">New call and new conversation</string>
-    <string name="sk_section_screen_settings" translatable="false">Settings screens</string>
-    <string name="sk_section_screen_account" translatable="false">Account pages</string>
-    <string name="sk_section_screen_drawer" translatable="false">Drawer</string>
-    <string name="sk_section_screen_recordings" translatable="false">Recordings</string>
-    <string name="sk_section_screen_help" translatable="false">Help pages</string>
-    <string name="sk_section_screen_viewers" translatable="false">File viewers</string>
-    <string name="sk_section_screen_other" translatable="false">Other layouts</string>
-    <string name="sk_section_styles" translatable="false">Text styles</string>
-    <string name="sk_section_shapes" translatable="false">Shapes</string>
-    <string name="sk_section_states" translatable="false">State colours</string>
-    <string name="sk_group_roles_upstream_dialogs" translatable="false">Upstream’s dialogs — by item</string>
-    <string name="sk_group_roles_upstream_menus" translatable="false">Upstream’s menus — by item</string>
-    <string name="sk_group_roles_call_items" translatable="false">Call screens — by item</string>
-    <string name="sk_group_roles_chat_items" translatable="false">Conversation screens — by item</string>
-    <string name="sk_section_maintenance" translatable="false">Maintenance</string>
-    <string name="sk_reset_section_order" translatable="false">Reset section order</string>
-    <string name="sk_reset_section_order_desc" translatable="false">Puts the sections of this page, and the chips above them, back in their original order. What is folded stays folded.</string>
-    <string name="sk_app_settings" translatable="false">App settings</string>
-    <string name="sk_rin_number_title" translatable="false">臨 number</string>
-    <string name="sk_callback_menu_callback" translatable="false">Callback</string>
-    <string name="sk_callback_menu_call" translatable="false">Call</string>
-    <string name="sk_callback_label" translatable="false">Callback → %s</string>
-    <string name="sk_callback_ordered" translatable="false">Callback ordered — %s will ring.</string>
-    <string name="sk_callback_error_account" translatable="false">Callback needs an Odorik account.</string>
-    <string name="sk_callback_error_number" translatable="false">That is not a phone number.</string>
-    <string name="sk_callback_error_password" translatable="false">Enter the line\'s password under “Odorik callback” in the account\'s settings.</string>
-    <string name="sk_callback_error_auth" translatable="false">Odorik refused the line\'s password. Check it under “Odorik callback” in the account\'s settings.</string>
-    <string name="sk_callback_error_network" translatable="false">Odorik could not be reached.</string>
-    <string name="sk_callback_error_other" translatable="false">Odorik refused the callback: %s</string>
-    <string name="sk_callback_settings_title" translatable="false">Odorik callback</string>
-    <string name="sk_callback_settings_caller" translatable="false">Callback rings</string>
-    <string name="sk_callback_settings_caller_hint" translatable="false">This line</string>
-    <string name="sk_callback_settings_caller_desc" translatable="false">The phone a callback rings first. Leave it empty for this line; a number entered here rings that phone instead, and nothing arrives in this app.</string>
-    <string name="sk_callback_settings_password" translatable="false">Line password</string>
-    <string name="sk_callback_settings_password_hint" translatable="false">Only if a callback asks for it</string>
-    <string name="sk_callback_settings_answer" translatable="false">Answer the callback automatically</string>
-    <string name="sk_rin_number_none" translatable="false">None</string>
-    <string name="sk_rin_number_explanation" translatable="false">Calls through this account are marked with this badge, and the address book dials through it by this number. A dimmed badge belongs to another account.</string>
-    <string name="sk_rin_number_clear" translatable="false">No number</string>
-    <string name="sk_rin_badge_ground" translatable="false">%1$s badge</string>
-    <string name="sk_rin_badge_text" translatable="false">%1$s badge text</string>
-    <string name="sk_rin_number_taken" translatable="false">Another account already has that number</string>
-    <string name="sk_calls_with" translatable="false">Calls with %1$s</string>
-    <string name="sk_calls_with_clear" translatable="false">Show everyone\'s calls again</string>
+    <string name="sk_group_call_door">Calls from other apps</string>
+    <string name="sk_call_door_apps">Apps that may place calls</string>
+    <string name="sk_call_door_apps_desc">The apps allowed to read the list of accounts here and to dial through them — the address book’s 臨 badges and swipes, the SIM dialer’s hand-over, the messenger’s call button.</string>
+    <string name="sk_call_door_apps_status">Allowed: %1$s</string>
+    <string name="sk_call_door_apps_none">No app is allowed</string>
+    <string name="sk_call_door_apps_note">A switch takes effect at once. An app that is switched on may place calls through an account here without asking.</string>
+    <string name="sk_call_door_apps_filter">Filter by name</string>
+    <string name="sk_call_door_apps_sisters">白い熊 apps</string>
+    <string name="sk_call_door_apps_others">Other apps</string>
+    <string name="sk_call_door_apps_absent">Not installed · %1$s</string>
+    <string name="sk_done">Done</string>
+    <string name="sk_section_accounts_apps">Accounts and apps</string>
+    <string name="sk_section_buttons">Buttons</string>
+    <string name="sk_section_switches">Switches and marks</string>
+    <string name="sk_section_menus">Menus</string>
+    <string name="sk_section_dialogs">Dialogs</string>
+    <string name="sk_section_text">Text</string>
+    <string name="sk_section_surfaces">Surfaces</string>
+    <string name="sk_section_fields">Text fields</string>
+    <string name="sk_section_status">Status colours</string>
+    <string name="sk_section_marks">Badges and marks</string>
+    <string name="sk_section_sheets">Bottom sheets</string>
+    <string name="sk_section_flashes">Flashes</string>
+    <string name="sk_section_page">This page</string>
+    <string name="sk_section_assistant">Assistant</string>
+    <string name="sk_section_meetings">Meetings</string>
+    <string name="sk_group_roles_bars">Bars and tabs — colours</string>
+    <string name="sk_group_roles_lists">Lists — colours</string>
+    <string name="sk_group_roles_avatars">Avatars — colours</string>
+    <string name="sk_group_roles_in_call">Call screens — colours</string>
+    <string name="sk_group_roles_dial">Dial pad — colours</string>
+    <string name="sk_group_roles_bubbles">Conversations — colours</string>
+    <string name="sk_reset_all_colours">Reset all colours</string>
+    <string name="sk_reset_all_colours_desc">Takes every colour set on this page back to its default — the black ground, the yellow ink, and the colours that carry a meaning.</string>
+    <string name="sk_reset_all_colours_warning">Every colour you have set on this page is forgotten. Fonts, sizes and switches stay as they are.</string>
+    <string name="sk_section_screen_main">Main frame</string>
+    <string name="sk_section_screen_history">History screens</string>
+    <string name="sk_section_screen_contacts">Contact screens</string>
+    <string name="sk_section_screen_start">New call and new conversation</string>
+    <string name="sk_section_screen_settings">Settings screens</string>
+    <string name="sk_section_screen_account">Account pages</string>
+    <string name="sk_section_screen_drawer">Drawer</string>
+    <string name="sk_section_screen_recordings">Recordings</string>
+    <string name="sk_section_screen_help">Help pages</string>
+    <string name="sk_section_screen_viewers">File viewers</string>
+    <string name="sk_section_screen_other">Other layouts</string>
+    <string name="sk_section_styles">Text styles</string>
+    <string name="sk_section_shapes">Shapes</string>
+    <string name="sk_section_states">State colours</string>
+    <string name="sk_group_roles_upstream_dialogs">Upstream’s dialogs — by item</string>
+    <string name="sk_group_roles_upstream_menus">Upstream’s menus — by item</string>
+    <string name="sk_group_roles_call_items">Call screens — by item</string>
+    <string name="sk_group_roles_chat_items">Conversation screens — by item</string>
+    <string name="sk_section_maintenance">Maintenance</string>
+    <string name="sk_reset_section_order">Reset section order</string>
+    <string name="sk_reset_section_order_desc">Puts the sections of this page, and the chips above them, back in their original order. What is folded stays folded.</string>
+    <string name="sk_app_settings">App settings</string>
+    <string name="sk_rin_number_title">臨 number</string>
+    <string name="sk_callback_menu_callback">Callback</string>
+    <string name="sk_callback_menu_call">Call</string>
+    <string name="sk_callback_label">Callback → %s</string>
+    <string name="sk_callback_ordered">Callback ordered — %s will ring.</string>
+    <string name="sk_callback_error_account">Callback needs an Odorik account.</string>
+    <string name="sk_callback_error_number">That is not a phone number.</string>
+    <string name="sk_callback_error_password">Enter the line\'s password under “Odorik callback” in the account\'s settings.</string>
+    <string name="sk_callback_error_auth">Odorik refused the line\'s password. Check it under “Odorik callback” in the account\'s settings.</string>
+    <string name="sk_callback_error_network">Odorik could not be reached.</string>
+    <string name="sk_callback_error_other">Odorik refused the callback: %s</string>
+    <string name="sk_callback_settings_title">Odorik callback</string>
+    <string name="sk_callback_settings_caller">Callback rings</string>
+    <string name="sk_callback_settings_caller_hint">This line</string>
+    <string name="sk_callback_settings_caller_desc">The phone a callback rings first. Leave it empty for this line; a number entered here rings that phone instead, and nothing arrives in this app.</string>
+    <string name="sk_callback_settings_password">Line password</string>
+    <string name="sk_callback_settings_password_hint">Only if a callback asks for it</string>
+    <string name="sk_callback_settings_answer">Answer the callback automatically</string>
+    <string name="sk_rin_number_none">None</string>
+    <string name="sk_rin_number_explanation">Calls through this account are marked with this badge, and the address book dials through it by this number. A dimmed badge belongs to another account.</string>
+    <string name="sk_rin_number_clear">No number</string>
+    <string name="sk_rin_badge_ground">%1$s badge</string>
+    <string name="sk_rin_badge_text">%1$s badge text</string>
+    <string name="sk_rin_number_taken">Another account already has that number</string>
+    <string name="sk_calls_with">Calls with %1$s</string>
+    <string name="sk_calls_with_clear">Show everyone\'s calls again</string>
     <string name="sk_tab_denwa" translatable="false">電話</string>
     <string name="sk_tab_rindenwa" translatable="false">臨電話</string>
-    <string name="sk_content_description_more" translatable="false">More</string>
-    <string name="sk_content_description_row_menu" translatable="false">More about this call</string>
-    <string name="sk_content_description_message" translatable="false">Write a message</string>
-    <string name="sk_content_description_recorded" translatable="false">This call was recorded</string>
+    <string name="sk_content_description_more">More</string>
+    <string name="sk_content_description_row_menu">More about this call</string>
+    <string name="sk_content_description_message">Write a message</string>
+    <string name="sk_content_description_recorded">This call was recorded</string>
 
     <!-- shiroikuma fork: the call screens' status line (SkCallStatus). Translated in values-ja. -->
     <string name="sk_call_status_dialing">Dialing…</string>
@@ -1537,86 +1537,87 @@
     <string name="sk_call_status_declined">Declined</string>
     <string name="sk_call_status_no_answer">No answer</string>
     <string name="sk_call_status_failed">Call failed</string>
-    <string name="sk_call_decline_title" translatable="false">Decline with a message</string>
-    <string name="sk_call_decline_for_contact" translatable="false">For %1$s</string>
-    <string name="sk_call_decline_general" translatable="false">For everyone</string>
-    <string name="sk_call_decline_hint" translatable="false">Write a message…</string>
-    <string name="sk_call_decline_send" translatable="false">Decline and send</string>
-    <string name="sk_call_decline_save_title" translatable="false">Keep this message?</string>
-    <string name="sk_call_decline_save_everyone" translatable="false">For everyone</string>
-    <string name="sk_call_decline_save_contact" translatable="false">Only for this caller</string>
-    <string name="sk_call_decline_save_no" translatable="false">Don’t keep it</string>
-    <string name="sk_call_decline_default_1" translatable="false">Can’t talk now — I’ll call you back.</string>
-    <string name="sk_call_decline_default_2" translatable="false">I’m in a meeting.</string>
-    <string name="sk_call_decline_default_3" translatable="false">Please write to me instead.</string>
-    <string name="sk_call_decline_default_4" translatable="false">I’ll call you later.</string>
-    <string name="sk_call_decline_from_line" translatable="false">Sent from %1$s</string>
-    <string name="sk_call_decline_failed_title" translatable="false">The reply wasn’t sent</string>
-    <string name="sk_call_decline_no_did" translatable="false">This call didn’t arrive on a line 白い熊 臨電話 can name, so there is nothing to send from.</string>
-    <string name="sk_call_decline_no_messeji" translatable="false">白い熊 メッセージ didn’t answer. It may not be installed, or 白い熊 臨電話 may not be allowed to send through it yet.</string>
-    <string name="sk_call_decline_refused" translatable="false">白い熊 メッセージ refused the message without saying why.</string>
-    <string name="sk_call_decline_messages_title" translatable="false">Decline messages</string>
-    <string name="sk_call_decline_messages_status" translatable="false">%1$d general · %2$d callers</string>
-    <string name="sk_call_decline_messages_desc" translatable="false">The lines offered when a call is refused with a message. One list for everyone, and a list of its own for any caller that earns one.</string>
-    <string name="sk_call_decline_editor_title" translatable="false">For everyone</string>
-    <string name="sk_call_decline_editor_contact_title" translatable="false">For %1$s</string>
-    <string name="sk_call_decline_editor_empty" translatable="false">Nothing kept yet.</string>
-    <string name="sk_call_decline_editor_callers" translatable="false">Callers with their own</string>
-    <string name="sk_call_decline_add" translatable="false">+ Add</string>
-    <string name="sk_call_decline_edit" translatable="false">Edit</string>
-    <string name="sk_call_decline_move_up" translatable="false">Move up</string>
-    <string name="sk_call_decline_move_down" translatable="false">Move down</string>
-    <string name="sk_content_description_reply_to_missed_call" translatable="false">Write back to this missed call</string>
+    <string name="sk_call_decline_title">Decline with a message</string>
+    <string name="sk_call_decline_for_contact">For %1$s</string>
+    <string name="sk_call_decline_general">For everyone</string>
+    <string name="sk_call_decline_hint">Write a message…</string>
+    <string name="sk_call_decline_send">Decline and send</string>
+    <string name="sk_call_decline_save_title">Keep this message?</string>
+    <string name="sk_call_decline_save_everyone">For everyone</string>
+    <string name="sk_call_decline_save_contact">Only for this caller</string>
+    <string name="sk_call_decline_save_no">Don’t keep it</string>
+    <string name="sk_call_decline_default_1">Can’t talk now — I’ll call you back.</string>
+    <string name="sk_call_decline_default_2">I’m in a meeting.</string>
+    <string name="sk_call_decline_default_3">Please write to me instead.</string>
+    <string name="sk_call_decline_default_4">I’ll call you later.</string>
+    <string name="sk_call_decline_from_line">Sent from %1$s</string>
+    <string name="sk_call_decline_failed_title">The reply wasn’t sent</string>
+    <string name="sk_call_decline_no_did">This call didn’t arrive on a line 白い熊 臨電話 can name, so there is nothing to send from.</string>
+    <string name="sk_call_decline_no_messeji">白い熊 メッセージ didn’t answer. It may not be installed, or 白い熊 臨電話 may not be allowed to send through it yet.</string>
+    <string name="sk_call_decline_refused">白い熊 メッセージ refused the message without saying why.</string>
+    <string name="sk_call_decline_messages_title">Decline messages</string>
+    <string name="sk_call_decline_messages_status">%1$d general · %2$d callers</string>
+    <string name="sk_call_decline_messages_desc">The lines offered when a call is refused with a message. One list for everyone, and a list of its own for any caller that earns one.</string>
+    <string name="sk_call_decline_editor_title">For everyone</string>
+    <string name="sk_call_decline_editor_contact_title">For %1$s</string>
+    <string name="sk_call_decline_editor_empty">Nothing kept yet.</string>
+    <string name="sk_call_decline_editor_callers">Callers with their own</string>
+    <string name="sk_call_decline_add">+ Add</string>
+    <string name="sk_call_decline_edit">Edit</string>
+    <string name="sk_call_decline_move_up">Move up</string>
+    <string name="sk_call_decline_move_down">Move down</string>
+    <string name="sk_content_description_reply_to_missed_call">Write back to this missed call</string>
 
     <!-- shiroikuma fork: the dial panel that replaces upstream's separate "New call" screen. -->
-    <string name="sk_content_description_show_dialpad" translatable="false">Open the dial panel</string>
-    <string name="sk_content_description_hide_dialpad" translatable="false">Put the dial panel away</string>
-    <string name="sk_dialpad_paste_nothing" translatable="false">No number in the clipboard</string>
-    <string name="sk_dialpad_copied" translatable="false">Number copied</string>
-    <string name="sk_dialpad_menu_paste" translatable="false">Paste</string>
-    <string name="sk_dialpad_menu_copy" translatable="false">Copy</string>
-    <string name="sk_dialpad_menu_clear" translatable="false">Clear</string>
-    <string name="sk_dialpad_menu_new_contact" translatable="false">New contact</string>
-    <string name="sk_dialpad_menu_message" translatable="false">Write a message</string>
+    <string name="sk_content_description_show_dialpad">Open the dial panel</string>
+    <string name="sk_content_description_hide_dialpad">Put the dial panel away</string>
+    <string name="sk_dialpad_paste_nothing">No number in the clipboard</string>
+    <string name="sk_dialpad_copied">Number copied</string>
+    <string name="sk_dialpad_menu_paste">Paste</string>
+    <string name="sk_dialpad_menu_copy">Copy</string>
+    <string name="sk_dialpad_menu_clear">Clear</string>
+    <string name="sk_dialpad_menu_new_contact">New contact</string>
+    <string name="sk_dialpad_menu_message">Write a message</string>
 
     <!-- shiroikuma fork: the Diagnostics section of the 臨電話 UI page. Every diagnostic is behind
          its own switch and off by default; the files live in the app's own diag directory and are
          never named "*.log" (EMUI's nightly clean-up deletes those). -->
-    <string name="sk_section_diag" translatable="false">Diagnostics</string>
-    <string name="sk_diag_note" translatable="false">Nothing is recorded until you turn one of these on. The files are plain text in the app’s own directory, and a notification stays up while anything is recording.</string>
-    <string name="sk_diag_registration" translatable="false">Registration</string>
-    <string name="sk_diag_registration_desc" translatable="false">Every account’s REGISTER answer, with the SIP code behind a failure. The log to turn on when calls do not arrive.</string>
-    <string name="sk_diag_calls" translatable="false">Incoming calls</string>
-    <string name="sk_diag_calls_desc" translatable="false">When a call arrived, whether the call screen could be raised, and how the call ended.</string>
-    <string name="sk_diag_outgoing" translatable="false">Outgoing calls</string>
-    <string name="sk_diag_outgoing_desc" translatable="false">Every state a call you place goes through, with the SIP code and reason, and the moment you hung up. The log to turn on when the other end keeps ringing.</string>
-    <string name="sk_diag_sip" translatable="false">SIP messages</string>
-    <string name="sk_diag_sip_desc" translatable="false">Every SIP message sent and received, whole, plus the SIP stack’s warnings and errors. Large, and it holds numbers and addresses — turn it on for a test and off again.</string>
-    <string name="sk_diag_service" translatable="false">Service and process</string>
-    <string name="sk_diag_service_desc" translatable="false">Process starts and the keep-alive service going up and down — why the app was dead.</string>
-    <string name="sk_group_diag_data" translatable="false">Recorded data</string>
-    <string name="sk_diag_stored" translatable="false">Stored</string>
-    <string name="sk_diag_stored_empty" translatable="false">Nothing recorded yet</string>
-    <string name="sk_diag_stored_value" translatable="false">%1$d files, %2$s, %3$s</string>
+    <string name="sk_section_diag">Diagnostics</string>
+    <string name="sk_diag_note">Nothing is recorded until you turn one of these on. The files are plain text in the app’s own directory, and a notification stays up while anything is recording.</string>
+    <string name="sk_diag_registration">Registration</string>
+    <string name="sk_diag_registration_desc">Every account’s REGISTER answer, with the SIP code behind a failure. The log to turn on when calls do not arrive.</string>
+    <string name="sk_diag_calls">Incoming calls</string>
+    <string name="sk_diag_calls_desc">When a call arrived, whether the call screen could be raised, and how the call ended.</string>
+    <string name="sk_diag_outgoing">Outgoing calls</string>
+    <string name="sk_diag_outgoing_desc">Every state a call you place goes through, with the SIP code and reason, and the moment you hung up. The log to turn on when the other end keeps ringing.</string>
+    <string name="sk_diag_sip">SIP messages</string>
+    <string name="sk_diag_sip_desc">Every SIP message sent and received, whole, plus the SIP stack’s warnings and errors. Large, and it holds numbers and addresses — turn it on for a test and off again.</string>
+    <string name="sk_diag_service">Service and process</string>
+    <string name="sk_diag_service_desc">Process starts and the keep-alive service going up and down — why the app was dead.</string>
+    <string name="sk_group_diag_data">Recorded data</string>
+    <string name="sk_group_section_icons">Section icons of this page</string>
+    <string name="sk_diag_stored">Stored</string>
+    <string name="sk_diag_stored_empty">Nothing recorded yet</string>
+    <string name="sk_diag_stored_value">%1$d files, %2$s, %3$s</string>
     <string name="sk_diag_day_span" translatable="false">%1$s – %2$s</string>
-    <string name="sk_diag_keep_days" translatable="false">Keep for</string>
-    <string name="sk_diag_keep_forever" translatable="false">Everything</string>
-    <string name="sk_diag_keep_days_value" translatable="false">%1$d days</string>
-    <string name="sk_diag_export" translatable="false">Export</string>
-    <string name="sk_diag_export_desc" translatable="false">Copy every recorded file into a directory you pick, in a new stamped subdirectory.</string>
-    <string name="sk_diag_export_done" translatable="false">Exported %1$d files to %2$s</string>
-    <string name="sk_diag_export_failed" translatable="false">Export failed: %1$s</string>
-    <string name="sk_diag_share" translatable="false">Share</string>
-    <string name="sk_diag_share_desc" translatable="false">Send the recorded files somewhere else.</string>
-    <string name="sk_diag_purge" translatable="false">Purge</string>
-    <string name="sk_diag_purge_desc" translatable="false">Delete every recorded file from this phone.</string>
-    <string name="sk_diag_purge_warning" translatable="false">%1$s will be deleted forever.</string>
-    <string name="sk_diag_purge_confirm" translatable="false">Delete forever</string>
-    <string name="sk_diag_purged" translatable="false">Deleted %1$d files</string>
-    <string name="sk_diag_where" translatable="false">Where the files are</string>
-    <string name="sk_diag_notification_title" translatable="false">白い熊 臨電話 is recording diagnostics</string>
-    <string name="sk_diag_mark" translatable="false">Mark</string>
-    <string name="sk_diag_marked" translatable="false">Mark #%1$d</string>
-    <string name="sk_diag_all_off" translatable="false">Turn all off</string>
-    <string name="sk_diag_all_off_done" translatable="false">All diagnostics turned off</string>
+    <string name="sk_diag_keep_days">Keep for</string>
+    <string name="sk_diag_keep_forever">Everything</string>
+    <string name="sk_diag_keep_days_value">%1$d days</string>
+    <string name="sk_diag_export">Export</string>
+    <string name="sk_diag_export_desc">Copy every recorded file into a directory you pick, in a new stamped subdirectory.</string>
+    <string name="sk_diag_export_done">Exported %1$d files to %2$s</string>
+    <string name="sk_diag_export_failed">Export failed: %1$s</string>
+    <string name="sk_diag_share">Share</string>
+    <string name="sk_diag_share_desc">Send the recorded files somewhere else.</string>
+    <string name="sk_diag_purge">Purge</string>
+    <string name="sk_diag_purge_desc">Delete every recorded file from this phone.</string>
+    <string name="sk_diag_purge_warning">%1$s will be deleted forever.</string>
+    <string name="sk_diag_purge_confirm">Delete forever</string>
+    <string name="sk_diag_purged">Deleted %1$d files</string>
+    <string name="sk_diag_where">Where the files are</string>
+    <string name="sk_diag_notification_title">白い熊 臨電話 is recording diagnostics</string>
+    <string name="sk_diag_mark">Mark</string>
+    <string name="sk_diag_marked">Mark #%1$d</string>
+    <string name="sk_diag_all_off">Turn all off</string>
+    <string name="sk_diag_all_off_done">All diagnostics turned off</string>
 </resources>

@@ -67,8 +67,18 @@ class SkUiActivity : AppCompatActivity() {
     private var callPreview: ItemSkCallPreviewBinding? = null
     private var eximPanel: SkEximportPanel? = null
 
-    /** One top-level section: its stable key, its heading, and what fills it. */
-    private class Section(val key: String, val labelRes: Int, val build: () -> Unit)
+    /**
+     * One top-level section: its stable key, its heading, the icon heading and chip both carry,
+     * the colour role of that icon ([tone]: one of the seven section colours, by what kind of
+     * thing the section is) and what fills it.
+     */
+    private class Section(
+        val key: String,
+        val labelRes: Int,
+        val icon: Int,
+        val tone: String,
+        val build: () -> Unit,
+    )
 
     /** Where the row builders put their rows: the body of the section being built. */
     private lateinit var body: LinearLayout
@@ -244,45 +254,79 @@ class SkUiActivity : AppCompatActivity() {
      * The top-level sections in their built order — the order a fresh install shows, and the one
      * "Reset section order" goes back to. The keys are what [SkPageState] stores, so they are
      * never renamed; a section added later appears at its built place in a stored order.
+     *
+     * Each section names its icon and its tone — one of the seven section colours, chosen by
+     * what kind of thing the section is (black-yellow-theme skill, “Section icons”): the base
+     * (what the app is, and its settings), controls, words, the frame and its boxes, where the app
+     * reaches out, warning, and — once — a brief flash. **In this order no two neighbours share a
+     * tone**; keep it so when adding a section. An order 白い熊 dragged is never touched.
      */
     private fun sections(): List<Section> = listOf(
-        Section("eximport", R.string.sk_section_eximport) { buildEximport() },
-        Section("accounts", R.string.sk_section_accounts_apps) { buildAccountsAndApps() },
-        Section("foundation", SkSection.FOUNDATION.labelRes) { buildFoundation() },
-        Section("top_bar", SkSection.TOP_BAR.labelRes) { buildTopBar() },
-        Section("main", SkSection.MAIN_SCREEN.labelRes) { buildMainScreen() },
-        Section("calls", SkSection.CALLS.labelRes) { buildCalls() },
-        Section("conversations", SkSection.CONVERSATIONS.labelRes) { buildConversations() },
-        Section("buttons", R.string.sk_section_buttons) { buildButtons() },
-        Section("switches", R.string.sk_section_switches) { buildSwitches() },
-        Section("menus", R.string.sk_section_menus) { buildMenus() },
-        Section("dialogs", R.string.sk_section_dialogs) { buildDialogs() },
-        Section("text", R.string.sk_section_text) { buildText() },
-        Section("surfaces", R.string.sk_section_surfaces) { buildSurfaces() },
-        Section("fields", R.string.sk_section_fields) { buildFields() },
-        Section("status", R.string.sk_section_status) { buildStatus() },
-        Section("marks", R.string.sk_section_marks) { buildMarks() },
-        Section("sheets", R.string.sk_section_sheets) { buildSheets() },
-        Section("flashes", R.string.sk_section_flashes) { buildFlashes() },
-        Section("page", R.string.sk_section_page) { buildPage() },
-        Section("screen_main", R.string.sk_section_screen_main) { addRoleRows(SkArea.SCREEN_MAIN, 1) },
-        Section("screen_history", R.string.sk_section_screen_history) { addRoleRows(SkArea.SCREEN_HISTORY, 1) },
-        Section("screen_contacts", R.string.sk_section_screen_contacts) { addRoleRows(SkArea.SCREEN_CONTACTS, 1) },
-        Section("screen_start", R.string.sk_section_screen_start) { addRoleRows(SkArea.SCREEN_START, 1) },
-        Section("screen_settings", R.string.sk_section_screen_settings) { addRoleRows(SkArea.SCREEN_SETTINGS, 1) },
-        Section("screen_account", R.string.sk_section_screen_account) { addRoleRows(SkArea.SCREEN_ACCOUNT, 1) },
-        Section("screen_drawer", R.string.sk_section_screen_drawer) { addRoleRows(SkArea.SCREEN_DRAWER, 1) },
-        Section("screen_recordings", R.string.sk_section_screen_recordings) { addRoleRows(SkArea.SCREEN_RECORDINGS, 1) },
-        Section("screen_help", R.string.sk_section_screen_help) { addRoleRows(SkArea.SCREEN_HELP, 1) },
-        Section("screen_viewers", R.string.sk_section_screen_viewers) { addRoleRows(SkArea.SCREEN_VIEWERS, 1) },
-        Section("screen_other", R.string.sk_section_screen_other) { addRoleRows(SkArea.SCREEN_OTHER, 1) },
-        Section("styles", R.string.sk_section_styles) { addRoleRows(SkArea.STYLES, 1) },
-        Section("shapes", R.string.sk_section_shapes) { addRoleRows(SkArea.SHAPES, 1) },
-        Section("states", R.string.sk_section_states) { addRoleRows(SkArea.STATES, 1) },
-        Section("assistant", R.string.sk_section_assistant) { buildAssistant() },
-        Section("meetings", R.string.sk_section_meetings) { buildMeetings() },
-        Section("diag", R.string.sk_section_diag) { buildDiagnostics() },
-        Section("maintenance", R.string.sk_section_maintenance) { buildMaintenance() },
+        Section("eximport", R.string.sk_section_eximport, R.drawable.share_network, TONE_REACH) { buildEximport() },
+        Section("accounts", R.string.sk_section_accounts_apps, R.drawable.user_circle_gear, TONE_BASE) {
+            buildAccountsAndApps()
+        },
+        Section("top_bar", SkSection.TOP_BAR.labelRes, R.drawable.layout, TONE_FRAME) { buildTopBar() },
+        Section("foundation", SkSection.FOUNDATION.labelRes, R.drawable.sk_ic_drop, TONE_BASE) { buildFoundation() },
+        Section("text", R.string.sk_section_text, R.drawable.sk_ic_text, TONE_WORDS) { buildText() },
+        Section("main", SkSection.MAIN_SCREEN.labelRes, R.drawable.squares_four, TONE_BASE) { buildMainScreen() },
+        Section("surfaces", R.string.sk_section_surfaces, R.drawable.image, TONE_FRAME) { buildSurfaces() },
+        Section("calls", SkSection.CALLS.labelRes, R.drawable.phone_call, TONE_BASE) { buildCalls() },
+        Section("buttons", R.string.sk_section_buttons, R.drawable.power, TONE_CONTROLS) { buildButtons() },
+        Section("conversations", SkSection.CONVERSATIONS.labelRes, R.drawable.chat_teardrop_text, TONE_BASE) {
+            buildConversations()
+        },
+        Section("switches", R.string.sk_section_switches, R.drawable.check_square_offset, TONE_CONTROLS) { buildSwitches() },
+        Section("menus", R.string.sk_section_menus, R.drawable.list, TONE_REACH) { buildMenus() },
+        Section("fields", R.string.sk_section_fields, R.drawable.pencil_simple, TONE_WORDS) { buildFields() },
+        Section("dialogs", R.string.sk_section_dialogs, R.drawable.chat_teardrop_dots, TONE_REACH) { buildDialogs() },
+        Section("status", R.string.sk_section_status, R.drawable.info, TONE_FRAME) { buildStatus() },
+        Section("marks", R.string.sk_section_marks, R.drawable.sk_star, TONE_CONTROLS) { buildMarks() },
+        Section("sheets", R.string.sk_section_sheets, R.drawable.caret_up, TONE_REACH) { buildSheets() },
+        Section("flashes", R.string.sk_section_flashes, R.drawable.bell_ringing, TONE_FLASH) { buildFlashes() },
+        Section("page", R.string.sk_section_page, R.drawable.sk_ic_sliders, TONE_BASE) { buildPage() },
+        Section("screen_main", R.string.sk_section_screen_main, R.drawable.monitor, TONE_FRAME) {
+            addRoleRows(SkArea.SCREEN_MAIN, 1)
+        },
+        Section("screen_start", R.string.sk_section_screen_start, R.drawable.phone_plus, TONE_BASE) {
+            addRoleRows(SkArea.SCREEN_START, 1)
+        },
+        Section("screen_history", R.string.sk_section_screen_history, R.drawable.clock, TONE_FRAME) {
+            addRoleRows(SkArea.SCREEN_HISTORY, 1)
+        },
+        Section("screen_settings", R.string.sk_section_screen_settings, R.drawable.gear, TONE_BASE) {
+            addRoleRows(SkArea.SCREEN_SETTINGS, 1)
+        },
+        Section("screen_contacts", R.string.sk_section_screen_contacts, R.drawable.address_book, TONE_FRAME) {
+            addRoleRows(SkArea.SCREEN_CONTACTS, 1)
+        },
+        Section("screen_account", R.string.sk_section_screen_account, R.drawable.user_circle, TONE_BASE) {
+            addRoleRows(SkArea.SCREEN_ACCOUNT, 1)
+        },
+        Section("screen_drawer", R.string.sk_section_screen_drawer, R.drawable.dots_three_vertical, TONE_FRAME) {
+            addRoleRows(SkArea.SCREEN_DRAWER, 1)
+        },
+        Section("screen_help", R.string.sk_section_screen_help, R.drawable.question, TONE_WORDS) {
+            addRoleRows(SkArea.SCREEN_HELP, 1)
+        },
+        Section("screen_recordings", R.string.sk_section_screen_recordings, R.drawable.record_fill, TONE_FRAME) {
+            addRoleRows(SkArea.SCREEN_RECORDINGS, 1)
+        },
+        Section("screen_other", R.string.sk_section_screen_other, R.drawable.resource_package, TONE_BASE) {
+            addRoleRows(SkArea.SCREEN_OTHER, 1)
+        },
+        Section("screen_viewers", R.string.sk_section_screen_viewers, R.drawable.file, TONE_FRAME) {
+            addRoleRows(SkArea.SCREEN_VIEWERS, 1)
+        },
+        Section("styles", R.string.sk_section_styles, R.drawable.book_open_text, TONE_WORDS) { addRoleRows(SkArea.STYLES, 1) },
+        Section("shapes", R.string.sk_section_shapes, R.drawable.picture_in_picture, TONE_FRAME) {
+            addRoleRows(SkArea.SHAPES, 1)
+        },
+        Section("states", R.string.sk_section_states, R.drawable.checks, TONE_CONTROLS) { addRoleRows(SkArea.STATES, 1) },
+        Section("assistant", R.string.sk_section_assistant, R.drawable.user_plus, TONE_BASE) { buildAssistant() },
+        Section("diag", R.string.sk_section_diag, R.drawable.waveform, TONE_WARNING) { buildDiagnostics() },
+        Section("meetings", R.string.sk_section_meetings, R.drawable.calendar, TONE_BASE) { buildMeetings() },
+        Section("maintenance", R.string.sk_section_maintenance, R.drawable.wrench, TONE_WARNING) { buildMaintenance() },
     )
 
     private fun buildEximport() {
@@ -600,7 +644,11 @@ class SkUiActivity : AppCompatActivity() {
 
     private fun buildFlashes() = addRoleRows(SkArea.FLASH, 1)
 
-    private fun buildPage() = addRoleRows(SkArea.PAGE, 1)
+    private fun buildPage() {
+        addRoleRows(SkArea.PAGE, 1) { !it.key.startsWith("section_") }
+        addSubgroup(R.string.sk_group_section_icons, 1)
+        addRoleRows(SkArea.PAGE, 2) { it.key.startsWith("section_") }
+    }
 
     private fun buildAssistant() = addRoleRows(SkArea.ASSISTANT, 1)
 
@@ -614,7 +662,7 @@ class SkUiActivity : AppCompatActivity() {
     private fun addRoleRows(area: SkArea, level: Int, only: (SkRole) -> Boolean = { true }) {
         for (role in SkRoles.inArea(area).filter(only)) {
             val row = ItemSkColorBinding.inflate(LayoutInflater.from(this), body, false)
-            row.skColorLabel.text = role.label
+            row.skColorLabel.text = SkRoleLabels.of(this, role)
             rowIcon(row.skColorLabel, R.drawable.sk_ic_drop)
             row.skColorLabel.setTextColor(SkRoles.color(this, "page_label"))
             row.skColorPreview.background = swatch(SkRoles.color(this, role))
@@ -758,7 +806,9 @@ class SkUiActivity : AppCompatActivity() {
     private fun addSectionIndex(ordered: List<Section>) {
         val index = SkSectionIndex.build(
             this,
-            ordered.map { SkSectionIndex.Item(it.key, getString(it.labelRes)) },
+            ordered.map {
+                SkSectionIndex.Item(it.key, getString(it.labelRes), it.icon, SkRoles.color(this, it.tone))
+            },
             SkRoles.color(this, "page_chip_frame"),
             SkRoles.color(this, "page_chip_text"),
             onJump = { jumpToSection(it) },
@@ -791,6 +841,16 @@ class SkUiActivity : AppCompatActivity() {
         val accent = SkRoles.color(this, "page_heading")
         row.skSectionLabel.setText(section.labelRes)
         row.skSectionLabel.setTextColor(accent)
+        // The same icon in the same colour as the section's chip; the underline stays as wide
+        // as the text, so it starts where the icon's gutter ends.
+        SkLabelIcon.set(
+            row.skSectionLabel,
+            androidx.appcompat.content.res.AppCompatResources.getDrawable(this, section.icon),
+            SkRoles.color(this, section.tone),
+        ) { gutter ->
+            (row.skSectionRule.layoutParams as android.view.ViewGroup.MarginLayoutParams).marginStart = gutter
+            row.skSectionRule.requestLayout()
+        }
         row.skSectionRule.setBackgroundColor(SkRoles.color(this, "page_heading_rule"))
         // The line between sections, a darker accent — it stays whether the section is folded or open.
         row.skSectionSpacer.setBackgroundColor(SkRoles.color(this, "page_divider"))
@@ -832,17 +892,21 @@ class SkUiActivity : AppCompatActivity() {
 
     /**
      * The icon every row carries before its label, coloured by what the row does — the same
-     * settable roles as the menu icons ([SkMenus]).
+     * settable roles as the menu icons ([SkMenus]). Sized by its label ([SkLabelIcon]); what
+     * stands [under] the label — the explanation of the row — is moved in by the icon's gutter,
+     * so it stays aligned with the label's text.
      */
-    private fun rowIcon(label: TextView, iconRes: Int, role: String = SkMenus.VIEW) {
-        val density = resources.displayMetrics.density
-        val icon = androidx.appcompat.content.res.AppCompatResources.getDrawable(this, iconRes)
-            ?.mutate()
-            ?.let {
-                SkMenus.FixedTint(it, SkTheme.color(this, SkMenus.slotOf(role)), (ROW_ICON_DP * density).toInt())
+    private fun rowIcon(label: TextView, iconRes: Int, role: String = SkMenus.VIEW, vararg under: View) {
+        val starts = under.map { it.paddingStart }
+        SkLabelIcon.set(
+            label,
+            androidx.appcompat.content.res.AppCompatResources.getDrawable(this, iconRes),
+            SkTheme.color(this, SkMenus.slotOf(role)),
+        ) { gutter ->
+            under.forEachIndexed { i, view ->
+                view.setPaddingRelative(starts[i] + gutter, view.paddingTop, view.paddingEnd, view.paddingBottom)
             }
-        label.compoundDrawablePadding = (ROW_ICON_GAP_DP * density).toInt()
-        label.setCompoundDrawablesRelative(icon, null, null, null)
+        }
     }
 
     /**
@@ -1030,7 +1094,7 @@ class SkUiActivity : AppCompatActivity() {
         row.skActionChevron.text = CHEVRON
         row.skActionChevron.setTextColor(accent)
         row.skActionChevron.visibility = if (opens) View.VISIBLE else View.GONE
-        rowIcon(row.skActionTitle, icon, role)
+        rowIcon(row.skActionTitle, icon, role, row.skActionDesc, row.skActionStatus)
         if (descRes != 0) {
             row.skActionDesc.setText(descRes)
             row.skActionDesc.setTextColor(SkRoles.color(this, "page_note"))
@@ -1119,7 +1183,7 @@ class SkUiActivity : AppCompatActivity() {
         val row = ItemSkSwitchBinding.inflate(LayoutInflater.from(this), body, false)
         val accent = SkRoles.color(this, "page_heading")
         row.skSwitchTitle.setText(R.string.sk_auto_title)
-        rowIcon(row.skSwitchTitle, R.drawable.wrench, SkMenus.SHARE)
+        rowIcon(row.skSwitchTitle, R.drawable.wrench, SkMenus.SHARE, row.skSwitchDesc)
         row.skSwitchTitle.setTextColor(SkRoles.color(this, "page_label"))
         row.skSwitchDesc.setText(R.string.sk_auto_desc)
         row.skSwitchDesc.setTextColor(SkRoles.color(this, "page_note"))
@@ -1147,7 +1211,7 @@ class SkUiActivity : AppCompatActivity() {
         val row = ItemSkSwitchBinding.inflate(LayoutInflater.from(this), body, false)
         val accent = SkRoles.color(this, "page_heading")
         row.skSwitchTitle.setText(R.string.sk_auto_require_token_title)
-        rowIcon(row.skSwitchTitle, R.drawable.lock_key, SkMenus.VIEW)
+        rowIcon(row.skSwitchTitle, R.drawable.lock_key, SkMenus.VIEW, row.skSwitchDesc)
         row.skSwitchTitle.setTextColor(SkRoles.color(this, "page_label"))
         row.skSwitchDesc.setText(R.string.sk_auto_require_token_desc)
         row.skSwitchDesc.setTextColor(SkRoles.color(this, "page_note"))
@@ -1436,7 +1500,7 @@ class SkUiActivity : AppCompatActivity() {
         val row = ItemSkSwitchBinding.inflate(LayoutInflater.from(this), body, false)
         val accent = SkRoles.color(this, "page_heading")
         row.skSwitchTitle.setText(titleRes)
-        rowIcon(row.skSwitchTitle, icon, role)
+        rowIcon(row.skSwitchTitle, icon, role, row.skSwitchDesc)
         row.skSwitchTitle.setTextColor(SkRoles.color(this, "page_label"))
         row.skSwitchDesc.setText(descRes)
         row.skSwitchDesc.setTextColor(SkRoles.color(this, "page_note"))
@@ -1884,9 +1948,16 @@ class SkUiActivity : AppCompatActivity() {
         // Sections: the heading's inset.
         private const val SECTION_INSET_DP = 36
 
-        // A row's icon, and the dim-gold rule left of a row that carries an explanation.
-        private const val ROW_ICON_DP = 18f
-        private const val ROW_ICON_GAP_DP = 8f
+        // The seven section colours, as role keys (SkRoles, area PAGE).
+        private const val TONE_BASE = "section_base"
+        private const val TONE_CONTROLS = "section_controls"
+        private const val TONE_WORDS = "section_words"
+        private const val TONE_FRAME = "section_frame"
+        private const val TONE_REACH = "section_reach"
+        private const val TONE_WARNING = "section_warning"
+        private const val TONE_FLASH = "section_flash"
+
+        // The dim-gold rule left of a row that carries an explanation.
         private const val RULE_WIDTH_DP = 2f
         private const val RULE_GAP_DP = 10f
 

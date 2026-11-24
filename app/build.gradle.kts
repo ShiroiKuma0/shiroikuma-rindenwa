@@ -459,6 +459,7 @@ tasks.register<Exec>("skItemRoles") {
     inputs.file(script)
     inputs.dir("src/main/res")
     inputs.file("src/main/java/org/linphone/shiroikuma/SkRoles.kt")
+    inputs.file(rootProject.file("tools/sk_role_labels_ja.tsv"))
     outputs.dir(skItemRolesDir)
     commandLine("python3", script.absolutePath, "--out", skItemRolesDir.absolutePath)
 }
