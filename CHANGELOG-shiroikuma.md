@@ -2,7 +2,27 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha+2026-11-23.08-45.g02e7f6ea+061 — current
+## 6.3.0-alpha+2026-11-23.08-45.g02e7f6ea+062 — current
+
+Same upstream base as `+061` (`02e7f6ea`); `versionCode` `602010062`.
+
+### App language
+
+- **A language for this app alone.** “App language” is the first section of the 臨電話 UI page
+  and the first chip of its index. Its one row, “Language: …”, opens the list of languages:
+  “System default” first, then Čeština, Deutsch, English, Español, Français, Magyar, 日本語,
+  Nederlands, Português (Brasil), Русский, Slovenčina, Українська and 中文. A choice applies at
+  once.
+- **The list is easy to read**: each language is written in its own language, with its country
+  or region beneath where the tag names one and the tag in a column at the right. Only the
+  current language stands in a pill.
+- **The choice survives an update of the app** — it is set again at every start — **and reaches
+  notifications too**, not only the screens.
+- It travels in the export with the rest of the appearance.
+- An order of sections arranged by dragging keeps its arrangement; the new section is put on
+  top of it once and can be dragged anywhere afterwards.
+
+## 6.3.0-alpha+2026-11-23.08-45.g02e7f6ea+061
 
 Upstream base moved `2199af83` → `02e7f6ea` (one commit: upstream follows a change in the SDK's
 Java wrapper for arrays; no behaviour change). `versionCode` `602010061`.
