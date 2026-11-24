@@ -2,7 +2,44 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha+2026-11-09.14-39.g2199af83+060 — current
+## 6.3.0-alpha+2026-11-23.08-45.g02e7f6ea+061 — current
+
+Upstream base moved `2199af83` → `02e7f6ea` (one commit: upstream follows a change in the SDK's
+Java wrapper for arrays; no behaviour change). `versionCode` `602010061`.
+
+### Japanese, everywhere
+
+- **The whole app is translated into Japanese.** Upstream Linphone has no Japanese translation;
+  this one is the fork's own and covers every text: upstream's 909 strings and the fork's 468 —
+  calls, conversations, meetings, contacts, settings, the assistant, notifications, and the
+  臨電話 UI page with every heading, chip, row, explanation, dialog and flash.
+- **The colour roles are named in Japanese too** — all 709 of them, the item roles of upstream's
+  screens, shapes, state colours and text styles included.
+- With the display set to another language nothing changes.
+
+### The 臨電話 UI page
+
+- **Every section has an icon, on its heading and on its chip** — the same icon in the same
+  colour on both, so a chip and the section it jumps to are recognisably one thing.
+- **The icon's colour says what kind of thing the section is**, in seven colours: yellow for the
+  app and its settings, green for controls, light blue for words, heavy blue for the frame and
+  its boxes, orange where the app reaches out (export, menus, dialogs, sheets), red for
+  Maintenance and Diagnostics, and rose for Flashes alone. Each is a colour of its own under
+  “This page” → “Section icons of this page”.
+- **The default order of the sections changed** so that no two neighbours share a colour. An
+  order arranged by dragging the chips is kept as it is.
+- **Row icons follow the size of their label**: 1.25 times the text size, never under 18 dp, also
+  after a font or size change, and level with the label's first line. The explanation under a
+  pill or a switch label now starts under the label's text rather than under its icon.
+
+### Menu icons
+
+- **Four default colours changed**, away from colours that are hard to tell from yellow or from
+  one another: call is a heavy green `#00A550` (was `#00FF00`), message a heavy blue `#0066FF`
+  (was `#4D94FF`), contact a light blue `#00B0FF` (was `#00FFFF`), block a rose `#FF3D7F` (was
+  `#FF00FF`). A colour set on the page, or served by 電話, is kept.
+
+## 6.3.0-alpha+2026-11-09.14-39.g2199af83+060
 
 Same upstream base as `+058` (`2199af83`); `versionCode` `602010060`. `+059` was an unpublished
 step on the way (it pasted at once, with no menu).
