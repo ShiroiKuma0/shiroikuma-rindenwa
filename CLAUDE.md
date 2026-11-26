@@ -185,8 +185,8 @@ selected account into the call record** as its local side. Confirmed in the phon
 - **The repair** (`SkCallStamps.repairIncomingAccounts`, once, flag `_incoming_accounts_repaired`)
   moved old incoming stamps by the tail Odorik puts after the caller's name (`601123456›009`) —
   only where exactly one account's name holds a number ending in it. That tail is a label of the
-  line at Odorik, and two of 白い熊's lines share `666`: those rows could not be told apart and
-  stay where they were.
+  line at Odorik, and two of 白い熊's lines carry the same one: those rows could not be told
+  apart and stay where they were.
 - The “calls” diagnostic writes one line per incoming call: `incoming local side: to=… request=…
   record=… account=…`.
 
