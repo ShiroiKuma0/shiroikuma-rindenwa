@@ -2,7 +2,61 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha+2026-11-23.08-45.g02e7f6ea+062 — current
+## 6.3.0-alpha+2026-11-23.08-45.g02e7f6ea+065 — current
+
+Same upstream base as `+062` (`02e7f6ea`); `versionCode` `602010065`. Builds `+063` and `+064`
+were test builds and are contained in this one.
+
+### Incoming calls are filed under the line they rang on
+
+- **A missed call no longer lands under whichever account's tab is open.** With several
+  accounts at a provider that writes a port into the `To` line of its INVITE, the SDK could not
+  place the call and recorded the selected account instead. The line is now read from the
+  INVITE itself — the `To` line, then the request line — and the record is asked only when
+  neither names an account.
+- The call's stamp, the badge on the call screen, the badge of the history row, the account's
+  tab and “calls with this person” all follow that line; so do calling back from a row, the
+  line a written reply to a caller is sent from, and the recognition of a callback's first leg.
+- **The stamp is written the moment a call arrives**, so a call that is still ringing is already
+  listed under the right account, and the history is made again whenever a stamp is written.
+- **The tab of all accounts shows all accounts' calls again.** It kept the list of the tab it
+  was reached from until something else refreshed it.
+- **Old rows are repaired once**, on the first opening of the history: an incoming call whose
+  caller name carries the provider's line tail is moved to the account whose name holds a
+  number ending in that tail — only where exactly one account fits. A moved row takes that
+  account's badge of today.
+- The “calls” diagnostic records, for every incoming call, the `To` line, the request line,
+  what the record says and the account chosen.
+
+### Missed calls, counted per account
+
+- **Missed calls not yet looked at are counted by the account they really rang on.** Opening an
+  account's history clears that account's count; the tab of all accounts counts and clears
+  them all. A call taken on another device is not counted.
+- **Each account tab carries its count** in a badge over the bottom-right corner of its
+  picture — accent ground, black number, both settable — and the tab of all accounts carries
+  the total.
+- **The red badge on the bottom tab is gone.**
+- The missed-call notification and the “other accounts” notice use the same count.
+
+### Call screens in the address book's cards
+
+- **Incoming, outgoing and ongoing calls show who the call is with in two cards**: a picture
+  card and a name card, one above the other on a narrow screen and side by side on a wide one.
+- **The picture is shown whole** — never round, never cropped, whatever its shape. A caller
+  without a picture gets the round stand-in in the middle of the card.
+- **The caller is the subject of the screen**: the name largest, the number below it in the
+  house reading (`+420-601-123-456`), never a `sip:` address; then, small, the line the call
+  goes through — its 臨N badge and the account's name. Until now the line stood in the largest
+  type and read as if it were the caller.
+- **Decline and Answer are worded pills** side by side — Answer with the thick frame, Decline
+  with a thin red one — and the four small actions shrink their labels to fit instead of
+  cutting them off.
+- The heading of an incoming call is the plain “Incoming call”; the line is named in the card.
+- Seven new colour roles: the cards' ground and frame, the name, the number, the status line,
+  and the tab badge's ground and number.
+
+## 6.3.0-alpha+2026-11-23.08-45.g02e7f6ea+062
 
 Same upstream base as `+061` (`02e7f6ea`); `versionCode` `602010062`.
 
