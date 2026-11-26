@@ -67,9 +67,9 @@ class OutgoingCallFragment : GenericCallFragment() {
 
         // shiroikuma fork: the account's badge in the colours of its number.
         callViewModel.skAccountColors.observe(viewLifecycleOwner) { (ground, text) ->
-            binding.skAccount.skAccountBadge.backgroundTintList =
+            binding.skParty.skText.skAccountBadge.backgroundTintList =
                 android.content.res.ColorStateList.valueOf(ground)
-            binding.skAccount.skAccountBadge.setTextColor(text)
+            binding.skParty.skText.skAccountBadge.setTextColor(text)
         }
 
         callViewModel.isOutgoingEarlyMedia.observe(viewLifecycleOwner) { earlyMedia ->

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  shiroikuma-rindenwa fork — the name card of a call screen (白い熊, 2026-11-26): who the other
+  party is, largest; their number below it, smaller and in the house reading, never a SIP address;
+  then, smaller again, the line the call goes through — its 臨N badge in the badge's own colours
+  (set by the fragment) and the account's name; and what the call is doing, where the screen has
+  no other place for that. The card carries no colour: roles, by skInk and the shape factory.
+-->
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+        <import type="android.view.View" />
+        <variable
+            name="viewModel"
+            type="org.linphone.ui.call.viewmodel.CurrentCallViewModel" />
+        <variable
+            name="showStatus"
+            type="Boolean" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:background="@drawable/sk_call_card">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/default_text_style_800"
+            android:id="@+id/sk_party_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:text="@{viewModel.displayedName, default=`John Doe`}"
+            android:textSize="34sp"
+            skInk="@{`call_party_name`}" />
+
+        <!-- The name above was found online while the call rang, and is in no address book
+             (SkOnlineId). -->
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/default_text_style_700"
+            android:id="@+id/sk_online_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:paddingStart="7dp"
+            android:paddingEnd="7dp"
+            android:includeFontPadding="false"
+            android:text="@string/sk_online_id_mark"
+            android:textColor="@color/sk_online_id_pill_text"
+            android:textSize="16sp"
+            android:background="@drawable/sk_online_id_pill"
+            android:visibility="@{viewModel.skOnlineId ? View.VISIBLE : View.GONE, default=gone}" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/default_text_style_700"
+            android:id="@+id/sk_party_number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:gravity="center"
+            android:maxLines="1"
+            android:ellipsize="middle"
+            android:text="@{viewModel.skPartyNumber, default=`+420-601-123-456`}"
+            android:textSize="24sp"
+            android:visibility="@{viewModel.skPartyNumber.length() > 0 ? View.VISIBLE : View.GONE}"
+            skInk="@{`call_party_number`}" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/default_text_style_700"
+                android:id="@+id/sk_account_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="6dp"
+                android:paddingEnd="6dp"
+                android:singleLine="true"
+                android:includeFontPadding="false"
+                android:text="@{viewModel.skAccountBadge, default=`臨1`}"
+                android:textSize="18sp"
+                skInk="@{`sk_badge_rin_text`}"
+                android:background="@drawable/sk_badge_rin" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/default_text_style_700"
+                android:id="@+id/sk_account_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:text="@{viewModel.skAccountName, default=`John Doe`}"
+                android:textSize="15sp"
+                skInk="@{`call_account_label`}" />
+
+        </LinearLayout>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/default_text_style"
+            android:id="@+id/sk_call_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@{viewModel.skCallStatus, default=@string/sk_call_status_dialing}"
+            android:textSize="16sp"
+            android:visibility="@{showStatus ? View.VISIBLE : View.GONE}"
+            skInk="@{`call_party_status`}" />
+
+    </LinearLayout>
+
+</layout>

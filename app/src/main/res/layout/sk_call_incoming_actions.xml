@@ -71,11 +71,13 @@
                     style="@style/default_text_style_700"
                     android:id="@+id/silence_ringer_label"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="22dp"
                     android:layout_marginTop="6dp"
                     android:gravity="center"
                     android:maxLines="1"
-                    android:ellipsize="end"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="9sp"
+                    app:autoSizeMaxTextSize="16sp"
                     android:alpha="@{viewModel.isRingingSilenced ? 0.4f : 1f}"
                     android:text="@{viewModel.isRingingSilenced ? @string/sk_call_silence_ringer_done : @string/sk_call_silence_ringer, default=@string/sk_call_silence_ringer}"
                     skInk="@{`call_control_label`}"
@@ -107,11 +109,13 @@
                     style="@style/default_text_style_700"
                     android:id="@+id/answer_on_speaker_label"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="22dp"
                     android:layout_marginTop="6dp"
                     android:gravity="center"
                     android:maxLines="1"
-                    android:ellipsize="end"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="9sp"
+                    app:autoSizeMaxTextSize="16sp"
                     android:text="@string/sk_call_answer_on_speaker"
                     skInk="@{`call_control_label`}"
                     android:textSize="@dimen/sk_call_action_label_size" />
@@ -141,11 +145,13 @@
                     style="@style/default_text_style_700"
                     android:id="@+id/decline_with_message_label"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="22dp"
                     android:layout_marginTop="6dp"
                     android:gravity="center"
                     android:maxLines="1"
-                    android:ellipsize="end"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="9sp"
+                    app:autoSizeMaxTextSize="16sp"
                     android:text="@string/sk_call_decline_with_message"
                     skInk="@{`call_control_label`}"
                     android:textSize="@dimen/sk_call_action_label_size" />
@@ -176,11 +182,13 @@
                     style="@style/default_text_style_700"
                     android:id="@+id/block_caller_label"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="22dp"
                     android:layout_marginTop="6dp"
                     android:gravity="center"
                     android:maxLines="1"
-                    android:ellipsize="end"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="9sp"
+                    app:autoSizeMaxTextSize="16sp"
                     android:text="@string/sk_block"
                     skInk="@{`call_control_label`}"
                     android:textSize="@dimen/sk_call_action_label_size" />
@@ -189,41 +197,51 @@
 
         </LinearLayout>
 
+        <!-- The decision, as two worded pills side by side (白い熊, 2026-11-26): Answer is the
+             screen's main action — thick frame, bold; Decline the other one — thin red frame. -->
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/sk_call_actions_row_gap"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:baselineAligned="false">
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/default_text_style"
                 android:id="@+id/hang_up"
-                android:layout_width="@dimen/sk_call_round_button_size"
-                android:layout_height="@dimen/sk_call_round_button_size"
-                android:background="@drawable/sk_round_danger_button"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/sk_call_pill_height"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:maxLines="1"
+                android:background="@drawable/sk_call_decline_pill"
                 android:onClick="@{() -> viewModel.hangUp()}"
                 android:clickable="true"
                 android:focusable="true"
-                android:padding="@dimen/sk_call_round_button_padding"
-                android:scaleType="fitCenter"
-                android:src="@drawable/phone_disconnect"
+                android:text="@string/sk_call_decline"
+                android:textSize="22sp"
                 android:contentDescription="@string/content_description_hang_up_call"
-                skTint="@{`sk_call_hangup`}" />
+                skInk="@{`sk_call_hangup`}" />
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/default_text_style_800"
                 android:id="@+id/answer_call"
-                android:layout_width="@dimen/sk_call_round_button_size"
-                android:layout_height="@dimen/sk_call_round_button_size"
-                android:layout_marginStart="@dimen/sk_call_answer_decline_gap"
-                android:background="@drawable/sk_round_filled_button"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/sk_call_pill_height"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:gravity="center"
+                android:maxLines="1"
+                android:background="@drawable/sk_call_answer_pill"
                 android:onClick="@{() -> viewModel.answer()}"
                 android:clickable="true"
                 android:focusable="true"
-                android:padding="@dimen/sk_call_round_button_padding"
-                android:scaleType="fitCenter"
-                android:src="@{viewModel.isVideoEnabled ? @drawable/video_camera : @drawable/phone, default=@drawable/phone}"
+                android:text="@string/sk_call_answer"
+                android:textSize="22sp"
                 android:contentDescription="@{viewModel.isVideoEnabled ? @string/content_description_answer_video_call : @string/content_description_answer_audio_call}"
-                skTint="@{`call_control_icon`}" />
+                skInk="@{`call_control_label`}" />
 
         </LinearLayout>
 

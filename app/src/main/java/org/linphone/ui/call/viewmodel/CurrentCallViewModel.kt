@@ -71,6 +71,8 @@ import org.linphone.utils.AudioUtils
 import org.linphone.utils.Event
 import org.linphone.utils.LinphoneUtils
 
+private const val SK_LINE_IS_IN_THE_CARD = true
+
 class CurrentCallViewModel
     @UiThread
     constructor() : GenericViewModel() {
@@ -106,6 +108,9 @@ class CurrentCallViewModel
 
     // shiroikuma fork: what the call is doing, in words (see SkCallStatus).
     val skCallStatus = MutableLiveData<String>()
+
+    /** shiroikuma fork: the other party's number as the name card shows it. */
+    val skPartyNumber = MutableLiveData<String>()
 
     // shiroikuma fork: the account the call goes through — its 臨N badge, the badge's colours
     // (ground, text) and its name — at the top of the outgoing and the incoming screen, where
@@ -1347,7 +1352,7 @@ class CurrentCallViewModel
         skAccountColors.postValue(org.linphone.shiroikuma.SkAccountNumbers.colors(coreContext.context, skNumber))
         skAccountName.postValue(org.linphone.shiroikuma.SkCallStamps.accountNameOf(call))
         skCallerKey.postValue(SkDeclineMessages.callerKey(call.remoteAddress))
-        skCallerDid.postValue(SkDeclineMessages.didOf(call.callLog.localAddress))
+        skCallerDid.postValue(SkDeclineMessages.didOf(org.linphone.shiroikuma.SkCallStamps.localAddressOf(call)))
         skBlockKey = org.linphone.shiroikuma.SkBlocked.keyOf(call.remoteAddress).orEmpty()
         skBlockRaw = call.remoteAddress.username.orEmpty()
         skCanBlock.postValue(skBlockKey.isNotEmpty() && call.dir == Call.Dir.Incoming)
@@ -1381,8 +1386,11 @@ class CurrentCallViewModel
 
         if (call.dir == Call.Dir.Incoming) {
             val isVideo = call.remoteParams?.isVideoEnabled == true && call.remoteParams?.videoDirection != MediaDirection.Inactive
-            if (call.core.accountList.size > 1) {
-                val localAddress = call.callLog.toAddress
+            // shiroikuma fork: the line being called is named in the name card, by its badge and
+            // its name, so the heading stays the plain "Incoming call" (白い熊, 2026-11-26). Where
+            // it is still read, the line is the one the INVITE names (SkCallStamps.accountOf).
+            if (!SK_LINE_IS_IN_THE_CARD && call.core.accountList.size > 1) {
+                val localAddress = org.linphone.shiroikuma.SkCallStamps.localAddressOf(call) ?: call.callLog.toAddress
                 Log.i("$TAG Local address for incoming call is [${localAddress.asStringUriOnly()}]")
                 val localAccount = coreContext.core.accountList.find {
                     it.params.identityAddress?.weakEqual(localAddress) == true
@@ -1468,6 +1476,18 @@ class CurrentCallViewModel
             LinphoneUtils.getAddressAsCleanStringUriOnly(address)
         }
         displayedAddress.postValue(uri)
+        // shiroikuma fork: the other party's number for the name card — in the house reading,
+        // and for a caller who is not a number `user@domain`, never the `sip:` address.
+        val skUser = address.username.orEmpty()
+        val skRead = org.linphone.shiroikuma.SkNumbers.format(skUser)
+        skPartyNumber.postValue(
+            when {
+                conferenceInfo != null -> ""
+                skUser.isEmpty() -> address.domain.orEmpty()
+                skRead != skUser || skUser.none { it.isLetter() } -> skRead
+                else -> "$skUser@${address.domain.orEmpty()}"
+            }
+        )
 
         val model = if (conferenceInfo != null) {
             coreContext.contactsManager.getContactAvatarModelForConferenceInfo(conferenceInfo)

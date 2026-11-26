@@ -58,54 +58,29 @@
                 android:orientation="horizontal"
                 app:layout_constraintGuide_percent="1" />
 
-            <include
-                android:id="@+id/avatar"
-                android:layout_width="@dimen/avatar_in_call_size"
-                android:layout_height="@dimen/avatar_in_call_size"
+            <!-- shiroikuma fork: who the call is with — picture card and name card (sk_call_party.xml),
+                 under the heading and above the controls; the remote video, when there is one, lies over it. -->
+            <FrameLayout
+                android:id="@+id/sk_party_holder"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="@dimen/top_bar_height"
                 android:layout_marginBottom="@{viewModel.fullScreenMode || viewModel.pipMode || viewModel.halfOpenedFolded ? @dimen/zero : @dimen/call_main_actions_menu_height, default=@dimen/call_main_actions_menu_height}"
-                layout="@layout/contact_avatar_huge"
-                bind:model="@{viewModel.contact}"
-                app:layout_constraintHorizontal_chainStyle="packed"
-                app:layout_constraintEnd_toStartOf="@id/name_address"
+                android:visibility="@{viewModel.pipMode || viewModel.halfOpenedFolded ? View.GONE : View.VISIBLE}"
+                app:layout_constraintTop_toBottomOf="@id/hinge_top"
+                app:layout_constraintBottom_toBottomOf="@id/hinge_bottom"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/name"
-                app:layout_constraintBottom_toBottomOf="@id/hinge_bottom" />
+                app:layout_constraintEnd_toEndOf="parent">
 
-            <LinearLayout
-                android:id="@+id/name_address"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="30dp"
-                android:layout_marginBottom="@{viewModel.fullScreenMode || viewModel.pipMode || viewModel.halfOpenedFolded ? @dimen/zero : @dimen/call_main_actions_menu_height, default=@dimen/call_main_actions_menu_height}"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:visibility="@{viewModel.pipMode ? View.GONE : View.VISIBLE}"
-                app:layout_constraintStart_toEndOf="@id/avatar"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/name"
-                app:layout_constraintBottom_toBottomOf="@id/hinge_bottom">
+                <include
+                    android:id="@+id/sk_party"
+                    layout="@layout/sk_call_party"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    bind:viewModel="@{viewModel}"
+                    bind:showStatus="@{false}" />
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    style="@style/default_text_style_300"
-                    android:id="@+id/display_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    android:text="@{viewModel.displayedName, default=`John Doe`}"
-                    android:textColor="@color/bc_white"
-                    android:textSize="22sp" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    style="@style/default_text_style"
-                    android:id="@+id/address"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:visibility="@{viewModel.hideSipAddresses ? View.GONE : View.VISIBLE}"
-                    android:text="@{viewModel.displayedAddress, default=`sip:johndoe@sip.linphone.org`}"
-                    android:textColor="@color/bc_white"
-                    android:textSize="14sp" />
-
-            </LinearLayout>
+            </FrameLayout>
 
             <org.linphone.ui.call.view.RoundCornersTextureView
                 android:id="@+id/remote_video_surface"

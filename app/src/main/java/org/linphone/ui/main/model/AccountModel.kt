@@ -65,6 +65,9 @@ class AccountModel
 
     val notificationsCount = MutableLiveData<Int>()
 
+    /** shiroikuma fork: the missed calls of this account not yet looked at — its tab's badge. */
+    val skMissedCalls = MutableLiveData<Int>()
+
     val showMwi = MutableLiveData<Boolean>()
 
     val voicemailCount = MutableLiveData<String>()
@@ -106,6 +109,8 @@ class AccountModel
         }
     }
 
+    private val skMissedListener: () -> Unit = { coreContext.postOnCoreThread { computeNotificationsCount() } }
+
     private val coreListener = object : CoreListenerStub() {
         @WorkerThread
         override fun onChatRoomRead(core: Core, chatRoom: ChatRoom) {
@@ -130,6 +135,7 @@ class AccountModel
     init {
         account.addListener(accountListener)
         coreContext.core.addListener(coreListener)
+        org.linphone.shiroikuma.SkMissedCalls.addListener(skMissedListener)
 
         isDefault.postValue(false)
         presenceStatus.postValue(ConsolidatedPresence.Offline)
@@ -141,6 +147,7 @@ class AccountModel
 
     @WorkerThread
     fun destroy() {
+        org.linphone.shiroikuma.SkMissedCalls.removeListener(skMissedListener)
         coreContext.core.removeListener(coreListener)
         account.removeListener(accountListener)
     }
@@ -192,7 +199,13 @@ class AccountModel
 
     @WorkerThread
     fun computeNotificationsCount() {
-        notificationsCount.postValue(account.unreadChatMessageCount + account.missedCallsCount)
+        // shiroikuma fork: the missed calls by the account they really rang on (SkMissedCalls).
+        val missed = org.linphone.shiroikuma.SkMissedCalls.count(
+            coreContext.context,
+            account.params.identityAddress?.asStringUriOnly()
+        )
+        notificationsCount.postValue(account.unreadChatMessageCount + missed)
+        skMissedCalls.postValue(missed)
     }
 
     @WorkerThread

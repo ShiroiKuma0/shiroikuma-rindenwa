@@ -67,6 +67,27 @@
             coilBigAvatar="@{model}"
             skAvatarPicture="@{model.picturePath}" />
 
+        <!-- shiroikuma fork: the missed calls not yet looked at, over the bottom-right corner of
+             the tab's picture (白い熊, 2026-11-26). A mark, not a button — hence filled. -->
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/default_text_style_800"
+            android:id="@+id/sk_missed"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/sk_tab_count_size"
+            android:minWidth="@dimen/sk_tab_count_size"
+            android:layout_gravity="bottom|start"
+            android:layout_marginStart="@dimen/sk_tab_count_start"
+            android:paddingStart="7dp"
+            android:paddingEnd="7dp"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:textSize="18sp"
+            android:background="@drawable/sk_count_badge"
+            android:text="@{String.valueOf(model.skMissedCalls), default=`1`}"
+            android:visibility="@{model.skMissedCalls > 0 ? View.VISIBLE : View.GONE, default=gone}"
+            skInk="@{`tab_count_text`}" />
+
     </FrameLayout>
 
 </layout>

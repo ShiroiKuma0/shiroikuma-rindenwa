@@ -97,6 +97,19 @@ object SkShapes {
             oval(context, "sk_call_hangup", null, 0f),
         )
         R.drawable.sk_danger_pill -> dangerPill(context)
+        R.drawable.sk_call_card -> rect(context, 15f, "call_card_ground", "call_card_frame", 2f)
+        // Answer is the screen's main action: the thick frame. Decline is the other one: thin.
+        R.drawable.sk_call_answer_pill -> RippleDrawable(
+            wash(context, "call_main_wash"),
+            rect(context, FULL_ROUND_DP, null, "call_main_ring", 3f),
+            rect(context, FULL_ROUND_DP, "call_main_ring", null, 0f),
+        )
+        R.drawable.sk_call_decline_pill -> RippleDrawable(
+            wash(context, "call_key_wash"),
+            rect(context, FULL_ROUND_DP, null, "sk_call_hangup", 1.25f),
+            rect(context, FULL_ROUND_DP, "sk_call_hangup", null, 0f),
+        )
+        R.drawable.sk_count_badge -> rect(context, FULL_ROUND_DP, "tab_count_ground", null, 0f)
         else -> null
     }
 
@@ -235,7 +248,8 @@ object SkShapes {
         R.drawable.sk_blocked_pill, R.drawable.sk_online_id_pill, R.drawable.sk_dialpad_button,
         R.drawable.sk_dialpad_digits_underline, R.drawable.sk_dialpad_panel_background,
         R.drawable.sk_round_outlined_button, R.drawable.sk_round_filled_button,
-        R.drawable.sk_round_danger_button, R.drawable.sk_danger_pill -> true
+        R.drawable.sk_round_danger_button, R.drawable.sk_danger_pill, R.drawable.sk_call_card,
+        R.drawable.sk_call_answer_pill, R.drawable.sk_call_decline_pill, R.drawable.sk_count_badge -> true
         else -> false
     }
 }

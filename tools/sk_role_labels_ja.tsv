@@ -118,6 +118,13 @@ pill_text	ピル型ボタン — ラベル
 call_control_icon	通話の操作ボタン — アイコン
 call_control_label	通話の操作ボタン — ラベル
 call_account_label	通話画面に表示するアカウント名
+call_party_name	通話画面 — 相手の名前
+call_party_number	通話画面 — 相手の番号
+call_party_status	通話画面 — 通話の状態
+call_card_ground	通話画面 — カードの背景
+call_card_frame	通話画面 — カードの枠
+tab_count_ground	アカウントのタブ — 不在着信バッジの背景
+tab_count_text	アカウントのタブ — 不在着信バッジの数字
 dial_digit	ダイヤルパッド — 数字
 dial_letters	ダイヤルパッド — 英字
 dial_field_text	ダイヤルパッド — 入力中の番号

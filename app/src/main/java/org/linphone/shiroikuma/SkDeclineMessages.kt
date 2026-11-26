@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.annotation.AnyThread
 import androidx.annotation.WorkerThread
+import org.linphone.LinphoneApplication.Companion.coreContext
 import org.linphone.R
 import org.linphone.core.Address
 import org.linphone.core.CallLog
@@ -184,7 +185,12 @@ object SkDeclineMessages {
             return null
         }
         val name = fallbackName.ifEmpty { LinphoneUtils.getDisplayName(remote) }
-        return ReplyTarget(didOf(callLog.localAddress), number, callerKey(remote), name)
+        return ReplyTarget(
+            didOf(SkCallStamps.localAddressOf(coreContext.context, callLog)),
+            number,
+            callerKey(remote),
+            name
+        )
     }
 
     // --- sending ---

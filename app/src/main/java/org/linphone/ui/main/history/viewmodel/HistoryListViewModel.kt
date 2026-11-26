@@ -112,6 +112,12 @@ class HistoryListViewModel
         }
     }
 
+    // shiroikuma fork: a live call's stamp was written — which account's list it belongs to may
+    // only be known now (SkCallStamps).
+    private val skStampListener: () -> Unit = {
+        coreContext.postOnCoreThread { computeCallLogsList(currentFilter) }
+    }
+
     private val contactsListener = object : ContactsManager.ContactsListener {
         @WorkerThread
         override fun onContactsLoaded() {
@@ -131,6 +137,7 @@ class HistoryListViewModel
             coreContext.contactsManager.addListener(contactsListener)
             core.addListener(coreListener)
             magicSearch.addListener(magicSearchListener)
+            org.linphone.shiroikuma.SkCallStamps.addListener(skStampListener)
 
             computeCallLogsList(currentFilter)
         }
@@ -144,6 +151,7 @@ class HistoryListViewModel
             coreContext.contactsManager.removeListener(contactsListener)
             core.removeListener(coreListener)
             magicSearch.removeListener(magicSearchListener)
+            org.linphone.shiroikuma.SkCallStamps.removeListener(skStampListener)
         }
     }
 
@@ -224,14 +232,27 @@ class HistoryListViewModel
         // shiroikuma fork: an account's tab shows that account's calls; the 全 tab shows every
         // account's in one list, each marked 臨N with the account it went through — as the
         // sister dialer lists both SIMs together (see SkAllAccounts).
-        val logs = if (SkAllAccounts.isSelected(coreContext.context)) {
-            coreContext.core.callLogs
-        } else {
-            LinphoneUtils.getDefaultAccount()?.callLogs ?: coreContext.core.callLogs
-        }
-
         // shiroikuma fork: once, freeze the badge of every call there is (SkCallStamps).
         org.linphone.shiroikuma.SkCallStamps.stampWholeLog(coreContext.context, coreContext.core)
+        // And once, move the incoming calls stamped with the selected account to their own.
+        org.linphone.shiroikuma.SkCallStamps.repairIncomingAccounts(coreContext.context, coreContext.core)
+
+        // Whose call a record is, is asked of its stamp and not of the SDK's own per-account
+        // list: that list goes by the record's local side, which for an incoming call may name
+        // the account that was merely selected then (SkCallStamps.accountOf; 白い熊, 2026-11-26).
+        val allLogs = coreContext.core.callLogs
+        val selected = if (SkAllAccounts.isSelected(coreContext.context)) {
+            null
+        } else {
+            LinphoneUtils.getDefaultAccount()?.params?.identityAddress?.asStringUriOnly()
+        }
+        val logs = if (selected == null) {
+            allLogs.toList()
+        } else {
+            allLogs.filter {
+                org.linphone.shiroikuma.SkCallStamps.identityOf(coreContext.context, it) == selected
+            }
+        }
 
         val contactFilter = skContactFilter.value
         for (callLog in logs) {

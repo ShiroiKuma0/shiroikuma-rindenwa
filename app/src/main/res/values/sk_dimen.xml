@@ -19,6 +19,10 @@
     <!-- The account picture at 2x upstream's 45dp — the same size in every tab, in front or
          filed away. -->
     <dimen name="sk_account_tab_avatar_size">90dp</dimen>
+    <!-- The missed-calls badge of a tab: its size, and where it starts so that it ends on the
+         picture's right edge (the picture's size less the badge's). -->
+    <dimen name="sk_tab_count_size">32dp</dimen>
+    <dimen name="sk_tab_count_start">58dp</dimen>
     <dimen name="sk_account_tab_name_max_width">220dp</dimen>
 
     <!-- The incoming-call panel (sk_call_incoming_actions.xml). Three 112dp columns across the
@@ -36,6 +40,7 @@
     <dimen name="sk_call_actions_row_gap">24dp</dimen>
     <dimen name="sk_call_actions_vertical_padding">20dp</dimen>
     <dimen name="sk_call_action_label_size">16sp</dimen>
+    <dimen name="sk_call_pill_height">60dp</dimen>
     <!-- The dial panel (sk_dialpad_panel.xml). Three 76dp keys with 16dp between them make
          244dp, so the keypad keeps its shape on the folded cover panel as well as unfolded; the
          sheet itself is as tall as its contents and nothing below it is pushed off screen. -->

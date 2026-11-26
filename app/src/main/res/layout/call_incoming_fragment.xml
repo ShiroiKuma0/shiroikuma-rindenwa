@@ -15,94 +15,17 @@
         android:layout_height="match_parent"
         android:background="@color/sk_surface">
 
-
-        <!-- shiroikuma fork: the account this call goes through (sk_call_account.xml). -->
+        <!-- shiroikuma fork: who the call is with — picture card and name card (sk_call_party.xml). -->
         <include
-            android:id="@+id/sk_account"
-            layout="@layout/sk_call_account"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
+            android:id="@+id/sk_party"
+            layout="@layout/sk_call_party"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="6dp"
             bind:viewModel="@{viewModel}"
-            app:layout_constrainedWidth="true"
+            bind:showStatus="@{true}"
             app:layout_constraintTop_toBottomOf="@id/call_direction_label"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <include
-            android:id="@+id/avatar"
-            android:layout_width="@dimen/avatar_in_call_size"
-            android:layout_height="@dimen/avatar_in_call_size"
-            layout="@layout/contact_avatar_huge"
-            bind:model="@{viewModel.contact}"
-            app:layout_constraintVertical_chainStyle="packed"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/sk_account"
-            app:layout_constraintBottom_toTopOf="@id/name" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            style="@style/default_text_style_300"
-            android:id="@+id/name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:text="@{viewModel.displayedName, default=`John Doe`}"
-            android:textColor="@color/sk_yellow"
-            android:textSize="22sp"
-            app:layout_constraintTop_toBottomOf="@id/avatar"
-            app:layout_constraintBottom_toBottomOf="@id/address"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <!-- shiroikuma fork: the name above was found online while the call rang, and is in no
-             address book (SkOnlineId). The name keeps its place in the middle; the mark hangs
-             after it. -->
-        <androidx.appcompat.widget.AppCompatTextView
-            style="@style/default_text_style_700"
-            android:id="@+id/sk_online_id"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:paddingStart="7dp"
-            android:paddingEnd="7dp"
-            android:includeFontPadding="false"
-            android:text="@string/sk_online_id_mark"
-            android:textColor="@color/sk_online_id_pill_text"
-            android:textSize="16sp"
-            android:background="@drawable/sk_online_id_pill"
-            android:visibility="@{viewModel.skOnlineId ? View.VISIBLE : View.GONE, default=gone}"
-            app:layout_constraintStart_toEndOf="@id/name"
-            app:layout_constraintTop_toTopOf="@id/name"
-            app:layout_constraintBottom_toBottomOf="@id/name" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            style="@style/default_text_style"
-            android:id="@+id/address"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@{viewModel.displayedAddress, default=`sip:johndoe@sip.linphone.org`}"
-            android:textColor="@color/sk_ink_dim"
-            android:textSize="14sp"
-            android:visibility="@{viewModel.hideSipAddresses || viewModel.conferenceModel.isCurrentCallInConference ? View.GONE : View.VISIBLE}"
-            app:layout_constraintTop_toBottomOf="@id/name"
             app:layout_constraintBottom_toTopOf="@id/bottom_bar"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <!-- shiroikuma fork: what the call is doing, in words — in place of upstream's rotating circle. -->
-        <androidx.appcompat.widget.AppCompatTextView
-            style="@style/default_text_style"
-            android:id="@+id/sk_call_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@{viewModel.skCallStatus, default=@string/sk_call_status_dialing}"
-            android:textColor="@color/sk_yellow"
-            android:textSize="16sp"
-            app:layout_constraintTop_toBottomOf="@id/address"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 

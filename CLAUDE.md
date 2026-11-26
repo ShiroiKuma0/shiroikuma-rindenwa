@@ -156,6 +156,58 @@ from it alone. Asked for by 白い熊 through the Denwa chat, after 電話's SIM
 - **Never put a real phone number in a comment, a string or an example** — this repository is
   public. Use made-up ones (`+420-601-123-456`).
 
+## An incoming call's line is read from the INVITE — never from the SDK's record
+
+白い熊, 2026-11-26 (+063 to +065): every missed call was filed under whichever account's tab stood
+open. The SDK looks the `To` line up among the accounts by the whole address; Odorik sends
+`To: <sip:123456@sip.odorik.cz:6688>`, the port fits no identity, and the SDK then **writes the
+selected account into the call record** as its local side. Confirmed in the phone's database.
+
+- **`SkCallStamps.accountOf(call)`** is the one place an incoming call's account is worked out: the
+  `To` header (`call.getToHeader("To")`), then the request line, each by the whole address and then
+  by the user part; the record's local side only when neither names an account. Never use
+  `call.callLog.localAddress`, `callLog.toAddress` or `LinphoneUtils.getAccountForAddress` on it for
+  an incoming call again — use `SkCallStamps.identityOf` / `localAddressOf` (for a live call or for
+  a record).
+- **The stamp is written the moment a call is first seen**, not only when it ends: the SDK
+  announces the record while the call still rings, and a list made then must find the line.
+  `SkCallStamps.addListener` tells the history to make its list again whenever a stamp is written.
+- **The history never uses the SDK's per-account lists** (`account.callLogs`,
+  `getCallLogsForAddress`): they go by the record's local side. An account's tab is
+  `core.callLogs` filtered by the stamp's identity. Switching to 全 calls `filter()`, never
+  `applyFilter()` — that one does nothing while the search text is unchanged.
+- **Missed calls are counted by us** (`shiroikuma/SkMissedCalls.kt`, preferences file
+  `sk_missed_calls`, not exported): noted when a call ends missed, forgotten when that account's
+  history is opened (全 forgets all). `account.missedCallsCount` is not read anywhere.
+- **The badges** (白い熊, 2026-11-26): no red badge on the bottom 臨電話 tab. Each account tab
+  carries its count in accent on black over the bottom-right corner of its picture
+  (`sk_count_badge`, roles `tab_count_ground` / `tab_count_text`); the 全 tab carries the total.
+- **The repair** (`SkCallStamps.repairIncomingAccounts`, once, flag `_incoming_accounts_repaired`)
+  moved old incoming stamps by the tail Odorik puts after the caller's name (`601123456›009`) —
+  only where exactly one account's name holds a number ending in it. That tail is a label of the
+  line at Odorik, and two of 白い熊's lines share `666`: those rows could not be told apart and
+  stay where they were.
+- The “calls” diagnostic writes one line per incoming call: `incoming local side: to=… request=…
+  record=… account=…`.
+
+## Call screens — the picture card and the name card
+
+白い熊, 2026-11-26 (+065), chosen from five proposals: incoming, outgoing and ongoing calls show
+who the call is with in 連絡先's two cards.
+
+- **`sk_call_party.xml`** (stacked) and its twin in **`layout-w600dp`** (side by side: two panels
+  and wider) hold the picture card and include **`sk_call_party_text.xml`**, the name card. The
+  six fragment layouts (portrait and `layout-land`, three screens) only include the block.
+- **The picture is shown whole** — `fitCenter`, never round, never cropped, whatever its shape
+  (`skWholePicture` in `SkCallPicture.kt`). Only a caller without one gets the round stand-in.
+- **The name card:** the name largest; the number in the house reading (`skPartyNumber`, never a
+  `sip:` address); then, small, the line — its 臨N badge and the account's name; the status line
+  where the screen has no other place for it. The caller is the subject of the screen, the line
+  is not: never make the line the largest thing again.
+- **Incoming:** Decline and Answer are worded pills side by side (`sk_call_decline_pill` thin
+  red, `sk_call_answer_pill` thick), the heading is the plain “Incoming call”, and the small
+  actions shrink their labels rather than cut them.
+
 ## Silencing a ringing call — and why the volume button comes round through 自由作業盤
 
 `shiroikuma/SkRinger.kt` silences ringtone and vibration without touching the call: the Silence

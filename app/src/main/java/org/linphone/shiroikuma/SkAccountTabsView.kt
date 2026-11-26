@@ -73,16 +73,30 @@ class SkAccountTabsView
         private val allSelectedObserver = Observer<Boolean> { applyActive(animate = true) }
         private val allLookObserver = Observer<Int> { styleAllTab() }
 
+        // The 全 tab's badge: the missed calls of every account together (SkMissedCalls).
+        private val missedListener: () -> Unit = { post { showAllMissed() } }
+
+        private fun showAllMissed() {
+            val badge = allTab?.skAllMissed ?: return
+            val count = SkMissedCalls.total(context)
+            badge.text = count.toString()
+            badge.setTextColor(SkRoles.color(context, "tab_count_text"))
+            badge.visibility = if (count > 0) View.VISIBLE else View.GONE
+        }
+
         override fun onAttachedToWindow() {
             super.onAttachedToWindow()
             SkAllAccounts.isSelected(context)
             SkAllAccounts.selected.observeForever(allSelectedObserver)
             SkAllAccounts.lookVersion.observeForever(allLookObserver)
+            SkMissedCalls.addListener(missedListener)
+            showAllMissed()
         }
 
         override fun onDetachedFromWindow() {
             SkAllAccounts.selected.removeObserver(allSelectedObserver)
             SkAllAccounts.lookVersion.removeObserver(allLookObserver)
+            SkMissedCalls.removeListener(missedListener)
             super.onDetachedFromWindow()
         }
 
@@ -99,6 +113,7 @@ class SkAccountTabsView
             tab.root.setOnClickListener { SkAllAccounts.setSelected(context, true) }
             allTab = tab
             styleAllTab()
+            showAllMissed()
         }
 
         /** The character in its font slot, or the chosen picture in its place. */

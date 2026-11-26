@@ -18,6 +18,7 @@ import org.linphone.core.AudioDevice
 import org.linphone.core.Call
 import org.linphone.core.CallLog
 import org.linphone.core.Core
+import org.linphone.core.Factory
 import org.linphone.core.MediaEncryption
 import org.linphone.core.Reason
 import org.linphone.core.tools.Log
@@ -187,6 +188,9 @@ object SkCallStamps {
     /** Not a call: set once the whole log has been stamped. Never exported. */
     private const val KEY_WHOLE_LOG_DONE = "_whole_log_stamped"
 
+    /** Not a call: set once [repairIncomingAccounts] has run. Never exported. */
+    private const val KEY_INCOMING_REPAIRED = "_incoming_accounts_repaired"
+
     private const val UNKNOWN_SSID = "<unknown ssid>"
 
     private fun prefs(context: Context): SharedPreferences =
@@ -265,6 +269,8 @@ object SkCallStamps {
     fun ensure(context: Context, log: CallLog, editor: SharedPreferences.Editor? = null): SkCallStamp {
         val key = keyOf(log)
         get(context, key)?.let { return it }
+        // Its call is still being followed: that stamp is on its way, and knows the line.
+        liveStampOf(log)?.let { return it }
         val stamp = withBadge(context, SkCallStamp(source = SkCallStamp.SOURCE_LOG), identityOf(log.localAddress))
         put(context, key, stamp, editor)
         return stamp
@@ -291,9 +297,78 @@ object SkCallStamps {
         Log.i("$TAG Stamped the whole call log once: [$count] record(s)")
     }
 
+    // ------------------------------------------------------------------ the repair of 2026-11-26
+
+    private val ODORIK_TAIL = Regex("^[+0-9 ()-]+[>›]([0-9]{2,})$")
+
+    /**
+     * Once: give the incoming calls stamped before +063 the account they really rang on.
+     *
+     * Until then an incoming call was stamped with the account the SDK's record names, which is
+     * the account that was selected at that moment whenever the SDK could not place the `To` line
+     * ([accountOf]). The record still holds one piece of evidence of the line: Odorik sends the
+     * caller as `"<number>›<tail>"`, the tail being the label that line carries at Odorik — on
+     * 白い熊's lines the last digits of one of the numbers the account is named after
+     * (`601-123-456 (910-123-456 Odorik)`). Two lines may share a tail, and then it says nothing.
+     * A stamp is moved only when **exactly one** account's name carries a number ending in that
+     * tail and it is another account than the stamp's; the badge is then that account's of today,
+     * the best that is known. A call without a tail — a callback's first leg, another provider —
+     * is left as it is.
+     */
+    @WorkerThread
+    fun repairIncomingAccounts(context: Context, core: Core) {
+        val prefs = prefs(context)
+        if (prefs.getBoolean(KEY_INCOMING_REPAIRED, false)) return
+        val editor = prefs.edit()
+        var seen = 0
+        var moved = 0
+        try {
+            // The numbers each account's name carries, as bare digit runs.
+            val numbers = core.accountList.mapNotNull { account ->
+                val address = account.params.identityAddress ?: return@mapNotNull null
+                val runs = Regex("[0-9][0-9 -]*[0-9]").findAll(address.displayName.orEmpty())
+                    .map { run -> run.value.filter(Char::isDigit) }
+                    .filter { it.length >= 6 }
+                    .toList()
+                if (runs.isEmpty()) null else account to runs
+            }
+            for (log in core.callLogs) {
+                if (log.dir != Call.Dir.Incoming) continue
+                val tail = ODORIK_TAIL.find(log.remoteAddress.displayName.orEmpty().trim())
+                    ?.groupValues?.get(1) ?: continue
+                seen++
+                val matching = numbers.filter { (_, runs) -> runs.any { it.endsWith(tail) } }
+                if (matching.size != 1) continue
+                val account = matching[0].first
+                val identity = account.params.identityAddress?.asStringUriOnly() ?: continue
+                val key = keyOf(log)
+                val stamp = get(context, key) ?: SkCallStamp(source = SkCallStamp.SOURCE_LOG)
+                if (stamp.identity == identity) continue
+
+                val serverAddress = account.params.serverAddress
+                val host = serverAddress?.domain.orEmpty()
+                val port = serverAddress?.port ?: 0
+                var fixed = withBadge(context, stamp, identity)
+                if (stamp.isFromCall) {
+                    fixed = fixed.copy(
+                        server = if (host.isNotEmpty() && port > 0) "$host:$port" else host,
+                        transport = serverAddress?.transport?.name?.uppercase().orEmpty(),
+                    )
+                }
+                put(context, key, fixed, editor)
+                moved++
+            }
+        } catch (e: Exception) {
+            Log.e("$TAG Repairing the incoming calls' accounts failed: $e")
+        }
+        editor.putBoolean(KEY_INCOMING_REPAIRED, true).apply()
+        Log.i("$TAG Repaired incoming accounts once: [$moved] of [$seen] call(s) with a line tail moved")
+        SkDiag.log(context, SkDiagKind.CALLS, "repair of incoming accounts: $moved of $seen calls with a line tail moved")
+    }
+
     // ------------------------------------------------------------------ the account side
 
-    /** The identity of the account [local] belongs to, as `CallLogModel` works it out. */
+    /** The account [local] names: by the whole address, else by the user part alone. */
     @WorkerThread
     private fun accountOf(local: Address?): Account? {
         local ?: return null
@@ -307,9 +382,74 @@ object SkCallStamps {
     private fun identityOf(local: Address?): String =
         accountOf(local)?.params?.identityAddress?.asStringUriOnly() ?: local?.asStringUriOnly().orEmpty()
 
+    /** The `To` line of the INVITE that brought [call] in, exactly as it was sent. */
+    @WorkerThread
+    private fun toHeaderOf(call: Call): Address? = try {
+        call.getToHeader("To")?.takeIf { it.isNotBlank() }?.let { Factory.instance().createAddress(it) }
+    } catch (e: Exception) {
+        null
+    }
+
+    @WorkerThread
+    private fun requestAddressOf(call: Call): Address? = try {
+        call.requestAddress
+    } catch (e: Exception) {
+        null
+    }
+
+    /**
+     * The account a live [call] goes through.
+     *
+     * **An incoming call is not asked of its log record** (白い熊, 2026-11-26). The SDK looks the
+     * `To` line up among the accounts by the whole address; Odorik sends
+     * `To: <sip:123456@sip.odorik.cz:6688>`, the port fits no identity, and the SDK then falls
+     * back on the **selected** account and writes that one into the record as the local side —
+     * every missed call was filed under whichever account's tab stood open. So the line is read
+     * here from what came over the wire: the `To` line, then the request line (the contact that
+     * account registered), each by the whole address and then by the user part; the record's
+     * local side only when neither names an account.
+     */
+    @WorkerThread
+    fun accountOf(call: Call): Account? {
+        if (call.dir == Call.Dir.Incoming) {
+            accountOf(toHeaderOf(call))?.let { return it }
+            accountOf(requestAddressOf(call))?.let { return it }
+        }
+        return accountOf(call.callLog.localAddress)
+    }
+
     /** The identity of the account a live [call] goes through — what its stamp will carry. */
     @WorkerThread
-    fun identityOf(call: Call): String = identityOf(call.callLog.localAddress)
+    fun identityOf(call: Call): String =
+        accountOf(call)?.params?.identityAddress?.asStringUriOnly()
+            ?: call.callLog.localAddress?.asStringUriOnly().orEmpty()
+
+    /** The local side of a live [call]: its account's own address, else what the record says. */
+    @WorkerThread
+    fun localAddressOf(call: Call): Address? =
+        accountOf(call)?.params?.identityAddress ?: call.callLog.localAddress
+
+    /**
+     * The identity of the account the call of [log] went through: what its stamp says, and only
+     * for a call without one what the record's local side says — which for an incoming call may
+     * be the account that was merely selected then (see [accountOf]).
+     */
+    @WorkerThread
+    fun identityOf(context: Context, log: CallLog): String =
+        (liveStampOf(log) ?: get(context, keyOf(log)))?.identity?.takeIf { it.isNotEmpty() }
+            ?: identityOf(log.localAddress)
+
+    /** The account of [identityOf], when it still exists. */
+    @WorkerThread
+    fun accountOf(context: Context, log: CallLog): Account? {
+        val identity = identityOf(context, log)
+        return coreContext.core.accountList.find { it.params.identityAddress?.asStringUriOnly() == identity }
+    }
+
+    /** The local side of [log]: its account's own address, else what the record says. */
+    @WorkerThread
+    fun localAddressOf(context: Context, log: CallLog): Address? =
+        accountOf(context, log)?.params?.identityAddress ?: log.localAddress
 
     /**
      * What the account a live [call] goes through is called: the name it was given in its
@@ -317,8 +457,7 @@ object SkCallStamps {
      */
     @WorkerThread
     fun accountNameOf(call: Call): String {
-        val local = call.callLog.localAddress
-        val identity = accountOf(local)?.params?.identityAddress ?: local
+        val identity = localAddressOf(call)
         return identity?.displayName?.takeIf { it.isNotBlank() } ?: identity?.username.orEmpty()
     }
 
@@ -340,6 +479,42 @@ object SkCallStamps {
 
     /** Core thread only. */
     private val live = HashMap<Call, Live>()
+
+    private val listeners = java.util.concurrent.CopyOnWriteArraySet<() -> Unit>()
+
+    /**
+     * Told on the core thread whenever a live call's stamp was written: a list that sorts calls
+     * by their account has to be made again then.
+     */
+    fun addListener(listener: () -> Unit) {
+        listeners.add(listener)
+    }
+
+    fun removeListener(listener: () -> Unit) {
+        listeners.remove(listener)
+    }
+
+    private fun changed() {
+        for (listener in listeners) listener()
+    }
+
+    /**
+     * The stamp in the making of the call [log] belongs to, while that call is still followed:
+     * the record is announced before the stamp is written, and a row built in between would
+     * otherwise take the record's word for the account.
+     */
+    @WorkerThread
+    private fun liveStampOf(log: CallLog): SkCallStamp? {
+        if (live.isEmpty()) return null
+        val key = keyOf(log)
+        return live.entries.firstOrNull {
+            try {
+                keyOf(it.key.callLog) == key
+            } catch (e: Exception) {
+                false
+            }
+        }?.value?.stamp
+    }
 
     /**
      * The hang-up, the cancel or the decline was asked for on this phone. Called from
@@ -363,7 +538,15 @@ object SkCallStamps {
     fun onCallStateChanged(core: Core, call: Call, state: Call.State) {
         val context = coreContext.context
         try {
+            val first = call !in live
             val record = live.getOrPut(call) { Live(firstSight(context, call)) }
+            if (first) {
+                // Stored at once, not only when the call ends: the SDK announces the record of a
+                // call the moment it starts ringing, and a history that lists it then must find
+                // the line it rings on, not the record's guess (白い熊, 2026-11-26).
+                put(context, keyOf(call.callLog), record.stamp)
+                changed()
+            }
 
             when (state) {
                 Call.State.Connected, Call.State.StreamsRunning, Call.State.UpdatedByRemote, Call.State.Updating -> {
@@ -382,6 +565,10 @@ object SkCallStamps {
                     record.stamp = withEnd(record, call, state)
                     put(context, keyOf(call.callLog), record.stamp)
                     record.written = true
+                    if (record.stamp.end == SkCallStamp.END_MISSED) {
+                        SkMissedCalls.note(context, keyOf(call.callLog), record.stamp.identity)
+                    }
+                    changed()
                 }
                 Call.State.Released -> {
                     // The log's final status is only certain here: a call taken on another device
@@ -394,6 +581,8 @@ object SkCallStamps {
                         if (end != record.stamp.end) {
                             record.stamp = record.stamp.copy(end = end)
                             put(context, keyOf(call.callLog), record.stamp)
+                            SkMissedCalls.forget(context, keyOf(call.callLog))
+                            changed()
                         }
                     }
                     live.remove(call)
@@ -410,8 +599,7 @@ object SkCallStamps {
     /** What is frozen the moment a call is first seen: the account, its badge, the network. */
     @WorkerThread
     private fun firstSight(context: Context, call: Call): SkCallStamp {
-        val local = call.callLog.localAddress
-        val account = accountOf(local)
+        val account = accountOf(call)
         val params = account?.params
         val serverAddress = params?.serverAddress
         val server = serverAddress?.let { address ->
@@ -426,7 +614,18 @@ object SkCallStamps {
             server = server,
             transport = transport,
         )
-        return withNetwork(context, withBadge(context, stamp, identityOf(local)))
+        val identity = identityOf(call)
+        if (call.dir == Call.Dir.Incoming) {
+            // The one record of which line a call rang on, should a row ever be doubted again.
+            SkDiag.log(
+                context,
+                SkDiagKind.CALLS,
+                "incoming local side: to=${toHeaderOf(call)?.asStringUriOnly()}" +
+                    " request=${requestAddressOf(call)?.asStringUriOnly()}" +
+                    " record=${call.callLog.localAddress?.asStringUriOnly()} account=$identity"
+            )
+        }
+        return withNetwork(context, withBadge(context, stamp, identity))
     }
 
     private fun withNetwork(context: Context, stamp: SkCallStamp): SkCallStamp {

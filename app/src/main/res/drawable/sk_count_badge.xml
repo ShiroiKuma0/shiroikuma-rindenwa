@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma fork: a STUB. It keeps the name layouts refer to and holds no colour; the shape
+     that is shown is drawn in code, from colour roles of its own — see SkShapes.build. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle" />

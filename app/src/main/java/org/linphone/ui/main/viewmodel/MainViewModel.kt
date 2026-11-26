@@ -565,7 +565,11 @@ class MainViewModel
         var count = 0
         for (account in coreContext.core.accountList) {
             if (account == coreContext.core.defaultAccount) continue
-            count += account.unreadChatMessageCount + account.missedCallsCount
+            // shiroikuma fork: missed calls by the account they really rang on (SkMissedCalls).
+            count += account.unreadChatMessageCount + org.linphone.shiroikuma.SkMissedCalls.count(
+                coreContext.context,
+                account.params.identityAddress?.asStringUriOnly()
+            )
         }
         if (count != nonDefaultAccountNotificationsCount) {
             if (count > 0) {

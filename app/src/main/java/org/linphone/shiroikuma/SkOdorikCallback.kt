@@ -337,7 +337,9 @@ object SkOdorikCallback {
     fun onCallStateChanged(context: Context, call: Call, state: Call.State) {
         if (state != Call.State.IncomingReceived || call.dir != Call.Dir.Incoming) return
         val from = call.remoteAddress.username.orEmpty()
-        val to = call.callLog.localAddress.username.orEmpty()
+        // The line it rang on, read from the INVITE: the record names the selected account instead
+        // whenever the SDK could not place the To line (SkCallStamps.accountOf).
+        val to = SkCallStamps.localAddressOf(call)?.username.orEmpty()
         val order = synchronized(pending) {
             val now = System.currentTimeMillis()
             pending.removeAll { now - it.at > PENDING_MS }

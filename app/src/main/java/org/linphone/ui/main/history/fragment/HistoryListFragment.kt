@@ -440,7 +440,9 @@ class HistoryListFragment : AbstractMainFragment() {
         // shiroikuma fork: 全 chosen or left — the list is another list now.
         SkAllAccounts.selected.observe(viewLifecycleOwner) {
             listViewModel.scrollToTopOnNextUpdate = true
-            listViewModel.applyFilter()
+            // Not applyFilter(): that one does nothing while the search text stays the same, and
+            // 全 kept showing the list of the tab it was reached from (白い熊, 2026-11-26).
+            listViewModel.filter()
         }
 
         // shiroikuma fork: a 臨 number or a badge colour was set — the badges are other badges.

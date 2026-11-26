@@ -163,6 +163,13 @@ class ActiveCallFragment : GenericCallFragment() {
 
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = callViewModel
+
+        // shiroikuma fork: the line's badge on the name card, in the colours of its number.
+        callViewModel.skAccountColors.observe(viewLifecycleOwner) { (ground, text) ->
+            binding.skParty.skText.skAccountBadge.backgroundTintList =
+                android.content.res.ColorStateList.valueOf(ground)
+            binding.skParty.skText.skAccountBadge.setTextColor(text)
+        }
         binding.callsViewModel = callsViewModel
         binding.numpadModel = callViewModel.numpadModel
 

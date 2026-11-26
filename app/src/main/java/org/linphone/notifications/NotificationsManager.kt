@@ -837,7 +837,11 @@ class NotificationsManager
 
     @WorkerThread
     private fun showMissedCallNotification(call: Call) {
-        val missedCallCount: Int = coreContext.core.missedCallsCount
+        // shiroikuma fork: our own count (SkMissedCalls) — the SDK's is no longer kept in step.
+        // This call is counted in whether or not its stamp has been written yet.
+        val skMissedKey = org.linphone.shiroikuma.SkCallStamps.keyOf(call.callLog)
+        val missedCallCount: Int = org.linphone.shiroikuma.SkMissedCalls.total(context) +
+            if (org.linphone.shiroikuma.SkMissedCalls.has(context, skMissedKey)) 0 else 1
         val body: String
         if (missedCallCount > 1) {
             body = context.getString(R.string.notification_missed_calls)

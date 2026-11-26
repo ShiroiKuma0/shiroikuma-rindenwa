@@ -90,11 +90,14 @@ class HistoryViewModel
         @WorkerThread
         override fun onCallLogUpdated(core: Core, callLog: CallLog) {
             val peerAddress = callLog.remoteAddress
-            val localAddress = callLog.localAddress
+            // shiroikuma fork: the account is the stamp's (SkCallStamps.accountOf), and the 全 tab
+            // lists every account's calls.
+            val localIdentity = org.linphone.shiroikuma.SkCallStamps.identityOf(coreContext.context, callLog)
             val defaultAccount = LinphoneUtils.getDefaultAccount()
-            if (::address.isInitialized && address.weakEqual(peerAddress) && defaultAccount?.params?.identityAddress?.weakEqual(
-                    localAddress
-                ) == true
+            if (::address.isInitialized && address.weakEqual(peerAddress) && (
+                    SkAllAccounts.isSelected(coreContext.context) ||
+                        defaultAccount?.params?.identityAddress?.asStringUriOnly() == localIdentity
+                    )
             ) {
                 Log.i("$TAG A call log was created, updating list")
                 computeCallLogs()
@@ -294,7 +297,12 @@ class HistoryViewModel
         val list = if (SkAllAccounts.isSelected(coreContext.context)) {
             emptyList<CallLog>()
         } else {
-            LinphoneUtils.getDefaultAccount()?.getCallLogsForAddress(address)?.toList().orEmpty()
+            // By the stamp's account, as the list does (HistoryListViewModel).
+            val selected = LinphoneUtils.getDefaultAccount()?.params?.identityAddress?.asStringUriOnly()
+            coreContext.core.callLogs.filter {
+                it.remoteAddress.weakEqual(address) &&
+                    org.linphone.shiroikuma.SkCallStamps.identityOf(coreContext.context, it) == selected
+            }
         }
         for (log in list) {
             history.add(CallLogHistoryModel(log))

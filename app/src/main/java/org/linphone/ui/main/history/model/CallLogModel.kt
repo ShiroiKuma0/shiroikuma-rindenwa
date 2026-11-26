@@ -181,7 +181,7 @@ class CallLogModel
      * shiroikuma fork: the account's own address, for calling back through the same account the
      * call used and not through whichever happens to be selected now.
      */
-    val skLocalAddress: Address? = callLog.localAddress
+    val skLocalAddress: Address?
 
     /**
      * shiroikuma fork: why a call that was placed never connected, or empty. Nothing is said about
@@ -297,14 +297,12 @@ class CallLogModel
         }
 
         // shiroikuma fork
-        val local = callLog.localAddress
-        // By the whole address first; then by the user name alone, for a record whose local side
-        // was written with another host or port than the account's identity has.
-        val account = LinphoneUtils.getAccountForAddress(local)
-            ?: coreContext.core.accountList.find {
-                !local.username.isNullOrEmpty() && it.params.identityAddress?.username == local.username
-            }
-        skIdentity = account?.params?.identityAddress?.asStringUriOnly() ?: local.asStringUriOnly()
+        // A call nobody watched gets its stamp here, from the badge of this moment.
+        org.linphone.shiroikuma.SkCallStamps.ensure(coreContext.context, callLog)
+        // The account is the stamp's: the record's local side names the account that was merely
+        // selected when an incoming call could not be placed by the SDK (SkCallStamps.accountOf).
+        skIdentity = org.linphone.shiroikuma.SkCallStamps.identityOf(coreContext.context, callLog)
+        skLocalAddress = org.linphone.shiroikuma.SkCallStamps.localAddressOf(coreContext.context, callLog)
 
         val user = address.username.orEmpty()
         skPhoneNumber = if (!wasConference && Regex("^\\+?[0-9]{3,}$").matches(user)) user else ""
@@ -327,9 +325,6 @@ class CallLogModel
         }
 
         skRecorded = connected && SkRecordings.has(sipUri, timestamp, callDuration)
-
-        // A call nobody watched gets its stamp here, from the badge of this moment.
-        org.linphone.shiroikuma.SkCallStamps.ensure(coreContext.context, callLog)
 
         iconResId = LinphoneUtils.getCallIconResId(callLog.status, callLog.dir)
     }

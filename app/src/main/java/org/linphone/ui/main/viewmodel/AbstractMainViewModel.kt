@@ -33,6 +33,7 @@ import org.linphone.core.CoreListenerStub
 import org.linphone.core.GlobalState
 import org.linphone.core.tools.Log
 import org.linphone.shiroikuma.SkAccountOrder
+import org.linphone.shiroikuma.SkAllAccounts
 import org.linphone.ui.GenericViewModel
 import org.linphone.ui.main.model.AccountModel
 import org.linphone.utils.Event
@@ -118,6 +119,9 @@ open class AbstractMainViewModel
     var currentlyDisplayedItemId = ""
 
     protected var currentFilter = ""
+
+    // shiroikuma fork: our missed-call count changed (SkMissedCalls) — always on the core thread.
+    private val skMissedListener: () -> Unit = { coreContext.postOnCoreThread { updateMissedCallsCount() } }
 
     private val coreListener = object : CoreListenerStub() {
         @WorkerThread
@@ -215,6 +219,7 @@ open class AbstractMainViewModel
             core.addListener(coreListener)
             configure()
         }
+        org.linphone.shiroikuma.SkMissedCalls.addListener(skMissedListener)
 
         searchBarVisible.value = false
         isFilterEmpty.value = true
@@ -224,6 +229,7 @@ open class AbstractMainViewModel
     override fun onCleared() {
         super.onCleared()
 
+        org.linphone.shiroikuma.SkMissedCalls.removeListener(skMissedListener)
         coreContext.postOnCoreThread { core ->
             core.removeListener(coreListener)
             account.value?.destroy()
@@ -335,13 +341,16 @@ open class AbstractMainViewModel
 
     @WorkerThread
     fun updateMissedCallsCount() {
-        val account = LinphoneUtils.getDefaultAccount()
-        // Fetch all call logs if only one account to workaround no history issue
-        // TODO FIXME: remove workaround later
-        val count = if (coreContext.core.accountList.size > 1) {
-            account?.missedCallsCount ?: coreContext.core.missedCallsCount
+        // shiroikuma fork: our own count, by the account a call really rang on (SkMissedCalls);
+        // the 全 tab, which lists every account's calls, counts them all.
+        val context = coreContext.context
+        val count = if (coreContext.core.accountList.size > 1 && !SkAllAccounts.isSelected(context)) {
+            org.linphone.shiroikuma.SkMissedCalls.count(
+                context,
+                LinphoneUtils.getDefaultAccount()?.params?.identityAddress?.asStringUriOnly()
+            )
         } else {
-            coreContext.core.missedCallsCount
+            org.linphone.shiroikuma.SkMissedCalls.total(context)
         }
         val moreThanOne = count > 1
         Log.i(
@@ -364,14 +373,15 @@ open class AbstractMainViewModel
     @UiThread
     fun resetMissedCallsCount() {
         coreContext.postOnCoreThread { core ->
-            val account = LinphoneUtils.getDefaultAccount()
-            // Fetch all call logs if only one account to workaround no history issue
-            // TODO FIXME: remove workaround later
-            if (coreContext.core.accountList.size > 1) {
-                account?.resetMissedCallsCount() ?: core.resetMissedCallsCount()
-            } else {
-                core.resetMissedCallsCount()
-            }
+            // shiroikuma fork: what was looked at is forgotten in our own count (SkMissedCalls).
+            // The SDK's is no longer read; it is emptied whole so it cannot grow without end.
+            val context = coreContext.context
+            val everyAccount = core.accountList.size <= 1 || SkAllAccounts.isSelected(context)
+            org.linphone.shiroikuma.SkMissedCalls.reset(
+                context,
+                if (everyAccount) null else LinphoneUtils.getDefaultAccount()?.params?.identityAddress?.asStringUriOnly()
+            )
+            core.resetMissedCallsCount()
             updateMissedCallsCount()
         }
     }

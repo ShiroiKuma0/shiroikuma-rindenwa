@@ -1425,6 +1425,8 @@
     <string name="sk_call_answer_on_speaker">Speaker</string>
     <string name="sk_content_description_answer_on_speaker">Answer with the loudspeaker already on</string>
     <string name="sk_call_decline_with_message">Message</string>
+    <string name="sk_call_answer">Answer</string>
+    <string name="sk_call_decline">Decline</string>
     <string name="sk_content_description_decline_with_message">Decline the call and write back</string>
 
     <!-- shiroikuma fork: the outgoing-call panel (sk_call_outgoing_actions.xml). -->
