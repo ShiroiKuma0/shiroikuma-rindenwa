@@ -880,12 +880,17 @@ class SkBlockedNumbersDialog(
 }
 
 /**
- * shiroikuma fork — the App language picker, in the look settled on 2026-11-24: plain rows, and
- * only the current language in a pill (full width, 3 dp, its name bold). Each row carries the
- * selection ring, the language's name in that language with its region beneath in dim gold, and
- * the tag in dim-gold monospace in a column of its own at the right — also for a right-to-left
- * language. “System default” comes first, with no region and no tag. A 1 px line separates
- * rows, but never touches the current row's pill. Choosing a row applies it and closes the list.
+ * shiroikuma fork — the App language picker, in the form settled on 2026-11-27 (black-yellow-theme
+ * skill, “App language”). From top to bottom: the title with the globe; 日本語 and then English
+ * as two full-width outlined pills that never scroll — the current one thick and bold, the other
+ * thin; one framed box that scrolls by itself, with “System default” first and the other listed
+ * languages by their own name, as plain rows with 1 px lines between them; the Cancel pill.
+ *
+ * Each pill and row: the selection ring, the flag (a bundled image; a globe where there is no
+ * country), the language's name in that language with its country beneath in dim gold, and the
+ * tag in dim-gold monospace in a column of its own at the right — also for a right-to-left
+ * language. Inside the box only the current language's row is a pill, and no line touches it.
+ * A language chosen earlier that is no longer listed stays in force and is shown in the box.
  */
 class SkLanguageDialog(
     activity: Activity,
@@ -895,14 +900,34 @@ class SkLanguageDialog(
     init {
         val chrome = SkDialogChrome(activity)
         val box = chrome.box()
-        box.addView(chrome.title(activity.getString(R.string.sk_section_language)))
-        box.addView(android.view.View(activity), LinearLayout.LayoutParams(1, chrome.dp(8)))
         lateinit var dialog: AlertDialog
         val note = SkRoles.color(activity, "dialog_note")
         val divider = SkRoles.color(activity, "dialog_divider")
+        val frame = SkRoles.color(activity, "dialog_button_frame")
         val on = SkRoles.color(activity, "mark_on")
         val off = SkRoles.color(activity, "mark_off")
-        val tags = listOf("") + SkLanguage.shippedTags(activity).sortedBy { SkLanguage.ownName(it).lowercase() }
+
+        val listed = SkLanguage.shippedTags(activity)
+        val pinned = PINNED.filter { it in listed }
+        val boxed = listOf("") + (listed + listOfNotNull(current.takeIf { it.isNotEmpty() && it !in listed }))
+            .filter { it !in pinned }
+            .sortedBy { SkLanguage.ownName(it).lowercase() }
+
+        fun matchWrap() = LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+        )
+
+        val title = LinearLayout(activity).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+        title.addView(
+            android.widget.ImageView(activity).apply { setImageResource(R.drawable.sk_flag_globe) },
+            LinearLayout.LayoutParams(chrome.dp(26), chrome.dp(24)).apply { marginEnd = chrome.dp(10) },
+        )
+        title.addView(chrome.title(activity.getString(R.string.sk_section_language)))
+        box.addView(title, matchWrap().apply { bottomMargin = chrome.dp(12) })
 
         fun ring(chosen: Boolean) = android.view.View(activity).apply {
             val outline = GradientDrawable().apply {
@@ -916,33 +941,44 @@ class SkLanguageDialog(
                     setColor(on)
                 }
                 android.graphics.drawable.LayerDrawable(arrayOf(outline, dot)).apply {
-                    val inset = chrome.dp(5)
+                    val inset = chrome.dp(6)
                     setLayerInset(1, inset, inset, inset, inset)
                 }
             } else {
                 outline
             }
-            layoutParams = LinearLayout.LayoutParams(chrome.dp(18), chrome.dp(18)).apply { marginEnd = chrome.dp(12) }
+            layoutParams = LinearLayout.LayoutParams(chrome.dp(22), chrome.dp(22)).apply { marginEnd = chrome.dp(12) }
         }
 
-        tags.forEachIndexed { index, tag ->
+        /** One line; [pill] is one of the pinned pair, which is a pill whether chosen or not. */
+        fun line(tag: String, pill: Boolean): LinearLayout {
             val chosen = tag == current
-            val beforeChosen = tags.getOrNull(index + 1) == current
             val row = LinearLayout(activity).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
                 // The tag column stays at the right whatever the direction of the language.
                 layoutDirection = android.view.View.LAYOUT_DIRECTION_LTR
-                setPadding(chrome.dp(12), chrome.dp(7), chrome.dp(14), chrome.dp(7))
+                setPadding(chrome.dp(14), chrome.dp(7), chrome.dp(16), chrome.dp(7))
                 isClickable = true
                 isFocusable = true
-                if (chosen) background = SkMenus.pill(activity, SkRoles.color(activity, "dialog_button_frame"), 3f)
+                if (chosen) {
+                    background = SkMenus.pill(activity, frame, 3f)
+                } else if (pill) {
+                    background = SkMenus.pill(activity, frame, 1.25f)
+                }
                 setOnClickListener {
                     dialog.dismiss()
                     if (!chosen) onPick(tag)
                 }
             }
             row.addView(ring(chosen))
+            row.addView(
+                android.widget.ImageView(activity).apply {
+                    setImageResource(SkLanguage.flag(tag))
+                    scaleType = android.widget.ImageView.ScaleType.FIT_CENTER
+                },
+                LinearLayout.LayoutParams(chrome.dp(28), chrome.dp(26)).apply { marginEnd = chrome.dp(12) },
+            )
             val names = LinearLayout(activity).apply { orientation = LinearLayout.VERTICAL }
             names.addView(
                 TextView(activity).apply {
@@ -966,31 +1002,71 @@ class SkLanguageDialog(
             if (tag.isNotEmpty()) {
                 row.addView(
                     TextView(activity).apply {
-                        text = tag
-                        textSize = 12f
+                        text = SkLanguage.shownTag(tag)
+                        textSize = 13f
                         typeface = Typeface.MONOSPACE
                         setTextColor(note)
-                        gravity = Gravity.END
+                        setPadding(chrome.dp(10), 0, 0, 0)
                     },
                 )
             }
-            box.addView(
-                row,
-                LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT),
-            )
-            if (index < tags.lastIndex && !chosen && !beforeChosen) {
-                box.addView(
+            return row
+        }
+
+        // The pinned pair: always in view, never scrolled away.
+        pinned.forEach { box.addView(line(it, true), matchWrap().apply { bottomMargin = chrome.dp(8) }) }
+
+        // The box with everything else.
+        val list = LinearLayout(activity).apply { orientation = LinearLayout.VERTICAL }
+        var currentRow: android.view.View? = null
+        boxed.forEachIndexed { index, tag ->
+            val chosen = tag == current
+            if (index > 0 && !chosen && boxed[index - 1] != current) {
+                list.addView(
                     android.view.View(activity).apply { setBackgroundColor(divider) },
                     LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1).apply {
-                        marginStart = chrome.dp(42)
+                        marginStart = chrome.dp(14)
                         marginEnd = chrome.dp(14)
                     },
                 )
             }
+            val row = line(tag, false)
+            if (chosen) currentRow = row
+            list.addView(row, matchWrap())
         }
+        val scroller = ScrollView(activity).apply {
+            isVerticalScrollBarEnabled = true
+            isScrollbarFadingEnabled = false
+            addView(list)
+        }
+        box.addView(
+            android.widget.FrameLayout(activity).apply {
+                background = GradientDrawable().apply {
+                    cornerRadius = 14 * chrome.density
+                    setColor(Color.TRANSPARENT)
+                    setStroke(chrome.dp(1).coerceAtLeast(2), chrome.accent)
+                }
+                setPadding(chrome.dp(5), chrome.dp(5), chrome.dp(5), chrome.dp(5))
+                addView(scroller)
+            },
+            LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
+        )
+
         val bar = chrome.bar()
         bar.addView(chrome.pill(activity.getString(R.string.sk_cancel)) { dialog.dismiss() })
         box.addView(bar)
-        dialog = chrome.show(box)
+
+        // Not through chrome.show: that one scrolls the whole dialog, and here only the box may.
+        dialog = AlertDialog.Builder(activity).setView(box).create().also {
+            it.show()
+            it.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        }
+        // Open with the current language in view.
+        currentRow?.let { row -> scroller.post { scroller.scrollTo(0, (row.top - chrome.dp(60)).coerceAtLeast(0)) } }
+    }
+
+    private companion object {
+        /** 日本語 first, then English — in every app. */
+        val PINNED = listOf("ja", "en")
     }
 }

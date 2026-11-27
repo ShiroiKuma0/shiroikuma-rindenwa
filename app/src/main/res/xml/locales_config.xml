@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma fork: the short list of the App language picker (black-yellow-theme skill) —
+     日本語, English, and the languages holding four fifths or more of upstream's strings.
+     The picker reads this file, so the two cannot drift apart. Measured 2026-11-27. -->
 <locale-config xmlns:android="http://schemas.android.com/apk/res/android">
     <locale android:name="cs"/>
     <locale android:name="de"/>
     <locale android:name="en"/>
-    <locale android:name="es"/>
     <locale android:name="fr"/>
-    <locale android:name="hu"/>
+    <locale android:name="it"/>
     <locale android:name="ja"/>
     <locale android:name="nl"/>
     <locale android:name="pt-rBR"/>

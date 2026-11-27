@@ -96,10 +96,48 @@ object SkLanguage {
         return locale.getDisplayLanguage(locale).replaceFirstChar { it.titlecase(locale) }
     }
 
-    /** The country or region of [tag] in its own language, or "" when the tag names none. */
+    /**
+     * [tag] with the country it most likely means filled in (`ja` → `ja-JP`, `uk` → `uk-UA`):
+     * upstream declares bare languages, and the picker shows a country, a flag and a full tag.
+     * Only for showing — what is stored and applied stays the declared tag.
+     */
+    private fun likely(tag: String): Locale =
+        android.icu.util.ULocale.addLikelySubtags(android.icu.util.ULocale.forLanguageTag(tag)).toLocale()
+
+    /** The country or region of [tag] in its own language, or "" when it names none. */
     fun ownRegion(tag: String): String {
-        val locale = Locale.forLanguageTag(tag)
+        val locale = likely(tag)
         return locale.getDisplayCountry(locale)
+    }
+
+    /** The tag as the picker's right-hand column shows it: language and country. */
+    fun shownTag(tag: String): String {
+        val locale = likely(tag)
+        return if (locale.country.isEmpty()) locale.language else "${locale.language}-${locale.country}"
+    }
+
+    /**
+     * The bundled flag of [tag]'s country (`tools/sk_flags.py`, Noto Color Emoji), or the globe
+     * for a language without a country, for one that is not listed and for “System default”.
+     */
+    fun flag(tag: String): Int = if (tag.isEmpty()) {
+        R.drawable.sk_flag_globe
+    } else {
+        when (likely(tag).country) {
+            "JP" -> R.drawable.sk_flag_jp
+            "US" -> R.drawable.sk_flag_us
+            "CZ" -> R.drawable.sk_flag_cz
+            "DE" -> R.drawable.sk_flag_de
+            "FR" -> R.drawable.sk_flag_fr
+            "IT" -> R.drawable.sk_flag_it
+            "NL" -> R.drawable.sk_flag_nl
+            "BR" -> R.drawable.sk_flag_br
+            "RU" -> R.drawable.sk_flag_ru
+            "SK" -> R.drawable.sk_flag_sk
+            "UA" -> R.drawable.sk_flag_ua
+            "CN" -> R.drawable.sk_flag_cn
+            else -> R.drawable.sk_flag_globe
+        }
     }
 
     /** What the row on the page shows: the chosen language's own name, or [systemLabel]. */

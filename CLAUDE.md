@@ -357,8 +357,17 @@ who it is.
   set (`sk_ui_sections_open`) by key, in the default preferences, so both travel in the export’s
   appearance category. A new section goes into `sections()` at its built place.
 - **“App language” (`language`) is the first section and the first chip** (白い熊, 2026-11-24):
-  one pill row, “Language: ‹current›”, opening `SkLanguageDialog` — plain rows, only the current
-  language in a pill, the tag in a right-hand column. `SkLanguage` keeps the tag as
+  one pill row, “Language: ‹current›”, opening `SkLanguageDialog` — the form of 2026-11-27
+  (+067): the title with the globe; 日本語 and English as two full-width pills that never scroll;
+  one framed box that scrolls by itself, “System default” first and the rest by their own name;
+  Cancel. Every line carries a bundled flag (`drawable-nodpi/sk_flag_*.png`, made by
+  `tools/sk_flags.py` from Noto Color Emoji — a new language's country goes into its `COUNTRIES`
+  and into `SkLanguage.flag`), the country beneath the name and the tag at the right. Upstream
+  declares bare languages, so country, flag and shown tag come from the likely country
+  (`ja` → `ja-JP`); what is stored and applied stays the declared tag. **The list is
+  `locales_config.xml`, cut down to 日本語, English and the languages holding four fifths or more
+  of upstream's strings** (cs, de, fr, it, nl, pt-BR, ru, sk, uk, zh-CN at +067) — measure again
+  after an upstream sync; a language chosen earlier that left the list stays in force. `SkLanguage` keeps the tag as
   `sk_app_language` (default preferences, so it travels in the appearance export), reads the list
   from `res/xml/locales_config.xml`, asserts the choice again in `LinphoneApplication.onCreate`
   (EMUI forgets the per-app language across a sideloaded update) and, below Android 13, gives
