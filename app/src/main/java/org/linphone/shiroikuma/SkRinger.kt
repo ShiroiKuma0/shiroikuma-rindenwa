@@ -7,9 +7,13 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.media.AudioAttributes
+import android.media.AudioManager
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.provider.Settings
 import androidx.annotation.AnyThread
 import androidx.annotation.UiThread
@@ -85,6 +89,25 @@ import org.linphone.utils.LinphoneUtils
  * Both are armed by the first incoming state of a call and dropped the moment nothing rings
  * unsilenced any more, so the sensor never outlives the ringing.
  *
+ * **A call that comes in during a call in another app is announced quietly** (白い熊,
+ * 2026-11-27: one rang loudly into the ear in the middle of a WhatsApp call — with the audio in
+ * communication mode the ringtone comes out of the earpiece). [isQuiet] decides it once per call,
+ * the first time anything asks: the device's audio mode says that a call is up (a messenger's
+ * call or the phone's own), and that call is not ours. Such a call
+ *
+ * - does not ring — it is silenced from its first state, and the stop is repeated a few times
+ *   over the first half second, because the SDK may start its ringer just after the listeners
+ *   ran;
+ * - vibrates **once**, briefly ([vibrateOnce], behind the last of those stops), instead of for
+ *   as long as it rings — and not at all where 白い熊 switched the vibration off or the phone is on silent;
+ * - does not raise the call screen, and its notification carries no full-screen intent: the
+ *   small panel at the top of the display ([SkIncomingPanel]) announces it instead.
+ *
+ * The audio mode is asked, not Telecom: Telecom would count this very call. A second call of our
+ * own is none of this — the SDK already plays its waiting tone into the call for that.
+ * [inCallAudio] alone (our own call included) is what makes a message's or a missed call's
+ * notification silent while a call is up.
+ *
  * Logging goes through the SDK's own [Log] rather than the fork's usual `android.util.Log`, so that
  * why-didn't-the-screen-come-up reads in the same stream as the call states it is about.
  */
@@ -96,6 +119,18 @@ object SkRinger {
 
     /** Calls 白い熊 has silenced. */
     private val silenced = ConcurrentHashMap.newKeySet<String>()
+
+    /** Whether a call is announced quietly, decided once per call. See [isQuiet]. */
+    private val quiet = ConcurrentHashMap<String, Boolean>()
+
+    /** The moments after the first state at which a quiet call's ringer is stopped again. */
+    private val QUIET_STOPS_MS = longArrayOf(60L, 250L, 600L)
+
+    /** When a quiet call's one vibration is given: behind the last of those stops. */
+    private const val QUIET_VIBRATION_AT_MS = 700L
+
+    /** Two short pulses. */
+    private val QUIET_VIBRATION = longArrayOf(0L, 220L, 140L, 220L)
 
     /** Told, on the core thread, about every call the moment its ringer is silenced. */
     private val silencedListeners = CopyOnWriteArraySet<(Call) -> Unit>()
@@ -260,6 +295,92 @@ object SkRinger {
         return if (callId.isNullOrEmpty()) call.remoteAddress.asStringUriOnly() else callId
     }
 
+    /**
+     * Whether the device's audio is in a call right now — any app's, ours included. The mode is
+     * set by whoever holds a call (a messenger: communication; the phone: in call) and falls
+     * back to normal when that call ends or its app dies.
+     */
+    @AnyThread
+    fun inCallAudio(context: Context): Boolean {
+        val mode = (context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager)?.mode
+            ?: return false
+        return mode == AudioManager.MODE_IN_COMMUNICATION || mode == AudioManager.MODE_IN_CALL ||
+            mode == AudioManager.MODE_CALL_SCREENING
+    }
+
+    /**
+     * Whether this incoming call is announced quietly: it came in while a call in another app
+     * was up. Decided the first time it is asked for a call and kept until that call is over —
+     * the notification and the ringer must agree, whichever of their listeners runs first.
+     */
+    @WorkerThread
+    fun isQuiet(call: Call): Boolean {
+        if (call.dir != Call.Dir.Incoming) return false
+        return quiet.getOrPut(key(call)) {
+            val context = coreContext.context
+            val busy = call.core.callsNb <= 1 && inCallAudio(context)
+            if (busy) {
+                val mode = (context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager)?.mode
+                Log.i("$TAG Another app holds a call (audio mode [$mode]), announcing this one quietly")
+                SkDiag.log(
+                    context,
+                    SkDiagKind.CALLS,
+                    "incoming from ${call.remoteAddress.asStringUriOnly()} announced quietly: " +
+                        "a call in another app is up (audio mode $mode)",
+                )
+            }
+            busy
+        }
+    }
+
+    /**
+     * One short vibration for a call announced quietly — where the SDK would vibrate for as long
+     * as it rings. Given as a ringtone's, which the system lets through from the background.
+     */
+    @AnyThread
+    private fun vibrateOnce(context: Context) {
+        try {
+            val audio = context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
+            if (audio?.ringerMode == AudioManager.RINGER_MODE_SILENT) return
+            val vibrator = context.getSystemService(Vibrator::class.java) ?: return
+            if (!vibrator.hasVibrator()) return
+            @Suppress("DEPRECATION")
+            vibrator.vibrate(
+                VibrationEffect.createWaveform(QUIET_VIBRATION, -1),
+                AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build(),
+            )
+        } catch (e: Exception) {
+            Log.w("$TAG Couldn't vibrate for a quiet call: $e")
+        }
+    }
+
+    /** The first incoming state of a call that is announced quietly. */
+    @WorkerThread
+    private fun announceQuietly(core: Core, call: Call, id: String) {
+        val vibrate = core.isVibrationOnIncomingCallEnabled
+        silenced.add(id)
+        core.stopRinging()
+        for (delay in QUIET_STOPS_MS) {
+            coreContext.postOnCoreThreadDelayed({
+                if (silenced.contains(id) && LinphoneUtils.isCallIncoming(call.state)) {
+                    it.stopRinging()
+                }
+            }, delay)
+        }
+        silencedListeners.forEach { it(call) }
+        if (vibrate) {
+            // Behind the last stop: the SDK's vibrator is the application's, the same one as
+            // ours, and stopping its vibration would take ours with it.
+            coreContext.postOnCoreThreadDelayed({
+                if (LinphoneUtils.isCallIncoming(call.state)) vibrateOnce(coreContext.context)
+            }, QUIET_VIBRATION_AT_MS)
+        }
+        SkIncomingPanel.show(call)
+    }
+
     /** Whether a background activity start would be allowed, i.e. "Display over other apps". */
     @AnyThread
     fun canRaiseCallScreen(context: Context): Boolean {
@@ -305,13 +426,24 @@ object SkRinger {
             }
             if (raised.add(id)) {
                 // The first incoming state for this call — the one worth a line.
+                val quietly = isQuiet(call)
                 SkDiag.log(
                     coreContext.context,
                     SkDiagKind.CALLS,
                     "incoming from ${call.remoteAddress.asStringUriOnly()} state=$state " +
-                        "callScreen=${if (canRaiseCallScreen(coreContext.context)) "raised" else "not allowed"}",
+                        "callScreen=${
+                            when {
+                                quietly -> "withheld, a call in another app is up"
+                                canRaiseCallScreen(coreContext.context) -> "raised"
+                                else -> "not allowed"
+                            }
+                        }",
                 )
-                raiseCallScreen()
+                if (quietly) {
+                    announceQuietly(core, call, id)
+                } else {
+                    raiseCallScreen()
+                }
             }
             updateWatch(core)
             return
@@ -328,12 +460,17 @@ object SkRinger {
             }
             raised.remove(id)
             silenced.remove(id)
+            quiet.remove(id)
             if (core.callsNb == 0) {
                 // Nothing is left to remember; a stale key can never outlive the last call.
                 raised.clear()
                 silenced.clear()
+                quiet.clear()
             }
         }
+
+        // Answered, ended or failed: the panel of a quietly announced call has nothing to say.
+        SkIncomingPanel.dismiss(call)
 
         // Answered, ended or failed: whatever it was, it may have been the last thing ringing.
         updateWatch(core)

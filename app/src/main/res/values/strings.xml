@@ -1427,6 +1427,7 @@
     <string name="sk_call_decline_with_message">Message</string>
     <string name="sk_call_answer">Answer</string>
     <string name="sk_call_decline">Decline</string>
+    <string name="sk_call_panel_hide">Hide</string>
     <string name="sk_content_description_decline_with_message">Decline the call and write back</string>
 
     <!-- shiroikuma fork: the outgoing-call panel (sk_call_outgoing_actions.xml). -->

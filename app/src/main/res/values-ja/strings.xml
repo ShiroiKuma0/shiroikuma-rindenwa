@@ -1230,6 +1230,7 @@
     <string name="sk_call_decline_with_message">メッセージ</string>
     <string name="sk_call_answer">応答</string>
     <string name="sk_call_decline">拒否</string>
+    <string name="sk_call_panel_hide">隠す</string>
     <string name="sk_content_description_decline_with_message">通話を拒否してメッセージで返信</string>
     <string name="sk_call_mute">消音</string>
     <string name="sk_call_muted">消音中</string>

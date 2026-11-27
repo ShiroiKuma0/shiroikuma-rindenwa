@@ -605,6 +605,8 @@ class NotificationsManager
     @AnyThread
     fun setIncomingCallFragmentCurrentlyDisplayed(visible: Boolean) {
         currentlyDisplayedIncomingCallFragment = visible
+        // shiroikuma fork: the call screen says it all; the small panel steps aside.
+        if (visible) org.linphone.shiroikuma.SkIncomingPanel.dismiss(null)
     }
 
     @WorkerThread
@@ -881,6 +883,8 @@ class NotificationsManager
             .setShowWhen(true)
             .setNumber(missedCallCount)
             .setContentIntent(pendingIntent)
+            // shiroikuma fork: nothing audible while a call is up — any app's (SkRinger).
+            .setSilent(SkRinger.inCallAudio(context))
 
         val notification = builder.build()
         notify(MISSED_CALL_ID, notification, MISSED_CALL_TAG)
@@ -1581,7 +1585,12 @@ class NotificationsManager
             )
         }
 
-        val channelId = if (isIncoming) {
+        // shiroikuma fork: a call that comes in during a call in another app is announced by the
+        // small panel at the top (SkIncomingPanel), so its notification neither takes the screen
+        // nor heads up over that panel — it waits in the shade, on the quiet channel. Without
+        // the panel (no "Display over other apps") the heads-up banner is all there is: kept.
+        val skQuiet = isIncoming && SkRinger.isQuiet(call)
+        val channelId = if (isIncoming && !(skQuiet && SkRinger.canRaiseCallScreen(context))) {
             context.getString(R.string.notification_channel_without_ringtone_incoming_call_id)
         } else {
             context.getString(R.string.notification_channel_call_id)
@@ -1620,7 +1629,9 @@ class NotificationsManager
             setAutoCancel(false)
             setOngoing(true)
             setContentIntent(pendingIntent)
-            setFullScreenIntent(pendingIntent, true)
+            if (!skQuiet) {
+                setFullScreenIntent(pendingIntent, true)
+            }
         }
 
         if (isIncoming) {
@@ -1690,7 +1701,8 @@ class NotificationsManager
             return
         }
 
-        val pendingIntent = notification.fullScreenIntent
+        // shiroikuma fork: a quietly announced call's notification has no full-screen intent.
+        val pendingIntent = notification.fullScreenIntent ?: notification.contentIntent
         val newNotification = createCallNotification(
             call,
             notifiable,
@@ -1784,6 +1796,8 @@ class NotificationsManager
             .addAction(getReplyMessageAction(notifiable))
             .setShortcutId(id)
             .setLocusId(LocusIdCompat(id))
+            // shiroikuma fork: nothing audible while a call is up — any app's (SkRinger).
+            .setSilent(SkRinger.inCallAudio(context))
 
         for (person in allPersons) {
             notificationBuilder.addPerson(person)

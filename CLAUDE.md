@@ -237,6 +237,31 @@ So the two apps talk directly:
 **Never bring back the `VOLUME_CHANGED_ACTION` broadcast as a stand-in for the key** (+030 to +032):
 a volume moves when the ringer starts, and every call went silent a split second into its ring.
 
+## A call during a call in another app is announced quietly
+
+白い熊, 2026-11-27 (+066): a call rang loudly into the ear in the middle of a WhatsApp call — with
+the audio in communication mode the ringtone comes out of the earpiece.
+
+- **`SkRinger.isQuiet(call)`** decides it once per call, the first time the ringer or the
+  notification asks: the device's audio mode says a call is up (`MODE_IN_COMMUNICATION`,
+  `MODE_IN_CALL`, `MODE_CALL_SCREENING`) and that call is not ours (`core.callsNb <= 1`). Telecom
+  is not asked — it would count this very call. A second call of our own is left to the SDK's
+  waiting tone.
+- **Such a call:** is silenced from its first state (the stop is repeated at 60 / 250 / 600 ms —
+  the SDK may start its ringer just after the listeners ran); vibrates **once** (two short
+  pulses at 700 ms, behind the last stop, because the SDK's vibrator is the same one; not with
+  the vibration setting off or the phone on silent); does **not** raise the call screen; and its
+  notification has **no full-screen intent** and goes to the quiet call channel.
+- **`shiroikuma/SkIncomingPanel.kt`** announces it instead: a card at the top of the display over
+  whatever app is in front (the app's one overlay window, on the “Display over other apps”
+  grant) — who, the number, the line's badge and name, and the pills Hide / Decline / Answer; a
+  touch on the card opens the call screen. It goes when the call leaves its incoming state or
+  the incoming screen is shown. Without the grant the notification heads up instead.
+- **Messages and missed calls** are posted `setSilent` while `SkRinger.inCallAudio` — any call,
+  ours included.
+- The “calls” diagnostic says `announced quietly: a call in another app is up (audio mode N)`.
+  A call that did not ring for no reason: look for that line — some app left the mode set.
+
 ## Blocked numbers — our own register, and a door before the ringer
 
 `shiroikuma/SkBlocked.kt`, asked for by 白い熊 on 2026-11-19 after 電話's block. 電話 uses Android's
