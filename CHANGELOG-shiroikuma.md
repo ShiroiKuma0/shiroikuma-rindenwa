@@ -2,7 +2,44 @@
 
 Fork-only changes. Upstream Linphone's own changelog stays in `CHANGELOG.md`.
 
-## 6.3.0-alpha+2026-11-23.08-45.g02e7f6ea+065 — current
+## 6.3.0-alpha+2026-11-23.08-45.g02e7f6ea+067 — current
+
+Same upstream base as `+065` (`02e7f6ea`); `versionCode` `602010067`. Build `+066` was a test
+build and is contained in this one.
+
+### A call during a call in another app is announced quietly
+
+- **A call that comes in while a call in another app is up no longer rings into the ear.** With
+  a messenger's call or the phone's own call running, the ringtone came out of the earpiece.
+  Such a call is now silenced from its first moment.
+- **It vibrates once** — two short pulses — instead of for as long as it rings; not at all with
+  the vibration setting off or the phone on silent.
+- **It does not take the screen.** The call screen is not raised, and the notification carries
+  no full-screen intent, so a dark screen at the ear is not taken either.
+- **A small panel at the top of the display announces it**, over whatever app is in front: who
+  calls, the number, the line's badge and name, and the pills Hide, Decline and Answer. A touch
+  on the panel opens the full call screen. It goes when the call is answered, declined or given
+  up. Without the “Display over other apps” grant the notification heads up instead.
+- **Message and missed-call notifications are silent while any call is up**, this app's own
+  included.
+- A second call during a call of this app is unchanged.
+- The “calls” diagnostic says when a call was announced quietly, with the audio mode found.
+
+### App language
+
+- **The picker has a new form.** 日本語 and English are two full-width pills on top that never
+  scroll; under them one framed box scrolls by itself, with “System default” first and the
+  other languages by their own name; the Cancel pill is below it.
+- **Every language carries its flag** — a bundled image, not an emoji of the phone's font —
+  with the country beneath the name and the full tag at the right. A language declared without
+  a country takes its main country's.
+- **The list is cut down to the languages the app is fully or mostly translated into**: 日本語,
+  English, čeština, Deutsch, français, italiano, Nederlands, português (Brasil), русский,
+  slovenčina, українська, 中文 (简体). Español and magyar, of which upstream ships a fragment,
+  leave it; italiano, which upstream ships nearly whole but never declared, joins. The system's
+  own per-app language screen shows the same list. A language chosen earlier stays in force.
+
+## 6.3.0-alpha+2026-11-23.08-45.g02e7f6ea+065
 
 Same upstream base as `+062` (`02e7f6ea`); `versionCode` `602010065`. Builds `+063` and `+064`
 were test builds and are contained in this one.
